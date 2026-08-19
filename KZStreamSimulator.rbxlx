@@ -4090,6 +4090,13 @@ function ScreenSurface.new(screenPart: BasePart, face: Enum.NormalId?)
 		LightInfluence = 0,
 		AlwaysOnTop = false,
 		MaxDistance = 90,
+		-- Indispensable. Par défaut, une GUI créée par script utilise le
+		-- comportement "Global" : le ZIndex est comparé à l'échelle de tout
+		-- l'écran, donc le cadre d'une fenêtre (ZIndex 10) se dessine
+		-- PAR-DESSUS son propre contenu (ZIndex 1). Les fenêtres
+		-- apparaissent alors vides. En "Sibling", le ZIndex n'est comparé
+		-- qu'entre frères et soeurs, ce qui est le comportement attendu.
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 
 		self.root,
 	}

@@ -1,0 +1,15 @@
+# Rojo / build
+*.rbxl
+*.rbxlx
+*.rbxl.lock
+*.rbxlx.lock
+build/
+
+# Outils
+/sourcemap.json
+.DS_Store
+
+# Dependances Wally (si on en ajoute plus tard)
+/Packages
+/ServerPackages
+/DevPackages

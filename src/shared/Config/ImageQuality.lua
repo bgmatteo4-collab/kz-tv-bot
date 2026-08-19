@@ -27,9 +27,11 @@ local Styles = require(script.Parent.Styles)
 local ImageQuality = {}
 
 -- Hauteur du visage au-dessus de l'assise, et distances de cadrage.
+-- Distances exprimées dans l'échelle du projet : 1 stud = 25 cm. Un
+-- streamer assis se filme entre 60 cm et 1,60 m de sa caméra.
 local HEAD_HEIGHT = 2.2
-local IDEAL_MIN_DISTANCE = 4
-local IDEAL_MAX_DISTANCE = 10
+local IDEAL_MIN_DISTANCE = 2.5
+local IDEAL_MAX_DISTANCE = 6.5
 local MAX_FRAMING_ANGLE = 38
 
 export type Report = {
@@ -109,7 +111,7 @@ local function scoreFraming(cameraPos: Vector3, forward: Vector3, subject: Vecto
 	if distance < IDEAL_MIN_DISTANCE then
 		distanceScore = math.clamp(distance / IDEAL_MIN_DISTANCE, 0, 1)
 	elseif distance > IDEAL_MAX_DISTANCE then
-		distanceScore = math.clamp(1 - (distance - IDEAL_MAX_DISTANCE) / 10, 0, 1)
+		distanceScore = math.clamp(1 - (distance - IDEAL_MAX_DISTANCE) / 6, 0, 1)
 	else
 		distanceScore = 1
 	end
@@ -119,7 +121,7 @@ local function scoreFraming(cameraPos: Vector3, forward: Vector3, subject: Vecto
 	local issue
 	if centering < 0.3 then
 		issue = "Tu n'es pas dans le champ. Tourne la caméra vers le siège."
-	elseif distance > IDEAL_MAX_DISTANCE + 4 then
+	elseif distance > IDEAL_MAX_DISTANCE + 3 then
 		issue = "La caméra est trop loin : tu es minuscule à l'image."
 	elseif distance < IDEAL_MIN_DISTANCE then
 		issue = "La caméra est trop près : le cadrage est étouffant."
@@ -195,7 +197,7 @@ local function scoreBackground(cameraPos: Vector3, subject: Vector3, backdrops, 
 	end
 
 	for _, backdrop in ipairs(backdrops) do
-		if isBehind(backdrop.entry, 12, 55) then
+		if isBehind(backdrop.entry, 8, 55) then
 			local coverage = backdrop.item.quality or 0.5
 			return math.clamp(0.55 + coverage * 0.45, 0, 1), nil
 		end
@@ -203,7 +205,7 @@ local function scoreBackground(cameraPos: Vector3, subject: Vector3, backdrops, 
 
 	local dressing = 0
 	for _, piece in ipairs(decor) do
-		if isBehind(piece.entry, 14, 60) then
+		if isBehind(piece.entry, 9, 60) then
 			dressing += 0.18
 		end
 	end
@@ -247,7 +249,7 @@ function ImageQuality.evaluate(placed: { any }): Report
 	if groups.subject then
 		subject = positionOf(groups.subject.entry) + Vector3.new(0, HEAD_HEIGHT, 0)
 	else
-		subject = cameraPos + forward * 6
+		subject = cameraPos + forward * 3.5
 	end
 
 	local issues = {}

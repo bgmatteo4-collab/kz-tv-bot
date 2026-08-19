@@ -203,6 +203,48 @@ recipes.streamdeck = function(model, size, palette, item)
 	end
 end
 
+recipes.keyboard = function(model, size, palette, item)
+	piece(model, "Base", Vector3.new(size.X, size.Y * 0.6, size.Z),
+		CFrame.new(0, -size.Y * 0.2, 0), DARK, Enum.Material.SmoothPlastic)
+
+	-- Quatre rangées de touches suggérées : à cette échelle on ne voit
+	-- qu'une trame, et c'est exactement ce qu'il faut.
+	local rows = 4
+	local rowDepth = (size.Z - 0.12) / rows
+	local lit = item.style == "gamer"
+
+	for row = 0, rows - 1 do
+		piece(model, "Row", Vector3.new(size.X - 0.14, size.Y * 0.5, rowDepth * 0.72),
+			CFrame.new(0, size.Y * 0.16, -size.Z / 2 + 0.06 + rowDepth * (row + 0.5)),
+			lit and palette.accent or Color3.fromRGB(64, 66, 74),
+			lit and Enum.Material.Neon or Enum.Material.SmoothPlastic)
+	end
+end
+
+recipes.mouse = function(model, size, palette, item)
+	piece(model, "Body", Vector3.new(size.X, size.Y, size.Z),
+		CFrame.new(), DARK, Enum.Material.SmoothPlastic, Enum.PartType.Ball)
+	piece(model, "Wheel", Vector3.new(size.X * 0.18, size.Y * 0.5, size.Z * 0.22),
+		CFrame.new(0, size.Y * 0.35, -size.Z * 0.18),
+		item.style == "gamer" and palette.accent or Color3.fromRGB(90, 94, 104),
+		item.style == "gamer" and Enum.Material.Neon or Enum.Material.SmoothPlastic)
+end
+
+recipes.deskmat = function(model, size, palette)
+	piece(model, "Mat", size, CFrame.new(), palette.base, Enum.Material.Fabric)
+	piece(model, "Edge", Vector3.new(size.X - 0.12, size.Y * 1.2, size.Z - 0.12),
+		CFrame.new(0, 0.01, 0), palette.accent, Enum.Material.Fabric)
+end
+
+recipes.stand = function(model, size, palette)
+	piece(model, "Base", Vector3.new(size.X, size.Y * 0.08, size.Z),
+		CFrame.new(0, -size.Y / 2, 0), DARK, Enum.Material.Metal, Enum.PartType.Cylinder)
+	piece(model, "Pole", Vector3.new(size.X * 0.25, size.Y * 0.9, size.X * 0.25),
+		CFrame.new(0, 0, 0), METAL, Enum.Material.Metal)
+	piece(model, "Hook", Vector3.new(size.X * 0.8, size.Y * 0.1, size.Z * 0.5),
+		CFrame.new(0, size.Y * 0.45, 0), DARK, Enum.Material.SmoothPlastic)
+end
+
 recipes.key = function(model, size, palette, item)
 	-- Trépied : trois pieds inclinés, un mât, une source.
 	for index = 0, 2 do
@@ -603,7 +645,8 @@ return {
 		acoustic = 0.5,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(10, 6),
+		footprint = Vector2.new(4.8, 0.3),
+		height = 3.2,
 		description = "Mousse alvéolée sur le mur. Supprime l'écho de la pièce vide et affiche clairement que tu prends ça au sérieux.",
 	},
 	{
@@ -618,7 +661,8 @@ return {
 		acoustic = 0.35,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(2, 2),
+		footprint = Vector2.new(0.9, 0.9),
+		height = 6,
 		description = "Dans les angles, là où le son s'accumule. Personne ne les remarquera, et tout le monde entendra la différence.",
 	},
 	{
@@ -633,7 +677,8 @@ return {
 		acoustic = 0.3,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(9, 10),
+		footprint = Vector2.new(3.6, 0.3),
+		height = 6.5,
 		description = "Absorbe le son, bloque la lumière du jour, et fait un fond uni très correct. Trois usages pour soixante euros.",
 	},
 	{
@@ -648,7 +693,8 @@ return {
 		acoustic = 0.25,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(10, 8),
+		footprint = Vector2.new(5.5, 4),
+		height = 0.1,
 		description = "Coupe la réverbération au sol et réchauffe une pièce carrelée, visuellement comme acoustiquement.",
 	},
 
@@ -664,7 +710,8 @@ return {
 		price = 15,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(4, 6),
+		footprint = Vector2.new(1.6, 0.1),
+		height = 2.3,
 		description = "Le premier objet que tout le monde accroche. Utile pour combler un mur vide, dangereux quand il y en a douze.",
 	},
 	{
@@ -678,7 +725,8 @@ return {
 		price = 70,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(5, 7),
+		footprint = Vector2.new(1.8, 0.12),
+		height = 2.5,
 		description = "Encadrée, jaunie, choisie. Elle raconte quelque chose sur toi, ce qu'une affiche scotchée ne fait pas.",
 	},
 	{
@@ -692,7 +740,8 @@ return {
 		price = 210,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(14, 10),
+		footprint = Vector2.new(8, 0.2),
+		height = 6,
 		description = "Recouvre un mur entier. Change une chambre en décor d'un seul achat, et pardonne beaucoup de fautes de goût.",
 	},
 	{
@@ -706,7 +755,8 @@ return {
 		price = 90,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(8, 4),
+		footprint = Vector2.new(3, 0.1),
+		height = 1.6,
 		description = "Tes paliers d'abonnés encadrés au mur. Se remplissent tout seuls au fil de la partie, et c'est ce qui les rend satisfaisants.",
 	},
 
@@ -722,7 +772,8 @@ return {
 		price = 25,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(2, 2),
+		footprint = Vector2.new(0.8, 0.8),
+		height = 1.4,
 		description = "Du vert dans le cadre. C'est bête, ça marche, et ça rend n'importe quel fond plus vivant.",
 	},
 	{
@@ -736,7 +787,8 @@ return {
 		price = 90,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(3, 3),
+		footprint = Vector2.new(1.4, 1.4),
+		height = 3,
 		description = "Remplit un angle vide derrière toi. Le meuble le moins cher qui donne l'air d'avoir un décor.",
 	},
 	{
@@ -750,7 +802,8 @@ return {
 		price = 60,
 		power = 0,
 		surface = "desk",
-		footprint = Vector2.new(4, 1),
+		footprint = Vector2.new(1.6, 0.5),
+		height = 0.7,
 		description = "À poser sur une étagère derrière toi. Le chat les commentera plus que ton contenu.",
 	},
 	{
@@ -764,7 +817,8 @@ return {
 		price = 260,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(8, 3),
+		footprint = Vector2.new(3.2, 1.2),
+		height = 5.5,
 		description = "Le fond préféré des gens qui veulent avoir l'air fiables. Ça fonctionne, et tout le monde le sait.",
 	},
 	{
@@ -778,7 +832,8 @@ return {
 		price = 180,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(5, 4),
+		footprint = Vector2.new(2, 1.6),
+		height = 2.8,
 		description = "Empilés dans un coin, éteints, purement décoratifs. Personne ne sait pourquoi c'est si beau, mais ça l'est.",
 	},
 	{
@@ -792,7 +847,8 @@ return {
 		price = 1400,
 		power = 180,
 		surface = "floor",
-		footprint = Vector2.new(4, 4),
+		footprint = Vector2.new(2.6, 2.6),
+		height = 6.5,
 		description = "Énorme, lourde, chère, et absolument imbattable dans un fond de plan large. Un achat de coeur qui se justifie tout seul à l'image.",
 	},
 	{
@@ -806,7 +862,8 @@ return {
 		price = 110,
 		power = 65,
 		surface = "floor",
-		footprint = Vector2.new(3, 3),
+		footprint = Vector2.new(1.6, 1.6),
+		height = 2,
 		description = "À portée de main pour ne jamais quitter le siège. C'est exactement le problème, et c'est pour ça que tu vas l'acheter.",
 	},
 }
@@ -833,7 +890,8 @@ return {
 		price = 0,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(9, 4),
+		footprint = Vector2.new(5.2, 2.4),
+		height = 2.6,
 		deskSlots = 6,
 		cableManagement = false,
 		description = "Celui sur lequel tu as fait tes devoirs. Il a une rayure que tu ne peux pas expliquer à tes parents.",
@@ -849,7 +907,8 @@ return {
 		price = 240,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(13, 5),
+		footprint = Vector2.new(6.4, 2.6),
+		height = 2.6,
 		deskSlots = 10,
 		cableManagement = true,
 		description = "Large, avec un chemin de câbles sous le plateau. On ne voit plus la pieuvre par-dessous.",
@@ -865,7 +924,8 @@ return {
 		price = 690,
 		power = 40,
 		surface = "floor",
-		footprint = Vector2.new(14, 5),
+		footprint = Vector2.new(6.4, 2.6),
+		height = 2.8,
 		deskSlots = 12,
 		cableManagement = true,
 		fatigueRelief = 0.15,
@@ -882,7 +942,8 @@ return {
 		price = 320,
 		power = 15,
 		surface = "floor",
-		footprint = Vector2.new(12, 5),
+		footprint = Vector2.new(5.8, 2.6),
+		height = 2.6,
 		deskSlots = 9,
 		cableManagement = true,
 		description = "Bords rétroéclairés, surface carbone, porte-casque intégré. Assumé.",
@@ -900,7 +961,8 @@ return {
 		price = 0,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(3, 3),
+		footprint = Vector2.new(1.6, 1.6),
+		height = 3.2,
 		fatigueRelief = -0.1,
 		description = "Ton dos t'en reparlera dans dix ans. Il commence déjà, en fait.",
 	},
@@ -915,7 +977,8 @@ return {
 		price = 260,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(4, 4),
+		footprint = Vector2.new(2, 2),
+		height = 4.2,
 		fatigueRelief = 0.1,
 		description = "Coutures rouges, coussin lombaire, forme de baquet. Confortable deux heures, discutable après huit.",
 	},
@@ -930,7 +993,8 @@ return {
 		price = 780,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(4, 4),
+		footprint = Vector2.new(2, 2),
+		height = 4,
 		fatigueRelief = 0.3,
 		description = "Laid en photo, irremplaçable au bout de six heures. Le meilleur rapport confort-prix du catalogue, et personne ne l'achète en premier.",
 	},
@@ -947,7 +1011,8 @@ return {
 		price = 70,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(6, 3),
+		footprint = Vector2.new(3.2, 1.4),
+		height = 2.2,
 		description = "Range ce qui traîne, et offre une étagère de plus dans le champ de la caméra.",
 	},
 	{
@@ -961,7 +1026,8 @@ return {
 		price = 45,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(7, 1),
+		footprint = Vector2.new(3.6, 1),
+		height = 0.6,
 		description = "Se pose derrière toi et se remplit d'objets. C'est la couche la plus facile pour composer un fond.",
 	},
 	{
@@ -975,7 +1041,8 @@ return {
 		price = 420,
 		power = 30,
 		surface = "floor",
-		footprint = Vector2.new(5, 8),
+		footprint = Vector2.new(2.6, 1.4),
+		height = 6.5,
 		description = "Une vitrine haute, éclairée par le fond, pour exposer ce que tu collectionnes. Très photogénique, très encombrante.",
 	},
 
@@ -991,7 +1058,8 @@ return {
 		price = 480,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(12, 6),
+		footprint = Vector2.new(5, 2.6),
+		height = 2.6,
 		seats = 3,
 		description = "Le meuble qui transforme une chaîne en émission. Trois personnes en face, et le format change tout seul.",
 	},
@@ -1006,7 +1074,8 @@ return {
 		price = 540,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(11, 5),
+		footprint = Vector2.new(6, 2.6),
+		height = 2.8,
 		seats = 3,
 		description = "Pour les segments assis, détendus, où l'invité parle plus qu'il ne l'avait prévu.",
 	},
@@ -1021,7 +1090,8 @@ return {
 		price = 1200,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(16, 8),
+		footprint = Vector2.new(8, 4),
+		height = 3,
 		seats = 10,
 		description = "Un public dans le studio change le rythme d'une émission. Il rit, ou il ne rit pas, et ça s'entend à l'antenne.",
 	},
@@ -1054,7 +1124,8 @@ return {
 		requires = { "power" },
 		power = 18,
 		surface = "desk",
-		footprint = Vector2.new(2, 2),
+		footprint = Vector2.new(1.6, 1.6),
+		height = 5,
 		description = "Éclaire ton visage et te met deux donuts dans les yeux. Tout le monde commence par là.",
 	},
 	{
@@ -1070,7 +1141,8 @@ return {
 		requires = { "power" },
 		power = 60,
 		surface = "floor",
-		footprint = Vector2.new(3, 3),
+		footprint = Vector2.new(2.4, 2.4),
+		height = 6,
 		description = "Lumière douce et large, à poser à quarante-cinq degrés. Prend la place d'un fauteuil.",
 	},
 	{
@@ -1086,7 +1158,8 @@ return {
 		requires = { "power" },
 		power = 75,
 		surface = "floor",
-		footprint = Vector2.new(3, 3),
+		footprint = Vector2.new(2.2, 1),
+		height = 6,
 		controllable = true,
 		description = "Température réglable du chaud au froid. Se pilote depuis le hub, donc la lumière suit la scène.",
 	},
@@ -1103,7 +1176,8 @@ return {
 		requires = { "power" },
 		power = 25,
 		surface = "floor",
-		footprint = Vector2.new(2, 2),
+		footprint = Vector2.new(1.4, 1.4),
+		height = 5,
 		description = "Se met de l'autre côté du visage pour adoucir les ombres. Personne ne la remarque, et c'est le but.",
 	},
 	{
@@ -1119,7 +1193,8 @@ return {
 		requires = { "power" },
 		power = 30,
 		surface = "floor",
-		footprint = Vector2.new(1, 1),
+		footprint = Vector2.new(0.8, 0.8),
+		height = 5.5,
 		controllable = true,
 		description = "Derrière toi, elle détache ta silhouette du fond. Sans lumière de face, elle fait de toi une ombre chinoise.",
 	},
@@ -1136,7 +1211,8 @@ return {
 		requires = { "power" },
 		power = 55,
 		surface = "floor",
-		footprint = Vector2.new(6, 1),
+		footprint = Vector2.new(4, 0.8),
+		height = 2,
 		description = "Éclaire le fond vert de façon uniforme. Sans elle, l'incrustation bave quel que soit le prix du fond.",
 	},
 
@@ -1153,7 +1229,8 @@ return {
 		requires = { "usb", "power" },
 		power = 5,
 		surface = "desk",
-		footprint = Vector2.new(2, 1),
+		footprint = Vector2.new(0.7, 0.5),
+		height = 0.2,
 		visible = false,
 		description = "Regroupe tous les luminaires pilotables de la pièce et permet d'enregistrer des ambiances. Sans lui, tes LED sont juste allumées.",
 	},
@@ -1171,7 +1248,8 @@ return {
 		requires = { "power" },
 		power = 20,
 		surface = "wall",
-		footprint = Vector2.new(10, 1),
+		footprint = Vector2.new(8, 0.15),
+		height = 0.15,
 		controllable = true,
 		description = "Se colle derrière un meuble ou le long d'une plinthe. Le premier achat déco de tout le monde, et il fonctionne.",
 	},
@@ -1187,7 +1265,8 @@ return {
 		requires = { "power" },
 		power = 35,
 		surface = "floor",
-		footprint = Vector2.new(1, 1),
+		footprint = Vector2.new(0.5, 0.5),
+		height = 5,
 		controllable = true,
 		description = "Deux colonnes de couleur de part et d'autre du cadre. C'est ce qui fait qu'un fond a l'air composé plutôt que subi.",
 	},
@@ -1203,7 +1282,8 @@ return {
 		requires = { "power" },
 		power = 45,
 		surface = "wall",
-		footprint = Vector2.new(6, 6),
+		footprint = Vector2.new(3.6, 0.2),
+		height = 3.2,
 		controllable = true,
 		description = "Se composent en nid d'abeille sur le mur. Reconnaissables entre mille, ce qui est un avantage et un risque.",
 	},
@@ -1219,7 +1299,8 @@ return {
 		requires = { "power" },
 		power = 25,
 		surface = "wall",
-		footprint = Vector2.new(8, 3),
+		footprint = Vector2.new(3.6, 0.2),
+		height = 1.2,
 		controllable = true,
 		description = "Ton nom en lettres lumineuses au-dessus de ton épaule. Prétentieux jusqu'au jour où les gens le reconnaissent.",
 	},
@@ -1235,7 +1316,8 @@ return {
 		requires = { "power" },
 		power = 10,
 		surface = "wall",
-		footprint = Vector2.new(12, 4),
+		footprint = Vector2.new(6, 0.15),
+		height = 2.4,
 		controllable = true,
 		description = "Petites ampoules chaudes en cascade. Le raccourci le plus court vers une ambiance intime.",
 	},
@@ -1251,7 +1333,8 @@ return {
 		requires = { "power" },
 		power = 15,
 		surface = "desk",
-		footprint = Vector2.new(1, 1),
+		footprint = Vector2.new(0.6, 0.6),
+		height = 1.6,
 		description = "Une vraie lampe, pour vraiment travailler. Chaude, orientable, discrète à l'image.",
 	},
 
@@ -1268,7 +1351,8 @@ return {
 		requires = { "hdmi", "power" },
 		power = 20,
 		surface = "wall",
-		footprint = Vector2.new(4, 3),
+		footprint = Vector2.new(1.6, 0.2),
+		height = 0.95,
 		controllable = true,
 		description = "Un petit écran posé dans le décor, qui affiche ton logo, un compteur d'abonnés ou une animation. Il attire l'oeil sans voler la vedette.",
 	},
@@ -1284,7 +1368,8 @@ return {
 		requires = { "hdmi", "power" },
 		power = 160,
 		surface = "wall",
-		footprint = Vector2.new(12, 8),
+		footprint = Vector2.new(5.2, 0.25),
+		height = 3,
 		controllable = true,
 		description = "Quatre dalles derrière toi, pilotées depuis la régie. C'est le décor des vraies émissions, et ça se voit immédiatement à l'image.",
 	},
@@ -1319,7 +1404,8 @@ return {
 		maxWatts = 2300,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(3, 1),
+		footprint = Vector2.new(1.2, 0.4),
+		height = 0.2,
 		visible = false,
 		description = "Quatre prises et un interrupteur qui s'éteint quand on tape dedans avec le pied.",
 	},
@@ -1336,7 +1422,8 @@ return {
 		maxWatts = 3500,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(5, 1),
+		footprint = Vector2.new(1.8, 0.5),
+		height = 0.2,
 		visible = false,
 		description = "Huit prises, protection contre les surtensions, et assez de marge pour ne plus y penser pendant un moment.",
 	},
@@ -1353,7 +1440,8 @@ return {
 		maxWatts = 2300,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(1, 1),
+		footprint = Vector2.new(0.5, 0.5),
+		height = 0.2,
 		visible = false,
 		description = "Permet d'alimenter un objet loin de la prise murale. Le plus petit achat qui débloque le plus de dispositions.",
 	},
@@ -1371,7 +1459,8 @@ return {
 		holdSeconds = 420,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(3, 2),
+		footprint = Vector2.new(1, 1.4),
+		height = 1,
 		visible = false,
 		description = "Une batterie qui prend le relais quand le courant saute. Ne sert absolument à rien jusqu'au soir où il sauve deux heures de direct.",
 	},
@@ -1387,7 +1476,8 @@ return {
 		maxWatts = 7000,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(2, 2),
+		footprint = Vector2.new(1.2, 0.4),
+		height = 1.6,
 		visible = false,
 		description = "Un électricien tire une ligne séparée jusqu'au studio. Cher, invisible, et le seul moyen de faire tourner un plateau complet.",
 	},
@@ -1415,7 +1505,8 @@ return {
 		requires = { "usb" },
 		power = 2,
 		surface = "desk",
-		footprint = Vector2.new(1, 1),
+		footprint = Vector2.new(0.4, 0.4),
+		height = 0.5,
 		description = "Elle était dans un carton au grenier. Elle fait le travail, si on est indulgent sur le mot travail.",
 	},
 	{
@@ -1431,7 +1522,8 @@ return {
 		requires = { "usb" },
 		power = 3,
 		surface = "desk",
-		footprint = Vector2.new(1, 1),
+		footprint = Vector2.new(0.45, 0.45),
+		height = 0.55,
 		description = "La webcam que tout le monde a. Correcte partout, excellente nulle part.",
 	},
 	{
@@ -1447,7 +1539,8 @@ return {
 		requires = { "hdmi", "power" },
 		power = 12,
 		surface = "desk",
-		footprint = Vector2.new(2, 2),
+		footprint = Vector2.new(1, 1),
+		height = 1.4,
 		description = "Un vrai appareil photo sur trépied. Le flou d'arrière-plan fait la moitié du travail à ta place.",
 	},
 
@@ -1465,7 +1558,8 @@ return {
 		requires = { "jack" },
 		power = 0,
 		surface = "desk",
-		footprint = Vector2.new(1, 1),
+		footprint = Vector2.new(0.7, 0.7),
+		height = 1,
 		description = "Capte ta voix, ta respiration, ton clavier, et ton frère dans le couloir.",
 	},
 	{
@@ -1481,7 +1575,8 @@ return {
 		requires = { "usb" },
 		power = 2,
 		surface = "desk",
-		footprint = Vector2.new(2, 2),
+		footprint = Vector2.new(0.7, 0.7),
+		height = 1.5,
 		description = "Le micro qui a lancé mille podcasts. Le pied prend de la place sur le bureau.",
 	},
 	{
@@ -1497,7 +1592,8 @@ return {
 		requires = { "xlr" },
 		power = 0,
 		surface = "desk",
-		footprint = Vector2.new(1, 1),
+		footprint = Vector2.new(0.6, 0.6),
+		height = 1.2,
 		description = "Suspendu, donc le bureau reste libre. Demande une interface audio, que personne ne pense à acheter du premier coup.",
 	},
 	{
@@ -1514,7 +1610,8 @@ return {
 		provides = { "xlr" },
 		power = 8,
 		surface = "desk",
-		footprint = Vector2.new(2, 1),
+		footprint = Vector2.new(0.9, 0.7),
+		height = 0.3,
 		description = "La boîte qui transforme un micro de studio en quelque chose que l'ordinateur comprend.",
 	},
 
@@ -1533,7 +1630,8 @@ return {
 		provides = { "usb", "hdmi", "jack" },
 		power = 220,
 		surface = "floor",
-		footprint = Vector2.new(2, 4),
+		footprint = Vector2.new(0.8, 1.8),
+		height = 1.9,
 		description = "Démarre en quatre-vingt-dix secondes. Ventile comme un sèche-cheveux. Tiendra, probablement.",
 	},
 	{
@@ -1550,7 +1648,8 @@ return {
 		provides = { "usb", "hdmi", "jack", "ethernet" },
 		power = 400,
 		surface = "floor",
-		footprint = Vector2.new(2, 4),
+		footprint = Vector2.new(0.85, 1.9),
+		height = 2,
 		description = "Encode sans broncher. Ne t'empêchera plus de faire quoi que ce soit.",
 	},
 	{
@@ -1567,7 +1666,8 @@ return {
 		provides = { "usb", "hdmi", "jack", "ethernet" },
 		power = 650,
 		surface = "floor",
-		footprint = Vector2.new(3, 5),
+		footprint = Vector2.new(1, 2.1),
+		height = 2.3,
 		description = "Silencieuse, ce qui est plus rare et plus cher que puissante. Le boot passe sous les cinq secondes.",
 	},
 
@@ -1585,7 +1685,8 @@ return {
 		requires = { "hdmi", "power" },
 		power = 22,
 		surface = "desk",
-		footprint = Vector2.new(5, 1),
+		footprint = Vector2.new(3, 0.3),
+		height = 1.7,
 		screens = 1,
 		description = "Un rémanent d'image en haut à gauche que tu ne remarques plus. Il affiche, c'est déjà ça.",
 	},
@@ -1602,7 +1703,8 @@ return {
 		requires = { "hdmi", "power" },
 		power = 25,
 		surface = "desk",
-		footprint = Vector2.new(4, 1),
+		footprint = Vector2.new(3.3, 0.3),
+		height = 1.85,
 		screens = 1,
 		description = "Un écran. Le deuxième change plus ta vie que le premier ne l'a fait.",
 	},
@@ -1619,7 +1721,8 @@ return {
 		requires = { "hdmi", "power" },
 		power = 32,
 		surface = "desk",
-		footprint = Vector2.new(5, 1),
+		footprint = Vector2.new(3.7, 0.3),
+		height = 2.1,
 		screens = 1,
 		description = "Des couleurs justes. On ne s'en rend compte qu'en revenant à l'ancien.",
 	},
@@ -1636,9 +1739,106 @@ return {
 		requires = { "hdmi", "power" },
 		power = 26,
 		surface = "desk",
-		footprint = Vector2.new(2, 1),
+		footprint = Vector2.new(1.9, 0.3),
+		height = 3.3,
 		screens = 1,
 		description = "Pivoté à la verticale. Fait pour le chat, et pour rien d'autre.",
+	},
+
+	-- ── Périphériques ─────────────────────────────────────────────────────
+	{
+		id = "kb_membrane",
+		name = "Clavier de bureau",
+		brand = "hérité",
+		family = "tech",
+		category = "keyboard",
+		style = "sobre",
+		tier = 1,
+		price = 0,
+		requires = { "usb" },
+		power = 1,
+		surface = "desk",
+		footprint = Vector2.new(1.8, 0.7),
+		height = 0.15,
+		description = "Trois touches sont luisantes, les autres non. On devine lesquelles.",
+	},
+	{
+		id = "mouse_basic",
+		name = "Souris filaire",
+		brand = "hérité",
+		family = "tech",
+		category = "mouse",
+		style = "sobre",
+		tier = 1,
+		price = 0,
+		requires = { "usb" },
+		power = 1,
+		surface = "desk",
+		footprint = Vector2.new(0.35, 0.6),
+		height = 0.2,
+		description = "Le fil s'accroche au coin du bureau à chaque mouvement brusque.",
+	},
+	{
+		id = "kb_mecha",
+		name = "Clavier mécanique Hexar",
+		brand = "Hexar",
+		family = "tech",
+		category = "keyboard",
+		style = "gamer",
+		tier = 2,
+		price = 90,
+		requires = { "usb" },
+		power = 3,
+		surface = "desk",
+		footprint = Vector2.new(1.8, 0.7),
+		height = 0.22,
+		description = "Switches bruyants, rétroéclairage par touche. Le micro les entendra, tes viewers aussi.",
+	},
+	{
+		id = "mouse_gaming",
+		name = "Souris Hexar 8K",
+		brand = "Hexar",
+		family = "tech",
+		category = "mouse",
+		style = "gamer",
+		tier = 2,
+		price = 65,
+		requires = { "usb" },
+		power = 2,
+		surface = "desk",
+		footprint = Vector2.new(0.4, 0.65),
+		height = 0.25,
+		description = "Onze boutons dont tu en utiliseras deux. Les neuf autres sont pour la photo du setup.",
+	},
+	{
+		id = "deskmat",
+		name = "Grand tapis de bureau",
+		brand = "Hexar",
+		family = "tech",
+		category = "deskmat",
+		style = "gamer",
+		tier = 1,
+		price = 25,
+		power = 0,
+		surface = "desk",
+		footprint = Vector2.new(3.4, 1.6),
+		height = 0.05,
+		description = "Couvre tout le plateau. Unifie le bureau d'un seul achat, et cache les rayures.",
+	},
+	{
+		id = "headphone_stand",
+		name = "Support de casque",
+		brand = "Fibre & Co",
+		family = "tech",
+		category = "stand",
+		style = "sobre",
+		tier = 1,
+		price = 20,
+		power = 0,
+		surface = "desk",
+		footprint = Vector2.new(0.5, 0.5),
+		height = 1.2,
+		description = "Libère un coin de bureau et donne au setup un air rangé qu'il ne mérite pas forcément.",
 	},
 
 	-- ── Régie et pilotage ─────────────────────────────────────────────────
@@ -1655,7 +1855,8 @@ return {
 		requires = { "usb" },
 		power = 3,
 		surface = "desk",
-		footprint = Vector2.new(2, 1),
+		footprint = Vector2.new(0.5, 0.4),
+		height = 0.15,
 		description = "Six touches. De quoi couper son micro sans chercher la fenêtre, ce qui vaut déjà son prix.",
 	},
 	{
@@ -1671,7 +1872,8 @@ return {
 		requires = { "usb" },
 		power = 5,
 		surface = "desk",
-		footprint = Vector2.new(3, 2),
+		footprint = Vector2.new(0.75, 0.55),
+		height = 0.15,
 		description = "Quinze touches et des pages. On commence à piloter sans jamais quitter le direct des yeux.",
 	},
 	{
@@ -1687,7 +1889,8 @@ return {
 		requires = { "usb" },
 		power = 8,
 		surface = "desk",
-		footprint = Vector2.new(4, 2),
+		footprint = Vector2.new(1.1, 0.65),
+		height = 0.15,
 		description = "Trente-deux touches. À ce stade tu ne streames plus, tu réalises.",
 	},
 	{
@@ -1704,7 +1907,8 @@ return {
 		provides = { "hdmi" },
 		power = 6,
 		surface = "desk",
-		footprint = Vector2.new(2, 1),
+		footprint = Vector2.new(0.6, 0.4),
+		height = 0.15,
 		description = "Fait entrer une console ou une caméra dans l'ordinateur. Ouvre une source de plus dans KZ Studio.",
 	},
 
@@ -1721,7 +1925,8 @@ return {
 		quality = 0.4,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(5, 1),
+		footprint = Vector2.new(6, 0.15),
+		height = 6,
 		description = "Suffisant si tu ne bouges pas. Tu bougeras.",
 	},
 	{
@@ -1736,7 +1941,8 @@ return {
 		quality = 0.8,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(10, 2),
+		footprint = Vector2.new(12, 0.4),
+		height = 9,
 		description = "Couvre largement le cadre. Encore faut-il avoir trois mètres de mur libre.",
 	},
 }
@@ -1769,9 +1975,11 @@ local Styles = require(script.Parent.Styles)
 local ImageQuality = {}
 
 -- Hauteur du visage au-dessus de l'assise, et distances de cadrage.
+-- Distances exprimées dans l'échelle du projet : 1 stud = 25 cm. Un
+-- streamer assis se filme entre 60 cm et 1,60 m de sa caméra.
 local HEAD_HEIGHT = 2.2
-local IDEAL_MIN_DISTANCE = 4
-local IDEAL_MAX_DISTANCE = 10
+local IDEAL_MIN_DISTANCE = 2.5
+local IDEAL_MAX_DISTANCE = 6.5
 local MAX_FRAMING_ANGLE = 38
 
 export type Report = {
@@ -1851,7 +2059,7 @@ local function scoreFraming(cameraPos: Vector3, forward: Vector3, subject: Vecto
 	if distance < IDEAL_MIN_DISTANCE then
 		distanceScore = math.clamp(distance / IDEAL_MIN_DISTANCE, 0, 1)
 	elseif distance > IDEAL_MAX_DISTANCE then
-		distanceScore = math.clamp(1 - (distance - IDEAL_MAX_DISTANCE) / 10, 0, 1)
+		distanceScore = math.clamp(1 - (distance - IDEAL_MAX_DISTANCE) / 6, 0, 1)
 	else
 		distanceScore = 1
 	end
@@ -1861,7 +2069,7 @@ local function scoreFraming(cameraPos: Vector3, forward: Vector3, subject: Vecto
 	local issue
 	if centering < 0.3 then
 		issue = "Tu n'es pas dans le champ. Tourne la caméra vers le siège."
-	elseif distance > IDEAL_MAX_DISTANCE + 4 then
+	elseif distance > IDEAL_MAX_DISTANCE + 3 then
 		issue = "La caméra est trop loin : tu es minuscule à l'image."
 	elseif distance < IDEAL_MIN_DISTANCE then
 		issue = "La caméra est trop près : le cadrage est étouffant."
@@ -1937,7 +2145,7 @@ local function scoreBackground(cameraPos: Vector3, subject: Vector3, backdrops, 
 	end
 
 	for _, backdrop in ipairs(backdrops) do
-		if isBehind(backdrop.entry, 12, 55) then
+		if isBehind(backdrop.entry, 8, 55) then
 			local coverage = backdrop.item.quality or 0.5
 			return math.clamp(0.55 + coverage * 0.45, 0, 1), nil
 		end
@@ -1945,7 +2153,7 @@ local function scoreBackground(cameraPos: Vector3, subject: Vector3, backdrops, 
 
 	local dressing = 0
 	for _, piece in ipairs(decor) do
-		if isBehind(piece.entry, 14, 60) then
+		if isBehind(piece.entry, 9, 60) then
 			dressing += 0.18
 		end
 	end
@@ -1989,7 +2197,7 @@ function ImageQuality.evaluate(placed: { any }): Report
 	if groups.subject then
 		subject = positionOf(groups.subject.entry) + Vector3.new(0, HEAD_HEIGHT, 0)
 	else
-		subject = cameraPos + forward * 6
+		subject = cameraPos + forward * 3.5
 	end
 
 	local issues = {}
@@ -2048,64 +2256,34 @@ local Styles = require(script.Parent.Styles)
 
 local Placement = {}
 
---- Pas de la grille, en studs. Un pas d'un stud garde de la précision sans
---- laisser poser un meuble de travers.
-Placement.GridSize = 1
+--- Pas de la grille, en studs. À l'échelle du projet, un stud fait 25 cm :
+--- un pas d'un stud empêcherait de poser proprement une souris ou un
+--- clavier sur un bureau.
+Placement.GridSize = 0.5
 
 --- Pas de rotation, en degrés.
 Placement.RotationStep = 15
 
 --- Distance maximale de pose depuis le joueur.
-Placement.MaxReach = 40
+Placement.MaxReach = 24
 
 --- Hauteur d'accrochage par défaut d'un objet mural.
-Placement.WallHeight = 7
+Placement.WallHeight = 5
 
--- Hauteur d'un objet selon sa catégorie, faute de modèles 3D. Ces valeurs
--- servent uniquement au volume de collision et au rendu provisoire.
-local HEIGHT_BY_CATEGORY: { [string]: number } = {
-	desk = 3.6,
-	chair = 3.6,
-	storage = 3.2,
-	guest = 2.8,
-	audience = 4.5,
-
-	camera = 1.2,
-	microphone = 2.2,
-	computer = 5,
-	streamdeck = 0.6,
-	capture = 0.5,
-	audio = 0.7,
-	backdrop = 8,
-
-	key = 6,
-	fill = 5.5,
-	rim = 6,
-	hub = 0.6,
-	led = 0.4,
-
-	acoustic = 0.4,
-	wall = 0.2,
-	object = 3,
-
-	strip = 0.4,
-	extension = 0.3,
-	ups = 1.6,
-	circuit = 0.4,
-}
-
---- Les écrans gardent un rapport 16:9, sinon l'interface projetée dessus
---- se retrouve étirée et illisible.
+--- Les catégories d'objets qui portent une interface projetée.
 local SCREEN_CATEGORIES = { display = true, decoscreen = true }
 
+--- L'encombrement réel d'un objet.
+---
+--- ÉCHELLE DU PROJET : 1 stud = 25 cm, un personnage Roblox mesurant à peu
+--- près 5 studs. Toutes les dimensions du catalogue en découlent — une
+--- webcam fait 0,4 stud, pas 1. La seule entorse assumée concerne les
+--- écrans, agrandis d'environ 40 % par rapport au réel : une dalle de
+--- 24 pouces à l'échelle exacte rendrait l'interface projetée dessus
+--- inutilisable.
 function Placement.GetSize(item: any): Vector3
-	local footprint = item.footprint or Vector2.new(2, 2)
-
-	if SCREEN_CATEGORIES[item.category] then
-		return Vector3.new(footprint.X, footprint.X * 9 / 16, 0.35)
-	end
-
-	local height = HEIGHT_BY_CATEGORY[item.category] or 2
+	local footprint = item.footprint or Vector2.new(1, 1)
+	local height = item.height or 1
 	return Vector3.new(footprint.X, height, footprint.Y)
 end
 
@@ -3357,7 +3535,8 @@ local Create = require(Shared.Lib.Create)
 local Trove = require(Shared.Lib.Trove)
 local Theme = require(Shared.OS.Theme)
 local Catalogue = require(Shared.Config.Catalogue)
-local Styles = require(Shared.Config.Styles)
+local Placement = require(Shared.Config.Placement)
+local ModelBuilder = require(Shared.Build.ModelBuilder)
 local Websites = require(Shared.Content.Websites)
 
 local Browser = {}
@@ -3468,6 +3647,46 @@ local function buyButton(theme, label: string, enabled: boolean, onClick: () -> 
 	return button
 end
 
+--- La photo produit.
+---
+--- Je ne peux pas fournir d'images, alors la fiche affiche mieux qu'une
+--- photo : le VRAI modèle de l'objet, rendu en direct dans un
+--- `ViewportFrame`, vu de trois quarts. Ce que le joueur regarde en
+--- boutique est exactement ce qu'il recevra dans son carton — et le jour
+--- où de vrais modèles 3D remplaceront les primitives, les fiches suivent
+--- toutes seules.
+local function productPreview(item, background: Color3): ViewportFrame
+	local viewport = Create("ViewportFrame") {
+		Name = "Preview",
+		BackgroundColor3 = background,
+		BorderSizePixel = 0,
+		Ambient = Color3.fromRGB(160, 160, 168),
+		LightColor = Color3.fromRGB(255, 250, 240),
+		LightDirection = Vector3.new(-0.6, -1, -0.4),
+
+		Create("UICorner") { CornerRadius = UDim.new(0, 4) },
+	}
+
+	local model = ModelBuilder.build(item, CFrame.new())
+	model.Parent = viewport
+
+	local camera = Instance.new("Camera")
+	camera.FieldOfView = 32
+	camera.Parent = viewport
+	viewport.CurrentCamera = camera
+
+	-- Cadrage automatique : on recule le long d'une diagonale jusqu'à ce que
+	-- l'objet tienne dans le champ, quelle que soit sa taille. Une souris et
+	-- une borne d'arcade occupent ainsi la même place sur la fiche.
+	local size = Placement.GetSize(item)
+	local radius = math.max(size.Magnitude, 0.4)
+	local direction = Vector3.new(0.85, 0.5, 1).Unit
+
+	camera.CFrame = CFrame.lookAt(direction * radius * 2.1, Vector3.zero)
+
+	return viewport
+end
+
 local function specsOf(item): string
 	local specs = {}
 
@@ -3511,8 +3730,21 @@ end
 
 --- Fiche produit en grille : une vignette de couleur, un titre, un prix.
 local function gridCard(site, item, money: number, ordered: boolean, onBuy: () -> ())
-	local style = item.style and Styles.Get(item.style)
 	local label, enabled = statusFor(item, money, ordered)
+
+	local thumb = productPreview(item, site.theme.background)
+	thumb.Size = UDim2.new(1, 0, 0, 62)
+
+	text {
+		text = string.upper(item.brand),
+		color = site.theme.muted,
+		font = Theme.Font.Bold,
+		size = 11,
+		align = Enum.TextXAlignment.Right,
+		bounds = UDim2.new(1, -10, 0, 14),
+		position = UDim2.fromOffset(0, 8),
+		zIndex = 3,
+	}.Parent = thumb
 
 	return Create("Frame") {
 		Name = item.id,
@@ -3527,33 +3759,7 @@ local function gridCard(site, item, money: number, ordered: boolean, onBuy: () -
 			PaddingRight = UDim.new(0, 14),
 		},
 
-		-- Vignette : à défaut de photo produit, un aplat aux couleurs du
-		-- style de l'objet. Ça structure la grille et ça reste honnête.
-		Create("Frame") {
-			Name = "Thumb",
-			Size = UDim2.new(1, 0, 0, 62),
-			BackgroundColor3 = style and style.palette[1] or site.theme.muted,
-			BorderSizePixel = 0,
-
-			Create("UICorner") { CornerRadius = UDim.new(0, 4) },
-			Create("UIGradient") {
-				Color = ColorSequence.new(
-					style and style.palette[1] or site.theme.muted,
-					style and style.palette[2] or site.theme.accent
-				),
-				Rotation = 25,
-			},
-			text {
-				text = string.upper(item.brand),
-				color = Color3.new(1, 1, 1),
-				font = Theme.Font.Bold,
-				size = 11,
-				align = Enum.TextXAlignment.Right,
-				bounds = UDim2.new(1, -10, 0, 14),
-				position = UDim2.fromOffset(0, 8),
-				zIndex = 3,
-			},
-		},
+		thumb,
 
 		text {
 			text = item.name,
@@ -3597,8 +3803,10 @@ end
 
 --- Fiche produit en liste : plus dense, plus « place de marché ».
 local function listRow(site, item, money: number, ordered: boolean, onBuy: () -> ())
-	local style = item.style and Styles.Get(item.style)
 	local label, enabled = statusFor(item, money, ordered)
+
+	local thumb = productPreview(item, site.theme.background)
+	thumb.Size = UDim2.fromOffset(72, 72)
 
 	return Create("Frame") {
 		Name = item.id,
@@ -3614,20 +3822,7 @@ local function listRow(site, item, money: number, ordered: boolean, onBuy: () ->
 			PaddingRight = UDim.new(0, 14),
 		},
 
-		Create("Frame") {
-			Name = "Thumb",
-			Size = UDim2.fromOffset(72, 72),
-			BackgroundColor3 = style and style.palette[1] or site.theme.muted,
-			BorderSizePixel = 0,
-			Create("UICorner") { CornerRadius = UDim.new(0, 4) },
-			Create("UIGradient") {
-				Color = ColorSequence.new(
-					style and style.palette[1] or site.theme.muted,
-					style and style.palette[2] or site.theme.accent
-				),
-				Rotation = 40,
-			},
-		},
+		thumb,
 
 		text {
 			text = item.name,
@@ -7349,7 +7544,7 @@ local DevRoom = require(script.DevRoom)
 -- Limites de la pièce actuelle. Elles viendront du local choisi par le
 -- joueur quand les lieux existeront ; en attendant elles décrivent la
 -- chambre de test.
-local ROOM_BOUNDS = { x = 12.5, y = 12.5, z = 10.5 }
+local ROOM_BOUNDS = { x = 7.6, y = 9.6, z = 6.6 }
 
 -- Vitesses proposées au joueur. 0 met le temps en pause.
 local ALLOWED_TIME_SCALES = { [0] = true, [1] = true, [4] = true, [10] = true }
@@ -7888,11 +8083,17 @@ local function defaultState()
 		-- il passe par le même constructeur que tout le reste, et le joueur
 		-- peut le déplacer comme n'importe quel meuble.
 		placed = {
-			{ uid = 101, itemId = "desk_family", x = 0, y = 1.8, z = -7, yaw = 180 },
-			{ uid = 102, itemId = "chair_kitchen", x = 0, y = 1.8, z = -2, yaw = 0 },
-			{ uid = 103, itemId = "pc_handmedown", x = -6, y = 2.5, z = -7, yaw = 0 },
-			{ uid = 104, itemId = "monitor_starter", x = 0, y = 6, z = -7, yaw = 180 },
-			{ uid = 105, itemId = "cam_attic", x = 2.5, y = 4.2, z = -6, yaw = 180 },
+			-- Contre le mur du fond, tourné vers le joueur. Les hauteurs sont
+			-- des centres d'objet : un bureau de 2,6 studs de haut a son
+			-- centre à 1,3.
+			{ uid = 101, itemId = "desk_family", x = -1, y = 1.3, z = -5.4, yaw = 180 },
+			{ uid = 102, itemId = "chair_kitchen", x = -1, y = 1.6, z = -2.9, yaw = 0 },
+			{ uid = 103, itemId = "pc_handmedown", x = -4.4, y = 0.95, z = -5, yaw = 0 },
+			{ uid = 104, itemId = "monitor_starter", x = -1, y = 4.1, z = -6, yaw = 180 },
+			-- La webcam est posée sur le moniteur, comme chez tout le monde.
+			{ uid = 105, itemId = "cam_attic", x = -1, y = 5.2, z = -6, yaw = 180 },
+			{ uid = 106, itemId = "kb_membrane", x = -1, y = 2.68, z = -4.8, yaw = 180 },
+			{ uid = 107, itemId = "mouse_basic", x = 0.4, y = 2.7, z = -4.8, yaw = 180 },
 		},
 		-- Compteur d'identifiants d'objets, jamais réutilisé. Il démarre
 		-- au-dessus des identifiants du matériel de départ.
@@ -8084,40 +8285,41 @@ return RoomBuilder
 --[[
 	DevRoom — la chambre de test, construite par code.
 
-	Je ne peux pas modéliser dans Studio, donc le jeu se monte tout seul un
-	décor en primitives. Ce n'est pas la vraie chambre du jeu final, mais
-	elle doit rester assez crédible pour qu'on juge l'ambiance : une pièce
-	de nuit, éclairée par une lampe chaude et surtout par l'écran.
+	Elle n'est plus dimensionnée au hasard : à l'échelle du projet
+	(1 stud = 25 cm), elle fait 4 m sur 3,5 m sous 2,5 m de plafond. C'est
+	une vraie chambre, et c'est ce qui manquait — le volume précédent était
+	deux fois trop grand, donc vide, gris et carcéral quoi qu'on y pose.
 
-	Quand tu construiras le vrai décor dans Studio, pose le tag
-	"ComputerScreen" sur la dalle de ton moniteur et supprime l'appel à
-	DevRoom.build() dans init.server.lua.
+	Le mobilier n'est pas ici : il fait partie des objets posés du joueur et
+	passe par RoomBuilder. Cette pièce ne fournit que la coquille, le lit et
+	la lumière.
 
-	⚠️ Piège Roblox : la face "Front" d'une part pointe vers son -Z LOCAL.
-	Un moniteur construit sans rotation affiche donc son écran vers
-	l'arrière. Tout le mobilier orienté vers le joueur est ici tourné de
-	180°, et les décalages se font le long de l'axe local.
+	⚠️ Piège Roblox : la face « Front » d'une part pointe vers son -Z LOCAL.
+	Tout ce qui doit regarder le joueur est donc orienté explicitement.
 ]]
 
 local Lighting = game:GetService("Lighting")
 
 local DevRoom = {}
 
-local ROOM = Vector3.new(26, 13, 22)
-local WALL = 1
+-- 4 m x 3,5 m sous 2,5 m de plafond.
+local ROOM = Vector3.new(16, 10, 14)
+local WALL = 0.6
 
 local PALETTE = {
-	floor = Color3.fromRGB(92, 68, 52),
-	rug = Color3.fromRGB(58, 62, 78),
-	wall = Color3.fromRGB(96, 94, 104),
-	ceiling = Color3.fromRGB(64, 62, 70),
-	desk = Color3.fromRGB(46, 40, 38),
-	bezel = Color3.fromRGB(22, 22, 26),
-	screen = Color3.fromRGB(6, 7, 10),
-	fabric = Color3.fromRGB(78, 84, 108),
-	sheets = Color3.fromRGB(196, 198, 206),
-	night = Color3.fromRGB(28, 38, 66),
-	poster = Color3.fromRGB(150, 76, 96),
+	floor = Color3.fromRGB(158, 118, 84),
+	skirting = Color3.fromRGB(238, 234, 226),
+	wall = Color3.fromRGB(206, 196, 182),
+	wallLower = Color3.fromRGB(188, 176, 160),
+	ceiling = Color3.fromRGB(240, 238, 234),
+	frame = Color3.fromRGB(238, 234, 226),
+	night = Color3.fromRGB(46, 62, 104),
+	door = Color3.fromRGB(228, 222, 212),
+	handle = Color3.fromRGB(186, 158, 96),
+	bed = Color3.fromRGB(126, 96, 70),
+	fabric = Color3.fromRGB(122, 132, 158),
+	sheets = Color3.fromRGB(238, 236, 232),
+	rug = Color3.fromRGB(150, 128, 118),
 }
 
 local function part(name: string, size: Vector3, cframe: CFrame, color: Color3, parent: Instance): Part
@@ -8134,54 +8336,88 @@ local function part(name: string, size: Vector3, cframe: CFrame, color: Color3, 
 	return instance
 end
 
+--- Une paroi complète : le mur, sa plinthe et sa cimaise. Les trois lignes
+--- horizontales sont ce qui distingue une pièce d'une boîte — sans elles,
+--- un aplat de couleur reste un aplat de couleur.
+local function wall(name: string, size: Vector3, cframe: CFrame, room: Model, alongX: boolean)
+	part(name, size, cframe, PALETTE.wall, room)
+
+	local length = alongX and size.X or size.Z
+	local thickness = 0.12
+	local skirtingSize = alongX and Vector3.new(length, 0.55, thickness) or Vector3.new(thickness, 0.55, length)
+	local railSize = alongX and Vector3.new(length, 0.18, thickness) or Vector3.new(thickness, 0.18, length)
+
+	-- Le bandeau bas est décalé vers l'intérieur de la pièce.
+	local inward = alongX and Vector3.new(0, 0, size.Z / 2 + thickness / 2) or Vector3.new(size.X / 2 + thickness / 2, 0, 0)
+	local sign = if cframe.Position.X > 0 or cframe.Position.Z > 0 then -1 else 1
+
+	part(name .. "Skirting", skirtingSize, cframe * CFrame.new(inward * sign) * CFrame.new(0, -ROOM.Y / 2 + 0.28, 0), PALETTE.skirting, room)
+	part(name .. "Rail", railSize, cframe * CFrame.new(inward * sign) * CFrame.new(0, -ROOM.Y / 2 + 3.4, 0), PALETTE.skirting, room)
+end
+
 local function buildShell(room: Model)
-	local halfX, halfZ = ROOM.X / 2, ROOM.Z / 2
+	local halfX, halfZ, halfY = ROOM.X / 2, ROOM.Z / 2, ROOM.Y / 2
 
 	local floor = part("Floor", Vector3.new(ROOM.X, WALL, ROOM.Z), CFrame.new(0, -WALL / 2, 0), PALETTE.floor, room)
 	floor.Material = Enum.Material.WoodPlanks
 
-	part("Ceiling", Vector3.new(ROOM.X, WALL, ROOM.Z), CFrame.new(0, ROOM.Y, 0), PALETTE.ceiling, room)
+	part("Ceiling", Vector3.new(ROOM.X, WALL, ROOM.Z), CFrame.new(0, ROOM.Y + WALL / 2, 0), PALETTE.ceiling, room)
 
-	part("WallBack", Vector3.new(ROOM.X, ROOM.Y, WALL), CFrame.new(0, ROOM.Y / 2, -halfZ), PALETTE.wall, room)
-	part("WallFront", Vector3.new(ROOM.X, ROOM.Y, WALL), CFrame.new(0, ROOM.Y / 2, halfZ), PALETTE.wall, room)
-	part("WallLeft", Vector3.new(WALL, ROOM.Y, ROOM.Z), CFrame.new(-halfX, ROOM.Y / 2, 0), PALETTE.wall, room)
-	part("WallRight", Vector3.new(WALL, ROOM.Y, ROOM.Z), CFrame.new(halfX, ROOM.Y / 2, 0), PALETTE.wall, room)
+	wall("WallBack", Vector3.new(ROOM.X, ROOM.Y, WALL), CFrame.new(0, halfY, -halfZ - WALL / 2), room, true)
+	wall("WallFront", Vector3.new(ROOM.X, ROOM.Y, WALL), CFrame.new(0, halfY, halfZ + WALL / 2), room, true)
+	wall("WallLeft", Vector3.new(WALL, ROOM.Y, ROOM.Z), CFrame.new(-halfX - WALL / 2, halfY, 0), room, false)
+	wall("WallRight", Vector3.new(WALL, ROOM.Y, ROOM.Z), CFrame.new(halfX + WALL / 2, halfY, 0), room, false)
+end
 
-	-- Une fenêtre de nuit sur le mur de gauche : elle donne un point de
-	-- lumière froide qui contraste avec la lampe, et elle évite l'effet
-	-- "boîte fermée".
-	local window = part("Window", Vector3.new(0.4, 4.5, 6), CFrame.new(-halfX + 0.4, 7, 2), PALETTE.night, room)
-	window.Material = Enum.Material.Neon
+--- La fenêtre. Elle donne la seule lumière froide de la pièce et évite
+--- l'effet boîte fermée, qui était le vrai défaut du décor précédent.
+local function buildWindow(room: Model)
+	local halfX = ROOM.X / 2
+	local center = CFrame.new(-halfX - 0.1, 5.4, 1)
 
-	local poster = part("Poster", Vector3.new(0.2, 4, 3), CFrame.new(halfX - 0.6, 7.5, -2), PALETTE.poster, room)
-	poster.Material = Enum.Material.SmoothPlastic
+	local glass = part("WindowGlass", Vector3.new(0.25, 4.2, 5.2), center, PALETTE.night, room)
+	glass.Material = Enum.Material.Neon
 
-	local rug = part("Rug", Vector3.new(12, 0.15, 8), CFrame.new(0, 0.08, -1), PALETTE.rug, room)
-	rug.Material = Enum.Material.Fabric
+	-- Encadrement et croisillons.
+	part("WindowFrameTop", Vector3.new(0.4, 0.4, 5.9), center * CFrame.new(0, 2.3, 0), PALETTE.frame, room)
+	part("WindowFrameBottom", Vector3.new(0.4, 0.5, 5.9), center * CFrame.new(0, -2.35, 0), PALETTE.frame, room)
+	part("WindowFrameLeft", Vector3.new(0.4, 5, 0.4), center * CFrame.new(0, 0, -2.75), PALETTE.frame, room)
+	part("WindowFrameRight", Vector3.new(0.4, 5, 0.4), center * CFrame.new(0, 0, 2.75), PALETTE.frame, room)
+	part("WindowMullion", Vector3.new(0.3, 4.2, 0.22), center * CFrame.new(0.05, 0, 0), PALETTE.frame, room)
+	part("WindowSill", Vector3.new(1.1, 0.28, 6.2), center * CFrame.new(0.4, -2.6, 0), PALETTE.frame, room)
 
-	-- Un plafonnier faible : la pièce doit rester sombre pour que l'écran
-	-- et les LED que le joueur posera dominent vraiment.
-	local ceilingLamp = part("CeilingLamp", Vector3.new(2.4, 0.3, 2.4), CFrame.new(0, ROOM.Y - 0.8, 0),
-		Color3.fromRGB(252, 236, 200), room)
-	ceilingLamp.Material = Enum.Material.Neon
+	local moonlight = Instance.new("PointLight")
+	moonlight.Brightness = 1.1
+	moonlight.Range = 26
+	moonlight.Color = Color3.fromRGB(150, 180, 240)
+	moonlight.Parent = glass
+end
 
-	local bulb = Instance.new("PointLight")
-	bulb.Brightness = 0.9
-	bulb.Range = 30
-	bulb.Color = Color3.fromRGB(255, 226, 180)
-	bulb.Parent = ceilingLamp
+local function buildDoor(room: Model)
+	local halfZ = ROOM.Z / 2
+	local center = CFrame.new(5, 3.6, halfZ + 0.05)
+
+	part("DoorFrameLeft", Vector3.new(0.35, 7.6, 0.5), center * CFrame.new(-1.9, 0.2, 0), PALETTE.frame, room)
+	part("DoorFrameRight", Vector3.new(0.35, 7.6, 0.5), center * CFrame.new(1.9, 0.2, 0), PALETTE.frame, room)
+	part("DoorFrameTop", Vector3.new(4.15, 0.35, 0.5), center * CFrame.new(0, 3.85, 0), PALETTE.frame, room)
+	part("Door", Vector3.new(3.5, 7.2, 0.25), center, PALETTE.door, room)
+	part("DoorHandle", Vector3.new(0.5, 0.16, 0.16), center * CFrame.new(1.3, 0, -0.2), PALETTE.handle, room)
 end
 
 local function buildBed(room: Model)
 	local halfX, halfZ = ROOM.X / 2, ROOM.Z / 2
-	local base = CFrame.new(halfX - 4, 1.2, halfZ - 6)
+	-- Contre le mur de droite, tête vers le fond.
+	local base = CFrame.new(halfX - 2.2, 0.9, halfZ - 5.2)
 
-	part("BedFrame", Vector3.new(6, 1.6, 9), base, PALETTE.desk, room)
+	part("BedFrame", Vector3.new(3.6, 1.4, 7.6), base, PALETTE.bed, room)
 
-	local mattress = part("Mattress", Vector3.new(5.6, 0.8, 8.6), base * CFrame.new(0, 1.2, 0), PALETTE.fabric, room)
+	local mattress = part("Mattress", Vector3.new(3.3, 0.9, 7.2), base * CFrame.new(0, 1.1, 0), PALETTE.fabric, room)
 	mattress.Material = Enum.Material.Fabric
 
-	local pillow = part("Pillow", Vector3.new(4.4, 0.7, 1.8), base * CFrame.new(0, 1.9, -3.1), PALETTE.sheets, room)
+	local duvet = part("Duvet", Vector3.new(3.4, 0.35, 4.6), base * CFrame.new(0, 1.6, 1.2), PALETTE.sheets, room)
+	duvet.Material = Enum.Material.Fabric
+
+	local pillow = part("Pillow", Vector3.new(2.6, 0.5, 1.2), base * CFrame.new(0, 1.75, -2.9), PALETTE.sheets, room)
 	pillow.Material = Enum.Material.Fabric
 
 	-- Dormir fait passer au lendemain matin : l'énergie remonte, et les
@@ -8192,9 +8428,36 @@ local function buildBed(room: Model)
 	prompt.ActionText = "Dormir"
 	prompt.KeyboardKeyCode = Enum.KeyCode.E
 	prompt.HoldDuration = 0.6
-	prompt.MaxActivationDistance = 10
+	prompt.MaxActivationDistance = 8
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = mattress
+end
+
+local function buildLighting(room: Model)
+	-- Un plafonnier faible et chaud. La pièce doit rester sombre pour que
+	-- l'écran et les LED que le joueur posera dominent vraiment.
+	local shade = part("CeilingLamp", Vector3.new(1.6, 0.5, 1.6), CFrame.new(0, ROOM.Y - 0.9, 0),
+		Color3.fromRGB(250, 232, 200), room)
+	shade.Material = Enum.Material.Neon
+
+	part("CeilingCord", Vector3.new(0.12, 0.9, 0.12), CFrame.new(0, ROOM.Y - 0.3, 0), Color3.fromRGB(60, 56, 52), room)
+
+	local bulb = Instance.new("PointLight")
+	bulb.Brightness = 0.85
+	bulb.Range = 24
+	bulb.Color = Color3.fromRGB(255, 224, 178)
+	bulb.Parent = shade
+
+	local rug = part("Rug", Vector3.new(7, 0.1, 5), CFrame.new(-1, 0.05, -2), PALETTE.rug, room)
+	rug.Material = Enum.Material.Fabric
+
+	Lighting.Ambient = Color3.fromRGB(46, 44, 52)
+	Lighting.OutdoorAmbient = Color3.fromRGB(38, 44, 64)
+	Lighting.Brightness = 1
+	Lighting.ClockTime = 21.5
+	Lighting.EnvironmentDiffuseScale = 0.35
+	Lighting.GlobalShadows = true
+	Lighting.FogEnd = 400
 end
 
 function DevRoom.build()
@@ -8206,10 +8469,9 @@ function DevRoom.build()
 		return existing
 	end
 
-	-- Si on synchronise dans un place "Baseplate" de Studio, son sol et son
-	-- point d'apparition entrent en conflit avec les nôtres. On les retire,
-	-- mais uniquement s'ils portent exactement les noms par défaut — on ne
-	-- veut surtout pas manger du décor construit à la main.
+	-- Le sol et le point d'apparition d'un place « Baseplate » entreraient
+	-- en conflit avec les nôtres. On ne retire que ce qui porte exactement
+	-- les noms par défaut de Studio.
 	local baseplate = workspace:FindFirstChild("Baseplate")
 	if baseplate and baseplate:IsA("BasePart") then
 		baseplate:Destroy()
@@ -8225,27 +8487,22 @@ function DevRoom.build()
 	room.Parent = workspace
 
 	buildShell(room)
+	buildWindow(room)
+	buildDoor(room)
 	buildBed(room)
+	buildLighting(room)
 
-	-- Le joueur apparaît au milieu de la pièce, face au bureau : il voit
-	-- l'écran allumé dès la première seconde.
+	-- Le joueur apparaît près de la porte, face au bureau : il voit l'écran
+	-- allumé dès la première seconde.
 	local spawnLocation = Instance.new("SpawnLocation")
 	spawnLocation.Name = "PlayerSpawn"
-	spawnLocation.Size = Vector3.new(5, 0.4, 5)
-	spawnLocation.CFrame = CFrame.new(0, 0.2, ROOM.Z / 2 - 7)
+	spawnLocation.Size = Vector3.new(4, 0.4, 4)
+	spawnLocation.CFrame = CFrame.new(2, 0.2, 4)
 	spawnLocation.Anchored = true
 	spawnLocation.Transparency = 1
 	spawnLocation.CanCollide = false
 	spawnLocation.Neutral = true
 	spawnLocation.Parent = room
-
-	-- Nuit, lumière ambiante faible : l'écran et la lampe doivent dominer.
-	Lighting.Ambient = Color3.fromRGB(34, 34, 44)
-	Lighting.OutdoorAmbient = Color3.fromRGB(30, 34, 50)
-	Lighting.Brightness = 0.8
-	Lighting.ClockTime = 22
-	Lighting.EnvironmentDiffuseScale = 0.3
-	Lighting.GlobalShadows = true
 
 	return room
 end

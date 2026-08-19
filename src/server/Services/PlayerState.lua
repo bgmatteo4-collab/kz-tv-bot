@@ -70,11 +70,17 @@ local function defaultState()
 		-- il passe par le même constructeur que tout le reste, et le joueur
 		-- peut le déplacer comme n'importe quel meuble.
 		placed = {
-			{ uid = 101, itemId = "desk_family", x = 0, y = 1.8, z = -7, yaw = 180 },
-			{ uid = 102, itemId = "chair_kitchen", x = 0, y = 1.8, z = -2, yaw = 0 },
-			{ uid = 103, itemId = "pc_handmedown", x = -6, y = 2.5, z = -7, yaw = 0 },
-			{ uid = 104, itemId = "monitor_starter", x = 0, y = 6, z = -7, yaw = 180 },
-			{ uid = 105, itemId = "cam_attic", x = 2.5, y = 4.2, z = -6, yaw = 180 },
+			-- Contre le mur du fond, tourné vers le joueur. Les hauteurs sont
+			-- des centres d'objet : un bureau de 2,6 studs de haut a son
+			-- centre à 1,3.
+			{ uid = 101, itemId = "desk_family", x = -1, y = 1.3, z = -5.4, yaw = 180 },
+			{ uid = 102, itemId = "chair_kitchen", x = -1, y = 1.6, z = -2.9, yaw = 0 },
+			{ uid = 103, itemId = "pc_handmedown", x = -4.4, y = 0.95, z = -5, yaw = 0 },
+			{ uid = 104, itemId = "monitor_starter", x = -1, y = 4.1, z = -6, yaw = 180 },
+			-- La webcam est posée sur le moniteur, comme chez tout le monde.
+			{ uid = 105, itemId = "cam_attic", x = -1, y = 5.2, z = -6, yaw = 180 },
+			{ uid = 106, itemId = "kb_membrane", x = -1, y = 2.68, z = -4.8, yaw = 180 },
+			{ uid = 107, itemId = "mouse_basic", x = 0.4, y = 2.7, z = -4.8, yaw = 180 },
 		},
 		-- Compteur d'identifiants d'objets, jamais réutilisé. Il démarre
 		-- au-dessus des identifiants du matériel de départ.

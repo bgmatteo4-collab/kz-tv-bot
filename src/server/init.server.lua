@@ -31,7 +31,7 @@ local DevRoom = require(script.DevRoom)
 -- Limites de la pièce actuelle. Elles viendront du local choisi par le
 -- joueur quand les lieux existeront ; en attendant elles décrivent la
 -- chambre de test.
-local ROOM_BOUNDS = { x = 12.5, y = 12.5, z = 10.5 }
+local ROOM_BOUNDS = { x = 7.6, y = 9.6, z = 6.6 }
 
 -- Vitesses proposées au joueur. 0 met le temps en pause.
 local ALLOWED_TIME_SCALES = { [0] = true, [1] = true, [4] = true, [10] = true }

@@ -199,6 +199,48 @@ recipes.streamdeck = function(model, size, palette, item)
 	end
 end
 
+recipes.keyboard = function(model, size, palette, item)
+	piece(model, "Base", Vector3.new(size.X, size.Y * 0.6, size.Z),
+		CFrame.new(0, -size.Y * 0.2, 0), DARK, Enum.Material.SmoothPlastic)
+
+	-- Quatre rangées de touches suggérées : à cette échelle on ne voit
+	-- qu'une trame, et c'est exactement ce qu'il faut.
+	local rows = 4
+	local rowDepth = (size.Z - 0.12) / rows
+	local lit = item.style == "gamer"
+
+	for row = 0, rows - 1 do
+		piece(model, "Row", Vector3.new(size.X - 0.14, size.Y * 0.5, rowDepth * 0.72),
+			CFrame.new(0, size.Y * 0.16, -size.Z / 2 + 0.06 + rowDepth * (row + 0.5)),
+			lit and palette.accent or Color3.fromRGB(64, 66, 74),
+			lit and Enum.Material.Neon or Enum.Material.SmoothPlastic)
+	end
+end
+
+recipes.mouse = function(model, size, palette, item)
+	piece(model, "Body", Vector3.new(size.X, size.Y, size.Z),
+		CFrame.new(), DARK, Enum.Material.SmoothPlastic, Enum.PartType.Ball)
+	piece(model, "Wheel", Vector3.new(size.X * 0.18, size.Y * 0.5, size.Z * 0.22),
+		CFrame.new(0, size.Y * 0.35, -size.Z * 0.18),
+		item.style == "gamer" and palette.accent or Color3.fromRGB(90, 94, 104),
+		item.style == "gamer" and Enum.Material.Neon or Enum.Material.SmoothPlastic)
+end
+
+recipes.deskmat = function(model, size, palette)
+	piece(model, "Mat", size, CFrame.new(), palette.base, Enum.Material.Fabric)
+	piece(model, "Edge", Vector3.new(size.X - 0.12, size.Y * 1.2, size.Z - 0.12),
+		CFrame.new(0, 0.01, 0), palette.accent, Enum.Material.Fabric)
+end
+
+recipes.stand = function(model, size, palette)
+	piece(model, "Base", Vector3.new(size.X, size.Y * 0.08, size.Z),
+		CFrame.new(0, -size.Y / 2, 0), DARK, Enum.Material.Metal, Enum.PartType.Cylinder)
+	piece(model, "Pole", Vector3.new(size.X * 0.25, size.Y * 0.9, size.X * 0.25),
+		CFrame.new(0, 0, 0), METAL, Enum.Material.Metal)
+	piece(model, "Hook", Vector3.new(size.X * 0.8, size.Y * 0.1, size.Z * 0.5),
+		CFrame.new(0, size.Y * 0.45, 0), DARK, Enum.Material.SmoothPlastic)
+end
+
 recipes.key = function(model, size, palette, item)
 	-- Trépied : trois pieds inclinés, un mât, une source.
 	for index = 0, 2 do

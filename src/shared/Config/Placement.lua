@@ -16,64 +16,34 @@ local Styles = require(script.Parent.Styles)
 
 local Placement = {}
 
---- Pas de la grille, en studs. Un pas d'un stud garde de la précision sans
---- laisser poser un meuble de travers.
-Placement.GridSize = 1
+--- Pas de la grille, en studs. À l'échelle du projet, un stud fait 25 cm :
+--- un pas d'un stud empêcherait de poser proprement une souris ou un
+--- clavier sur un bureau.
+Placement.GridSize = 0.5
 
 --- Pas de rotation, en degrés.
 Placement.RotationStep = 15
 
 --- Distance maximale de pose depuis le joueur.
-Placement.MaxReach = 40
+Placement.MaxReach = 24
 
 --- Hauteur d'accrochage par défaut d'un objet mural.
-Placement.WallHeight = 7
+Placement.WallHeight = 5
 
--- Hauteur d'un objet selon sa catégorie, faute de modèles 3D. Ces valeurs
--- servent uniquement au volume de collision et au rendu provisoire.
-local HEIGHT_BY_CATEGORY: { [string]: number } = {
-	desk = 3.6,
-	chair = 3.6,
-	storage = 3.2,
-	guest = 2.8,
-	audience = 4.5,
-
-	camera = 1.2,
-	microphone = 2.2,
-	computer = 5,
-	streamdeck = 0.6,
-	capture = 0.5,
-	audio = 0.7,
-	backdrop = 8,
-
-	key = 6,
-	fill = 5.5,
-	rim = 6,
-	hub = 0.6,
-	led = 0.4,
-
-	acoustic = 0.4,
-	wall = 0.2,
-	object = 3,
-
-	strip = 0.4,
-	extension = 0.3,
-	ups = 1.6,
-	circuit = 0.4,
-}
-
---- Les écrans gardent un rapport 16:9, sinon l'interface projetée dessus
---- se retrouve étirée et illisible.
+--- Les catégories d'objets qui portent une interface projetée.
 local SCREEN_CATEGORIES = { display = true, decoscreen = true }
 
+--- L'encombrement réel d'un objet.
+---
+--- ÉCHELLE DU PROJET : 1 stud = 25 cm, un personnage Roblox mesurant à peu
+--- près 5 studs. Toutes les dimensions du catalogue en découlent — une
+--- webcam fait 0,4 stud, pas 1. La seule entorse assumée concerne les
+--- écrans, agrandis d'environ 40 % par rapport au réel : une dalle de
+--- 24 pouces à l'échelle exacte rendrait l'interface projetée dessus
+--- inutilisable.
 function Placement.GetSize(item: any): Vector3
-	local footprint = item.footprint or Vector2.new(2, 2)
-
-	if SCREEN_CATEGORIES[item.category] then
-		return Vector3.new(footprint.X, footprint.X * 9 / 16, 0.35)
-	end
-
-	local height = HEIGHT_BY_CATEGORY[item.category] or 2
+	local footprint = item.footprint or Vector2.new(1, 1)
+	local height = item.height or 1
 	return Vector3.new(footprint.X, height, footprint.Y)
 end
 

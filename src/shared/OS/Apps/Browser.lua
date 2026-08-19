@@ -19,7 +19,8 @@ local Create = require(Shared.Lib.Create)
 local Trove = require(Shared.Lib.Trove)
 local Theme = require(Shared.OS.Theme)
 local Catalogue = require(Shared.Config.Catalogue)
-local Styles = require(Shared.Config.Styles)
+local Placement = require(Shared.Config.Placement)
+local ModelBuilder = require(Shared.Build.ModelBuilder)
 local Websites = require(Shared.Content.Websites)
 
 local Browser = {}
@@ -130,6 +131,46 @@ local function buyButton(theme, label: string, enabled: boolean, onClick: () -> 
 	return button
 end
 
+--- La photo produit.
+---
+--- Je ne peux pas fournir d'images, alors la fiche affiche mieux qu'une
+--- photo : le VRAI modèle de l'objet, rendu en direct dans un
+--- `ViewportFrame`, vu de trois quarts. Ce que le joueur regarde en
+--- boutique est exactement ce qu'il recevra dans son carton — et le jour
+--- où de vrais modèles 3D remplaceront les primitives, les fiches suivent
+--- toutes seules.
+local function productPreview(item, background: Color3): ViewportFrame
+	local viewport = Create("ViewportFrame") {
+		Name = "Preview",
+		BackgroundColor3 = background,
+		BorderSizePixel = 0,
+		Ambient = Color3.fromRGB(160, 160, 168),
+		LightColor = Color3.fromRGB(255, 250, 240),
+		LightDirection = Vector3.new(-0.6, -1, -0.4),
+
+		Create("UICorner") { CornerRadius = UDim.new(0, 4) },
+	}
+
+	local model = ModelBuilder.build(item, CFrame.new())
+	model.Parent = viewport
+
+	local camera = Instance.new("Camera")
+	camera.FieldOfView = 32
+	camera.Parent = viewport
+	viewport.CurrentCamera = camera
+
+	-- Cadrage automatique : on recule le long d'une diagonale jusqu'à ce que
+	-- l'objet tienne dans le champ, quelle que soit sa taille. Une souris et
+	-- une borne d'arcade occupent ainsi la même place sur la fiche.
+	local size = Placement.GetSize(item)
+	local radius = math.max(size.Magnitude, 0.4)
+	local direction = Vector3.new(0.85, 0.5, 1).Unit
+
+	camera.CFrame = CFrame.lookAt(direction * radius * 2.1, Vector3.zero)
+
+	return viewport
+end
+
 local function specsOf(item): string
 	local specs = {}
 
@@ -173,8 +214,21 @@ end
 
 --- Fiche produit en grille : une vignette de couleur, un titre, un prix.
 local function gridCard(site, item, money: number, ordered: boolean, onBuy: () -> ())
-	local style = item.style and Styles.Get(item.style)
 	local label, enabled = statusFor(item, money, ordered)
+
+	local thumb = productPreview(item, site.theme.background)
+	thumb.Size = UDim2.new(1, 0, 0, 62)
+
+	text {
+		text = string.upper(item.brand),
+		color = site.theme.muted,
+		font = Theme.Font.Bold,
+		size = 11,
+		align = Enum.TextXAlignment.Right,
+		bounds = UDim2.new(1, -10, 0, 14),
+		position = UDim2.fromOffset(0, 8),
+		zIndex = 3,
+	}.Parent = thumb
 
 	return Create("Frame") {
 		Name = item.id,
@@ -189,33 +243,7 @@ local function gridCard(site, item, money: number, ordered: boolean, onBuy: () -
 			PaddingRight = UDim.new(0, 14),
 		},
 
-		-- Vignette : à défaut de photo produit, un aplat aux couleurs du
-		-- style de l'objet. Ça structure la grille et ça reste honnête.
-		Create("Frame") {
-			Name = "Thumb",
-			Size = UDim2.new(1, 0, 0, 62),
-			BackgroundColor3 = style and style.palette[1] or site.theme.muted,
-			BorderSizePixel = 0,
-
-			Create("UICorner") { CornerRadius = UDim.new(0, 4) },
-			Create("UIGradient") {
-				Color = ColorSequence.new(
-					style and style.palette[1] or site.theme.muted,
-					style and style.palette[2] or site.theme.accent
-				),
-				Rotation = 25,
-			},
-			text {
-				text = string.upper(item.brand),
-				color = Color3.new(1, 1, 1),
-				font = Theme.Font.Bold,
-				size = 11,
-				align = Enum.TextXAlignment.Right,
-				bounds = UDim2.new(1, -10, 0, 14),
-				position = UDim2.fromOffset(0, 8),
-				zIndex = 3,
-			},
-		},
+		thumb,
 
 		text {
 			text = item.name,
@@ -259,8 +287,10 @@ end
 
 --- Fiche produit en liste : plus dense, plus « place de marché ».
 local function listRow(site, item, money: number, ordered: boolean, onBuy: () -> ())
-	local style = item.style and Styles.Get(item.style)
 	local label, enabled = statusFor(item, money, ordered)
+
+	local thumb = productPreview(item, site.theme.background)
+	thumb.Size = UDim2.fromOffset(72, 72)
 
 	return Create("Frame") {
 		Name = item.id,
@@ -276,20 +306,7 @@ local function listRow(site, item, money: number, ordered: boolean, onBuy: () ->
 			PaddingRight = UDim.new(0, 14),
 		},
 
-		Create("Frame") {
-			Name = "Thumb",
-			Size = UDim2.fromOffset(72, 72),
-			BackgroundColor3 = style and style.palette[1] or site.theme.muted,
-			BorderSizePixel = 0,
-			Create("UICorner") { CornerRadius = UDim.new(0, 4) },
-			Create("UIGradient") {
-				Color = ColorSequence.new(
-					style and style.palette[1] or site.theme.muted,
-					style and style.palette[2] or site.theme.accent
-				),
-				Rotation = 40,
-			},
-		},
+		thumb,
 
 		text {
 			text = item.name,

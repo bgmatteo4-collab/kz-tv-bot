@@ -26,7 +26,8 @@ return {
 		acoustic = 0.5,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(10, 6),
+		footprint = Vector2.new(4.8, 0.3),
+		height = 3.2,
 		description = "Mousse alvéolée sur le mur. Supprime l'écho de la pièce vide et affiche clairement que tu prends ça au sérieux.",
 	},
 	{
@@ -41,7 +42,8 @@ return {
 		acoustic = 0.35,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(2, 2),
+		footprint = Vector2.new(0.9, 0.9),
+		height = 6,
 		description = "Dans les angles, là où le son s'accumule. Personne ne les remarquera, et tout le monde entendra la différence.",
 	},
 	{
@@ -56,7 +58,8 @@ return {
 		acoustic = 0.3,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(9, 10),
+		footprint = Vector2.new(3.6, 0.3),
+		height = 6.5,
 		description = "Absorbe le son, bloque la lumière du jour, et fait un fond uni très correct. Trois usages pour soixante euros.",
 	},
 	{
@@ -71,7 +74,8 @@ return {
 		acoustic = 0.25,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(10, 8),
+		footprint = Vector2.new(5.5, 4),
+		height = 0.1,
 		description = "Coupe la réverbération au sol et réchauffe une pièce carrelée, visuellement comme acoustiquement.",
 	},
 
@@ -87,7 +91,8 @@ return {
 		price = 15,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(4, 6),
+		footprint = Vector2.new(1.6, 0.1),
+		height = 2.3,
 		description = "Le premier objet que tout le monde accroche. Utile pour combler un mur vide, dangereux quand il y en a douze.",
 	},
 	{
@@ -101,7 +106,8 @@ return {
 		price = 70,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(5, 7),
+		footprint = Vector2.new(1.8, 0.12),
+		height = 2.5,
 		description = "Encadrée, jaunie, choisie. Elle raconte quelque chose sur toi, ce qu'une affiche scotchée ne fait pas.",
 	},
 	{
@@ -115,7 +121,8 @@ return {
 		price = 210,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(14, 10),
+		footprint = Vector2.new(8, 0.2),
+		height = 6,
 		description = "Recouvre un mur entier. Change une chambre en décor d'un seul achat, et pardonne beaucoup de fautes de goût.",
 	},
 	{
@@ -129,7 +136,8 @@ return {
 		price = 90,
 		power = 0,
 		surface = "wall",
-		footprint = Vector2.new(8, 4),
+		footprint = Vector2.new(3, 0.1),
+		height = 1.6,
 		description = "Tes paliers d'abonnés encadrés au mur. Se remplissent tout seuls au fil de la partie, et c'est ce qui les rend satisfaisants.",
 	},
 
@@ -145,7 +153,8 @@ return {
 		price = 25,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(2, 2),
+		footprint = Vector2.new(0.8, 0.8),
+		height = 1.4,
 		description = "Du vert dans le cadre. C'est bête, ça marche, et ça rend n'importe quel fond plus vivant.",
 	},
 	{
@@ -159,7 +168,8 @@ return {
 		price = 90,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(3, 3),
+		footprint = Vector2.new(1.4, 1.4),
+		height = 3,
 		description = "Remplit un angle vide derrière toi. Le meuble le moins cher qui donne l'air d'avoir un décor.",
 	},
 	{
@@ -173,7 +183,8 @@ return {
 		price = 60,
 		power = 0,
 		surface = "desk",
-		footprint = Vector2.new(4, 1),
+		footprint = Vector2.new(1.6, 0.5),
+		height = 0.7,
 		description = "À poser sur une étagère derrière toi. Le chat les commentera plus que ton contenu.",
 	},
 	{
@@ -187,7 +198,8 @@ return {
 		price = 260,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(8, 3),
+		footprint = Vector2.new(3.2, 1.2),
+		height = 5.5,
 		description = "Le fond préféré des gens qui veulent avoir l'air fiables. Ça fonctionne, et tout le monde le sait.",
 	},
 	{
@@ -201,7 +213,8 @@ return {
 		price = 180,
 		power = 0,
 		surface = "floor",
-		footprint = Vector2.new(5, 4),
+		footprint = Vector2.new(2, 1.6),
+		height = 2.8,
 		description = "Empilés dans un coin, éteints, purement décoratifs. Personne ne sait pourquoi c'est si beau, mais ça l'est.",
 	},
 	{
@@ -215,7 +228,8 @@ return {
 		price = 1400,
 		power = 180,
 		surface = "floor",
-		footprint = Vector2.new(4, 4),
+		footprint = Vector2.new(2.6, 2.6),
+		height = 6.5,
 		description = "Énorme, lourde, chère, et absolument imbattable dans un fond de plan large. Un achat de coeur qui se justifie tout seul à l'image.",
 	},
 	{
@@ -229,7 +243,8 @@ return {
 		price = 110,
 		power = 65,
 		surface = "floor",
-		footprint = Vector2.new(3, 3),
+		footprint = Vector2.new(1.6, 1.6),
+		height = 2,
 		description = "À portée de main pour ne jamais quitter le siège. C'est exactement le problème, et c'est pour ça que tu vas l'acheter.",
 	},
 }

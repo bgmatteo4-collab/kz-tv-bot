@@ -1,0 +1,3892 @@
+<?xml version="1.0" encoding="utf-8"?>
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+<Item class="Workspace" referent="RBX31"><Properties><string name="Name">Workspace</string></Properties></Item>
+<Item class="Lighting" referent="RBX32"><Properties><string name="Name">Lighting</string></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBX33"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX22"><Properties><string name="Name">Shared</string></Properties><Item class="Folder" referent="RBX1"><Properties><string name="Name">Config</string></Properties><Item class="ModuleScript" referent="RBX0"><Properties><string name="Name">Devices</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Devices — le catalogue du matériel.
+
+	Tout objet branchable du jeu est décrit ici, et seulement ici. Ajouter
+	une webcam à 900 € au catalogue ne demande aucune ligne de code : une
+	entrée suffit, et elle apparaît en boutique, dans le mode construction,
+	dans les sources de KZ Studio et dans le calcul de qualité d'image.
+
+	`ports` : ce que l'appareil expose (sortie) ou réclame (entrée).
+	`quality` : de 0 à 1, ce que l'appareil apporte à la note d'image ou de son.
+]]
+
+export type PortType = "usb" | "hdmi" | "xlr" | "jack" | "power" | "ethernet"
+
+export type Device = {
+	id: string,
+	name: string,
+	brand: string,
+	category: "camera" | "microphone" | "computer" | "display" | "light" | "backdrop" | "capture" | "network",
+	price: number,
+	quality: number,
+	-- Ports à brancher pour que l'appareil fonctionne.
+	requires: { PortType },
+	-- Ports que l'appareil offre aux autres.
+	provides: { PortType },
+	-- Watts consommés : la multiprise a une limite, et elle saute.
+	power: number,
+	-- Encombrement en studs, pour le mode construction.
+	footprint: Vector2,
+	description: string,
+}
+
+local Devices: { [string]: Device } = {
+	webcam_basic = {
+		id = "webcam_basic",
+		name = "LifeCam 480",
+		brand = "Genelux",
+		category = "camera",
+		price = 0,
+		quality = 0.15,
+		requires = { "usb" },
+		provides = {},
+		power = 2,
+		footprint = Vector2.new(1, 1),
+		description = "Elle était dans un carton au grenier. Elle fait le travail, si on est indulgent sur le mot travail.",
+	},
+
+	webcam_hd = {
+		id = "webcam_hd",
+		name = "StreamCam C7",
+		brand = "Genelux",
+		category = "camera",
+		price = 120,
+		quality = 0.45,
+		requires = { "usb" },
+		provides = {},
+		power = 3,
+		footprint = Vector2.new(1, 1),
+		description = "La webcam que tout le monde a. Correcte partout, excellente nulle part.",
+	},
+
+	mic_headset = {
+		id = "mic_headset",
+		name = "Casque-micro G1",
+		brand = "Genelux",
+		category = "microphone",
+		price = 0,
+		quality = 0.2,
+		requires = { "jack" },
+		provides = {},
+		power = 0,
+		footprint = Vector2.new(1, 1),
+		description = "Capte ta voix, ta respiration, ton clavier, et ton frère dans le couloir.",
+	},
+
+	mic_usb = {
+		id = "mic_usb",
+		name = "Podium USB",
+		brand = "Auvox",
+		category = "microphone",
+		price = 95,
+		quality = 0.5,
+		requires = { "usb" },
+		provides = {},
+		power = 2,
+		footprint = Vector2.new(1, 1),
+		description = "Le micro qui a lancé mille podcasts. Le pied prend de la place sur le bureau.",
+	},
+
+	greenscreen_small = {
+		id = "greenscreen_small",
+		name = "Fond vert 1,5 m",
+		brand = "Cadran",
+		category = "backdrop",
+		price = 60,
+		quality = 0.4,
+		requires = {},
+		provides = {},
+		power = 0,
+		footprint = Vector2.new(5, 1),
+		description = "Suffisant si tu ne bouges pas. Tu bougeras.",
+	},
+
+	greenscreen_large = {
+		id = "greenscreen_large",
+		name = "Fond vert 3 m sur pieds",
+		brand = "Cadran",
+		category = "backdrop",
+		price = 210,
+		quality = 0.8,
+		requires = {},
+		provides = {},
+		power = 0,
+		footprint = Vector2.new(10, 2),
+		description = "Couvre largement le cadre. Encore faut-il avoir trois mètres de mur libre.",
+	},
+
+	light_ring = {
+		id = "light_ring",
+		name = "Anneau lumineux 12\"",
+		brand = "Cadran",
+		category = "light",
+		price = 45,
+		quality = 0.3,
+		requires = { "power" },
+		provides = {},
+		power = 18,
+		footprint = Vector2.new(2, 2),
+		description = "Éclaire ton visage et te met deux donuts dans les yeux.",
+	},
+
+	light_softbox = {
+		id = "light_softbox",
+		name = "Softbox 60x60",
+		brand = "Cadran",
+		category = "light",
+		price = 130,
+		quality = 0.7,
+		requires = { "power" },
+		provides = {},
+		power = 60,
+		footprint = Vector2.new(3, 3),
+		description = "Lumière douce et large. Prend la place d'un fauteuil.",
+	},
+
+	pc_hand_me_down = {
+		id = "pc_hand_me_down",
+		name = "Tour de récup",
+		brand = "assemblage maison",
+		category = "computer",
+		price = 0,
+		quality = 0.1,
+		requires = { "power" },
+		provides = { "usb", "hdmi", "jack" },
+		power = 220,
+		footprint = Vector2.new(2, 4),
+		description = "Démarre en 90 secondes. Ventile comme un sèche-cheveux. Tiendra, probablement.",
+	},
+
+	pc_midrange = {
+		id = "pc_midrange",
+		name = "Atelier 5600",
+		brand = "Novaris",
+		category = "computer",
+		price = 850,
+		quality = 0.55,
+		requires = { "power" },
+		provides = { "usb", "hdmi", "jack", "ethernet" },
+		power = 400,
+		footprint = Vector2.new(2, 4),
+		description = "Encode sans broncher. Ne t'empêchera plus de faire quoi que ce soit.",
+	},
+
+	monitor_24 = {
+		id = "monitor_24",
+		name = "Écran 24\" 1080p",
+		brand = "Novaris",
+		category = "display",
+		price = 140,
+		quality = 0.4,
+		requires = { "hdmi", "power" },
+		provides = {},
+		power = 25,
+		footprint = Vector2.new(4, 1),
+		description = "Un écran. Le deuxième change plus ta vie que le premier ne l'a fait.",
+	},
+}
+
+return Devices
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX3"><Properties><string name="Name">Content</string></Properties><Item class="ModuleScript" referent="RBX2"><Properties><string name="Name">Emails</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Emails — le contenu de la boîte de réception.
+
+	C'est ici que vit le ton du jeu : réaliste-satirique. Rien n'est
+	caricatural ; c'est drôle parce que c'est vrai. Les mails servent aussi
+	de tutoriel diégétique — le joueur n'ouvre jamais un panneau d'aide,
+	il lit son courrier.
+
+	Un mail peut proposer des `choices`. Chaque choix porte des `effects`
+	appliqués par le serveur, jamais par le client.
+]]
+
+export type EmailChoice = {
+	label: string,
+	reply: string,
+	effects: { [string]: any }?,
+}
+
+export type Email = {
+	id: string,
+	sender: string,
+	address: string,
+	subject: string,
+	preview: string,
+	body: { string },
+	day: number,
+	unread: boolean,
+	choices: { EmailChoice }?,
+}
+
+local Emails: { Email } = {
+	{
+		id = "welcome",
+		sender = "Twitchy",
+		address = "ne-pas-repondre@twitchy.tv",
+		subject = "Bienvenue sur Twitchy ! Ta chaîne est prête 🎉",
+		preview = "Félicitations, tu fais maintenant partie des 9,4 millions de créateurs...",
+		day = 1,
+		unread = true,
+		body = {
+			"Salut !",
+			"",
+			"Félicitations, tu fais maintenant partie des 9,4 millions de créateurs actifs sur Twitchy. Ta chaîne est en ligne et prête à accueillir ta communauté.",
+			"",
+			"Pour lancer ton premier direct, ouvre KZ Studio, vérifie que ta caméra et ton micro apparaissent bien dans la liste des sources, puis clique sur PASSER EN DIRECT.",
+			"",
+			"Petit conseil de la part de l'équipe : la régularité prime sur la qualité. Streame tous les jours, même quand tu n'en as pas envie. Surtout quand tu n'en as pas envie.",
+			"",
+			"L'équipe Twitchy",
+			"",
+			"— Ce message est automatique. L'adresse d'envoi n'est pas surveillée. Pour contacter le support, consultez notre centre d'aide, puis notre forum, puis notre communauté Discord, puis débrouillez-vous.",
+		},
+	},
+
+	{
+		id = "roommate_noise",
+		sender = "Maman",
+		address = "cathy.dubreuil@wanadoo.fr",
+		subject = "le bruit",
+		preview = "mon chéri j'ai entendu crier hier vers 2h du matin, tout va bien ?",
+		day = 2,
+		unread = true,
+		body = {
+			"mon chéri",
+			"",
+			"j'ai entendu crier hier vers 2h du matin, tout va bien ? ton père voulait monter voir mais je lui ai dit de te laisser tranquille",
+			"",
+			"il dit que tu devrais quand même penser à envoyer des CV. je lui ai dit que c'était un vrai métier maintenant. il a fait son bruit avec la bouche.",
+			"",
+			"tu descends manger ce soir ?",
+			"",
+			"bisous",
+		},
+		choices = {
+			{
+				label = "Descendre manger (perd un créneau de stream)",
+				reply = "oui je descends, à ce soir",
+				effects = { energy = 15, familyTrust = 10, slotsLost = 1 },
+			},
+			{
+				label = "Répondre plus tard (tu oublieras)",
+				reply = "",
+				effects = { familyTrust = -5 },
+			},
+		},
+	},
+
+	{
+		id = "sponsor_brainfuel",
+		sender = "Kevin Marchetti — BRAIN-FUEL",
+		address = "k.marchetti@brainfuel-performance.io",
+		subject = "Collaboration rémunérée — BRAIN-FUEL x ta chaîne",
+		preview = "On suit ton travail depuis un moment et on kiffe vraiment ce que tu fais...",
+		day = 4,
+		unread = true,
+		body = {
+			"Yo !",
+			"",
+			"On suit ton travail depuis un moment et on kiffe vraiment ce que tu fais. Ton énergie correspond parfaitement aux valeurs de BRAIN-FUEL.",
+			"",
+			"On te propose un partenariat : 3 mentions par live, 4 lives par semaine, pendant un mois. 400 € versés à 60 jours.",
+			"",
+			"Ce qu'on attend de toi :",
+			"— boire la canette à l'écran, visible, logo face caméra",
+			"— dire \"BRAIN-FUEL, le carburant de ceux qui vont vite\" à voix haute",
+			"— ne pas mentionner que le goût pastèque a été retiré du marché en Belgique",
+			"",
+			"Dis-moi si ça te parle, on est plusieurs sur le coup.",
+			"",
+			"Kevin",
+			"Head of Creator Synergy",
+		},
+		choices = {
+			{
+				label = "Accepter — 400 € et un mois de mentions",
+				reply = "Ça marche Kevin, on y va.",
+				effects = { money = 400, sponsorContract = "brainfuel", audienceTrust = -12 },
+			},
+			{
+				label = "Négocier — demander le double",
+				reply = "Salut Kevin, merci pour la proposition. Sur ce volume de mentions je serais plutôt sur 800 €.",
+				effects = { negotiation = "brainfuel" },
+			},
+			{
+				label = "Refuser",
+				reply = "Merci mais je vais passer.",
+				effects = { audienceTrust = 4 },
+			},
+		},
+	},
+
+	{
+		id = "viewer_wall",
+		sender = "Thibault_92",
+		address = "thibault.leroux92@gmail.com",
+		subject = "quelques retours constructifs sur ta chaîne (long désolé)",
+		preview = "Salut, alors déjà je précise que je dis ça en bien hein...",
+		day = 6,
+		unread = true,
+		body = {
+			"Salut,",
+			"",
+			"alors déjà je précise que je dis ça en bien hein, je regarde depuis le début et j'aime beaucoup ce que tu fais, mais je me permets quelques retours constructifs parce que je pense que tu peux vraiment percer si tu corriges deux trois trucs.",
+			"",
+			"1) Ton cadrage est trop serré. On voit pas assez ta pièce. Les gens aiment voir la pièce.",
+			"2) Ton cadrage est trop large depuis que tu l'as changé. On voit ton mur. C'est vide.",
+			"3) Tu dis \"du coup\" 34 fois par heure. J'ai compté sur le live de mardi.",
+			"4) Le jeu auquel tu joues est mort. Tu devrais jouer à autre chose.",
+			"5) Ne change pas de jeu par contre, c'est ce qui fait ton identité.",
+			"",
+			"Voilà, je dis ça avec bienveillance, je suis pas là pour casser. Continue comme ça mais change des trucs.",
+			"",
+			"Thibault",
+			"(je peux être modérateur si tu veux, j'ai de l'expérience)",
+		},
+	},
+}
+
+return Emails
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX7"><Properties><string name="Name">Lib</string></Properties><Item class="ModuleScript" referent="RBX4"><Properties><string name="Name">Create</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Create — sucre syntaxique pour fabriquer des Instances sans dix lignes
+	d'assignations. Les enfants se déclarent dans le même bloc que les
+	propriétés, ce qui rend l'arborescence d'UI lisible d'un coup d'oeil.
+
+	local frame = Create("Frame") {
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.new(0, 0, 0),
+
+		Create("UICorner") { CornerRadius = UDim.new(0, 6) },
+	}
+]]
+
+local function Create(className: string)
+	return function(properties: { [any]: any }): any
+		local instance = Instance.new(className)
+
+		-- Les clés numériques sont des enfants, les clés texte des propriétés.
+		-- On applique les propriétés d'abord : certaines (comme Size sur un
+		-- UIListLayout parent) changent la manière dont les enfants se placent.
+		for key, value in pairs(properties) do
+			if typeof(key) == "string" then
+				(instance :: any)[key] = value
+			end
+		end
+
+		for _, child in ipairs(properties) do
+			if typeof(child) == "Instance" then
+				child.Parent = instance
+			end
+		end
+
+		return instance
+	end
+end
+
+return Create
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX5"><Properties><string name="Name">Signal</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Signal — un événement maison, plus léger et plus rapide qu'un BindableEvent,
+	et surtout capable de transporter des tables sans les recopier.
+
+	local changed = Signal.new()
+	local conn = changed:Connect(function(value) print(value) end)
+	changed:Fire(42)
+	conn:Disconnect()
+]]
+
+local Signal = {}
+Signal.__index = Signal
+
+local Connection = {}
+Connection.__index = Connection
+
+export type Connection = {
+	Disconnect: (self: Connection) -> (),
+	Connected: boolean,
+}
+
+function Connection.new(signal, callback)
+	return setmetatable({
+		_signal = signal,
+		_callback = callback,
+		Connected = true,
+	}, Connection)
+end
+
+function Connection:Disconnect()
+	if not self.Connected then
+		return
+	end
+	self.Connected = false
+
+	local listeners = self._signal._listeners
+	for index, connection in ipairs(listeners) do
+		if connection == self then
+			table.remove(listeners, index)
+			break
+		end
+	end
+end
+
+function Signal.new()
+	return setmetatable({
+		_listeners = {},
+	}, Signal)
+end
+
+function Signal:Connect(callback: (...any) -> ()): Connection
+	local connection = Connection.new(self, callback)
+	table.insert(self._listeners, connection)
+	return connection
+end
+
+--- Se déconnecte automatiquement après le premier déclenchement.
+function Signal:Once(callback: (...any) -> ()): Connection
+	local connection
+	connection = self:Connect(function(...)
+		connection:Disconnect()
+		callback(...)
+	end)
+	return connection
+end
+
+function Signal:Fire(...)
+	-- On itère sur une copie : un listener a le droit de se déconnecter pendant le Fire.
+	local snapshot = table.clone(self._listeners)
+	for _, connection in ipairs(snapshot) do
+		if connection.Connected then
+			task.spawn(connection._callback, ...)
+		end
+	end
+end
+
+function Signal:DisconnectAll()
+	for _, connection in ipairs(table.clone(self._listeners)) do
+		connection:Disconnect()
+	end
+end
+
+function Signal:Destroy()
+	self:DisconnectAll()
+end
+
+return Signal
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX6"><Properties><string name="Name">Trove</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Trove — un sac à nettoyage. On y jette tout ce qu'on crée (Instances,
+	connexions, fonctions d'annulation), et un seul :Clean() range tout.
+
+	Sans ça, un OS qui ouvre et ferme des fenêtres en permanence fuit
+	de la mémoire au bout de dix minutes de jeu.
+]]
+
+local Trove = {}
+Trove.__index = Trove
+
+function Trove.new()
+	return setmetatable({ _items = {} }, Trove)
+end
+
+--- Accepte une Instance, une RBXScriptConnection, une table avec :Destroy()
+--- ou :Disconnect(), ou une simple fonction.
+function Trove:Add<T>(item: T): T
+	table.insert(self._items, item)
+	return item
+end
+
+--- Retire un objet du trove sans le nettoyer.
+function Trove:Remove(item: any)
+	for index, stored in ipairs(self._items) do
+		if stored == item then
+			table.remove(self._items, index)
+			return true
+		end
+	end
+	return false
+end
+
+local function cleanupItem(item: any)
+	local itemType = typeof(item)
+
+	if itemType == "Instance" then
+		item:Destroy()
+	elseif itemType == "RBXScriptConnection" then
+		item:Disconnect()
+	elseif itemType == "function" then
+		item()
+	elseif itemType == "table" then
+		if typeof(item.Destroy) == "function" then
+			item:Destroy()
+		elseif typeof(item.Disconnect) == "function" then
+			item:Disconnect()
+		elseif typeof(item.Clean) == "function" then
+			item:Clean()
+		end
+	end
+end
+
+function Trove:Clean()
+	-- En ordre inverse : on détruit les enfants avant les parents.
+	for index = #self._items, 1, -1 do
+		cleanupItem(self._items[index])
+	end
+	table.clear(self._items)
+end
+
+Trove.Destroy = Trove.Clean
+
+return Trove
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX20"><Properties><string name="Name">OS</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	KZOS — l'instance d'un système d'exploitation.
+
+	Un objet KZOS, c'est un ordinateur allumé. Le jeu peut en avoir
+	plusieurs en même temps (ton PC de stream, le portable du salon, la
+	régie du plateau) : chacun a son propre gestionnaire de fenêtres, ses
+	apps installées et son état de boot.
+
+	L'OS ne sait pas comment il est affiché. Il dessine dans un cadre de
+	1280x720 logiques et laisse le "mount" (dalle 3D ou ScreenGui) s'occuper
+	de la projection. C'est ce qui permet au même OS de tourner sur un
+	moniteur vu de biais dans la chambre et sur le mur d'écrans de la régie.
+]]
+
+local Shared = script.Parent
+local Create = require(Shared.Lib.Create)
+local Signal = require(Shared.Lib.Signal)
+local Trove = require(Shared.Lib.Trove)
+
+local Theme = require(script.Theme)
+local Widgets = require(script.Widgets)
+local WindowManager = require(script.WindowManager)
+local AppRegistry = require(script.AppRegistry)
+local Taskbar = require(script.Taskbar)
+local BootSequence = require(script.BootSequence)
+
+local KZOS = {}
+KZOS.__index = KZOS
+
+export type MountContext = {
+	-- Position du curseur dans le repère logique de l'écran, ou nil si le
+	-- curseur ne pointe pas la dalle.
+	getPointer: () -> Vector2?,
+}
+
+--- `root` : le Frame de 1280x720 dans lequel l'OS se dessine.
+--- `context` : fourni par le mount (projection du curseur).
+--- `api` : le pont vers le jeu (état répliqué + envoi d'intentions au serveur).
+function KZOS.new(root: Frame, context: MountContext, api)
+	local self = setmetatable({}, KZOS)
+
+	self._trove = Trove.new()
+	self.root = root
+	self.context = context
+	self.api = api
+	self.state = api.state
+
+	self.booted = false
+	self.AppOpened = self._trove:Add(Signal.new())
+
+	self:_build()
+	self:_boot()
+
+	return self
+end
+
+function KZOS:_build()
+	-- Le fond du bureau. Un dégradé plutôt qu'une couleur plate : sur une
+	-- dalle 3D, un aplat parfaitement uniforme a l'air d'une texture morte.
+	self.desktop = Widgets.Panel {
+		name = "Desktop",
+		color = Theme.Color.Desktop,
+		zIndex = Theme.ZIndex.Desktop,
+	}
+
+	Create("UIGradient") {
+		Color = ColorSequence.new(
+			Color3.fromRGB(20, 23, 32),
+			Color3.fromRGB(11, 12, 17)
+		),
+		Rotation = 115,
+	}.Parent = self.desktop
+
+	self.windowLayer = Widgets.Panel {
+		name = "Windows",
+		transparency = 1,
+		size = UDim2.new(1, 0, 1, -Theme.Layout.TaskbarHeight),
+	}
+
+	self.desktop.Parent = self.root
+	self.windowLayer.Parent = self.root
+	self._trove:Add(self.desktop)
+	self._trove:Add(self.windowLayer)
+
+	self.windows = WindowManager.new(self.windowLayer, {
+		getPointer = self.context.getPointer,
+		os = self,
+	})
+	self._trove:Add(self.windows)
+
+	self.taskbar = Taskbar.new(self)
+	self.taskbar.frame.Parent = self.root
+	self._trove:Add(self.taskbar)
+
+	self._trove:Add(self.windows.WindowOpened:Connect(function()
+		self.taskbar:UpdateRunningIndicators()
+	end))
+	self._trove:Add(self.windows.WindowClosed:Connect(function()
+		self.taskbar:UpdateRunningIndicators()
+	end))
+	self._trove:Add(self.windows.FocusChanged:Connect(function()
+		self.taskbar:UpdateRunningIndicators()
+	end))
+
+	-- L'état vient du serveur ; l'OS se contente d'y réagir.
+	self._trove:Add(self.api.stateChanged:Connect(function()
+		self.state = self.api.state
+		self.taskbar:Refresh()
+		self.taskbar:SetLive(self.state.isLive == true)
+		self:_updateClock()
+	end))
+
+	self:_updateClock()
+end
+
+function KZOS:_updateClock()
+	local minutes = self.state.clockMinutes or (9 * 60)
+	local day = self.state.day or 1
+
+	self.taskbar:SetClock(string.format("%02d:%02d", math.floor(minutes / 60) % 24, minutes % 60), day)
+end
+
+function KZOS:_boot()
+	local hardware = self.state.hardwareQuality or 0.1
+
+	self._cancelBoot = BootSequence.play(self.root, {
+		hardwareQuality = hardware,
+		usbDevices = self.state.usbDeviceCount or 0,
+		memoryMB = self.state.memoryMB or 4096,
+	}, function()
+		self.booted = true
+		-- KZ Studio s'ouvre tout seul au démarrage : c'est le logiciel que
+		-- le joueur lance en premier tous les jours, autant l'admettre.
+		self:OpenApp("studio")
+	end)
+end
+
+function KZOS:OpenApp(id: string)
+	if not self.booted then
+		return nil
+	end
+
+	local app = AppRegistry.Get(id)
+	if not app then
+		warn(string.format("[KZ OS] app inconnue : %s", id))
+		return nil
+	end
+
+	if not app.unlock(self.state) then
+		return nil
+	end
+
+	local existing = self.windows:GetWindow(id)
+	if existing then
+		existing:SetMinimized(false)
+		existing:Focus()
+		return existing
+	end
+
+	local window = self.windows:OpenWindow(id, {
+		title = app.name,
+		icon = app.glyph,
+		size = app.defaultSize,
+		minSize = app.minSize,
+	})
+
+	local cleanup = app.mount(window.content, self.api)
+	if cleanup then
+		window.Closed:Connect(cleanup)
+	end
+
+	self.taskbar:UpdateRunningIndicators()
+	self.AppOpened:Fire(id)
+
+	return window
+end
+
+--- Clic sur l'icône de la barre : ouvre, réduit ou restaure selon l'état.
+--- C'est le comportement attendu d'une barre des tâches, et s'en écarter
+--- se remarque immédiatement.
+function KZOS:ToggleApp(id: string)
+	local window = self.windows:GetWindow(id)
+
+	if not window then
+		self:OpenApp(id)
+		return
+	end
+
+	if window.minimized then
+		window:SetMinimized(false)
+	elseif self.windows.focusedWindow == window then
+		window:SetMinimized(true)
+	else
+		window:Focus()
+	end
+
+	self.taskbar:UpdateRunningIndicators()
+end
+
+function KZOS:CloseApp(id: string)
+	local window = self.windows:GetWindow(id)
+	if window then
+		window:Close()
+	end
+end
+
+function KZOS:Destroy()
+	if self._cancelBoot then
+		self._cancelBoot()
+	end
+	self._trove:Clean()
+end
+
+return KZOS
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX12"><Properties><string name="Name">Apps</string></Properties><Item class="ModuleScript" referent="RBX8"><Properties><string name="Name">Files</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Fichiers — l'explorateur.
+
+	Les clips enregistrés pendant les lives atterrissent ici comme de vrais
+	fichiers, avec une taille et une date. Plus tard, on les glissera dans
+	le logiciel de montage. Pour l'instant l'app prouve la navigation et
+	sert de dépôt aux rushs.
+]]
+
+local Shared = script.Parent.Parent.Parent
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(Shared.OS.Theme)
+local Widgets = require(Shared.OS.Widgets)
+
+local Files = {}
+
+local SIDEBAR_WIDTH = 170
+
+local FOLDERS = {
+	{ id = "clips", name = "Clips", glyph = "◐" },
+	{ id = "rushes", name = "Rushs", glyph = "▤" },
+	{ id = "thumbnails", name = "Miniatures", glyph = "◨" },
+	{ id = "contracts", name = "Contrats", glyph = "▦" },
+}
+
+local function formatSize(megabytes: number): string
+	if megabytes >= 1024 then
+		return string.format("%.1f Go", megabytes / 1024)
+	end
+	return string.format("%d Mo", math.round(megabytes))
+end
+
+function Files.mount(container: Frame, api): (() -> ())?
+	local trove = Trove.new()
+
+	local currentFolder = "clips"
+
+	local fileList = Widgets.Scroll {
+		size = UDim2.new(1, -SIDEBAR_WIDTH, 1, 0),
+		position = UDim2.fromOffset(SIDEBAR_WIDTH, 0),
+		padding = Theme.Space.MD,
+		gap = 2,
+	}
+
+	local sidebar = Widgets.Panel {
+		name = "Sidebar",
+		size = UDim2.new(0, SIDEBAR_WIDTH, 1, 0),
+		color = Theme.Color.SurfaceRaised,
+		padding = Theme.Space.SM,
+		list = { gap = 2 },
+	}
+
+	local renderFiles
+
+	local function renderSidebar()
+		for _, child in ipairs(sidebar:GetChildren()) do
+			if child:IsA("GuiButton") then
+				child:Destroy()
+			end
+		end
+
+		for index, folder in ipairs(FOLDERS) do
+			Widgets.ListRow {
+				height = 32,
+				order = index,
+				selected = folder.id == currentFolder,
+				onClick = function()
+					currentFolder = folder.id
+					renderSidebar()
+					renderFiles()
+				end,
+
+				Widgets.Text {
+					text = string.format("%s   %s", folder.glyph, folder.name),
+					size = Theme.TextSize.Small,
+					color = folder.id == currentFolder and Theme.Color.Text or Theme.Color.TextMuted,
+					size2 = UDim2.fromScale(1, 1),
+				},
+			}.Parent = sidebar
+		end
+	end
+
+	function renderFiles()
+		fileList:ClearAllChildren()
+
+		local files = (api.state.files and api.state.files[currentFolder]) or {}
+
+		if #files == 0 then
+			Widgets.Text {
+				text = "Ce dossier est vide.",
+				color = Theme.Color.TextDisabled,
+				size = Theme.TextSize.Small,
+				align = Enum.TextXAlignment.Center,
+				size2 = UDim2.new(1, 0, 0, 60),
+			}.Parent = fileList
+			return
+		end
+
+		for index, file in ipairs(files) do
+			Widgets.ListRow {
+				height = 44,
+				order = index,
+
+				Widgets.Text {
+					text = file.name,
+					font = Theme.Font.Medium,
+					size = Theme.TextSize.Small,
+					size2 = UDim2.new(1, -90, 0, 16),
+					truncate = true,
+				},
+				Widgets.Text {
+					text = string.format("jour %d", file.day or 0),
+					color = Theme.Color.TextDisabled,
+					size = Theme.TextSize.Tiny,
+					size2 = UDim2.new(1, -90, 0, 14),
+					position = UDim2.fromOffset(0, 16),
+				},
+				Widgets.Text {
+					text = formatSize(file.size or 0),
+					color = Theme.Color.TextMuted,
+					font = Theme.Font.Mono,
+					size = Theme.TextSize.Tiny,
+					align = Enum.TextXAlignment.Right,
+					size2 = UDim2.new(0, 80, 1, 0),
+					position = UDim2.new(1, -80, 0, 0),
+				},
+			}.Parent = fileList
+		end
+	end
+
+	local root = Widgets.Panel {
+		name = "FilesRoot",
+		color = Theme.Color.Surface,
+
+		sidebar,
+		fileList,
+	}
+	root.Parent = container
+	trove:Add(root)
+
+	renderSidebar()
+	renderFiles()
+	trove:Add(api.stateChanged:Connect(renderFiles))
+
+	return function()
+		trove:Clean()
+	end
+end
+
+return Files
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX9"><Properties><string name="Name">Mail</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Courrier — la boîte de réception.
+
+	Deux volets : la liste à gauche, la lecture à droite. Les mails ne sont
+	pas des notifications : ce sont des conversations avec des conséquences.
+	Répondre à un sponsor, c'est signer un contrat.
+]]
+
+local Shared = script.Parent.Parent.Parent
+local Create = require(Shared.Lib.Create)
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(Shared.OS.Theme)
+local Widgets = require(Shared.OS.Widgets)
+local Emails = require(Shared.Content.Emails)
+
+local Mail = {}
+
+local LIST_WIDTH = 300
+
+local function buildRow(email, isSelected: boolean, onSelect: () -> ())
+	local unreadDot = Create("Frame") {
+		Name = "Unread",
+		Size = UDim2.fromOffset(7, 7),
+		Position = UDim2.new(1, 0, 0, 4),
+		AnchorPoint = Vector2.new(1, 0),
+		BackgroundColor3 = Theme.Color.Accent,
+		BorderSizePixel = 0,
+		Visible = email.unread,
+
+		Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+	}
+
+	return Widgets.ListRow {
+		height = 62,
+		selected = isSelected,
+		onClick = onSelect,
+
+		unreadDot,
+
+		Widgets.Text {
+			text = email.sender,
+			font = email.unread and Theme.Font.Bold or Theme.Font.Medium,
+			size = Theme.TextSize.Small,
+			size2 = UDim2.new(1, -14, 0, 16),
+			truncate = true,
+		},
+		Widgets.Text {
+			text = email.subject,
+			color = email.unread and Theme.Color.Text or Theme.Color.TextMuted,
+			size = Theme.TextSize.Small,
+			size2 = UDim2.new(1, 0, 0, 16),
+			position = UDim2.fromOffset(0, 17),
+			truncate = true,
+		},
+		Widgets.Text {
+			text = email.preview,
+			color = Theme.Color.TextDisabled,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, 0, 0, 14),
+			position = UDim2.fromOffset(0, 34),
+			truncate = true,
+		},
+	}
+end
+
+function Mail.mount(container: Frame, api): (() -> ())?
+	local trove = Trove.new()
+
+	local state = {
+		emails = table.clone(Emails),
+		selectedId = nil :: string?,
+	}
+
+	local listScroll = Widgets.Scroll {
+		size = UDim2.new(0, LIST_WIDTH, 1, 0),
+		padding = Theme.Space.SM,
+		gap = 2,
+	}
+
+	local readingPane = Widgets.Panel {
+		name = "Reading",
+		size = UDim2.new(1, -LIST_WIDTH - 1, 1, 0),
+		position = UDim2.fromOffset(LIST_WIDTH + 1, 0),
+		color = Theme.Color.Surface,
+	}
+
+	local renderList, renderReading
+
+	function renderReading()
+		readingPane:ClearAllChildren()
+
+		local email
+		for _, candidate in ipairs(state.emails) do
+			if candidate.id == state.selectedId then
+				email = candidate
+				break
+			end
+		end
+
+		if not email then
+			Widgets.Text {
+				text = "Aucun message sélectionné",
+				color = Theme.Color.TextDisabled,
+				align = Enum.TextXAlignment.Center,
+				size2 = UDim2.fromScale(1, 1),
+			}.Parent = readingPane
+			return
+		end
+
+		local header = Widgets.Panel {
+			size = UDim2.new(1, 0, 0, 74),
+			color = Theme.Color.Surface,
+			padding = Theme.Space.LG,
+
+			Widgets.Text {
+				text = email.subject,
+				font = Theme.Font.Bold,
+				size = Theme.TextSize.Title,
+				size2 = UDim2.new(1, 0, 0, 24),
+				truncate = true,
+			},
+			Widgets.Text {
+				text = string.format("%s  <%s>  ·  jour %d", email.sender, email.address, email.day),
+				color = Theme.Color.TextMuted,
+				size = Theme.TextSize.Tiny,
+				size2 = UDim2.new(1, 0, 0, 16),
+				position = UDim2.fromOffset(0, 28),
+				truncate = true,
+			},
+		}
+		header.Parent = readingPane
+
+		Widgets.Panel {
+			name = "HeaderRule",
+			size = UDim2.new(1, 0, 0, 1),
+			position = UDim2.fromOffset(0, 74),
+			color = Theme.Color.Border,
+		}.Parent = readingPane
+
+		local body = Widgets.Scroll {
+			size = UDim2.new(1, 0, 1, -75),
+			position = UDim2.fromOffset(0, 75),
+			padding = Theme.Space.LG,
+			gap = 0,
+		}
+		body.Parent = readingPane
+
+		for index, line in ipairs(email.body) do
+			Widgets.Text {
+				text = line,
+				color = Theme.Color.TextMuted,
+				size = Theme.TextSize.Body,
+				wrapped = true,
+				size2 = UDim2.new(1, -Theme.Space.SM, 0, 0),
+				autoSize = Enum.AutomaticSize.Y,
+				height = 20,
+				order = index,
+				alignY = Enum.TextYAlignment.Top,
+			}.Parent = body
+		end
+
+		if email.choices then
+			local actions = Widgets.Panel {
+				size = UDim2.new(1, -Theme.Space.SM, 0, 0),
+				color = Theme.Color.Surface,
+				order = #email.body + 1,
+				list = { gap = Theme.Space.SM },
+			}
+			actions.AutomaticSize = Enum.AutomaticSize.Y
+			actions.Parent = body
+
+			Widgets.Text {
+				text = "RÉPONDRE",
+				color = Theme.Color.TextDisabled,
+				font = Theme.Font.Bold,
+				size = Theme.TextSize.Tiny,
+				size2 = UDim2.new(1, 0, 0, 26),
+				order = 0,
+				alignY = Enum.TextYAlignment.Bottom,
+			}.Parent = actions
+
+			for index, choice in ipairs(email.choices) do
+				Widgets.Button {
+					text = choice.label,
+					variant = index == 1 and "primary" or "ghost",
+					order = index,
+					onClick = function()
+						-- Le client ne fait qu'annoncer l'intention : c'est le
+						-- serveur qui valide le choix et applique les effets.
+						api.request("mail/answer", { emailId = email.id, choiceIndex = index })
+					end,
+				}.Parent = actions
+			end
+		end
+	end
+
+	function renderList()
+		listScroll:ClearAllChildren()
+
+		Create("UIListLayout") {
+			Padding = UDim.new(0, 2),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}.Parent = listScroll
+
+		Create("UIPadding") {
+			PaddingTop = UDim.new(0, Theme.Space.SM),
+			PaddingLeft = UDim.new(0, Theme.Space.SM),
+			PaddingRight = UDim.new(0, Theme.Space.SM),
+		}.Parent = listScroll
+
+		for index, email in ipairs(state.emails) do
+			local row = buildRow(email, email.id == state.selectedId, function()
+				state.selectedId = email.id
+				email.unread = false
+				renderList()
+				renderReading()
+			end)
+			row.LayoutOrder = index
+			row.Parent = listScroll
+		end
+	end
+
+	local root = Widgets.Panel {
+		name = "MailRoot",
+		color = Theme.Color.Desktop,
+
+		listScroll,
+		Widgets.Panel {
+			size = UDim2.new(0, 1, 1, 0),
+			position = UDim2.fromOffset(LIST_WIDTH, 0),
+			color = Theme.Color.Border,
+			name = "Separator",
+		},
+		readingPane,
+	}
+	root.Parent = container
+	trove:Add(root)
+
+	renderList()
+	renderReading()
+
+	return function()
+		trove:Clean()
+	end
+end
+
+return Mail
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX10"><Properties><string name="Name">Placeholder</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Placeholder — l'écran des apps déclarées mais pas encore écrites.
+
+	Il existe pour une raison précise : le catalogue d'apps décrit toute la
+	courbe de progression du jeu (analytique, gestion d'entreprise,
+	conducteur d'émission). On veut pouvoir tester dès maintenant que les
+	déblocages s'enchaînent bien, sans attendre que chaque app soit finie.
+]]
+
+local Shared = script.Parent.Parent.Parent
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(Shared.OS.Theme)
+local Widgets = require(Shared.OS.Widgets)
+
+local Placeholder = {}
+
+function Placeholder.mount(container: Frame, api): (() -> ())?
+	local trove = Trove.new()
+
+	local root = Widgets.Panel {
+		name = "PlaceholderRoot",
+		color = Theme.Color.Surface,
+		padding = Theme.Space.XXL,
+		list = { gap = Theme.Space.SM, alignX = Enum.HorizontalAlignment.Center, alignY = Enum.VerticalAlignment.Center },
+
+		Widgets.Text {
+			text = "Module non installé",
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Heading,
+			align = Enum.TextXAlignment.Center,
+			size2 = UDim2.new(1, 0, 0, 30),
+			order = 1,
+		},
+		Widgets.Text {
+			text = "Cette application est débloquée mais son contenu arrive dans une prochaine mise à jour.",
+			color = Theme.Color.TextMuted,
+			size = Theme.TextSize.Small,
+			align = Enum.TextXAlignment.Center,
+			wrapped = true,
+			size2 = UDim2.new(0.7, 0, 0, 40),
+			order = 2,
+		},
+	}
+	root.Parent = container
+	trove:Add(root)
+
+	return function()
+		trove:Clean()
+	end
+end
+
+return Placeholder
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX11"><Properties><string name="Name">Studio</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	KZ Studio — le logiciel de diffusion.
+
+	C'est l'app centrale du jeu, et la démonstration du principe qui tient
+	tout le projet : les SOURCES disponibles ici ne sont pas une liste
+	écrite en dur, ce sont les appareils réellement posés et branchés dans
+	la pièce du joueur. Pas de micro branché, pas de source micro. Et le
+	jeu ne t'avertira pas — le chat s'en chargera, dans quatre minutes.
+]]
+
+local Shared = script.Parent.Parent.Parent
+local Create = require(Shared.Lib.Create)
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(Shared.OS.Theme)
+local Widgets = require(Shared.OS.Widgets)
+
+local Studio = {}
+
+local SIDEBAR_WIDTH = 240
+local FOOTER_HEIGHT = 64
+
+local CATEGORY_LABEL = {
+	camera = "Caméra",
+	microphone = "Micro",
+	display = "Écran",
+	backdrop = "Fond",
+	light = "Lumière",
+	capture = "Acquisition",
+	computer = "Machine",
+	network = "Réseau",
+}
+
+--- Un pavé de statistique du pied de page (durée, débit, viewers...).
+local function statBlock(label: string, value: string, order: number, color: Color3?)
+	return Widgets.Panel {
+		size = UDim2.new(0, 110, 1, 0),
+		color = Theme.Color.Surface,
+		transparency = 1,
+		order = order,
+
+		Widgets.Text {
+			text = label,
+			color = Theme.Color.TextDisabled,
+			font = Theme.Font.Medium,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, 0, 0, 14),
+		},
+		Widgets.Text {
+			name = "Value",
+			text = value,
+			color = color or Theme.Color.Text,
+			font = Theme.Font.Mono,
+			size = Theme.TextSize.Title,
+			size2 = UDim2.new(1, 0, 0, 24),
+			position = UDim2.fromOffset(0, 15),
+		},
+	}
+end
+
+--- Ligne de source : nom, catégorie, et pastille d'état.
+local function sourceRow(source, order: number)
+	local ok = source.connected
+
+	local status = Create("Frame") {
+		Name = "Status",
+		Size = UDim2.fromOffset(8, 8),
+		Position = UDim2.new(1, 0, 0.5, 0),
+		AnchorPoint = Vector2.new(1, 0.5),
+		BackgroundColor3 = ok and Theme.Color.Success or Theme.Color.Danger,
+		BorderSizePixel = 0,
+
+		Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+	}
+
+	return Widgets.ListRow {
+		height = 42,
+		order = order,
+
+		status,
+
+		Widgets.Text {
+			text = source.name,
+			color = ok and Theme.Color.Text or Theme.Color.TextDisabled,
+			font = Theme.Font.Medium,
+			size = Theme.TextSize.Small,
+			size2 = UDim2.new(1, -16, 0, 15),
+			truncate = true,
+		},
+		Widgets.Text {
+			text = ok and (CATEGORY_LABEL[source.category] or source.category) or "non détecté",
+			color = ok and Theme.Color.TextDisabled or Theme.Color.Danger,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, -16, 0, 13),
+			position = UDim2.fromOffset(0, 15),
+			truncate = true,
+		},
+	}
+end
+
+function Studio.mount(container: Frame, api): (() -> ())?
+	local trove = Trove.new()
+
+	-- ── Aperçu : le ViewportFrame est la caméra du stream. Ce que le joueur
+	-- voit ici est littéralement ce que voient ses viewers, rendu depuis la
+	-- position réelle de sa webcam dans la pièce.
+	local viewport = Create("ViewportFrame") {
+		Name = "Preview",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		Ambient = Color3.fromRGB(150, 150, 150),
+		LightColor = Color3.fromRGB(255, 255, 255),
+	}
+
+	local noSignal = Widgets.Text {
+		name = "NoSignal",
+		text = "PAS DE SIGNAL",
+		color = Theme.Color.TextDisabled,
+		font = Theme.Font.Mono,
+		size = Theme.TextSize.Small,
+		align = Enum.TextXAlignment.Center,
+		size2 = UDim2.fromScale(1, 1),
+		zIndex = 2,
+	}
+	noSignal.Parent = viewport
+
+	local previewFrame = Widgets.Panel {
+		name = "PreviewFrame",
+		size = UDim2.new(1, -SIDEBAR_WIDTH - Theme.Space.MD * 3, 1, -FOOTER_HEIGHT - Theme.Space.MD * 3),
+		position = UDim2.fromOffset(SIDEBAR_WIDTH + Theme.Space.MD * 2, Theme.Space.MD),
+		color = Color3.new(0, 0, 0),
+		radius = Theme.Radius.Small,
+		stroke = Theme.Color.Border,
+		clip = true,
+
+		viewport,
+	}
+
+	-- ── Barre latérale : scènes puis sources.
+	local scenesList = Widgets.Scroll {
+		name = "Scenes",
+		size = UDim2.new(1, 0, 0, 120),
+		position = UDim2.fromOffset(0, 22),
+		gap = 2,
+	}
+
+	local sourcesList = Widgets.Scroll {
+		name = "Sources",
+		size = UDim2.new(1, 0, 1, -172),
+		position = UDim2.fromOffset(0, 172),
+		gap = 2,
+	}
+
+	local sidebar = Widgets.Panel {
+		name = "Sidebar",
+		size = UDim2.new(0, SIDEBAR_WIDTH, 1, -FOOTER_HEIGHT - Theme.Space.MD * 2),
+		position = UDim2.fromOffset(Theme.Space.MD, Theme.Space.MD),
+		color = Theme.Color.SurfaceRaised,
+		radius = Theme.Radius.Small,
+		padding = Theme.Space.SM,
+		clip = true,
+
+		Widgets.Text {
+			text = "SCÈNES",
+			color = Theme.Color.TextDisabled,
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, 0, 0, 18),
+		},
+		scenesList,
+
+		Widgets.Text {
+			text = "SOURCES",
+			color = Theme.Color.TextDisabled,
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, 0, 0, 18),
+			position = UDim2.fromOffset(0, 150),
+		},
+		sourcesList,
+	}
+
+	-- ── Pied de page : l'état du direct et le gros bouton.
+	local durationStat = statBlock("DURÉE", "00:00:00", 1)
+	local viewersStat = statBlock("VIEWERS", "0", 2)
+	local bitrateStat = statBlock("DÉBIT", "— kb/s", 3)
+	local droppedStat = statBlock("PERDUES", "0 %", 4)
+
+	local liveButton = Widgets.Button {
+		name = "GoLive",
+		text = "PASSER EN DIRECT",
+		variant = "live",
+		font = Theme.Font.Bold,
+		textSize = Theme.TextSize.Small,
+		size = UDim2.fromOffset(180, 40),
+		position = UDim2.new(1, 0, 0.5, 0),
+		anchor = Vector2.new(1, 0.5),
+		onClick = function()
+			api.request("stream/toggle", {})
+		end,
+	}
+
+	local footer = Widgets.Panel {
+		name = "Footer",
+		size = UDim2.new(1, -Theme.Space.MD * 2, 0, FOOTER_HEIGHT),
+		position = UDim2.new(0, Theme.Space.MD, 1, -FOOTER_HEIGHT - Theme.Space.MD),
+		color = Theme.Color.SurfaceRaised,
+		radius = Theme.Radius.Small,
+		padding = Theme.Space.MD,
+
+		Widgets.Panel {
+			name = "Stats",
+			size = UDim2.new(1, -190, 1, 0),
+			transparency = 1,
+			list = { direction = Enum.FillDirection.Horizontal, gap = Theme.Space.LG },
+
+			durationStat,
+			viewersStat,
+			bitrateStat,
+			droppedStat,
+		},
+
+		liveButton,
+	}
+
+	local root = Widgets.Panel {
+		name = "StudioRoot",
+		color = Theme.Color.Desktop,
+
+		sidebar,
+		previewFrame,
+		footer,
+	}
+	root.Parent = container
+	trove:Add(root)
+
+	-- ── Rendu réactif : on redessine quand l'état du joueur change.
+	local function renderScenes()
+		for _, child in ipairs(scenesList:GetChildren()) do
+			if child:IsA("GuiButton") then
+				child:Destroy()
+			end
+		end
+
+		local scenes = api.state.scenes or { { id = "main", name = "Scène principale" } }
+		local activeId = api.state.activeSceneId or scenes[1] and scenes[1].id
+
+		for index, scene in ipairs(scenes) do
+			Widgets.ListRow {
+				height = 30,
+				order = index,
+				selected = scene.id == activeId,
+				onClick = function()
+					api.request("stream/setScene", { sceneId = scene.id })
+				end,
+
+				Widgets.Text {
+					text = scene.name,
+					size = Theme.TextSize.Small,
+					size2 = UDim2.fromScale(1, 1),
+					truncate = true,
+				},
+			}.Parent = scenesList
+		end
+	end
+
+	local function renderSources()
+		for _, child in ipairs(sourcesList:GetChildren()) do
+			if child:IsA("GuiButton") then
+				child:Destroy()
+			end
+		end
+
+		local sources = api.state.sources or {}
+
+		if #sources == 0 then
+			-- Pas un bug : le joueur n'a encore rien branché.
+			Widgets.Text {
+				text = "Aucune source.\nBranche du matériel dans ta pièce.",
+				color = Theme.Color.TextDisabled,
+				size = Theme.TextSize.Tiny,
+				wrapped = true,
+				size2 = UDim2.new(1, 0, 0, 40),
+			}.Parent = sourcesList
+			return
+		end
+
+		for index, source in ipairs(sources) do
+			sourceRow(source, index).Parent = sourcesList
+		end
+	end
+
+	local function renderLiveState()
+		local live = api.state.isLive == true
+
+		liveButton.Text = live and "ARRÊTER LE DIRECT" or "PASSER EN DIRECT"
+		noSignal.Visible = not live
+		noSignal.Text = live and "" or "PAS DE SIGNAL"
+
+		local viewers = api.state.viewers or 0
+		viewersStat:FindFirstChild("Value").Text = tostring(viewers)
+
+		local elapsed = api.state.streamElapsed or 0
+		viewersStat:FindFirstChild("Value").TextColor3 = live and Theme.Color.Text or Theme.Color.TextDisabled
+		durationStat:FindFirstChild("Value").Text = string.format(
+			"%02d:%02d:%02d",
+			math.floor(elapsed / 3600),
+			math.floor(elapsed / 60) % 60,
+			math.floor(elapsed) % 60
+		)
+
+		bitrateStat:FindFirstChild("Value").Text = live and string.format("%d kb/s", api.state.bitrate or 0) or "— kb/s"
+		droppedStat:FindFirstChild("Value").Text = string.format("%d %%", math.round((api.state.droppedFrames or 0) * 100))
+		droppedStat:FindFirstChild("Value").TextColor3 = (api.state.droppedFrames or 0) > 0.05 and Theme.Color.Warning
+			or Theme.Color.Text
+	end
+
+	local function renderAll()
+		renderScenes()
+		renderSources()
+		renderLiveState()
+	end
+
+	renderAll()
+	trove:Add(api.stateChanged:Connect(renderAll))
+
+	return function()
+		trove:Clean()
+	end
+end
+
+return Studio
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX13"><Properties><string name="Name">AppRegistry</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	AppRegistry — le catalogue des logiciels installables sur KZ OS.
+
+	Une app n'est pas un écran de plus : c'est un palier de progression.
+	Chaque entrée déclare sa condition de déblocage, et le dock ne montre
+	QUE ce qui est débloqué. Le joueur ne sait pas qu'une plateforme RH
+	existe tant qu'il n'a pas d'employés — il la découvre par un mail.
+
+	Ajouter une app = ajouter un module dans OS/Apps et une ligne ici.
+]]
+
+local Apps = script.Parent.Apps
+
+export type AppDefinition = {
+	id: string,
+	name: string,
+	glyph: string,
+	accent: Color3?,
+	defaultSize: Vector2?,
+	minSize: Vector2?,
+	pinned: boolean?,
+	-- Reçoit l'état du joueur, renvoie true si l'icône doit apparaître.
+	unlock: (state: any) -> boolean,
+	-- Construit le contenu de la fenêtre. Peut renvoyer une fonction de
+	-- nettoyage, appelée à la fermeture.
+	mount: (container: Frame, api: any) -> (() -> ())?,
+}
+
+local function always(): boolean
+	return true
+end
+
+--- Beaucoup de déblocages suivent la même forme : "à partir de N abonnés",
+--- "à partir de N employés". On factorise pour que le catalogue reste lisible.
+local function requiresStat(statName: string, threshold: number)
+	return function(state: any): boolean
+		if not state or not state.stats then
+			return false
+		end
+		return (state.stats[statName] or 0) >= threshold
+	end
+end
+
+local registry: { AppDefinition } = {
+	{
+		id = "studio",
+		name = "KZ Studio",
+		glyph = "◉",
+		accent = Color3.fromRGB(255, 61, 61),
+		defaultSize = Vector2.new(860, 520),
+		minSize = Vector2.new(640, 400),
+		pinned = true,
+		unlock = always,
+		mount = require(Apps.Studio).mount,
+	},
+	{
+		id = "mail",
+		name = "Courrier",
+		glyph = "✉",
+		accent = Color3.fromRGB(96, 165, 250),
+		defaultSize = Vector2.new(820, 500),
+		minSize = Vector2.new(560, 340),
+		pinned = true,
+		unlock = always,
+		mount = require(Apps.Mail).mount,
+	},
+	{
+		id = "files",
+		name = "Fichiers",
+		glyph = "▤",
+		accent = Color3.fromRGB(230, 173, 66),
+		defaultSize = Vector2.new(760, 460),
+		unlock = always,
+		mount = require(Apps.Files).mount,
+	},
+	{
+		id = "analytics",
+		name = "Analytique",
+		glyph = "◧",
+		accent = Color3.fromRGB(74, 201, 126),
+		defaultSize = Vector2.new(880, 540),
+		-- Inutile tant qu'il n'y a rien à analyser : arrive au 3e live.
+		unlock = requiresStat("streamsCompleted", 3),
+		mount = require(Apps.Placeholder).mount,
+	},
+	{
+		id = "company",
+		name = "Gestion",
+		glyph = "▣",
+		defaultSize = Vector2.new(900, 560),
+		-- La plateforme d'entreprise : n'existe pas pour un streamer solo.
+		unlock = requiresStat("employees", 1),
+		mount = require(Apps.Placeholder).mount,
+	},
+	{
+		id = "rundown",
+		name = "Conducteur",
+		glyph = "☰",
+		defaultSize = Vector2.new(900, 560),
+		-- Composer une émission n'a de sens qu'avec un vrai décor.
+		unlock = requiresStat("venueTier", 3),
+		mount = require(Apps.Placeholder).mount,
+	},
+}
+
+local AppRegistry = {}
+
+function AppRegistry.GetAll(): { AppDefinition }
+	return registry
+end
+
+function AppRegistry.Get(id: string): AppDefinition?
+	for _, app in ipairs(registry) do
+		if app.id == id then
+			return app
+		end
+	end
+	return nil
+end
+
+--- Les apps visibles dans le dock pour cet état de joueur, dans l'ordre
+--- du catalogue (qui est aussi l'ordre de déblocage).
+function AppRegistry.GetUnlocked(state: any): { AppDefinition }
+	local unlocked = {}
+	for _, app in ipairs(registry) do
+		if app.unlock(state) then
+			table.insert(unlocked, app)
+		end
+	end
+	return unlocked
+end
+
+return AppRegistry
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX14"><Properties><string name="Name">BootSequence</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	BootSequence — le démarrage de KZ OS.
+
+	On a choisi un OS vivant : la machine met du temps à démarrer, et ce
+	temps dépend du matériel. Sur la tour de récup du début, le boot dure
+	une vingtaine de secondes et le joueur les subit. C'est ce qui donne
+	un sens concret à l'achat d'un meilleur PC — pas une ligne de stat,
+	une attente en moins.
+
+	Le boot ne bloque pas le jeu : le joueur peut se lever et aller faire
+	autre chose pendant que ça charge. C'est même conseillé.
+]]
+
+local TweenService = game:GetService("TweenService")
+
+local Shared = script.Parent.Parent
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(script.Parent.Theme)
+local Widgets = require(script.Parent.Widgets)
+
+local BootSequence = {}
+
+-- Le POST, dans l'esprit d'un vieux BIOS. Chaque ligne a un coût en temps :
+-- les lignes lentes sont celles qui dépendent vraiment du matériel.
+local POST_LINES = {
+	{ text = "Novaris BIOS v2.14 — (C) Novaris Systems", delay = 0.05 },
+	{ text = "", delay = 0.02 },
+	{ text = "Détection processeur ......... OK", delay = 0.12 },
+	{ text = "Test mémoire ................. %d Mo OK", delay = 0.45, slow = true },
+	{ text = "Détection stockage ........... OK", delay = 0.3, slow = true },
+	{ text = "Périphériques USB ............ %d détecté(s)", delay = 0.2 },
+	{ text = "Interface réseau ............. OK", delay = 0.15 },
+	{ text = "", delay = 0.05 },
+	{ text = "Démarrage de KZ OS...", delay = 0.4, slow = true },
+}
+
+export type BootOptions = {
+	-- 0 = tour de récup, 1 = machine haut de gamme.
+	hardwareQuality: number,
+	usbDevices: number,
+	memoryMB: number,
+}
+
+--- Lance le boot dans `parent`. Renvoie une fonction à appeler pour
+--- interrompre proprement (le joueur éteint l'écran en plein démarrage).
+function BootSequence.play(parent: Frame, options: BootOptions, onComplete: () -> ())
+	local trove = Trove.new()
+
+	-- Un matériel médiocre multiplie les temps d'attente par presque 3.
+	local slowdown = 1 + (1 - math.clamp(options.hardwareQuality, 0, 1)) * 1.8
+
+	local logLabel = Widgets.Text {
+		name = "Log",
+		text = "",
+		color = Color3.fromRGB(190, 200, 190),
+		font = Theme.Font.Mono,
+		size = Theme.TextSize.Small,
+		size2 = UDim2.fromScale(1, 1),
+		alignY = Enum.TextYAlignment.Top,
+	}
+
+	local logoLabel = Widgets.Text {
+		name = "Logo",
+		text = Theme.Name,
+		font = Theme.Font.Bold,
+		size = Theme.TextSize.Display,
+		align = Enum.TextXAlignment.Center,
+		size2 = UDim2.fromScale(1, 1),
+	}
+	logoLabel.TextTransparency = 1
+
+	local screen = Widgets.Panel {
+		name = "BootScreen",
+		color = Color3.fromRGB(6, 7, 9),
+		zIndex = Theme.ZIndex.BootScreen,
+		padding = Theme.Space.XXL,
+
+		logLabel,
+		logoLabel,
+	}
+	screen.Parent = parent
+	trove:Add(screen)
+
+	local cancelled = false
+
+	task.spawn(function()
+		local lines = {}
+
+		for _, line in ipairs(POST_LINES) do
+			if cancelled then
+				return
+			end
+
+			local text = line.text
+			if string.find(text, "%%d") then
+				if string.find(text, "Mo") then
+					text = string.format(text, options.memoryMB)
+				else
+					text = string.format(text, options.usbDevices)
+				end
+			end
+
+			table.insert(lines, text)
+			logLabel.Text = table.concat(lines, "\n")
+
+			task.wait(line.delay * (line.slow and slowdown or 1))
+		end
+
+		if cancelled then
+			return
+		end
+
+		-- Fondu du log vers le logo.
+		TweenService:Create(logLabel, Theme.Motion.Normal, { TextTransparency = 1 }):Play()
+		task.wait(0.2)
+		TweenService:Create(logoLabel, Theme.Motion.Slow, { TextTransparency = 0 }):Play()
+		task.wait(0.9 * slowdown)
+
+		if cancelled then
+			return
+		end
+
+		local fade = TweenService:Create(screen, Theme.Motion.Slow, { BackgroundTransparency = 1 })
+		TweenService:Create(logoLabel, Theme.Motion.Normal, { TextTransparency = 1 }):Play()
+		fade:Play()
+		fade.Completed:Wait()
+
+		if not cancelled then
+			onComplete()
+		end
+		trove:Clean()
+	end)
+
+	return function()
+		cancelled = true
+		trove:Clean()
+	end
+end
+
+return BootSequence
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX15"><Properties><string name="Name">Taskbar</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Taskbar — la barre des tâches.
+
+	À gauche le menu, au centre les apps débloquées, à droite l'horloge et
+	les indicateurs. La barre est le seul endroit de l'OS qui reste visible
+	en permanence : c'est donc elle qui porte l'information vitale (es-tu en
+	direct ? quelle heure est-il en jeu ?), puisqu'on s'est interdit tout
+	HUD flottant.
+]]
+
+local TweenService = game:GetService("TweenService")
+
+local Shared = script.Parent.Parent
+local Create = require(Shared.Lib.Create)
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(script.Parent.Theme)
+local Widgets = require(script.Parent.Widgets)
+local AppRegistry = require(script.Parent.AppRegistry)
+
+local Taskbar = {}
+Taskbar.__index = Taskbar
+
+local BUTTON_SIZE = 36
+
+function Taskbar.new(os)
+	local self = setmetatable({}, Taskbar)
+
+	self._trove = Trove.new()
+	self.os = os
+	self._buttons = {}
+
+	self:_build()
+	self:Refresh()
+
+	return self
+end
+
+function Taskbar:_build()
+	self.appContainer = Widgets.Panel {
+		name = "Apps",
+		size = UDim2.new(1, -320, 1, 0),
+		position = UDim2.fromOffset(150, 0),
+		transparency = 1,
+		list = { direction = Enum.FillDirection.Horizontal, gap = Theme.Space.XS, alignY = Enum.VerticalAlignment.Center },
+	}
+
+	self.clockLabel = Widgets.Text {
+		name = "Clock",
+		text = "--:--",
+		font = Theme.Font.Mono,
+		size = Theme.TextSize.Small,
+		align = Enum.TextXAlignment.Right,
+		size2 = UDim2.new(0, 70, 1, 0),
+		position = UDim2.new(1, -Theme.Space.MD - 70, 0, 0),
+	}
+
+	self.dayLabel = Widgets.Text {
+		name = "Day",
+		text = "jour 1",
+		color = Theme.Color.TextDisabled,
+		size = Theme.TextSize.Tiny,
+		align = Enum.TextXAlignment.Right,
+		size2 = UDim2.new(0, 70, 1, 0),
+		position = UDim2.new(1, -Theme.Space.MD - 150, 0, 0),
+	}
+
+	-- Le voyant "EN DIRECT". Il pulse : un élément statique se fait oublier,
+	-- et oublier qu'on est en direct doit rester possible mais coûteux.
+	self.liveDot = Create("Frame") {
+		Name = "LiveDot",
+		Size = UDim2.fromOffset(8, 8),
+		Position = UDim2.fromOffset(0, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = Theme.Color.Live,
+		BorderSizePixel = 0,
+		Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+	}
+
+	self.liveBadge = Widgets.Panel {
+		name = "LiveBadge",
+		size = UDim2.fromOffset(96, 24),
+		position = UDim2.new(1, -Theme.Space.MD - 230, 0.5, 0),
+		anchor = Vector2.new(0, 0.5),
+		color = Theme.Color.SurfaceOverlay,
+		radius = Theme.Radius.Small,
+		padding = Theme.Space.SM,
+
+		self.liveDot,
+		Widgets.Text {
+			text = "EN DIRECT",
+			color = Theme.Color.Live,
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, -14, 1, 0),
+			position = UDim2.fromOffset(14, 0),
+		},
+	}
+	self.liveBadge.Visible = false
+
+	self.frame = Widgets.Panel {
+		name = "Taskbar",
+		size = UDim2.new(1, 0, 0, Theme.Layout.TaskbarHeight),
+		position = UDim2.new(0, 0, 1, 0),
+		anchor = Vector2.new(0, 1),
+		color = Theme.Color.SurfaceRaised,
+		zIndex = Theme.ZIndex.Taskbar,
+
+		Widgets.Text {
+			name = "Brand",
+			text = Theme.Name,
+			color = Theme.Color.TextMuted,
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Small,
+			size2 = UDim2.new(0, 120, 1, 0),
+			position = UDim2.fromOffset(Theme.Space.LG, 0),
+		},
+
+		self.appContainer,
+		self.liveBadge,
+		self.dayLabel,
+		self.clockLabel,
+	}
+
+	-- Un liseré clair sur l'arête haute : sépare la barre du bureau sans
+	-- dessiner une ligne franche, qui ferait "site web" plutôt qu'OS.
+	Create("Frame") {
+		Name = "TopEdge",
+		Size = UDim2.new(1, 0, 0, 1),
+		BackgroundColor3 = Theme.Color.Border,
+		BorderSizePixel = 0,
+		ZIndex = Theme.ZIndex.Taskbar + 1,
+	}.Parent = self.frame
+
+	self._trove:Add(self.frame)
+	self._trove:Add(self:_startLivePulse())
+end
+
+function Taskbar:_startLivePulse()
+	local running = true
+
+	task.spawn(function()
+		while running do
+			if self.liveBadge.Visible then
+				TweenService:Create(self.liveDot, TweenInfo.new(0.6), { BackgroundTransparency = 0.6 }):Play()
+				task.wait(0.7)
+				TweenService:Create(self.liveDot, TweenInfo.new(0.6), { BackgroundTransparency = 0 }):Play()
+				task.wait(0.7)
+			else
+				task.wait(0.5)
+			end
+		end
+	end)
+
+	return function()
+		running = false
+	end
+end
+
+--- Un bouton d'app dans la barre. Le liseré du bas indique qu'elle tourne.
+function Taskbar:_createAppButton(app, order: number)
+	local indicator = Create("Frame") {
+		Name = "Running",
+		Size = UDim2.fromOffset(16, 2),
+		Position = UDim2.new(0.5, 0, 1, -3),
+		AnchorPoint = Vector2.new(0.5, 1),
+		BackgroundColor3 = app.accent or Theme.Color.Accent,
+		BorderSizePixel = 0,
+		Visible = false,
+		ZIndex = Theme.ZIndex.Taskbar + 2,
+		Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+	}
+
+	local button = Widgets.Button {
+		name = app.id,
+		text = app.glyph,
+		variant = "ghost",
+		textSize = Theme.TextSize.Title,
+		size = UDim2.fromOffset(BUTTON_SIZE, BUTTON_SIZE),
+		order = order,
+		radius = Theme.Radius.Small,
+		onClick = function()
+			self.os:ToggleApp(app.id)
+		end,
+	}
+	button.BackgroundTransparency = 1
+	button.ZIndex = Theme.ZIndex.Taskbar + 1
+	indicator.Parent = button
+
+	return button, indicator
+end
+
+--- Reconstruit la barre : appelé quand une app se débloque.
+function Taskbar:Refresh()
+	for _, entry in pairs(self._buttons) do
+		entry.button:Destroy()
+	end
+	table.clear(self._buttons)
+
+	for index, app in ipairs(AppRegistry.GetUnlocked(self.os.state)) do
+		local button, indicator = self:_createAppButton(app, index)
+		button.Parent = self.appContainer
+		self._buttons[app.id] = { button = button, indicator = indicator }
+	end
+
+	self:UpdateRunningIndicators()
+end
+
+function Taskbar:UpdateRunningIndicators()
+	for id, entry in pairs(self._buttons) do
+		local window = self.os.windows:GetWindow(id)
+		entry.indicator.Visible = window ~= nil
+		entry.indicator.BackgroundTransparency = (window and not window.minimized) and 0 or 0.55
+	end
+end
+
+function Taskbar:SetClock(text: string, day: number)
+	self.clockLabel.Text = text
+	self.dayLabel.Text = string.format("jour %d", day)
+end
+
+function Taskbar:SetLive(live: boolean)
+	self.liveBadge.Visible = live
+end
+
+function Taskbar:Destroy()
+	self._trove:Clean()
+end
+
+return Taskbar
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX16"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Theme — les jetons de design de KZ OS.
+
+	Règle du projet : AUCUNE couleur, AUCUNE marge, AUCUNE durée d'animation
+	n'est écrite en dur ailleurs que dans ce fichier. Tout passe par ici.
+	C'est ce qui fait qu'un OS a l'air cohérent plutôt que bricolé, et ça
+	nous permettra de vendre des thèmes (clair, rétro, "gamer RGB") plus
+	tard sans toucher une seule ligne d'app.
+]]
+
+local Theme = {}
+
+Theme.Name = "KZ OS"
+Theme.Version = "0.1"
+
+-- Les surfaces vont de la plus profonde (le bureau) à la plus proche
+-- (une popup au-dessus d'une fenêtre). Plus c'est proche, plus c'est clair :
+-- c'est ce qui donne la sensation de profondeur sans dessiner d'ombres.
+Theme.Color = {
+	Desktop = Color3.fromRGB(14, 16, 22),
+	Surface = Color3.fromRGB(24, 27, 35),
+	SurfaceRaised = Color3.fromRGB(32, 36, 46),
+	SurfaceOverlay = Color3.fromRGB(41, 46, 58),
+
+	Border = Color3.fromRGB(52, 58, 72),
+	BorderFocused = Color3.fromRGB(88, 101, 128),
+
+	Text = Color3.fromRGB(232, 236, 245),
+	TextMuted = Color3.fromRGB(146, 155, 174),
+	TextDisabled = Color3.fromRGB(94, 102, 118),
+
+	Accent = Color3.fromRGB(96, 165, 250),
+	AccentPressed = Color3.fromRGB(69, 134, 216),
+
+	Success = Color3.fromRGB(74, 201, 126),
+	Warning = Color3.fromRGB(230, 173, 66),
+	Danger = Color3.fromRGB(233, 92, 92),
+
+	-- Le rouge du bouton "EN DIRECT". Volontairement plus saturé que Danger :
+	-- quand il s'allume, le joueur doit le voir du coin de l'oeil.
+	Live = Color3.fromRGB(255, 61, 61),
+
+	Shadow = Color3.fromRGB(0, 0, 0),
+}
+
+Theme.Font = {
+	Regular = Font.fromEnum(Enum.Font.BuilderSans),
+	Medium = Font.fromEnum(Enum.Font.BuilderSansMedium),
+	Bold = Font.fromEnum(Enum.Font.BuilderSansExtraBold),
+	-- Le monospace sert au BIOS, aux logs et aux chiffres qui défilent :
+	-- une largeur fixe évite que les compteurs tremblent en changeant.
+	Mono = Font.fromEnum(Enum.Font.Code),
+}
+
+Theme.TextSize = {
+	Tiny = 11,
+	Small = 13,
+	Body = 15,
+	Title = 18,
+	Heading = 24,
+	Display = 34,
+}
+
+-- Échelle d'espacement en multiples de 4. Utiliser autre chose que ces
+-- valeurs est la façon la plus rapide de rendre une interface "presque bien".
+Theme.Space = {
+	XS = 4,
+	SM = 8,
+	MD = 12,
+	LG = 16,
+	XL = 24,
+	XXL = 32,
+}
+
+Theme.Radius = {
+	Small = UDim.new(0, 4),
+	Medium = UDim.new(0, 8),
+	Large = UDim.new(0, 12),
+	Pill = UDim.new(1, 0),
+}
+
+Theme.Layout = {
+	TaskbarHeight = 44,
+	TitleBarHeight = 32,
+	WindowMinSize = Vector2.new(320, 200),
+	ResizeGripSize = 14,
+	-- Résolution logique de l'écran d'ordinateur. Toute l'UI est dessinée
+	-- dans ce repère puis projetée sur la dalle 3D, donc une fenêtre de
+	-- 640x400 fait toujours la même taille relative quel que soit le moniteur.
+	ScreenResolution = Vector2.new(1280, 720),
+}
+
+-- Les courbes d'animation. C'est ce qui sépare une UI qui "claque" d'une UI
+-- qui a l'air molle. Sortie rapide, entrée douce.
+Theme.Motion = {
+	Instant = TweenInfo.new(0.08, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+	Fast = TweenInfo.new(0.15, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+	Normal = TweenInfo.new(0.24, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+	Slow = TweenInfo.new(0.4, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+	-- Pour les fenêtres qui s'ouvrent : un léger dépassement donne du poids.
+	Pop = TweenInfo.new(0.22, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+}
+
+Theme.ZIndex = {
+	Desktop = 1,
+	WindowBase = 10, -- les fenêtres s'empilent à partir d'ici
+	WindowMax = 900,
+	Taskbar = 950,
+	Notification = 970,
+	Modal = 990,
+	BootScreen = 1000,
+}
+
+return Theme
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX17"><Properties><string name="Name">Widgets</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Widgets — la petite bibliothèque de composants de KZ OS.
+
+	Les apps ne fabriquent jamais un TextLabel à la main : elles assemblent
+	ces briques. C'est ce qui garantit qu'un bouton de la messagerie et un
+	bouton du logiciel de stream ont exactement la même taille, la même
+	animation de survol et le même son au clic.
+]]
+
+local TweenService = game:GetService("TweenService")
+
+local Shared = script.Parent.Parent
+local Create = require(Shared.Lib.Create)
+local Theme = require(script.Parent.Theme)
+
+local Widgets = {}
+
+function Widgets.Text(props: { [string]: any })
+	return Create("TextLabel") {
+		BackgroundTransparency = 1,
+		Text = props.text or "",
+		TextColor3 = props.color or Theme.Color.Text,
+		FontFace = props.font or Theme.Font.Regular,
+		TextSize = props.size or Theme.TextSize.Body,
+		TextXAlignment = props.align or Enum.TextXAlignment.Left,
+		TextYAlignment = props.alignY or Enum.TextYAlignment.Center,
+		TextWrapped = props.wrapped or false,
+		TextTruncate = props.truncate and Enum.TextTruncate.AtEnd or Enum.TextTruncate.None,
+		Size = props.size2 or UDim2.new(1, 0, 0, props.height or 20),
+		Position = props.position or UDim2.fromOffset(0, 0),
+		AutomaticSize = props.autoSize or Enum.AutomaticSize.None,
+		LayoutOrder = props.order or 0,
+		Name = props.name or "Text",
+		ZIndex = props.zIndex or 1,
+	}
+end
+
+function Widgets.Panel(props: { [string]: any })
+	local panel = Create("Frame") {
+		Name = props.name or "Panel",
+		Size = props.size or UDim2.fromScale(1, 1),
+		Position = props.position or UDim2.fromOffset(0, 0),
+		AnchorPoint = props.anchor or Vector2.zero,
+		BackgroundColor3 = props.color or Theme.Color.Surface,
+		BackgroundTransparency = props.transparency or 0,
+		BorderSizePixel = 0,
+		LayoutOrder = props.order or 0,
+		ClipsDescendants = props.clip or false,
+		ZIndex = props.zIndex or 1,
+	}
+
+	if props.radius then
+		Create("UICorner") { CornerRadius = props.radius }.Parent = panel
+	end
+
+	if props.stroke then
+		Create("UIStroke") {
+			Color = props.stroke,
+			Thickness = 1,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+		}.Parent = panel
+	end
+
+	if props.padding then
+		local pad = props.padding
+		Create("UIPadding") {
+			PaddingTop = UDim.new(0, pad),
+			PaddingBottom = UDim.new(0, pad),
+			PaddingLeft = UDim.new(0, pad),
+			PaddingRight = UDim.new(0, pad),
+		}.Parent = panel
+	end
+
+	if props.list then
+		Create("UIListLayout") {
+			FillDirection = props.list.direction or Enum.FillDirection.Vertical,
+			Padding = UDim.new(0, props.list.gap or Theme.Space.SM),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = props.list.alignX or Enum.HorizontalAlignment.Left,
+			VerticalAlignment = props.list.alignY or Enum.VerticalAlignment.Top,
+		}.Parent = panel
+	end
+
+	for _, child in ipairs(props) do
+		if typeof(child) == "Instance" then
+			child.Parent = panel
+		end
+	end
+
+	return panel
+end
+
+function Widgets.Scroll(props: { [string]: any })
+	local scroll = Create("ScrollingFrame") {
+		Name = props.name or "Scroll",
+		Size = props.size or UDim2.fromScale(1, 1),
+		Position = props.position or UDim2.fromOffset(0, 0),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = 4,
+		ScrollBarImageColor3 = Theme.Color.Border,
+		CanvasSize = UDim2.new(),
+		AutomaticCanvasSize = Enum.AutomaticSize.Y,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		LayoutOrder = props.order or 0,
+		ZIndex = props.zIndex or 1,
+	}
+
+	Create("UIListLayout") {
+		Padding = UDim.new(0, props.gap or Theme.Space.XS),
+		SortOrder = Enum.SortOrder.LayoutOrder,
+	}.Parent = scroll
+
+	if props.padding then
+		Create("UIPadding") {
+			PaddingTop = UDim.new(0, props.padding),
+			PaddingBottom = UDim.new(0, props.padding),
+			PaddingLeft = UDim.new(0, props.padding),
+			PaddingRight = UDim.new(0, props.padding),
+		}.Parent = scroll
+	end
+
+	for _, child in ipairs(props) do
+		if typeof(child) == "Instance" then
+			child.Parent = scroll
+		end
+	end
+
+	return scroll
+end
+
+--- Bouton standard. `variant` : "primary", "ghost", "danger".
+function Widgets.Button(props: { [string]: any })
+	local variant = props.variant or "ghost"
+
+	local palette = {
+		primary = { idle = Theme.Color.Accent, hover = Theme.Color.AccentPressed, text = Color3.new(1, 1, 1) },
+		ghost = { idle = Theme.Color.SurfaceRaised, hover = Theme.Color.SurfaceOverlay, text = Theme.Color.Text },
+		danger = { idle = Theme.Color.Danger, hover = Color3.fromRGB(198, 70, 70), text = Color3.new(1, 1, 1) },
+		live = { idle = Theme.Color.Live, hover = Color3.fromRGB(214, 44, 44), text = Color3.new(1, 1, 1) },
+	}
+	local colors = palette[variant] or palette.ghost
+
+	local button = Create("TextButton") {
+		Name = props.name or "Button",
+		Size = props.size or UDim2.new(1, 0, 0, 34),
+		Position = props.position or UDim2.fromOffset(0, 0),
+		AnchorPoint = props.anchor or Vector2.zero,
+		BackgroundColor3 = colors.idle,
+		BorderSizePixel = 0,
+		AutoButtonColor = false,
+		Text = props.text or "",
+		TextColor3 = colors.text,
+		FontFace = props.font or Theme.Font.Medium,
+		TextSize = props.textSize or Theme.TextSize.Small,
+		LayoutOrder = props.order or 0,
+		ZIndex = props.zIndex or 2,
+
+		Create("UICorner") { CornerRadius = props.radius or Theme.Radius.Small },
+	}
+
+	button.MouseEnter:Connect(function()
+		TweenService:Create(button, Theme.Motion.Instant, { BackgroundColor3 = colors.hover }):Play()
+	end)
+
+	button.MouseLeave:Connect(function()
+		TweenService:Create(button, Theme.Motion.Instant, { BackgroundColor3 = colors.idle }):Play()
+	end)
+
+	-- Léger enfoncement au clic : c'est ce détail qui donne du "poids".
+	button.MouseButton1Down:Connect(function()
+		TweenService:Create(button, Theme.Motion.Instant, { TextTransparency = 0.35 }):Play()
+	end)
+
+	button.MouseButton1Up:Connect(function()
+		TweenService:Create(button, Theme.Motion.Instant, { TextTransparency = 0 }):Play()
+	end)
+
+	if props.onClick then
+		button.MouseButton1Click:Connect(props.onClick)
+	end
+
+	return button
+end
+
+--- Ligne sélectionnable d'une liste (un mail, une source, un fichier).
+function Widgets.ListRow(props: { [string]: any })
+	local row = Create("TextButton") {
+		Name = props.name or "Row",
+		Size = UDim2.new(1, 0, 0, props.height or 56),
+		BackgroundColor3 = Theme.Color.SurfaceRaised,
+		BackgroundTransparency = props.selected and 0 or 1,
+		BorderSizePixel = 0,
+		AutoButtonColor = false,
+		Text = "",
+		LayoutOrder = props.order or 0,
+
+		Create("UICorner") { CornerRadius = Theme.Radius.Small },
+		Create("UIPadding") {
+			PaddingLeft = UDim.new(0, Theme.Space.MD),
+			PaddingRight = UDim.new(0, Theme.Space.MD),
+			PaddingTop = UDim.new(0, Theme.Space.SM),
+			PaddingBottom = UDim.new(0, Theme.Space.SM),
+		},
+	}
+
+	local selected = props.selected or false
+
+	row.MouseEnter:Connect(function()
+		if not selected then
+			TweenService:Create(row, Theme.Motion.Instant, { BackgroundTransparency = 0.5 }):Play()
+		end
+	end)
+
+	row.MouseLeave:Connect(function()
+		if not selected then
+			TweenService:Create(row, Theme.Motion.Instant, { BackgroundTransparency = 1 }):Play()
+		end
+	end)
+
+	if props.onClick then
+		row.MouseButton1Click:Connect(props.onClick)
+	end
+
+	for _, child in ipairs(props) do
+		if typeof(child) == "Instance" then
+			child.Parent = row
+		end
+	end
+
+	return row
+end
+
+function Widgets.Divider(vertical: boolean?)
+	return Create("Frame") {
+		Name = "Divider",
+		Size = vertical and UDim2.new(0, 1, 1, 0) or UDim2.new(1, 0, 0, 1),
+		BackgroundColor3 = Theme.Color.Border,
+		BorderSizePixel = 0,
+	}
+end
+
+return Widgets
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX18"><Properties><string name="Name">Window</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Window — une fenêtre de KZ OS : barre de titre, contenu, boutons, drag,
+	redimensionnement, focus.
+
+	La fenêtre ne sait pas où elle est affichée. Elle demande la position du
+	curseur au contexte (`context.getPointer()`), qui la lui donne toujours
+	dans le repère logique de l'écran (1280x720 par défaut). C'est ce qui
+	permet au même code de fonctionner sur une dalle 3D vue de biais comme
+	sur un ScreenGui plein écran, sans une seule ligne conditionnelle.
+]]
+
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local Shared = script.Parent.Parent
+local Create = require(Shared.Lib.Create)
+local Signal = require(Shared.Lib.Signal)
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(script.Parent.Theme)
+
+local Window = {}
+Window.__index = Window
+
+local MIN_SIZE = Theme.Layout.WindowMinSize
+
+--- Bouton de la barre de titre (réduire / agrandir / fermer).
+local function createTitleBarButton(glyph: string, hoverColor: Color3, order: number)
+	local button = Create("TextButton") {
+		Name = glyph,
+		Size = UDim2.fromOffset(Theme.Layout.TitleBarHeight, Theme.Layout.TitleBarHeight),
+		BackgroundColor3 = hoverColor,
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		AutoButtonColor = false,
+		Text = glyph,
+		TextColor3 = Theme.Color.TextMuted,
+		FontFace = Theme.Font.Regular,
+		TextSize = Theme.TextSize.Small,
+		LayoutOrder = order,
+	}
+
+	button.MouseEnter:Connect(function()
+		TweenService:Create(button, Theme.Motion.Instant, {
+			BackgroundTransparency = 0,
+			TextColor3 = Theme.Color.Text,
+		}):Play()
+	end)
+
+	button.MouseLeave:Connect(function()
+		TweenService:Create(button, Theme.Motion.Instant, {
+			BackgroundTransparency = 1,
+			TextColor3 = Theme.Color.TextMuted,
+		}):Play()
+	end)
+
+	return button
+end
+
+export type WindowProps = {
+	title: string,
+	icon: string?,
+	size: Vector2?,
+	position: Vector2?,
+	resizable: boolean?,
+	minSize: Vector2?,
+}
+
+function Window.new(manager, id: string, props: WindowProps)
+	local self = setmetatable({}, Window)
+
+	self._trove = Trove.new()
+	self._manager = manager
+	self._context = manager.context
+
+	self.id = id
+	self.title = props.title
+	self.icon = props.icon or "?"
+	self.resizable = props.resizable ~= false
+	self.minSize = props.minSize or MIN_SIZE
+
+	self.minimized = false
+	self.maximized = false
+	self.focused = false
+
+	self.size = props.size or Vector2.new(720, 460)
+	self.position = props.position or Vector2.new(120, 80)
+	self._restoreSize = self.size
+	self._restorePosition = self.position
+
+	self.Closed = self._trove:Add(Signal.new())
+	self.FocusChanged = self._trove:Add(Signal.new())
+	self.MinimizedChanged = self._trove:Add(Signal.new())
+
+	self:_build()
+
+	return self
+end
+
+function Window:_build()
+	local titleBarHeight = Theme.Layout.TitleBarHeight
+
+	self.titleLabel = Create("TextLabel") {
+		Name = "Title",
+		Size = UDim2.new(1, -(titleBarHeight * 3) - Theme.Space.MD, 1, 0),
+		Position = UDim2.fromOffset(Theme.Space.MD, 0),
+		BackgroundTransparency = 1,
+		Text = self.title,
+		TextColor3 = Theme.Color.Text,
+		FontFace = Theme.Font.Medium,
+		TextSize = Theme.TextSize.Small,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+	}
+
+	self.minimizeButton = createTitleBarButton("—", Theme.Color.SurfaceOverlay, 1)
+	self.maximizeButton = createTitleBarButton("□", Theme.Color.SurfaceOverlay, 2)
+	self.closeButton = createTitleBarButton("✕", Theme.Color.Danger, 3)
+
+	self.titleBar = Create("Frame") {
+		Name = "TitleBar",
+		Size = UDim2.new(1, 0, 0, titleBarHeight),
+		BackgroundColor3 = Theme.Color.SurfaceRaised,
+		BorderSizePixel = 0,
+
+		self.titleLabel,
+
+		Create("Frame") {
+			Name = "Buttons",
+			Size = UDim2.new(0, titleBarHeight * 3, 1, 0),
+			Position = UDim2.fromScale(1, 0),
+			AnchorPoint = Vector2.new(1, 0),
+			BackgroundTransparency = 1,
+
+			Create("UIListLayout") {
+				FillDirection = Enum.FillDirection.Horizontal,
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			},
+
+			self.minimizeButton,
+			self.maximizeButton,
+			self.closeButton,
+		},
+	}
+
+	self.content = Create("Frame") {
+		Name = "Content",
+		Size = UDim2.new(1, 0, 1, -titleBarHeight),
+		Position = UDim2.fromOffset(0, titleBarHeight),
+		BackgroundColor3 = Theme.Color.Surface,
+		BorderSizePixel = 0,
+		ClipsDescendants = true,
+	}
+
+	self.resizeGrip = Create("TextButton") {
+		Name = "ResizeGrip",
+		Size = UDim2.fromOffset(Theme.Layout.ResizeGripSize, Theme.Layout.ResizeGripSize),
+		Position = UDim2.fromScale(1, 1),
+		AnchorPoint = Vector2.new(1, 1),
+		BackgroundTransparency = 1,
+		Text = "",
+		Visible = self.resizable,
+		ZIndex = 5,
+	}
+
+	self.stroke = Create("UIStroke") {
+		Color = Theme.Color.Border,
+		Thickness = 1,
+		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+	}
+
+	self.frame = Create("Frame") {
+		Name = "Window_" .. self.id,
+		Size = UDim2.fromOffset(self.size.X, self.size.Y),
+		Position = UDim2.fromOffset(self.position.X, self.position.Y),
+		BackgroundColor3 = Theme.Color.Surface,
+		BorderSizePixel = 0,
+		ClipsDescendants = true,
+
+		Create("UICorner") { CornerRadius = Theme.Radius.Medium },
+		self.stroke,
+		self.titleBar,
+		self.content,
+		self.resizeGrip,
+	}
+
+	self._trove:Add(self.frame)
+
+	self:_bindInteractions()
+	self:_playOpenAnimation()
+end
+
+function Window:_playOpenAnimation()
+	local targetSize = UDim2.fromOffset(self.size.X, self.size.Y)
+
+	self.frame.Size = UDim2.fromOffset(self.size.X * 0.92, self.size.Y * 0.92)
+	self.frame.BackgroundTransparency = 1
+
+	TweenService:Create(self.frame, Theme.Motion.Pop, { Size = targetSize }):Play()
+	TweenService:Create(self.frame, Theme.Motion.Fast, { BackgroundTransparency = 0 }):Play()
+end
+
+function Window:_bindInteractions()
+	local trove = self._trove
+
+	trove:Add(self.closeButton.MouseButton1Click:Connect(function()
+		self:Close()
+	end))
+
+	trove:Add(self.minimizeButton.MouseButton1Click:Connect(function()
+		self:SetMinimized(true)
+	end))
+
+	trove:Add(self.maximizeButton.MouseButton1Click:Connect(function()
+		self:ToggleMaximize()
+	end))
+
+	-- Cliquer n'importe où dans la fenêtre la met au premier plan.
+	trove:Add(self.frame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			self:Focus()
+		end
+	end))
+
+	trove:Add(self.titleBar.InputBegan:Connect(function(input)
+		if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+			return
+		end
+		self:_beginDrag()
+	end))
+
+	-- Double-clic sur la barre de titre : agrandir / restaurer.
+	local lastTitleClick = 0
+	trove:Add(self.titleBar.InputEnded:Connect(function(input)
+		if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+			return
+		end
+		local now = os.clock()
+		if now - lastTitleClick < 0.35 then
+			self:ToggleMaximize()
+			lastTitleClick = 0
+		else
+			lastTitleClick = now
+		end
+	end))
+
+	trove:Add(self.resizeGrip.InputBegan:Connect(function(input)
+		if input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+			return
+		end
+		self:_beginResize()
+	end))
+end
+
+--- Boucle de manipulation partagée par le drag et le resize : tant que le
+--- bouton reste enfoncé, on applique `apply(delta)` à chaque frame.
+function Window:_beginPointerLoop(apply: (Vector2) -> ())
+	local origin = self._context.getPointer()
+	if not origin then
+		return
+	end
+
+	local connections = {}
+
+	local stop
+	stop = function()
+		for _, connection in ipairs(connections) do
+			connection:Disconnect()
+		end
+		table.clear(connections)
+		self._manager:_setManipulating(false)
+		-- On se retire du trove : sans ça, chaque drag y laisserait une
+		-- fonction morte de plus pour toute la vie de la fenêtre.
+		self._trove:Remove(stop)
+	end
+
+	self._manager:_setManipulating(true)
+
+	table.insert(connections, RunService.RenderStepped:Connect(function()
+		local current = self._context.getPointer()
+		if current then
+			apply(current - origin)
+		end
+	end))
+
+	table.insert(connections, UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			stop()
+		end
+	end))
+
+	self._trove:Add(stop)
+end
+
+function Window:_beginDrag()
+	if self.maximized then
+		-- Comportement Windows : tirer une fenêtre agrandie la restaure,
+		-- en la recentrant sous le curseur.
+		local pointer = self._context.getPointer()
+		self:ToggleMaximize()
+		if pointer then
+			self.position = Vector2.new(pointer.X - self.size.X / 2, math.max(0, pointer.Y - Theme.Layout.TitleBarHeight / 2))
+			self:_applyPosition()
+		end
+	end
+
+	local startPosition = self.position
+
+	self:_beginPointerLoop(function(delta)
+		self.position = startPosition + delta
+		self:_clampToScreen()
+		self:_applyPosition()
+	end)
+end
+
+function Window:_beginResize()
+	if self.maximized then
+		return
+	end
+
+	local startSize = self.size
+
+	self:_beginPointerLoop(function(delta)
+		self.size = Vector2.new(
+			math.max(self.minSize.X, startSize.X + delta.X),
+			math.max(self.minSize.Y, startSize.Y + delta.Y)
+		)
+		self:_applySize()
+	end)
+end
+
+--- On garde toujours la barre de titre attrapable : une fenêtre poussée
+--- hors de l'écran qu'on ne peut plus récupérer est un classique du genre.
+function Window:_clampToScreen()
+	local screen = Theme.Layout.ScreenResolution
+	local margin = 60
+
+	self.position = Vector2.new(
+		math.clamp(self.position.X, -self.size.X + margin, screen.X - margin),
+		math.clamp(self.position.Y, 0, screen.Y - Theme.Layout.TaskbarHeight - Theme.Layout.TitleBarHeight)
+	)
+end
+
+function Window:_applyPosition()
+	self.frame.Position = UDim2.fromOffset(math.round(self.position.X), math.round(self.position.Y))
+end
+
+function Window:_applySize()
+	self.frame.Size = UDim2.fromOffset(math.round(self.size.X), math.round(self.size.Y))
+end
+
+function Window:SetTitle(title: string)
+	self.title = title
+	self.titleLabel.Text = title
+end
+
+function Window:Focus()
+	self._manager:FocusWindow(self)
+end
+
+function Window:_setFocusState(focused: boolean)
+	if self.focused == focused then
+		return
+	end
+	self.focused = focused
+
+	TweenService:Create(self.stroke, Theme.Motion.Fast, {
+		Color = focused and Theme.Color.BorderFocused or Theme.Color.Border,
+	}):Play()
+
+	TweenService:Create(self.titleBar, Theme.Motion.Fast, {
+		BackgroundColor3 = focused and Theme.Color.SurfaceRaised or Theme.Color.Surface,
+	}):Play()
+
+	self.titleLabel.TextColor3 = focused and Theme.Color.Text or Theme.Color.TextMuted
+
+	self.FocusChanged:Fire(focused)
+end
+
+function Window:SetMinimized(minimized: boolean)
+	if self.minimized == minimized then
+		return
+	end
+	self.minimized = minimized
+
+	self.frame.Visible = not minimized
+	self.MinimizedChanged:Fire(minimized)
+
+	if minimized then
+		self._manager:_focusTopMost()
+	else
+		self:Focus()
+	end
+end
+
+function Window:ToggleMaximize()
+	local screen = Theme.Layout.ScreenResolution
+
+	if self.maximized then
+		self.size = self._restoreSize
+		self.position = self._restorePosition
+		self.maximized = false
+		self.resizeGrip.Visible = self.resizable
+		self.maximizeButton.Text = "□"
+	else
+		self._restoreSize = self.size
+		self._restorePosition = self.position
+		self.size = Vector2.new(screen.X, screen.Y - Theme.Layout.TaskbarHeight)
+		self.position = Vector2.zero
+		self.maximized = true
+		self.resizeGrip.Visible = false
+		self.maximizeButton.Text = "❐"
+	end
+
+	TweenService:Create(self.frame, Theme.Motion.Fast, {
+		Size = UDim2.fromOffset(self.size.X, self.size.Y),
+		Position = UDim2.fromOffset(self.position.X, self.position.Y),
+	}):Play()
+end
+
+function Window:Close()
+	if self._closing then
+		return
+	end
+	self._closing = true
+
+	local shrink = TweenService:Create(self.frame, Theme.Motion.Fast, {
+		Size = UDim2.fromOffset(self.size.X * 0.94, self.size.Y * 0.94),
+		BackgroundTransparency = 1,
+	})
+	shrink:Play()
+	shrink.Completed:Wait()
+
+	self.Closed:Fire()
+	self:Destroy()
+end
+
+function Window:Destroy()
+	self._trove:Clean()
+end
+
+return Window
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX19"><Properties><string name="Name">WindowManager</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	WindowManager — le gestionnaire de fenêtres de KZ OS.
+
+	Il possède la pile de fenêtres (l'ordre Z), décide qui a le focus, et
+	relaie l'ouverture des apps. Une app n'instancie jamais sa fenêtre
+	elle-même : elle demande au manager, qui applique les règles (une seule
+	instance ? déjà ouverte ? cascade de position ?).
+]]
+
+local Shared = script.Parent.Parent
+local Signal = require(Shared.Lib.Signal)
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(script.Parent.Theme)
+local Window = require(script.Parent.Window)
+
+local WindowManager = {}
+WindowManager.__index = WindowManager
+
+--- `context` doit fournir :
+---   getPointer() -> Vector2? : position du curseur dans le repère logique
+---   os : la référence à l'instance de KZ OS (pour que les apps y accèdent)
+function WindowManager.new(container: Frame, context)
+	local self = setmetatable({}, WindowManager)
+
+	self._trove = Trove.new()
+	self.container = container
+	self.context = context
+
+	self.windows = {} :: { any }
+	self.focusedWindow = nil
+	self._manipulating = false
+	self._cascadeIndex = 0
+
+	self.WindowOpened = self._trove:Add(Signal.new())
+	self.WindowClosed = self._trove:Add(Signal.new())
+	self.FocusChanged = self._trove:Add(Signal.new())
+
+	return self
+end
+
+--- Vrai pendant qu'une fenêtre est déplacée ou redimensionnée. Le reste de
+--- l'OS s'en sert pour ne pas déclencher de survols pendant le geste.
+function WindowManager:IsManipulating(): boolean
+	return self._manipulating
+end
+
+function WindowManager:_setManipulating(value: boolean)
+	self._manipulating = value
+end
+
+--- Décale chaque nouvelle fenêtre pour qu'elles ne s'empilent pas
+--- exactement au même endroit.
+function WindowManager:_nextCascadePosition(size: Vector2): Vector2
+	local screen = Theme.Layout.ScreenResolution
+	local step = 28
+	local offset = self._cascadeIndex * step
+
+	self._cascadeIndex = (self._cascadeIndex + 1) % 8
+
+	local base = Vector2.new((screen.X - size.X) / 2, (screen.Y - size.Y) / 2 - Theme.Layout.TaskbarHeight / 2)
+	local position = base + Vector2.new(offset - step * 3.5, offset - step * 3.5)
+
+	return Vector2.new(math.max(0, position.X), math.max(0, position.Y))
+end
+
+function WindowManager:GetWindow(id: string)
+	for _, window in ipairs(self.windows) do
+		if window.id == id then
+			return window
+		end
+	end
+	return nil
+end
+
+function WindowManager:OpenWindow(id: string, props)
+	local existing = self:GetWindow(id)
+	if existing then
+		existing:SetMinimized(false)
+		existing:Focus()
+		return existing
+	end
+
+	props = props or {}
+	local size = props.size or Vector2.new(720, 460)
+	props.size = size
+	props.position = props.position or self:_nextCascadePosition(size)
+
+	local window = Window.new(self, id, props)
+	window.frame.Parent = self.container
+
+	table.insert(self.windows, window)
+
+	window.Closed:Connect(function()
+		self:_removeWindow(window)
+	end)
+
+	self:FocusWindow(window)
+	self.WindowOpened:Fire(window)
+
+	return window
+end
+
+function WindowManager:_removeWindow(window)
+	for index, stored in ipairs(self.windows) do
+		if stored == window then
+			table.remove(self.windows, index)
+			break
+		end
+	end
+
+	if self.focusedWindow == window then
+		self.focusedWindow = nil
+		self:_focusTopMost()
+	end
+
+	self.WindowClosed:Fire(window)
+end
+
+--- La pile Z est simplement l'ordre du tableau : le dernier élément est
+--- au premier plan. On réassigne les ZIndex à chaque changement de focus,
+--- ce qui reste trivial tant qu'on a moins de quelques dizaines de fenêtres.
+function WindowManager:FocusWindow(window)
+	if not window or window.minimized then
+		return
+	end
+
+	if self.focusedWindow == window then
+		return
+	end
+
+	for index, stored in ipairs(self.windows) do
+		if stored == window then
+			table.remove(self.windows, index)
+			break
+		end
+	end
+	table.insert(self.windows, window)
+
+	if self.focusedWindow then
+		self.focusedWindow:_setFocusState(false)
+	end
+
+	self.focusedWindow = window
+	window:_setFocusState(true)
+
+	self:_restack()
+	self.FocusChanged:Fire(window)
+end
+
+function WindowManager:_focusTopMost()
+	for index = #self.windows, 1, -1 do
+		local window = self.windows[index]
+		if not window.minimized then
+			self:FocusWindow(window)
+			return
+		end
+	end
+
+	if self.focusedWindow then
+		self.focusedWindow:_setFocusState(false)
+		self.focusedWindow = nil
+		self.FocusChanged:Fire(nil)
+	end
+end
+
+function WindowManager:_restack()
+	local base = Theme.ZIndex.WindowBase
+	local step = 10
+
+	for index, window in ipairs(self.windows) do
+		local zIndex = math.min(base + (index - 1) * step, Theme.ZIndex.WindowMax)
+		window.frame.ZIndex = zIndex
+	end
+end
+
+function WindowManager:CloseAll()
+	for _, window in ipairs(table.clone(self.windows)) do
+		window:Destroy()
+	end
+	table.clear(self.windows)
+	self.focusedWindow = nil
+end
+
+function WindowManager:Destroy()
+	self:CloseAll()
+	self._trove:Clean()
+end
+
+return WindowManager
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX21"><Properties><string name="Name">Net</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Net — les tuyaux client/serveur.
+
+	Un seul RemoteEvent dans chaque sens, avec une route en premier argument.
+	Multiplier les remotes ne sert à rien et complique la sécurité : ici il
+	n'y a qu'une porte d'entrée à valider côté serveur.
+
+	Règle du projet : le client n'envoie que des INTENTIONS ("je veux passer
+	en direct"), jamais des résultats ("j'ai 4200 viewers"). Tout ce qui
+	compte est calculé et validé par le serveur.
+]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local Net = {}
+
+local FOLDER_NAME = "KZNet"
+
+local function getFolder(): Folder
+	if RunService:IsServer() then
+		local folder = ReplicatedStorage:FindFirstChild(FOLDER_NAME)
+		if not folder then
+			folder = Instance.new("Folder")
+			folder.Name = FOLDER_NAME
+			folder.Parent = ReplicatedStorage
+		end
+		return folder
+	end
+
+	return ReplicatedStorage:WaitForChild(FOLDER_NAME) :: Folder
+end
+
+local function getRemote(name: string, className: string): any
+	local folder = getFolder()
+
+	if RunService:IsServer() then
+		local remote = folder:FindFirstChild(name)
+		if not remote then
+			remote = Instance.new(className)
+			remote.Name = name
+			remote.Parent = folder
+		end
+		return remote
+	end
+
+	return folder:WaitForChild(name)
+end
+
+--- Serveur -> client : l'état du joueur a changé.
+function Net.stateEvent(): RemoteEvent
+	return getRemote("State", "RemoteEvent")
+end
+
+--- Client -> serveur : une intention du joueur.
+function Net.requestEvent(): RemoteEvent
+	return getRemote("Request", "RemoteEvent")
+end
+
+return Net
+]]></ProtectedString></Properties></Item></Item></Item>
+<Item class="ServerScriptService" referent="RBX34"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX26"><Properties><string name="Name">Server</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Point d'entrée serveur de KZ Stream Simulator.
+
+	Le serveur fait autorité sur tout : l'argent, l'audience, l'état du
+	direct. Le client demande, le serveur décide. C'est plus long à écrire
+	et ça évite qu'un jeu de gestion se fasse vider par un exploit en
+	quinze minutes le jour du lancement.
+
+	Le jeu est solo pour l'instant, mais chaque joueur a déjà sa propre
+	session isolée : le jour où on ajoutera les collaborations, il n'y aura
+	rien à démonter.
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Net = require(Shared.Net)
+local DeviceCatalogue = require(Shared.Config.Devices)
+local Emails = require(Shared.Content.Emails)
+
+local PlayerState = require(script.Services.PlayerState)
+local DevRoom = require(script.DevRoom)
+
+local stateEvent = Net.stateEvent()
+local requestEvent = Net.requestEvent()
+
+local sessions: { [Player]: any } = {}
+
+--- Les sources visibles dans KZ Studio sont dérivées du matériel posé dans
+--- la pièce. C'est le lien qui tient tout le jeu : pas de micro branché,
+--- pas de source micro, et le joueur ne l'apprendra que par son chat.
+local function buildSources(data)
+	local sources = {}
+
+	for _, owned in ipairs(data.devices) do
+		local device = DeviceCatalogue[owned.id]
+		if device and (device.category == "camera" or device.category == "microphone" or device.category == "capture") then
+			table.insert(sources, {
+				id = owned.id,
+				name = device.name,
+				category = device.category,
+				connected = owned.connected == true,
+			})
+		end
+	end
+
+	return sources
+end
+
+--- Ce qu'on envoie au client : l'état plus quelques valeurs dérivées, pour
+--- que l'interface n'ait aucun calcul de règle métier à faire.
+local function buildPayload(session)
+	local data = session:Get()
+	local payload = table.clone(data)
+
+	payload.sources = buildSources(data)
+
+	return payload
+end
+
+local function push(player: Player)
+	local session = sessions[player]
+	if session then
+		stateEvent:FireClient(player, buildPayload(session))
+	end
+end
+
+-- ── Routes ────────────────────────────────────────────────────────────────
+
+local routes = {}
+
+function routes.ping(session)
+	-- Le client annonce qu'il est prêt à recevoir l'état.
+	push(session.player)
+end
+
+routes["stream/toggle"] = function(session)
+	session:Update(function(data)
+		if data.isLive then
+			data.isLive = false
+			data.viewers = 0
+			data.bitrate = 0
+			data.streamElapsed = 0
+			data.droppedFrames = 0
+			data.stats.streamsCompleted += 1
+		else
+			data.isLive = true
+			data.streamElapsed = 0
+			-- Le débit dépend de la machine : une tour de récup n'encode pas
+			-- du 6000 kb/s, elle fait ce qu'elle peut.
+			data.bitrate = math.round(1500 + data.hardwareQuality * 4500)
+		end
+	end)
+end
+
+routes["stream/setScene"] = function(session, payload)
+	if typeof(payload) ~= "table" or typeof(payload.sceneId) ~= "string" then
+		return
+	end
+
+	session:Update(function(data)
+		for _, scene in ipairs(data.scenes) do
+			if scene.id == payload.sceneId then
+				data.activeSceneId = scene.id
+				return
+			end
+		end
+	end)
+end
+
+routes["mail/answer"] = function(session, payload)
+	if typeof(payload) ~= "table" then
+		return
+	end
+	if typeof(payload.emailId) ~= "string" or typeof(payload.choiceIndex) ~= "number" then
+		return
+	end
+
+	local email
+	for _, candidate in ipairs(Emails) do
+		if candidate.id == payload.emailId then
+			email = candidate
+			break
+		end
+	end
+
+	if not email or not email.choices then
+		return
+	end
+
+	local choice = email.choices[payload.choiceIndex]
+	if not choice then
+		return
+	end
+
+	local data = session:Get()
+	if data.answeredEmails[email.id] then
+		-- On ne répond qu'une fois : sans ça, un clic répété sur "Accepter"
+		-- encaisserait le cachet du sponsor en boucle.
+		return
+	end
+
+	session:Update(function(state)
+		state.answeredEmails[email.id] = payload.choiceIndex
+
+		local effects = choice.effects or {}
+		if typeof(effects.money) == "number" then
+			state.money += effects.money
+		end
+		if typeof(effects.energy) == "number" then
+			state.energy = math.clamp(state.energy + effects.energy, 0, 100)
+		end
+	end)
+end
+
+-- ── Boucle de direct ──────────────────────────────────────────────────────
+
+--- Pour l'instant une simulation volontairement naïve : elle sert à prouver
+--- que la chaîne serveur -> réseau -> interface tient debout. Le vrai moteur
+--- d'audience (segments, rétention, humeur) viendra la remplacer ici même.
+local function tickLive(session, deltaTime: number)
+	local data = session:Get()
+	if not data.isLive then
+		return
+	end
+
+	session:Update(function(state)
+		state.streamElapsed += deltaTime
+
+		local target = 3 + state.hardwareQuality * 20
+		local drift = (target - state.viewers) * 0.05 + (math.random() - 0.5)
+		state.viewers = math.max(0, math.round(state.viewers + drift))
+
+		-- Une machine faible lâche des images quand l'encodage la dépasse.
+		state.droppedFrames = math.clamp((0.35 - state.hardwareQuality * 0.35) * math.random(), 0, 1)
+	end)
+end
+
+-- ── Cycle de vie ──────────────────────────────────────────────────────────
+
+local function onPlayerAdded(player: Player)
+	local session = PlayerState.new(player)
+	sessions[player] = session
+
+	session.Changed:Connect(function()
+		push(player)
+	end)
+
+	push(player)
+end
+
+local function onPlayerRemoving(player: Player)
+	local session = sessions[player]
+	if session then
+		session:Destroy()
+		sessions[player] = nil
+	end
+end
+
+requestEvent.OnServerEvent:Connect(function(player, route, payload)
+	if typeof(route) ~= "string" then
+		return
+	end
+
+	local session = sessions[player]
+	local handler = routes[route]
+
+	if session and handler then
+		handler(session, payload)
+	end
+end)
+
+Players.PlayerAdded:Connect(onPlayerAdded)
+Players.PlayerRemoving:Connect(onPlayerRemoving)
+
+for _, player in ipairs(Players:GetPlayers()) do
+	onPlayerAdded(player)
+end
+
+-- Un tick à 1 Hz suffit : l'audience d'un live ne change pas à 60 images
+-- par seconde, et ça garde le trafic réseau négligeable.
+task.spawn(function()
+	while true do
+		task.wait(1)
+		for _, session in pairs(sessions) do
+			tickLive(session, 1)
+		end
+	end
+end)
+
+DevRoom.build()
+
+print("[KZ] Serveur prêt.")
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX24"><Properties><string name="Name">Services</string></Properties><Item class="ModuleScript" referent="RBX23"><Properties><string name="Name">PlayerState</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	PlayerState — l'état d'un joueur, propriété exclusive du serveur.
+
+	Ce module ne connaît rien de l'interface. Il détient les chiffres, les
+	fait évoluer, et notifie. Toute la logique de jeu qu'on écrira ensuite
+	(simulation d'audience, économie, fatigue) se branchera ici.
+]]
+
+local Signal = require(game:GetService("ReplicatedStorage").Shared.Lib.Signal)
+
+local PlayerState = {}
+PlayerState.__index = PlayerState
+
+--- L'état de départ : la chambre chez les parents, une tour de récup, une
+--- webcam trouvée au grenier, et personne qui regarde.
+local function defaultState()
+	return {
+		day = 1,
+		-- Minutes depuis minuit. La journée de jeu avance par créneaux.
+		clockMinutes = 9 * 60,
+
+		money = 40,
+		energy = 100,
+
+		stats = {
+			streamsCompleted = 0,
+			employees = 0,
+			-- 1 = chambre, 2 = appartement, 3 = local, 4 = plateau.
+			venueTier = 1,
+			subscribers = 0,
+		},
+
+		-- Qualité de la machine : pilote la lenteur du boot et le risque de
+		-- plantage. 0 = tour de récup, 1 = station haut de gamme.
+		hardwareQuality = 0.1,
+		memoryMB = 4096,
+		usbDeviceCount = 1,
+
+		-- Le matériel posé dans la pièce. Les sources de KZ Studio en
+		-- découlent directement : rien ici, rien là-bas.
+		devices = {
+			{ id = "pc_hand_me_down", connected = true },
+			{ id = "webcam_basic", connected = true },
+			{ id = "mic_headset", connected = false },
+		},
+
+		scenes = {
+			{ id = "main", name = "Scène principale" },
+			{ id = "brb", name = "Pause" },
+		},
+		activeSceneId = "main",
+
+		isLive = false,
+		viewers = 0,
+		streamElapsed = 0,
+		bitrate = 0,
+		droppedFrames = 0,
+
+		files = {
+			clips = {},
+			rushes = {},
+			thumbnails = {},
+			contracts = {},
+		},
+
+		answeredEmails = {},
+	}
+end
+
+function PlayerState.new(player: Player)
+	local self = setmetatable({}, PlayerState)
+
+	self.player = player
+	self.data = defaultState()
+	self.Changed = Signal.new()
+
+	return self
+end
+
+function PlayerState:Get()
+	return self.data
+end
+
+--- Applique une modification et notifie. Passer par cette méthode plutôt
+--- que de muter `data` directement garantit que le client est toujours
+--- resynchronisé — c'est la seule discipline à tenir dans ce fichier.
+function PlayerState:Update(mutator: (any) -> ())
+	mutator(self.data)
+	self.Changed:Fire(self.data)
+end
+
+function PlayerState:Destroy()
+	self.Changed:Destroy()
+end
+
+return PlayerState
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX25"><Properties><string name="Name">DevRoom</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	DevRoom — la chambre de test, construite par code.
+
+	Je ne peux pas modéliser dans Studio, donc le jeu se monte tout seul un
+	décor en primitives : quatre murs, un bureau, un moniteur. C'est moche
+	et c'est le but — ça permet de jouer et de tester toute la logique dès
+	maintenant, sans attendre le moindre asset.
+
+	Quand tu construiras la vraie chambre dans Studio, il suffira de poser
+	le tag "ComputerScreen" sur la dalle de ton moniteur et de supprimer
+	l'appel à DevRoom.build().
+]]
+
+local CollectionService = game:GetService("CollectionService")
+
+local DevRoom = {}
+
+local ROOM_SIZE = Vector3.new(28, 14, 24)
+local WALL_THICKNESS = 1
+
+local PALETTE = {
+	floor = Color3.fromRGB(78, 66, 58),
+	wall = Color3.fromRGB(126, 122, 118),
+	desk = Color3.fromRGB(52, 44, 40),
+	frame = Color3.fromRGB(28, 28, 32),
+}
+
+local function part(name: string, size: Vector3, cframe: CFrame, color: Color3, parent: Instance)
+	local instance = Instance.new("Part")
+	instance.Name = name
+	instance.Size = size
+	instance.CFrame = cframe
+	instance.Color = color
+	instance.Anchored = true
+	instance.TopSurface = Enum.SurfaceType.Smooth
+	instance.BottomSurface = Enum.SurfaceType.Smooth
+	instance.Material = Enum.Material.SmoothPlastic
+	instance.Parent = parent
+	return instance
+end
+
+function DevRoom.build()
+	if workspace:FindFirstChild("DevRoom") then
+		return workspace.DevRoom
+	end
+
+	-- Si on synchronise dans un place "Baseplate" de Studio, son sol et son
+	-- point d'apparition entrent en conflit avec les nôtres : le joueur
+	-- apparaît une fois sur deux à côté de la chambre. On les retire, mais
+	-- uniquement s'ils portent exactement les noms par défaut de Studio —
+	-- on ne veut surtout pas manger du décor construit à la main.
+	local baseplate = workspace:FindFirstChild("Baseplate")
+	if baseplate and baseplate:IsA("BasePart") then
+		baseplate:Destroy()
+	end
+
+	local defaultSpawn = workspace:FindFirstChild("SpawnLocation")
+	if defaultSpawn and defaultSpawn:IsA("SpawnLocation") then
+		defaultSpawn:Destroy()
+	end
+
+	local room = Instance.new("Model")
+	room.Name = "DevRoom"
+	room.Parent = workspace
+
+	local halfX, halfZ = ROOM_SIZE.X / 2, ROOM_SIZE.Z / 2
+
+	part("Floor", Vector3.new(ROOM_SIZE.X, WALL_THICKNESS, ROOM_SIZE.Z), CFrame.new(0, 0, 0), PALETTE.floor, room)
+
+	-- Mur du fond : c'est celui qu'on voit derrière le joueur à la caméra,
+	-- donc c'est là que le fond vert ira se poser.
+	part(
+		"WallBack",
+		Vector3.new(ROOM_SIZE.X, ROOM_SIZE.Y, WALL_THICKNESS),
+		CFrame.new(0, ROOM_SIZE.Y / 2, -halfZ),
+		PALETTE.wall,
+		room
+	)
+	part(
+		"WallLeft",
+		Vector3.new(WALL_THICKNESS, ROOM_SIZE.Y, ROOM_SIZE.Z),
+		CFrame.new(-halfX, ROOM_SIZE.Y / 2, 0),
+		PALETTE.wall,
+		room
+	)
+	part(
+		"WallRight",
+		Vector3.new(WALL_THICKNESS, ROOM_SIZE.Y, ROOM_SIZE.Z),
+		CFrame.new(halfX, ROOM_SIZE.Y / 2, 0),
+		PALETTE.wall,
+		room
+	)
+
+	-- Le bureau, face au mur du fond.
+	local deskTop = CFrame.new(0, 3.5, -halfZ + 5)
+	part("Desk", Vector3.new(10, 0.4, 4), deskTop, PALETTE.desk, room)
+	part("DeskLegL", Vector3.new(0.4, 3.5, 3.6), deskTop * CFrame.new(-4.6, -1.95, 0), PALETTE.desk, room)
+	part("DeskLegR", Vector3.new(0.4, 3.5, 3.6), deskTop * CFrame.new(4.6, -1.95, 0), PALETTE.desk, room)
+
+	-- Le moniteur. La dalle est une part distincte du cadre : c'est elle qui
+	-- portera la SurfaceGui, et son ratio doit coller à la résolution
+	-- logique de l'OS (16:9) sinon l'interface se retrouve étirée.
+	local screenCFrame = deskTop * CFrame.new(0, 2.6, -0.6)
+
+	part("MonitorFrame", Vector3.new(8.4, 4.9, 0.3), screenCFrame, PALETTE.frame, room)
+	part("MonitorStand", Vector3.new(1.2, 2.2, 0.6), deskTop * CFrame.new(0, 1.1, -0.6), PALETTE.frame, room)
+
+	local screen = part(
+		"Screen",
+		Vector3.new(8, 4.5, 0.1),
+		screenCFrame * CFrame.new(0, 0, 0.16),
+		Color3.new(0, 0, 0),
+		room
+	)
+	screen.Material = Enum.Material.Glass
+	screen.CanCollide = false
+
+	-- Le client cherche ce tag pour savoir où monter KZ OS.
+	CollectionService:AddTag(screen, "ComputerScreen")
+
+	-- Un point de repère pour s'asseoir devant l'écran.
+	local seat = Instance.new("Part")
+	seat.Name = "DeskAnchor"
+	seat.Size = Vector3.new(2, 0.2, 2)
+	seat.CFrame = deskTop * CFrame.new(0, -3, 4.5)
+	seat.Anchored = true
+	seat.Transparency = 1
+	seat.CanCollide = false
+	seat.Parent = room
+
+	local spawnPad = part("SpawnPad", Vector3.new(6, 0.2, 6), CFrame.new(0, 0.6, halfZ - 6), PALETTE.floor, room)
+	spawnPad.Transparency = 1
+	spawnPad.CanCollide = false
+
+	local spawnLocation = Instance.new("SpawnLocation")
+	spawnLocation.Size = Vector3.new(6, 0.2, 6)
+	spawnLocation.CFrame = CFrame.new(0, 0.7, halfZ - 6)
+	spawnLocation.Anchored = true
+	spawnLocation.Transparency = 1
+	spawnLocation.CanCollide = false
+	spawnLocation.Neutral = true
+	spawnLocation.Parent = room
+
+	-- Une lumière chaude et faible : on est dans une chambre, la nuit, et
+	-- l'écran doit être la source lumineuse dominante.
+	local lighting = game:GetService("Lighting")
+	lighting.Ambient = Color3.fromRGB(38, 38, 46)
+	lighting.OutdoorAmbient = Color3.fromRGB(48, 48, 58)
+	lighting.Brightness = 1.2
+	lighting.ClockTime = 21
+
+	return room
+end
+
+return DevRoom
+]]></ProtectedString></Properties></Item></Item></Item>
+<Item class="StarterPlayer" referent="RBX35"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX30"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX29"><Properties><string name="Name">Client</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Point d'entrée client de KZ Stream Simulator.
+
+	Il fait trois choses : il tient l'état répliqué, il monte KZ OS sur
+	chaque dalle taguée "ComputerScreen", et il gère le fait de s'asseoir
+	devant un ordinateur (verrouillage caméra + curseur libre).
+
+	Aucun HUD n'est créé ici, et c'est délibéré : on s'est interdit toute
+	interface flottante. Chaque information du jeu vit sur un écran, un
+	objet ou l'avatar.
+]]
+
+local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Net = require(Shared.Net)
+local Signal = require(Shared.Lib.Signal)
+local KZOS = require(Shared.OS)
+
+local player = Players.LocalPlayer
+local stateEvent = Net.stateEvent()
+local requestEvent = Net.requestEvent()
+
+local ScreenSurface = require(script.Computer.ScreenSurface)
+
+-- ── L'état répliqué et le pont donné aux apps ─────────────────────────────
+
+local api = {
+	state = {},
+	stateChanged = Signal.new(),
+	request = function(route: string, payload: any?)
+		requestEvent:FireServer(route, payload)
+	end,
+}
+
+stateEvent.OnClientEvent:Connect(function(newState)
+	api.state = newState
+	api.stateChanged:Fire(newState)
+end)
+
+-- ── Les postes de travail ─────────────────────────────────────────────────
+
+local stations: { [BasePart]: any } = {}
+
+local SIT_DISTANCE = 14
+local FOCUS_DISTANCE = 7.5
+
+local function createStation(screenPart: BasePart)
+	if stations[screenPart] then
+		return
+	end
+
+	local surface = ScreenSurface.new(screenPart)
+
+	local station = {
+		part = screenPart,
+		surface = surface,
+		os = nil,
+		focused = false,
+	}
+	stations[screenPart] = station
+
+	-- L'OS ne démarre pas tout de suite. Il lui faut deux choses : l'état du
+	-- joueur (sans lui on ne connaît ni sa machine ni la durée de son boot)
+	-- et un joueur assez proche pour voir l'écran — sinon la séquence de
+	-- démarrage se jouerait dans le vide pendant qu'il traverse la pièce.
+	function station.ensureStarted()
+		if station.os or not api.state.day then
+			return
+		end
+
+		station.os = KZOS.new(surface.root, {
+			getPointer = function()
+				return surface:GetPointer()
+			end,
+		}, api)
+	end
+
+	return station
+end
+
+local function removeStation(screenPart: BasePart)
+	local station = stations[screenPart]
+	if not station then
+		return
+	end
+
+	if station.os then
+		station.os:Destroy()
+	end
+	station.surface:Destroy()
+	stations[screenPart] = nil
+end
+
+for _, screenPart in ipairs(CollectionService:GetTagged("ComputerScreen")) do
+	if screenPart:IsA("BasePart") then
+		createStation(screenPart)
+	end
+end
+
+CollectionService:GetInstanceAddedSignal("ComputerScreen"):Connect(function(instance)
+	if instance:IsA("BasePart") then
+		createStation(instance)
+	end
+end)
+
+CollectionService:GetInstanceRemovedSignal("ComputerScreen"):Connect(function(instance)
+	if instance:IsA("BasePart") then
+		removeStation(instance)
+	end
+end)
+
+-- ── S'asseoir devant l'écran ──────────────────────────────────────────────
+
+local focusedStation: any = nil
+
+local function setFocused(station: any?)
+	if focusedStation == station then
+		return
+	end
+
+	focusedStation = station
+
+	if station then
+		UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+		UserInputService.MouseIconEnabled = true
+	else
+		UserInputService.MouseIconEnabled = true
+	end
+end
+
+--- On ne fige pas la caméra de force : le joueur reste libre de ses
+--- mouvements, on se contente de savoir quel écran il utilise. Le verrou
+--- caméra viendra avec le vrai mobilier (s'asseoir sur une chaise).
+local function updateFocus()
+	local character = player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not rootPart then
+		setFocused(nil)
+		return
+	end
+
+	local closest, closestDistance = nil, math.huge
+
+	for screenPart, station in pairs(stations) do
+		local distance = (screenPart.Position - rootPart.Position).Magnitude
+
+		-- Économie de performance : au-delà de SIT_DISTANCE, on éteint la
+		-- dalle. Un écran allumé qu'on ne peut pas lire ne sert à rien et
+		-- coûte une passe de rendu d'interface complète.
+		local inRange = distance <= SIT_DISTANCE
+		station.surface:SetActive(inRange)
+
+		if inRange then
+			station.ensureStarted()
+		end
+
+		if distance < closestDistance then
+			closest, closestDistance = station, distance
+		end
+	end
+
+	setFocused(closestDistance <= FOCUS_DISTANCE and closest or nil)
+end
+
+RunService.Heartbeat:Connect(updateFocus)
+
+-- ── Démarrage ─────────────────────────────────────────────────────────────
+
+-- On signale au serveur qu'on est prêt : il répond avec l'état initial.
+task.defer(function()
+	api.request("ping")
+end)
+
+print("[KZ] Client prêt.")
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX28"><Properties><string name="Name">Computer</string></Properties><Item class="ModuleScript" referent="RBX27"><Properties><string name="Name">ScreenSurface</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	ScreenSurface — projette KZ OS sur une dalle 3D.
+
+	C'est la pièce qui rend le projet possible : une SurfaceGui calibrée
+	pour que son canvas fasse exactement la résolution logique de l'OS
+	(1280x720 par défaut), quelle que soit la taille physique de l'écran
+	dans le monde. L'OS dessine en pixels, la dalle s'occupe du reste.
+
+	`LightInfluence = 0` est le détail qui change tout : l'écran émet sa
+	propre lumière au lieu de subir celle de la pièce. Sans ça, un moniteur
+	dans une chambre sombre a l'air d'un poster gris.
+
+	La fonction `getPointer` convertit la position de la souris à l'écran
+	en coordonnées sur la dalle, en passant par un raycast. C'est ce qui
+	permet de cliquer et de glisser des fenêtres sur un écran vu de biais.
+]]
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+
+local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+local Create = require(Shared.Lib.Create)
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(Shared.OS.Theme)
+
+local ScreenSurface = {}
+ScreenSurface.__index = ScreenSurface
+
+local player = Players.LocalPlayer
+
+function ScreenSurface.new(screenPart: BasePart, face: Enum.NormalId?)
+	local self = setmetatable({}, ScreenSurface)
+
+	self._trove = Trove.new()
+	self.part = screenPart
+	self.face = face or Enum.NormalId.Front
+
+	local resolution = Theme.Layout.ScreenResolution
+
+	-- On calibre à partir de la largeur : la hauteur suit si la dalle
+	-- respecte le ratio 16:9. Un écran au mauvais ratio étire l'interface,
+	-- ce qui se voit immédiatement et se corrige dans Studio.
+	local pixelsPerStud = resolution.X / screenPart.Size.X
+
+	self.root = Create("Frame") {
+		Name = "OSRoot",
+		Size = UDim2.fromOffset(resolution.X, resolution.Y),
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BorderSizePixel = 0,
+		ClipsDescendants = true,
+	}
+
+	self.gui = Create("SurfaceGui") {
+		Name = "KZOS",
+		Adornee = screenPart,
+		Face = self.face,
+		SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud,
+		PixelsPerStud = pixelsPerStud,
+		LightInfluence = 0,
+		AlwaysOnTop = false,
+		ResetOnSpawn = false,
+		ClipsDescendants = true,
+		MaxDistance = 90,
+
+		self.root,
+	}
+	self.gui.Parent = player:WaitForChild("PlayerGui")
+
+	self._trove:Add(self.gui)
+
+	self._raycastParams = RaycastParams.new()
+	self._raycastParams.FilterType = Enum.RaycastFilterType.Include
+	self._raycastParams.FilterDescendantsInstances = { screenPart }
+
+	return self
+end
+
+--- Position du curseur dans le repère logique de l'écran, ou nil si le
+--- joueur ne pointe pas la dalle.
+function ScreenSurface:GetPointer(): Vector2?
+	local camera = Workspace.CurrentCamera
+	if not camera then
+		return nil
+	end
+
+	local mouse = UserInputService:GetMouseLocation()
+	local ray = camera:ViewportPointToRay(mouse.X, mouse.Y)
+
+	local result = Workspace:Raycast(ray.Origin, ray.Direction * 200, self._raycastParams)
+	if not result then
+		return nil
+	end
+
+	-- Du monde vers l'espace local de la dalle, puis vers ses UV.
+	local localPoint = self.part.CFrame:PointToObjectSpace(result.Position)
+	local size = self.part.Size
+
+	local u = (localPoint.X + size.X / 2) / size.X
+	local v = (size.Y / 2 - localPoint.Y) / size.Y
+
+	local resolution = Theme.Layout.ScreenResolution
+	return Vector2.new(u * resolution.X, v * resolution.Y)
+end
+
+--- Éteint la dalle quand le joueur est loin : une SurfaceGui active coûte
+--- cher, et il y en aura beaucoup dans une régie.
+function ScreenSurface:SetActive(active: boolean)
+	self.gui.Enabled = active
+end
+
+function ScreenSurface:Destroy()
+	self._trove:Clean()
+end
+
+return ScreenSurface
+]]></ProtectedString></Properties></Item></Item></Item></Item></Item>
+</roblox>

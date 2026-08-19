@@ -5,6 +5,10 @@
 *.rbxlx.lock
 build/
 
+# Sauf le place prêt à l'emploi : c'est le fichier que l'on télécharge
+# pour tester le jeu sans rien installer.
+!KZStreamSimulator.rbxlx
+
 # Outils
 /sourcemap.json
 .DS_Store

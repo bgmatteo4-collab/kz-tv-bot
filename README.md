@@ -10,7 +10,20 @@ La conception complète est dans **[docs/GDD.md](docs/GDD.md)**.
 
 ## Lancer le projet
 
-### 1. Installer Rojo
+### Le plus simple : aucune installation
+
+Télécharge **`KZStreamSimulator.rbxlx`** à la racine du dépôt et double-clique
+dessus. Roblox Studio s'ouvre avec le projet complet, appuie sur **Play**.
+
+Le guide détaillé, avec les captures d'étapes et les erreurs fréquentes, est
+dans **[docs/INSTALLATION.md](docs/INSTALLATION.md)**.
+
+### Pour travailler en continu : Rojo
+
+Rojo synchronise le code avec Studio en direct, sans perdre le décor que tu as
+construit. C'est indispensable à terme, mais ça peut attendre le premier test.
+
+#### 1. Installer Rojo
 
 Via [Aftman](https://github.com/LPGhatguy/aftman) (recommandé) ou directement :
 
@@ -22,7 +35,7 @@ cargo install rojo
 Installe aussi le **plugin Rojo** dans Roblox Studio (menu Plugins → Manage
 Plugins, ou depuis le site de Rojo).
 
-### 2. Synchroniser
+#### 2. Synchroniser
 
 ```sh
 git clone <ce-dépôt>
@@ -34,7 +47,7 @@ Dans Studio : ouvre un place vide, onglet Rojo, **Connect**. Le code apparaît
 dans `ReplicatedStorage.Shared`, `ServerScriptService.Server` et
 `StarterPlayer.StarterPlayerScripts.Client`.
 
-### 3. Jouer
+#### 3. Jouer
 
 Appuie sur **Play**. Le serveur construit une chambre de test en primitives
 (`DevRoom`), l'ordinateur démarre tout seul, et KZ OS s'affiche sur la dalle du

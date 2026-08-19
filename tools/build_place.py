@@ -152,6 +152,13 @@ def build_place() -> str:
 
         by_service.setdefault(service_chain[0], []).append(item)
 
+    # Dossier d'accueil des vrais modèles 3D. Il doit exister dans le place
+    # pour qu'on puisse y déposer des modèles depuis Studio ; le code s'en
+    # sert automatiquement dès qu'un modèle y porte l'identifiant d'un objet.
+    items_folder = build_item("Folder", "Items", referent)
+    assets_folder = build_item("Folder", "Assets", referent, None, [items_folder])
+    by_service.setdefault("ReplicatedStorage", []).append(assets_folder)
+
     body = []
     for service in SERVICES:
         body.append(build_item(service, service, referent, None, by_service.get(service)))

@@ -17,6 +17,8 @@
 	dedans.
 ]]
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local Placement = require(script.Parent.Parent.Config.Placement)
 local Styles = require(script.Parent.Parent.Config.Styles)
 
@@ -346,10 +348,61 @@ end
 
 -- ── Assemblage ────────────────────────────────────────────────────────────
 
+--- Cherche un vrai modèle 3D fourni pour cet objet.
+---
+--- Les primitives assemblées sont une solution d'attente : dès qu'un modèle
+--- portant l'identifiant de l'objet est déposé dans
+--- ReplicatedStorage.Assets.Items, c'est lui qui est utilisé. On peut donc
+--- remplacer le catalogue objet par objet, sans toucher au code et sans
+--- jamais casser ce qui marche déjà.
+local function findAsset(itemId: string): Model?
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local items = assets and assets:FindFirstChild("Items")
+	local model = items and items:FindFirstChild(itemId)
+
+	if model and model:IsA("Model") then
+		return model
+	end
+	return nil
+end
+
+--- Met un modèle fourni à l'échelle de l'encombrement déclaré au catalogue,
+--- pour qu'un meuble importé occupe bien la place qu'il annonce en boutique.
+local function prepareAsset(source: Model, item: any, worldCFrame: CFrame): Model
+	local model = source:Clone()
+
+	local extents = model:GetExtentsSize()
+	local target = Placement.GetSize(item)
+
+	if extents.X > 0 and extents.Y > 0 and extents.Z > 0 then
+		local factor = math.min(target.X / extents.X, target.Y / extents.Y, target.Z / extents.Z)
+		if factor > 0 and factor ~= 1 then
+			model:ScaleTo(factor)
+		end
+	end
+
+	for _, part in ipairs(model:GetDescendants()) do
+		if part:IsA("BasePart") then
+			part.Anchored = true
+			part.CanCollide = false
+		end
+	end
+
+	model:PivotTo(worldCFrame)
+	model:SetAttribute("IsAsset", true)
+
+	return model
+end
+
 --- Construit l'objet complet, positionné et orienté. Les recettes
 --- travaillent dans le repère local : on applique le repère monde à la fin,
 --- ce qui garde chaque recette lisible.
 function ModelBuilder.build(item: any, worldCFrame: CFrame): Model
+	local asset = findAsset(item.id)
+	if asset then
+		return prepareAsset(asset, item, worldCFrame)
+	end
+
 	local model = Instance.new("Model")
 	model.Name = item.id
 
@@ -374,6 +427,13 @@ end
 --- partir du repère local mémorisé à sa création : pas de reconstruction,
 --- pas de dérive après mille déplacements.
 function ModelBuilder.setPivot(model: Model, worldCFrame: CFrame)
+	-- Un modèle fourni n'a pas de repères mémorisés : on le déplace d'un
+	-- bloc par son pivot.
+	if model:GetAttribute("IsAsset") then
+		model:PivotTo(worldCFrame)
+		return
+	end
+
 	for _, part in ipairs(model:GetChildren()) do
 		if part:IsA("BasePart") then
 			local localCFrame = part:GetAttribute("LocalCFrame")
@@ -394,6 +454,10 @@ function ModelBuilder.buildGhost(item: any, worldCFrame: CFrame, color: Color3):
 			part.Color = color
 			part.Material = Enum.Material.SmoothPlastic
 			part.CanQuery = false
+		elseif part:IsA("Decal") or part:IsA("Texture") or part:IsA("SurfaceGui") then
+			-- Un modèle fourni peut porter des textures : elles n'ont rien à
+			-- faire sur un fantôme.
+			part:Destroy()
 		end
 	end
 

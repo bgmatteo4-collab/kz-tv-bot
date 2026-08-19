@@ -23,6 +23,7 @@ local Widgets = require(script.Widgets)
 local WindowManager = require(script.WindowManager)
 local AppRegistry = require(script.AppRegistry)
 local Taskbar = require(script.Taskbar)
+local DesktopIcons = require(script.DesktopIcons)
 local BootSequence = require(script.BootSequence)
 
 local KZOS = {}
@@ -47,6 +48,7 @@ function KZOS.new(root: Frame, context: MountContext, api)
 	self.state = api.state
 
 	self.booted = false
+	self._unlockedCount = 0
 	self.AppOpened = self._trove:Add(Signal.new())
 
 	self:_build()
@@ -108,6 +110,14 @@ function KZOS:_build()
 	self.taskbar.frame.Parent = self.root
 	self._trove:Add(self.taskbar)
 
+	-- Les raccourcis du bureau sont le lanceur principal : plus gros, plus
+	-- lisibles de loin sur une dalle 3D, et impossibles à rater.
+	self.icons = DesktopIcons.new(self)
+	-- Attachées au fond du bureau, pas à la racine : sinon elles se
+	-- dessineraient par-dessus les fenêtres ouvertes.
+	self.icons.frame.Parent = self.desktop
+	self._trove:Add(self.icons)
+
 	self._trove:Add(self.windows.WindowOpened:Connect(function()
 		self.taskbar:UpdateRunningIndicators()
 	end))
@@ -121,11 +131,21 @@ function KZOS:_build()
 	-- L'état vient du serveur ; l'OS se contente d'y réagir.
 	self._trove:Add(self.api.stateChanged:Connect(function()
 		self.state = self.api.state
-		self.taskbar:Refresh()
 		self.taskbar:SetLive(self.state.isLive == true)
 		self:_updateClock()
+
+		-- Une application peut venir de se débloquer. On ne reconstruit les
+		-- lanceurs que dans ce cas : sinon les icônes disparaîtraient sous
+		-- le curseur à chaque tic d'horloge.
+		local unlocked = #AppRegistry.GetUnlocked(self.state)
+		if unlocked ~= self._unlockedCount then
+			self._unlockedCount = unlocked
+			self.taskbar:Refresh()
+			self.icons:Refresh()
+		end
 	end))
 
+	self._unlockedCount = #AppRegistry.GetUnlocked(self.state)
 	self:_updateClock()
 end
 

@@ -40,6 +40,21 @@ maintenant que le joueur soit à portée.
 
 ---
 
+### Aucune icône, donc rien à ouvrir
+*Remonté au 5e test.* La barre des tâches n'affichait aucun lanceur : le jeu
+devenait injouable dès le démarrage.
+
+**Cause.** Les icônes étaient des caractères Unicode (`◉`, `✉`, `◍`) posés sur
+des boutons au fond transparent. Une police qui ne contient pas ces glyphes ne
+laisse donc strictement rien à voir ni à viser.
+
+**Correction.** Les lanceurs sont désormais des tuiles pleines et colorées
+portant un monogramme en lettres normales, et le lanceur principal a été
+déplacé sur le bureau, où les icônes sont plus grandes et lisibles de loin sur
+une dalle 3D. La barre des tâches garde les mêmes monogrammes.
+
+---
+
 ## À surveiller
 
 - **Un deuxième écran posé démarre son propre KZ OS.** Conséquence directe du
@@ -47,6 +62,12 @@ maintenant que le joueur soit à portée.
   et ce n'est pas le comportement visé : deux moniteurs branchés sur la même
   machine doivent partager un seul système, avec des fenêtres qui glissent de
   l'un à l'autre. À unifier quand le multi-écran sera implémenté pour de bon.
+- **Les objets sont des primitives assemblées.** Correct et cohérent, mais ça
+  reste des blocs. Le système d'assets est en place : déposer un modèle nommé
+  comme l'objet dans `ReplicatedStorage.Assets.Items` le remplace
+  automatiquement. Voir [ASSETS.md](ASSETS.md).
+- **Le rappel « E — se lever » se dessine au-dessus des fenêtres** en bas à
+  gauche du bureau.
 - **Les objets posés ne bloquent pas le passage.** `CanCollide` est à false
   faute de vrais volumes : on traverse son propre canapé. À rétablir avec les
   modèles 3D.

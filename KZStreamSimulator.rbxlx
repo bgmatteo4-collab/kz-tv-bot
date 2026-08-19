@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
-<Item class="Workspace" referent="RBX46"><Properties><string name="Name">Workspace</string></Properties></Item>
-<Item class="Lighting" referent="RBX47"><Properties><string name="Name">Lighting</string></Properties></Item>
-<Item class="ReplicatedStorage" referent="RBX48"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX34"><Properties><string name="Name">Shared</string></Properties><Item class="Folder" referent="RBX1"><Properties><string name="Name">Build</string></Properties><Item class="ModuleScript" referent="RBX0"><Properties><string name="Name">ModelBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
+<Item class="Workspace" referent="RBX49"><Properties><string name="Name">Workspace</string></Properties></Item>
+<Item class="Lighting" referent="RBX50"><Properties><string name="Name">Lighting</string></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBX51"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX35"><Properties><string name="Name">Shared</string></Properties><Item class="Folder" referent="RBX1"><Properties><string name="Name">Build</string></Properties><Item class="ModuleScript" referent="RBX0"><Properties><string name="Name">ModelBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ModelBuilder — fabrique un objet à partir de primitives.
 
@@ -20,6 +20,8 @@
 	changera — tout le reste du jeu l'appelle sans savoir ce qu'il y a
 	dedans.
 ]]
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Placement = require(script.Parent.Parent.Config.Placement)
 local Styles = require(script.Parent.Parent.Config.Styles)
@@ -350,10 +352,61 @@ end
 
 -- ── Assemblage ────────────────────────────────────────────────────────────
 
+--- Cherche un vrai modèle 3D fourni pour cet objet.
+---
+--- Les primitives assemblées sont une solution d'attente : dès qu'un modèle
+--- portant l'identifiant de l'objet est déposé dans
+--- ReplicatedStorage.Assets.Items, c'est lui qui est utilisé. On peut donc
+--- remplacer le catalogue objet par objet, sans toucher au code et sans
+--- jamais casser ce qui marche déjà.
+local function findAsset(itemId: string): Model?
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local items = assets and assets:FindFirstChild("Items")
+	local model = items and items:FindFirstChild(itemId)
+
+	if model and model:IsA("Model") then
+		return model
+	end
+	return nil
+end
+
+--- Met un modèle fourni à l'échelle de l'encombrement déclaré au catalogue,
+--- pour qu'un meuble importé occupe bien la place qu'il annonce en boutique.
+local function prepareAsset(source: Model, item: any, worldCFrame: CFrame): Model
+	local model = source:Clone()
+
+	local extents = model:GetExtentsSize()
+	local target = Placement.GetSize(item)
+
+	if extents.X > 0 and extents.Y > 0 and extents.Z > 0 then
+		local factor = math.min(target.X / extents.X, target.Y / extents.Y, target.Z / extents.Z)
+		if factor > 0 and factor ~= 1 then
+			model:ScaleTo(factor)
+		end
+	end
+
+	for _, part in ipairs(model:GetDescendants()) do
+		if part:IsA("BasePart") then
+			part.Anchored = true
+			part.CanCollide = false
+		end
+	end
+
+	model:PivotTo(worldCFrame)
+	model:SetAttribute("IsAsset", true)
+
+	return model
+end
+
 --- Construit l'objet complet, positionné et orienté. Les recettes
 --- travaillent dans le repère local : on applique le repère monde à la fin,
 --- ce qui garde chaque recette lisible.
 function ModelBuilder.build(item: any, worldCFrame: CFrame): Model
+	local asset = findAsset(item.id)
+	if asset then
+		return prepareAsset(asset, item, worldCFrame)
+	end
+
 	local model = Instance.new("Model")
 	model.Name = item.id
 
@@ -378,6 +431,13 @@ end
 --- partir du repère local mémorisé à sa création : pas de reconstruction,
 --- pas de dérive après mille déplacements.
 function ModelBuilder.setPivot(model: Model, worldCFrame: CFrame)
+	-- Un modèle fourni n'a pas de repères mémorisés : on le déplace d'un
+	-- bloc par son pivot.
+	if model:GetAttribute("IsAsset") then
+		model:PivotTo(worldCFrame)
+		return
+	end
+
 	for _, part in ipairs(model:GetChildren()) do
 		if part:IsA("BasePart") then
 			local localCFrame = part:GetAttribute("LocalCFrame")
@@ -398,6 +458,10 @@ function ModelBuilder.buildGhost(item: any, worldCFrame: CFrame, color: Color3):
 			part.Color = color
 			part.Material = Enum.Material.SmoothPlastic
 			part.CanQuery = false
+		elseif part:IsA("Decal") or part:IsA("Texture") or part:IsA("SurfaceGui") then
+			-- Un modèle fourni peut porter des textures : elles n'ont rien à
+			-- faire sur un fantôme.
+			part:Destroy()
 		end
 	end
 
@@ -2550,7 +2614,7 @@ end
 Trove.Destroy = Trove.Clean
 
 return Trove
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX32"><Properties><string name="Name">OS</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX33"><Properties><string name="Name">OS</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	KZOS — l'instance d'un système d'exploitation.
 
@@ -2575,6 +2639,7 @@ local Widgets = require(script.Widgets)
 local WindowManager = require(script.WindowManager)
 local AppRegistry = require(script.AppRegistry)
 local Taskbar = require(script.Taskbar)
+local DesktopIcons = require(script.DesktopIcons)
 local BootSequence = require(script.BootSequence)
 
 local KZOS = {}
@@ -2599,6 +2664,7 @@ function KZOS.new(root: Frame, context: MountContext, api)
 	self.state = api.state
 
 	self.booted = false
+	self._unlockedCount = 0
 	self.AppOpened = self._trove:Add(Signal.new())
 
 	self:_build()
@@ -2660,6 +2726,14 @@ function KZOS:_build()
 	self.taskbar.frame.Parent = self.root
 	self._trove:Add(self.taskbar)
 
+	-- Les raccourcis du bureau sont le lanceur principal : plus gros, plus
+	-- lisibles de loin sur une dalle 3D, et impossibles à rater.
+	self.icons = DesktopIcons.new(self)
+	-- Attachées au fond du bureau, pas à la racine : sinon elles se
+	-- dessineraient par-dessus les fenêtres ouvertes.
+	self.icons.frame.Parent = self.desktop
+	self._trove:Add(self.icons)
+
 	self._trove:Add(self.windows.WindowOpened:Connect(function()
 		self.taskbar:UpdateRunningIndicators()
 	end))
@@ -2673,11 +2747,21 @@ function KZOS:_build()
 	-- L'état vient du serveur ; l'OS se contente d'y réagir.
 	self._trove:Add(self.api.stateChanged:Connect(function()
 		self.state = self.api.state
-		self.taskbar:Refresh()
 		self.taskbar:SetLive(self.state.isLive == true)
 		self:_updateClock()
+
+		-- Une application peut venir de se débloquer. On ne reconstruit les
+		-- lanceurs que dans ce cas : sinon les icônes disparaîtraient sous
+		-- le curseur à chaque tic d'horloge.
+		local unlocked = #AppRegistry.GetUnlocked(self.state)
+		if unlocked ~= self._unlockedCount then
+			self._unlockedCount = unlocked
+			self.taskbar:Refresh()
+			self.icons:Refresh()
+		end
 	end))
 
+	self._unlockedCount = #AppRegistry.GetUnlocked(self.state)
 	self:_updateClock()
 end
 
@@ -4786,6 +4870,10 @@ export type AppDefinition = {
 	id: string,
 	name: string,
 	glyph: string,
+	-- Une ou deux lettres pour l'icône du bureau. On n'utilise pas le
+	-- glyphe Unicode : rien ne garantit que la police du client le
+	-- contienne, et une icône invisible rend l'application inaccessible.
+	monogram: string?,
 	accent: Color3?,
 	defaultSize: Vector2?,
 	minSize: Vector2?,
@@ -4817,6 +4905,7 @@ local registry: { AppDefinition } = {
 		id = "studio",
 		name = "KZ Studio",
 		glyph = "◉",
+		monogram = "KZ",
 		accent = Color3.fromRGB(255, 61, 61),
 		defaultSize = Vector2.new(860, 520),
 		minSize = Vector2.new(640, 400),
@@ -4828,6 +4917,7 @@ local registry: { AppDefinition } = {
 		id = "mail",
 		name = "Courrier",
 		glyph = "✉",
+		monogram = "@",
 		accent = Color3.fromRGB(96, 165, 250),
 		defaultSize = Vector2.new(820, 500),
 		minSize = Vector2.new(560, 340),
@@ -4839,6 +4929,7 @@ local registry: { AppDefinition } = {
 		id = "browser",
 		name = "Navigateur",
 		glyph = "◍",
+		monogram = "Web",
 		accent = Color3.fromRGB(74, 201, 126),
 		defaultSize = Vector2.new(1000, 620),
 		minSize = Vector2.new(700, 440),
@@ -4850,6 +4941,7 @@ local registry: { AppDefinition } = {
 		id = "layout",
 		name = "Aménagement",
 		glyph = "◱",
+		monogram = "Am",
 		accent = Color3.fromRGB(230, 173, 66),
 		defaultSize = Vector2.new(760, 520),
 		minSize = Vector2.new(520, 360),
@@ -4861,6 +4953,7 @@ local registry: { AppDefinition } = {
 		id = "files",
 		name = "Fichiers",
 		glyph = "▤",
+		monogram = "Fi",
 		accent = Color3.fromRGB(230, 173, 66),
 		defaultSize = Vector2.new(760, 460),
 		unlock = always,
@@ -4870,6 +4963,7 @@ local registry: { AppDefinition } = {
 		id = "analytics",
 		name = "Analytique",
 		glyph = "◧",
+		monogram = "An",
 		accent = Color3.fromRGB(74, 201, 126),
 		defaultSize = Vector2.new(880, 540),
 		-- Inutile tant qu'il n'y a rien à analyser : arrive au 3e live.
@@ -4880,6 +4974,7 @@ local registry: { AppDefinition } = {
 		id = "company",
 		name = "Gestion",
 		glyph = "▣",
+		monogram = "RH",
 		defaultSize = Vector2.new(900, 560),
 		-- La plateforme d'entreprise : n'existe pas pour un streamer solo.
 		unlock = requiresStat("employees", 1),
@@ -4889,6 +4984,7 @@ local registry: { AppDefinition } = {
 		id = "rundown",
 		name = "Conducteur",
 		glyph = "☰",
+		monogram = "Cd",
 		defaultSize = Vector2.new(900, 560),
 		-- Composer une émission n'a de sens qu'avec un vrai décor.
 		unlock = requiresStat("venueTier", 3),
@@ -5065,7 +5161,172 @@ function BootSequence.play(parent: Frame, options: BootOptions, onComplete: () -
 end
 
 return BootSequence
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX27"><Properties><string name="Name">Taskbar</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX27"><Properties><string name="Name">DesktopIcons</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	DesktopIcons — les raccourcis posés sur le bureau.
+
+	La barre des tâches ne suffisait pas : ses boutons étaient de simples
+	caractères Unicode sur un fond transparent, donc invisibles dès que la
+	police ne contient pas le glyphe. On ne lançait plus rien.
+
+	Ici une icône est une tuile pleine et colorée avec un monogramme en
+	lettres normales. Ça se voit de loin sur une dalle 3D, ça ne dépend
+	d'aucun caractère exotique, et c'est de toute façon ce qu'on attend
+	d'un bureau.
+]]
+
+local TweenService = game:GetService("TweenService")
+
+local Shared = script.Parent.Parent
+local Create = require(Shared.Lib.Create)
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(script.Parent.Theme)
+local AppRegistry = require(script.Parent.AppRegistry)
+
+local DesktopIcons = {}
+DesktopIcons.__index = DesktopIcons
+
+local TILE = 58
+local CELL_WIDTH = 92
+local CELL_HEIGHT = 96
+local MARGIN = 20
+
+function DesktopIcons.new(os)
+	local self = setmetatable({}, DesktopIcons)
+
+	self._trove = Trove.new()
+	self.os = os
+
+	self.frame = Create("Frame") {
+		Name = "DesktopIcons",
+		Size = UDim2.new(0, CELL_WIDTH * 2, 1, -Theme.Layout.TaskbarHeight - MARGIN * 2),
+		Position = UDim2.fromOffset(MARGIN, MARGIN),
+		BackgroundTransparency = 1,
+		ZIndex = Theme.ZIndex.Desktop + 1,
+
+		Create("UIGridLayout") {
+			CellSize = UDim2.fromOffset(CELL_WIDTH, CELL_HEIGHT),
+			CellPadding = UDim2.fromOffset(0, 4),
+			FillDirectionMaxCells = 1,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		},
+	}
+
+	self._trove:Add(self.frame)
+	self:Refresh()
+
+	return self
+end
+
+local function monogramOf(app): string
+	if app.monogram then
+		return app.monogram
+	end
+
+	-- Repli : les deux premières lettres du nom, en capitales.
+	return string.upper(string.sub(app.name, 1, 2))
+end
+
+function DesktopIcons:_createIcon(app, order: number)
+	local accent = app.accent or Theme.Color.Accent
+
+	local tile = Create("Frame") {
+		Name = "Tile",
+		Size = UDim2.fromOffset(TILE, TILE),
+		Position = UDim2.new(0.5, 0, 0, 0),
+		AnchorPoint = Vector2.new(0.5, 0),
+		BackgroundColor3 = accent,
+		BorderSizePixel = 0,
+		ZIndex = Theme.ZIndex.Desktop + 2,
+
+		Create("UICorner") { CornerRadius = UDim.new(0, 14) },
+		Create("UIGradient") {
+			Color = ColorSequence.new(accent, accent:Lerp(Color3.new(0, 0, 0), 0.35)),
+			Rotation = 70,
+		},
+		Create("UIStroke") {
+			Color = Color3.new(1, 1, 1),
+			Transparency = 0.85,
+			Thickness = 1,
+		},
+
+		Create("TextLabel") {
+			Name = "Monogram",
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			Text = monogramOf(app),
+			TextColor3 = Color3.new(1, 1, 1),
+			FontFace = Theme.Font.Bold,
+			TextSize = 22,
+			ZIndex = Theme.ZIndex.Desktop + 3,
+		},
+	}
+
+	local button = Create("TextButton") {
+		Name = app.id,
+		Size = UDim2.fromOffset(CELL_WIDTH, CELL_HEIGHT),
+		BackgroundColor3 = Theme.Color.SurfaceRaised,
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		AutoButtonColor = false,
+		Text = "",
+		LayoutOrder = order,
+		ZIndex = Theme.ZIndex.Desktop + 1,
+
+		Create("UICorner") { CornerRadius = Theme.Radius.Medium },
+
+		tile,
+
+		Create("TextLabel") {
+			Name = "Label",
+			Size = UDim2.new(1, -8, 0, 28),
+			Position = UDim2.fromOffset(4, TILE + 6),
+			BackgroundTransparency = 1,
+			Text = app.name,
+			TextColor3 = Theme.Color.Text,
+			FontFace = Theme.Font.Medium,
+			TextSize = Theme.TextSize.Tiny,
+			TextWrapped = true,
+			TextYAlignment = Enum.TextYAlignment.Top,
+			ZIndex = Theme.ZIndex.Desktop + 2,
+		},
+	}
+
+	button.MouseEnter:Connect(function()
+		TweenService:Create(button, Theme.Motion.Instant, { BackgroundTransparency = 0.75 }):Play()
+	end)
+	button.MouseLeave:Connect(function()
+		TweenService:Create(button, Theme.Motion.Instant, { BackgroundTransparency = 1 }):Play()
+	end)
+
+	button.MouseButton1Click:Connect(function()
+		self.os:OpenApp(app.id)
+	end)
+
+	return button
+end
+
+--- Reconstruit la grille. Appelé quand une application se débloque : une
+--- nouvelle icône apparaît alors sur le bureau, ce qui est exactement la
+--- façon dont on veut annoncer une progression.
+function DesktopIcons:Refresh()
+	for _, child in ipairs(self.frame:GetChildren()) do
+		if child:IsA("GuiButton") then
+			child:Destroy()
+		end
+	end
+
+	for index, app in ipairs(AppRegistry.GetUnlocked(self.os.state)) do
+		self:_createIcon(app, index).Parent = self.frame
+	end
+end
+
+function DesktopIcons:Destroy()
+	self._trove:Clean()
+end
+
+return DesktopIcons
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX28"><Properties><string name="Name">Taskbar</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Taskbar — la barre des tâches.
 
@@ -5225,6 +5486,10 @@ function Taskbar:_startLivePulse()
 end
 
 --- Un bouton d'app dans la barre. Le liseré du bas indique qu'elle tourne.
+---
+--- Le libellé est un monogramme en lettres normales, pas un glyphe Unicode :
+--- une police sans ce caractère rendait le bouton complètement invisible, et
+--- donc l'application impossible à lancer.
 function Taskbar:_createAppButton(app, order: number)
 	local indicator = Create("Frame") {
 		Name = "Running",
@@ -5240,9 +5505,9 @@ function Taskbar:_createAppButton(app, order: number)
 
 	local button = Widgets.Button {
 		name = app.id,
-		text = app.glyph,
+		text = app.monogram or string.upper(string.sub(app.name, 1, 2)),
 		variant = "ghost",
-		textSize = Theme.TextSize.Title,
+		textSize = Theme.TextSize.Small,
 		size = UDim2.fromOffset(BUTTON_SIZE, BUTTON_SIZE),
 		order = order,
 		radius = Theme.Radius.Small,
@@ -5250,8 +5515,21 @@ function Taskbar:_createAppButton(app, order: number)
 			self.os:ToggleApp(app.id)
 		end,
 	}
-	button.BackgroundTransparency = 1
 	button.ZIndex = Theme.ZIndex.Taskbar + 1
+
+	-- Une pastille aux couleurs de l'application, pour la reconnaître d'un
+	-- coup d'oeil sans dépendre d'une icône.
+	Create("Frame") {
+		Name = "Tint",
+		Size = UDim2.new(1, -8, 0, 3),
+		Position = UDim2.new(0.5, 0, 0, 5),
+		AnchorPoint = Vector2.new(0.5, 0),
+		BackgroundColor3 = app.accent or Theme.Color.Accent,
+		BorderSizePixel = 0,
+		ZIndex = Theme.ZIndex.Taskbar + 2,
+		Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+	}.Parent = button
+
 	indicator.Parent = button
 
 	return button, indicator
@@ -5295,7 +5573,7 @@ function Taskbar:Destroy()
 end
 
 return Taskbar
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX28"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX29"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Theme — les jetons de design de KZ OS.
 
@@ -5425,7 +5703,7 @@ Theme.ZIndex = {
 }
 
 return Theme
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX29"><Properties><string name="Name">Widgets</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX30"><Properties><string name="Name">Widgets</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Widgets — la petite bibliothèque de composants de KZ OS.
 
@@ -5669,7 +5947,7 @@ function Widgets.Divider(vertical: boolean?)
 end
 
 return Widgets
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX30"><Properties><string name="Name">Window</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX31"><Properties><string name="Name">Window</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Window — une fenêtre de KZ OS : barre de titre, contenu, boutons, drag,
 	redimensionnement, focus.
@@ -6112,7 +6390,7 @@ function Window:Destroy()
 end
 
 return Window
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX31"><Properties><string name="Name">WindowManager</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX32"><Properties><string name="Name">WindowManager</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	WindowManager — le gestionnaire de fenêtres de KZ OS.
 
@@ -6302,7 +6580,7 @@ function WindowManager:Destroy()
 end
 
 return WindowManager
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX33"><Properties><string name="Name">Net</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX34"><Properties><string name="Name">Net</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Net — les tuyaux client/serveur.
 
@@ -6363,8 +6641,8 @@ function Net.requestEvent(): RemoteEvent
 end
 
 return Net
-]]></ProtectedString></Properties></Item></Item></Item>
-<Item class="ServerScriptService" referent="RBX49"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX39"><Properties><string name="Name">Server</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX48"><Properties><string name="Name">Assets</string></Properties><Item class="Folder" referent="RBX47"><Properties><string name="Name">Items</string></Properties></Item></Item></Item>
+<Item class="ServerScriptService" referent="RBX52"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX40"><Properties><string name="Name">Server</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Point d'entrée serveur de KZ Stream Simulator.
 
@@ -6814,7 +7092,7 @@ end)
 DevRoom.build()
 
 print("[KZ] Serveur prêt.")
-]]></ProtectedString></Properties><Item class="Folder" referent="RBX37"><Properties><string name="Name">Services</string></Properties><Item class="ModuleScript" referent="RBX35"><Properties><string name="Name">PlayerState</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX38"><Properties><string name="Name">Services</string></Properties><Item class="ModuleScript" referent="RBX36"><Properties><string name="Name">PlayerState</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	PlayerState — l'état d'un joueur, propriété exclusive du serveur.
 
@@ -6931,7 +7209,7 @@ function PlayerState:Destroy()
 end
 
 return PlayerState
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX36"><Properties><string name="Name">RoomBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX37"><Properties><string name="Name">RoomBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	RoomBuilder — fabrique dans le monde les objets que le joueur a posés.
 
@@ -7056,7 +7334,7 @@ function RoomBuilder.rebuild(placed: { any })
 end
 
 return RoomBuilder
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX38"><Properties><string name="Name">DevRoom</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX39"><Properties><string name="Name">DevRoom</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	DevRoom — la chambre de test, construite par code.
 
@@ -7228,7 +7506,7 @@ end
 
 return DevRoom
 ]]></ProtectedString></Properties></Item></Item></Item>
-<Item class="StarterPlayer" referent="RBX50"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX45"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX44"><Properties><string name="Name">Client</string><ProtectedString name="Source"><![CDATA[--!strict
+<Item class="StarterPlayer" referent="RBX53"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX46"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX45"><Properties><string name="Name">Client</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Point d'entrée client de KZ Stream Simulator.
 
@@ -7622,7 +7900,7 @@ task.defer(function()
 end)
 
 print("[KZ] Client prêt.")
-]]></ProtectedString></Properties><Item class="Folder" referent="RBX41"><Properties><string name="Name">Build</string></Properties><Item class="ModuleScript" referent="RBX40"><Properties><string name="Name">PlacementMode</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX42"><Properties><string name="Name">Build</string></Properties><Item class="ModuleScript" referent="RBX41"><Properties><string name="Name">PlacementMode</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	PlacementMode — poser un objet dans la pièce.
 
@@ -7823,7 +8101,7 @@ function PlacementMode:Destroy()
 end
 
 return PlacementMode
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX43"><Properties><string name="Name">Computer</string></Properties><Item class="ModuleScript" referent="RBX42"><Properties><string name="Name">ScreenSurface</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX44"><Properties><string name="Name">Computer</string></Properties><Item class="ModuleScript" referent="RBX43"><Properties><string name="Name">ScreenSurface</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ScreenSurface — projette KZ OS sur une dalle 3D.
 

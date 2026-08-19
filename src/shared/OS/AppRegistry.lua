@@ -16,6 +16,10 @@ export type AppDefinition = {
 	id: string,
 	name: string,
 	glyph: string,
+	-- Une ou deux lettres pour l'icône du bureau. On n'utilise pas le
+	-- glyphe Unicode : rien ne garantit que la police du client le
+	-- contienne, et une icône invisible rend l'application inaccessible.
+	monogram: string?,
 	accent: Color3?,
 	defaultSize: Vector2?,
 	minSize: Vector2?,
@@ -47,6 +51,7 @@ local registry: { AppDefinition } = {
 		id = "studio",
 		name = "KZ Studio",
 		glyph = "◉",
+		monogram = "KZ",
 		accent = Color3.fromRGB(255, 61, 61),
 		defaultSize = Vector2.new(860, 520),
 		minSize = Vector2.new(640, 400),
@@ -58,6 +63,7 @@ local registry: { AppDefinition } = {
 		id = "mail",
 		name = "Courrier",
 		glyph = "✉",
+		monogram = "@",
 		accent = Color3.fromRGB(96, 165, 250),
 		defaultSize = Vector2.new(820, 500),
 		minSize = Vector2.new(560, 340),
@@ -69,6 +75,7 @@ local registry: { AppDefinition } = {
 		id = "browser",
 		name = "Navigateur",
 		glyph = "◍",
+		monogram = "Web",
 		accent = Color3.fromRGB(74, 201, 126),
 		defaultSize = Vector2.new(1000, 620),
 		minSize = Vector2.new(700, 440),
@@ -80,6 +87,7 @@ local registry: { AppDefinition } = {
 		id = "layout",
 		name = "Aménagement",
 		glyph = "◱",
+		monogram = "Am",
 		accent = Color3.fromRGB(230, 173, 66),
 		defaultSize = Vector2.new(760, 520),
 		minSize = Vector2.new(520, 360),
@@ -91,6 +99,7 @@ local registry: { AppDefinition } = {
 		id = "files",
 		name = "Fichiers",
 		glyph = "▤",
+		monogram = "Fi",
 		accent = Color3.fromRGB(230, 173, 66),
 		defaultSize = Vector2.new(760, 460),
 		unlock = always,
@@ -100,6 +109,7 @@ local registry: { AppDefinition } = {
 		id = "analytics",
 		name = "Analytique",
 		glyph = "◧",
+		monogram = "An",
 		accent = Color3.fromRGB(74, 201, 126),
 		defaultSize = Vector2.new(880, 540),
 		-- Inutile tant qu'il n'y a rien à analyser : arrive au 3e live.
@@ -110,6 +120,7 @@ local registry: { AppDefinition } = {
 		id = "company",
 		name = "Gestion",
 		glyph = "▣",
+		monogram = "RH",
 		defaultSize = Vector2.new(900, 560),
 		-- La plateforme d'entreprise : n'existe pas pour un streamer solo.
 		unlock = requiresStat("employees", 1),
@@ -119,6 +130,7 @@ local registry: { AppDefinition } = {
 		id = "rundown",
 		name = "Conducteur",
 		glyph = "☰",
+		monogram = "Cd",
 		defaultSize = Vector2.new(900, 560),
 		-- Composer une émission n'a de sens qu'avec un vrai décor.
 		unlock = requiresStat("venueTier", 3),

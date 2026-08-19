@@ -158,6 +158,10 @@ function Taskbar:_startLivePulse()
 end
 
 --- Un bouton d'app dans la barre. Le liseré du bas indique qu'elle tourne.
+---
+--- Le libellé est un monogramme en lettres normales, pas un glyphe Unicode :
+--- une police sans ce caractère rendait le bouton complètement invisible, et
+--- donc l'application impossible à lancer.
 function Taskbar:_createAppButton(app, order: number)
 	local indicator = Create("Frame") {
 		Name = "Running",
@@ -173,9 +177,9 @@ function Taskbar:_createAppButton(app, order: number)
 
 	local button = Widgets.Button {
 		name = app.id,
-		text = app.glyph,
+		text = app.monogram or string.upper(string.sub(app.name, 1, 2)),
 		variant = "ghost",
-		textSize = Theme.TextSize.Title,
+		textSize = Theme.TextSize.Small,
 		size = UDim2.fromOffset(BUTTON_SIZE, BUTTON_SIZE),
 		order = order,
 		radius = Theme.Radius.Small,
@@ -183,8 +187,21 @@ function Taskbar:_createAppButton(app, order: number)
 			self.os:ToggleApp(app.id)
 		end,
 	}
-	button.BackgroundTransparency = 1
 	button.ZIndex = Theme.ZIndex.Taskbar + 1
+
+	-- Une pastille aux couleurs de l'application, pour la reconnaître d'un
+	-- coup d'oeil sans dépendre d'une icône.
+	Create("Frame") {
+		Name = "Tint",
+		Size = UDim2.new(1, -8, 0, 3),
+		Position = UDim2.new(0.5, 0, 0, 5),
+		AnchorPoint = Vector2.new(0.5, 0),
+		BackgroundColor3 = app.accent or Theme.Color.Accent,
+		BorderSizePixel = 0,
+		ZIndex = Theme.ZIndex.Taskbar + 2,
+		Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+	}.Parent = button
+
 	indicator.Parent = button
 
 	return button, indicator

@@ -22,6 +22,7 @@ local Catalogue = require(Shared.Config.Catalogue)
 local Placement = require(Shared.Config.Placement)
 local ModelBuilder = require(Shared.Build.ModelBuilder)
 local Websites = require(Shared.Content.Websites)
+local Venues = require(Shared.Content.Venues)
 
 local Browser = {}
 
@@ -30,6 +31,17 @@ local TAB_HEIGHT = 34
 
 local HOME = { id = "home", domain = "kzos://accueil" }
 local ORDERS_DOMAIN = "colis-suivi.fr"
+local IMMO_DOMAIN = "immo-studios.fr"
+
+local IMMO_THEME = {
+	background = Color3.fromRGB(242, 240, 235),
+	surface = Color3.fromRGB(255, 255, 253),
+	text = Color3.fromRGB(34, 34, 36),
+	muted = Color3.fromRGB(122, 120, 116),
+	accent = Color3.fromRGB(24, 100, 84),
+	onAccent = Color3.fromRGB(255, 255, 255),
+	banner = Color3.fromRGB(20, 52, 46),
+}
 
 local ORDERS_THEME = {
 	background = Color3.fromRGB(238, 240, 244),
@@ -402,6 +414,10 @@ function Browser.mount(container: Frame, api): (() -> ())?
 			end).Parent = bookmarkBar
 		end
 
+		pill("Locaux", Theme.Color.SurfaceRaised, Theme.Color.TextMuted, 98, function()
+			navigate("immo")
+		end).Parent = bookmarkBar
+
 		pill("Suivi de colis", Theme.Color.SurfaceRaised, Theme.Color.TextMuted, 99, function()
 			navigate("orders")
 		end).Parent = bookmarkBar
@@ -717,6 +733,240 @@ function Browser.mount(container: Frame, api): (() -> ())?
 		end
 	end
 
+	--- Le plan au sol, dessiné à l'échelle. C'est la pièce maîtresse de
+	--- l'annonce : un loyer ne veut rien dire tant qu'on n'a pas vu si la
+	--- régie tient à côté du plateau.
+	local function floorPlan(venue, width: number, height: number): Frame
+		local scale = math.min(width / venue.planWidth, height / venue.planDepth)
+		local planW = venue.planWidth * scale
+		local planD = venue.planDepth * scale
+
+		local plan = Create("Frame") {
+			Name = "Plan",
+			Size = UDim2.fromOffset(width, height),
+			BackgroundColor3 = Color3.fromRGB(248, 246, 242),
+			BorderSizePixel = 0,
+
+			Create("UICorner") { CornerRadius = UDim.new(0, 4) },
+		}
+
+		local sheet = Create("Frame") {
+			Name = "Sheet",
+			Size = UDim2.fromOffset(planW, planD),
+			Position = UDim2.fromScale(0.5, 0.5),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundColor3 = Color3.fromRGB(232, 229, 222),
+			BorderSizePixel = 0,
+
+			Create("UIStroke") { Color = Color3.fromRGB(60, 62, 60), Thickness = 2 },
+		}
+		sheet.Parent = plan
+
+		for index, zone in ipairs(venue.zones) do
+			local color = Venues.ZoneColor[zone.kind] or Color3.fromRGB(120, 120, 120)
+
+			local block = Create("Frame") {
+				Name = zone.name,
+				Size = UDim2.fromOffset(zone.width * scale, zone.depth * scale),
+				-- L'origine du plan est en bas à gauche : on inverse donc
+				-- l'axe vertical, qui descend en interface.
+				Position = UDim2.fromOffset(zone.x * scale, planD - (zone.y + zone.depth) * scale),
+				BackgroundColor3 = color,
+				BackgroundTransparency = 0.45,
+				BorderSizePixel = 0,
+				ZIndex = 2,
+				LayoutOrder = index,
+
+				Create("UIStroke") { Color = color, Thickness = 1.5 },
+			}
+
+			text {
+				text = zone.name,
+				color = Color3.fromRGB(28, 30, 32),
+				font = Theme.Font.Bold,
+				size = 10,
+				align = Enum.TextXAlignment.Center,
+				bounds = UDim2.fromScale(1, 1),
+				zIndex = 3,
+			}.Parent = block
+
+			block.Parent = sheet
+		end
+
+		text {
+			text = string.format("%.1f m × %.1f m", venue.planWidth, venue.planDepth),
+			color = Color3.fromRGB(120, 118, 112),
+			font = Theme.Font.Mono,
+			size = 10,
+			align = Enum.TextXAlignment.Right,
+			bounds = UDim2.new(1, -8, 0, 14),
+			position = UDim2.new(0, 0, 1, -18),
+			zIndex = 4,
+		}.Parent = plan
+
+		return plan
+	end
+
+	local function venueCard(venue, order: number, currentTier: number)
+		local card = Create("Frame") {
+			Name = venue.id,
+			Size = UDim2.new(1, 0, 0, 210),
+			BackgroundColor3 = IMMO_THEME.surface,
+			BorderSizePixel = 0,
+			LayoutOrder = order,
+
+			Create("UICorner") { CornerRadius = UDim.new(0, 6) },
+			Create("UIPadding") {
+				PaddingTop = UDim.new(0, 16),
+				PaddingBottom = UDim.new(0, 16),
+				PaddingLeft = UDim.new(0, 18),
+				PaddingRight = UDim.new(0, 18),
+			},
+		}
+
+		floorPlan(venue, 236, 178).Parent = card
+
+		local column = Create("Frame") {
+			Name = "Details",
+			Size = UDim2.new(1, -256, 1, 0),
+			Position = UDim2.fromOffset(256, 0),
+			BackgroundTransparency = 1,
+		}
+		column.Parent = card
+
+		text {
+			text = venue.name,
+			color = IMMO_THEME.text,
+			font = Theme.Font.Bold,
+			size = 19,
+			bounds = UDim2.new(1, -120, 0, 24),
+		}.Parent = column
+
+		text {
+			text = venue.district,
+			color = IMMO_THEME.accent,
+			font = Theme.Font.Medium,
+			size = 12,
+			bounds = UDim2.new(1, -120, 0, 16),
+			position = UDim2.fromOffset(0, 25),
+		}.Parent = column
+
+		text {
+			text = venue.rent > 0 and string.format("%d € / mois", venue.rent) or "sans loyer",
+			color = IMMO_THEME.text,
+			font = Theme.Font.Bold,
+			size = 20,
+			align = Enum.TextXAlignment.Right,
+			bounds = UDim2.new(0, 120, 0, 26),
+			position = UDim2.new(1, -120, 0, 0),
+		}.Parent = column
+
+		text {
+			text = venue.deposit > 0 and string.format("caution %d €", venue.deposit) or "",
+			color = IMMO_THEME.muted,
+			size = 11,
+			align = Enum.TextXAlignment.Right,
+			bounds = UDim2.new(0, 120, 0, 14),
+			position = UDim2.new(1, -120, 0, 26),
+		}.Parent = column
+
+		text {
+			text = string.format("%d m²   ·   %.1f m sous plafond   ·   %d zones",
+				venue.area, venue.ceiling, #venue.zones),
+			color = IMMO_THEME.muted,
+			font = Theme.Font.Mono,
+			size = 11,
+			bounds = UDim2.new(1, 0, 0, 16),
+			position = UDim2.fromOffset(0, 48),
+		}.Parent = column
+
+		text {
+			text = venue.pitch,
+			color = IMMO_THEME.text,
+			size = 12,
+			wrapped = true,
+			bounds = UDim2.new(1, 0, 0, 46),
+			position = UDim2.fromOffset(0, 68),
+			alignY = Enum.TextYAlignment.Top,
+		}.Parent = column
+
+		text {
+			text = "+  " .. table.concat(venue.perks, "   ·   "),
+			color = Color3.fromRGB(28, 118, 88),
+			size = 11,
+			bounds = UDim2.new(1, 0, 0, 16),
+			position = UDim2.fromOffset(0, 118),
+			truncate = true,
+		}.Parent = column
+
+		text {
+			text = "—  " .. table.concat(venue.flaws, "   ·   "),
+			color = Color3.fromRGB(178, 74, 62),
+			size = 11,
+			bounds = UDim2.new(1, 0, 0, 16),
+			position = UDim2.fromOffset(0, 136),
+			truncate = true,
+		}.Parent = column
+
+		local reachable = venue.tier <= currentTier + 1
+		local button = Create("TextButton") {
+			Name = "Rent",
+			Size = UDim2.fromOffset(190, 32),
+			Position = UDim2.new(0, 0, 1, -32),
+			BackgroundColor3 = reachable and IMMO_THEME.accent or IMMO_THEME.muted,
+			BorderSizePixel = 0,
+			AutoButtonColor = false,
+			Text = reachable and "Visiter et louer" or "Hors de portée pour l'instant",
+			TextColor3 = IMMO_THEME.onAccent,
+			FontFace = Theme.Font.Bold,
+			TextSize = 12,
+
+			Create("UICorner") { CornerRadius = UDim.new(0, 4) },
+		}
+		button.Parent = column
+
+		return card
+	end
+
+	local function renderVenues()
+		page_.BackgroundColor3 = IMMO_THEME.background
+
+		local scroll = pageScroll(IMMO_THEME)
+		scroll.Parent = page_
+
+		Create("UIListLayout") { Padding = UDim.new(0, 0), SortOrder = Enum.SortOrder.LayoutOrder }.Parent = scroll
+
+		banner(
+			IMMO_THEME,
+			"ImmoPro Studios",
+			"Locaux pour créateurs de contenu",
+			"MAQUETTE — la location n'est pas encore branchée. Les plans et les chiffres sont ceux du jeu final."
+		).Parent = scroll
+
+		local body = Create("Frame") {
+			Name = "Body",
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			LayoutOrder = 1,
+
+			Create("UIListLayout") { Padding = UDim.new(0, 12), SortOrder = Enum.SortOrder.LayoutOrder },
+			Create("UIPadding") {
+				PaddingTop = UDim.new(0, 20),
+				PaddingBottom = UDim.new(0, 28),
+				PaddingLeft = UDim.new(0, 24),
+				PaddingRight = UDim.new(0, 24),
+			},
+		}
+		body.Parent = scroll
+
+		local tier = (api.state.stats and api.state.stats.venueTier) or 1
+
+		for index, venue in ipairs(Venues.All) do
+			venueCard(venue, index, tier).Parent = body
+		end
+	end
+
 	-- ── Navigation ────────────────────────────────────────────────────────
 
 	function navigate(target: string)
@@ -726,6 +976,12 @@ function Browser.mount(container: Frame, api): (() -> ())?
 		if target == "orders" then
 			addressLabel.Text = ORDERS_DOMAIN
 			renderOrders()
+			return
+		end
+
+		if target == "immo" then
+			addressLabel.Text = IMMO_DOMAIN
+			renderVenues()
 			return
 		end
 

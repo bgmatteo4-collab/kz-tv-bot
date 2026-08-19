@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
-<Item class="Workspace" referent="RBX51"><Properties><string name="Name">Workspace</string></Properties></Item>
-<Item class="Lighting" referent="RBX52"><Properties><string name="Name">Lighting</string></Properties></Item>
-<Item class="ReplicatedStorage" referent="RBX53"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX37"><Properties><string name="Name">Shared</string></Properties><Item class="Folder" referent="RBX1"><Properties><string name="Name">Build</string></Properties><Item class="ModuleScript" referent="RBX0"><Properties><string name="Name">ModelBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
+<Item class="Workspace" referent="RBX58"><Properties><string name="Name">Workspace</string></Properties></Item>
+<Item class="Lighting" referent="RBX59"><Properties><string name="Name">Lighting</string></Properties></Item>
+<Item class="ReplicatedStorage" referent="RBX60"><Properties><string name="Name">ReplicatedStorage</string></Properties><Item class="Folder" referent="RBX42"><Properties><string name="Name">Shared</string></Properties><Item class="Folder" referent="RBX1"><Properties><string name="Name">Build</string></Properties><Item class="ModuleScript" referent="RBX0"><Properties><string name="Name">ModelBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ModelBuilder — fabrique un objet à partir de primitives.
 
@@ -511,7 +511,7 @@ function ModelBuilder.buildGhost(item: any, worldCFrame: CFrame, color: Color3):
 end
 
 return ModelBuilder
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX12"><Properties><string name="Name">Config</string></Properties><Item class="ModuleScript" referent="RBX7"><Properties><string name="Name">Catalogue</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX13"><Properties><string name="Name">Config</string></Properties><Item class="ModuleScript" referent="RBX7"><Properties><string name="Name">Catalogue</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Catalogue — tout ce qui peut être acheté et posé dans le jeu.
 
@@ -1946,7 +1946,31 @@ return {
 		description = "Couvre largement le cadre. Encore faut-il avoir trois mètres de mur libre.",
 	},
 }
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX8"><Properties><string name="Name">ImageQuality</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX8"><Properties><string name="Name">Dev</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Dev — les interrupteurs de développement.
+
+	Un seul endroit à basculer avant une publication publique. Tant que
+	`AdminEnabled` est vrai, n'importe quel joueur peut s'attribuer de
+	l'argent : c'est un outil de test, pas une fonctionnalité.
+
+	Le serveur vérifie ce drapeau à chaque route d'administration. Le client
+	ne fait que masquer l'interface, ce qui ne protège rien — c'est le
+	serveur qui refuse.
+]]
+
+local Dev = {}
+
+--- Console d'administration (touche F4) et applications de prototypage.
+--- À PASSER À FALSE AVANT TOUTE PUBLICATION.
+Dev.AdminEnabled = true
+
+--- Applications encore à l'état de maquette. Elles montrent à quoi
+--- ressemblera le jeu fini sans que la mécanique existe derrière.
+Dev.PrototypesEnabled = true
+
+return Dev
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX9"><Properties><string name="Name">ImageQuality</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ImageQuality — ce que la caméra voit vraiment.
 
@@ -2238,7 +2262,7 @@ function ImageQuality.evaluate(placed: { any }): Report
 end
 
 return ImageQuality
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX9"><Properties><string name="Name">Placement</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX10"><Properties><string name="Name">Placement</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Placement — les règles communes au mode construction.
 
@@ -2330,7 +2354,7 @@ function Placement.AcceptsSurface(item: any, normal: Vector3): boolean
 end
 
 return Placement
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX10"><Properties><string name="Name">Power</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX11"><Properties><string name="Name">Power</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Power — l'alimentation électrique de la pièce.
 
@@ -2504,7 +2528,7 @@ function Power.shouldTrip(report: Report): boolean
 end
 
 return Power
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX11"><Properties><string name="Name">Styles</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX12"><Properties><string name="Name">Styles</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Styles — les cinq directions de décor, et comment l'audience y réagit.
 
@@ -2657,7 +2681,7 @@ function StylesModule.ComputeCoherence(styleCounts: { [string]: number }): (numb
 end
 
 return StylesModule
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX15"><Properties><string name="Name">Content</string></Properties><Item class="ModuleScript" referent="RBX13"><Properties><string name="Name">Emails</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX18"><Properties><string name="Name">Content</string></Properties><Item class="ModuleScript" referent="RBX14"><Properties><string name="Name">Emails</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Emails — le contenu de la boîte de réception.
 
@@ -2817,7 +2841,366 @@ local Emails: { Email } = {
 }
 
 return Emails
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX14"><Properties><string name="Name">Websites</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX15"><Properties><string name="Name">Rundown</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Rundown — le vocabulaire d'une émission.
+
+	MAQUETTE. Les segments existent comme données, mais rien ne les joue
+	encore. Ce module fixe le catalogue de rubriques et leurs effets prévus,
+	pour que la maquette du conducteur montre déjà les bons arbitrages.
+
+	Chaque rubrique porte trois choses : un coût de préparation, une
+	exigence de matériel ou de personnel, et un profil de réaction par
+	segment d'audience. C'est ce dernier qui fait la profondeur — un débat
+	technique enchante les fidèles et fait fuir les curieux, et aucun format
+	ne plaît à tout le monde.
+]]
+
+export type SegmentKind =
+	"intro" | "reaction" | "invite" | "debat" | "jeu" | "chat" | "appels" | "sujet" | "sponsor" | "conclusion"
+
+export type SegmentType = {
+	kind: SegmentKind,
+	name: string,
+	defaultMinutes: number,
+	prepCost: number,
+	description: string,
+	risk: string,
+	-- Réaction par segment d'audience, de -1 à 1.
+	appeal: { [string]: number },
+	requires: string?,
+}
+
+local Rundown = {}
+
+Rundown.KindColor = {
+	intro = Color3.fromRGB(96, 165, 250),
+	reaction = Color3.fromRGB(232, 176, 88),
+	invite = Color3.fromRGB(226, 130, 190),
+	debat = Color3.fromRGB(168, 122, 236),
+	jeu = Color3.fromRGB(74, 201, 126),
+	chat = Color3.fromRGB(96, 200, 200),
+	appels = Color3.fromRGB(255, 120, 100),
+	sujet = Color3.fromRGB(150, 158, 176),
+	sponsor = Color3.fromRGB(214, 168, 24),
+	conclusion = Color3.fromRGB(120, 128, 148),
+}
+
+Rundown.Types = {
+	{
+		kind = "intro",
+		name = "Générique et accueil",
+		defaultMinutes = 5,
+		prepCost = 1,
+		description = "Le rituel d'ouverture. Court, identique chaque semaine, il installe l'habitude.",
+		risk = "Le sauter désoriente les habitués.",
+		appeal = { casual = 0.2, hardcore = 0.3, jeune = 0.1, donateur = 0.3, presse = 0.1 },
+	},
+	{
+		kind = "reaction",
+		name = "Réaction à l'actualité",
+		defaultMinutes = 15,
+		prepCost = 3,
+		description = "Commenter ce qui vient de sortir. Demande d'avoir suivi, et se périme en deux jours.",
+		risk = "Sans préparation, ça se voit immédiatement.",
+		appeal = { casual = 0.4, hardcore = 0.2, jeune = 0.4, donateur = 0.1, presse = 0.2 },
+	},
+	{
+		kind = "invite",
+		name = "Interview d'un invité",
+		defaultMinutes = 30,
+		prepCost = 5,
+		description = "Un invité apporte son audience. Il faut préparer ses questions, sinon il porte l'émission tout seul.",
+		risk = "Deux publics incompatibles se déclarent la guerre dans le chat.",
+		appeal = { casual = 0.5, hardcore = 0.3, jeune = 0.3, donateur = 0.4, presse = 0.6 },
+		requires = "Table d'invités",
+	},
+	{
+		kind = "debat",
+		name = "Débat de fond",
+		defaultMinutes = 25,
+		prepCost = 4,
+		description = "Le segment qui fidélise le plus et qui recrute le moins.",
+		risk = "Les curieux décrochent au bout de six minutes.",
+		appeal = { casual = -0.2, hardcore = 0.7, jeune = -0.3, donateur = 0.4, presse = 0.5 },
+	},
+	{
+		kind = "jeu",
+		name = "Jeu avec le chat",
+		defaultMinutes = 20,
+		prepCost = 2,
+		description = "Faire participer la salle. Le moyen le plus fiable de réveiller une audience qui s'endort.",
+		risk = "Ingérable au-delà d'un certain nombre de spectateurs.",
+		appeal = { casual = 0.5, hardcore = 0.2, jeune = 0.6, donateur = 0.3, presse = -0.1 },
+	},
+	{
+		kind = "chat",
+		name = "Questions du chat",
+		defaultMinutes = 15,
+		prepCost = 1,
+		description = "Lire et répondre. Presque aucune préparation, beaucoup de fidélisation.",
+		risk = "Une seule mauvaise question peut faire dérailler dix minutes.",
+		appeal = { casual = 0.3, hardcore = 0.5, jeune = 0.3, donateur = 0.6, presse = 0 },
+	},
+	{
+		kind = "appels",
+		name = "Appels du public",
+		defaultMinutes = 20,
+		prepCost = 3,
+		description = "Prendre des gens en direct. Le segment le plus explosif du catalogue.",
+		risk = "Soit un moment culte, soit un désastre en direct. Aucun intermédiaire.",
+		appeal = { casual = 0.6, hardcore = 0.3, jeune = 0.5, donateur = 0.4, presse = 0.3 },
+		requires = "Modérateur",
+	},
+	{
+		kind = "sujet",
+		name = "Sujet préparé",
+		defaultMinutes = 18,
+		prepCost = 6,
+		description = "Un dossier monté à l'avance. Le plus cher en temps, et le seul qui grandit une chaîne.",
+		risk = "Un sujet bâclé coûte plus qu'il ne rapporte.",
+		appeal = { casual = 0.3, hardcore = 0.6, jeune = 0.2, donateur = 0.5, presse = 0.8 },
+		requires = "Monteur",
+	},
+	{
+		kind = "sponsor",
+		name = "Séquence sponsorisée",
+		defaultMinutes = 4,
+		prepCost = 1,
+		description = "Le passage obligé du contrat. Court, mais tout le monde le voit venir.",
+		risk = "Chaque minute de plus coûte de la confiance.",
+		appeal = { casual = -0.3, hardcore = -0.4, jeune = -0.2, donateur = -0.5, presse = 0 },
+	},
+	{
+		kind = "conclusion",
+		name = "Conclusion et au revoir",
+		defaultMinutes = 6,
+		prepCost = 1,
+		description = "Remercier, annoncer la prochaine, laisser partir. Le moment où l'on fidélise ou pas.",
+		risk = "Finir en retard fait partir les gens avant l'annonce.",
+		appeal = { casual = 0.2, hardcore = 0.3, jeune = 0.1, donateur = 0.5, presse = 0.1 },
+	},
+}
+
+function Rundown.GetType(kind: string): SegmentType?
+	for _, entry in ipairs(Rundown.Types) do
+		if entry.kind == kind then
+			return entry :: any
+		end
+	end
+	return nil
+end
+
+--- Un conducteur d'exemple, celui que montre la maquette.
+Rundown.Example = {
+	name = "LE POINT DU JEUDI",
+	weekday = "jeudi",
+	hour = "21:00",
+	segments = {
+		{ kind = "intro", name = "Générique", minutes = 5 },
+		{ kind = "reaction", name = "L'actu de la semaine", minutes = 15 },
+		{ kind = "sponsor", name = "Séquence partenaire", minutes = 4 },
+		{ kind = "invite", name = "Invité — la relève du speedrun", minutes = 30 },
+		{ kind = "debat", name = "Faut-il encore payer pour jouer ?", minutes = 25 },
+		{ kind = "chat", name = "Vos questions", minutes = 15 },
+		{ kind = "conclusion", name = "Au revoir", minutes = 6 },
+	},
+}
+
+return Rundown
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX16"><Properties><string name="Name">Venues</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Venues — les lieux que l'on peut occuper.
+
+	MAQUETTE. Rien n'est encore jouable : ce module existe pour fixer le
+	vocabulaire et montrer à quoi ressemblera la décision. Les plans sont
+	décrits comme des rectangles en mètres, ce qui suffit à dessiner une vue
+	de dessus et servira de base au vrai système de cloisons.
+
+	La chambre et l'appartement sont subis. À partir du local, on choisit —
+	et c'est la première vraie décision d'entreprise du jeu : un hangar pas
+	cher mais à l'autre bout de la ville, ou un plateau de bureaux propre et
+	hors de prix.
+]]
+
+export type Zone = {
+	name: string,
+	-- Rectangle en mètres, origine en bas à gauche du plan.
+	x: number,
+	y: number,
+	width: number,
+	depth: number,
+	kind: "plateau" | "regie" | "montage" | "detente" | "stockage" | "bureau" | "public" | "libre",
+}
+
+export type Venue = {
+	id: string,
+	name: string,
+	district: string,
+	tier: number,
+	rent: number,
+	deposit: number,
+	area: number,
+	ceiling: number,
+	-- Dimensions du plan, en mètres.
+	planWidth: number,
+	planDepth: number,
+	zones: { Zone },
+	perks: { string },
+	flaws: { string },
+	pitch: string,
+	available: boolean,
+}
+
+local Venues: { Venue } = {
+	{
+		id = "bedroom",
+		name = "La chambre",
+		district = "chez tes parents",
+		tier = 1,
+		rent = 0,
+		deposit = 0,
+		area = 14,
+		ceiling = 2.5,
+		planWidth = 4,
+		planDepth = 3.5,
+		zones = {
+			{ name = "Setup", x = 0, y = 2.2, width = 2.6, depth = 1.3, kind = "plateau" },
+			{ name = "Lit", x = 2.8, y = 0.4, width = 1, depth = 2.2, kind = "detente" },
+		},
+		perks = { "Loyer nul", "Personne à prévenir" },
+		flaws = { "Aucune isolation", "Le bruit traverse", "Deux mètres de mur libre" },
+		pitch = "Ça a commencé ici pour tout le monde, et ça suffit plus longtemps qu'on ne croit.",
+		available = true,
+	},
+
+	{
+		id = "studio_flat",
+		name = "Studio 26 m²",
+		district = "quartier de la gare",
+		tier = 2,
+		rent = 540,
+		deposit = 1080,
+		area = 26,
+		ceiling = 2.6,
+		planWidth = 6.2,
+		planDepth = 4.2,
+		zones = {
+			{ name = "Plateau", x = 0.3, y = 2.4, width = 3.2, depth = 1.6, kind = "plateau" },
+			{ name = "Montage", x = 3.8, y = 2.4, width = 2.1, depth = 1.6, kind = "montage" },
+			{ name = "Vie", x = 0.3, y = 0.3, width = 5.6, depth = 1.8, kind = "detente" },
+		},
+		perks = { "Tu es enfin chez toi", "Voisins prévenus", "Fibre" },
+		flaws = { "Le lit est dans le champ", "Un seul mur exploitable" },
+		pitch = "Le premier lieu où personne ne frappe à la porte pour te dire de baisser le son.",
+		available = true,
+	},
+
+	{
+		id = "shop_front",
+		name = "Ancien commerce",
+		district = "rue Berthelot",
+		tier = 3,
+		rent = 1250,
+		deposit = 3750,
+		area = 64,
+		ceiling = 3.2,
+		planWidth = 8,
+		planDepth = 8,
+		zones = {
+			{ name = "Plateau", x = 0.4, y = 4.4, width = 4.6, depth = 3.2, kind = "plateau" },
+			{ name = "Régie", x = 5.4, y = 4.4, width = 2.2, depth = 3.2, kind = "regie" },
+			{ name = "Montage", x = 0.4, y = 2.2, width = 3, depth = 1.8, kind = "montage" },
+			{ name = "Détente", x = 3.8, y = 2.2, width = 3.8, depth = 1.8, kind = "detente" },
+			{ name = "Stock", x = 0.4, y = 0.4, width = 7.2, depth = 1.4, kind = "stockage" },
+		},
+		perks = { "Vitrine sur rue", "Rideau métallique", "Arrière-boutique" },
+		flaws = { "Vitrine plein sud", "Aucune isolation phonique", "Chauffage électrique" },
+		pitch = "Une ancienne boutique de téléphonie. La vitrine est un cadeau et un problème : lumière gratuite le matin, impossible à filmer l'après-midi.",
+		available = true,
+	},
+
+	{
+		id = "office_floor",
+		name = "Plateau de bureaux",
+		district = "zone d'activité nord",
+		tier = 3,
+		rent = 1900,
+		deposit = 5700,
+		area = 95,
+		ceiling = 2.8,
+		planWidth = 12,
+		planDepth = 8,
+		zones = {
+			{ name = "Plateau", x = 0.5, y = 4.5, width = 6, depth = 3, kind = "plateau" },
+			{ name = "Régie", x = 7, y = 4.5, width = 2.4, depth = 3, kind = "regie" },
+			{ name = "Bureaux", x = 9.8, y = 4.5, width = 1.7, depth = 3, kind = "bureau" },
+			{ name = "Montage", x = 0.5, y = 2.4, width = 4, depth = 1.7, kind = "montage" },
+			{ name = "Détente", x = 5, y = 2.4, width = 3.4, depth = 1.7, kind = "detente" },
+			{ name = "Stock", x = 8.8, y = 2.4, width = 2.7, depth = 1.7, kind = "stockage" },
+			{ name = "Libre", x = 0.5, y = 0.5, width = 11, depth = 1.5, kind = "libre" },
+		},
+		perks = { "Cloisons déjà posées", "Faux plafond technique", "Parking" },
+		flaws = { "Aucun caractère", "Loyer élevé", "À vingt minutes du centre" },
+		pitch = "Propre, fonctionnel, et d'une tristesse absolue. Tout le travail de décoration reste à faire, mais rien ne s'y oppose.",
+		available = true,
+	},
+
+	{
+		id = "warehouse",
+		name = "Hangar 210 m²",
+		district = "ancienne friche",
+		tier = 4,
+		rent = 2400,
+		deposit = 7200,
+		area = 210,
+		ceiling = 5.5,
+		planWidth = 15,
+		planDepth = 14,
+		zones = {
+			{ name = "Plateau principal", x = 0.6, y = 7.5, width = 8, depth = 6, kind = "plateau" },
+			{ name = "Gradins", x = 9, y = 7.5, width = 5.4, depth = 6, kind = "public" },
+			{ name = "Régie", x = 0.6, y = 4.5, width = 3.4, depth = 2.5, kind = "regie" },
+			{ name = "Montage", x = 4.4, y = 4.5, width = 4, depth = 2.5, kind = "montage" },
+			{ name = "Bureaux", x = 8.8, y = 4.5, width = 5.6, depth = 2.5, kind = "bureau" },
+			{ name = "Loges", x = 0.6, y = 2, width = 4.4, depth = 2, kind = "detente" },
+			{ name = "Stock", x = 5.4, y = 2, width = 9, depth = 2, kind = "stockage" },
+		},
+		perks = { "5,5 m sous plafond", "Accueil du public possible", "Quai de livraison" },
+		flaws = { "Écho terrible", "Aucun chauffage", "Quartier désert le soir" },
+		pitch = "Le volume est là, tout le reste est à construire. C'est le seul lieu où un événement avec du public devient possible.",
+		available = true,
+	},
+}
+
+local VenuesModule = {}
+
+VenuesModule.All = Venues
+
+function VenuesModule.Get(id: string): Venue?
+	for _, venue in ipairs(Venues) do
+		if venue.id == id then
+			return venue
+		end
+	end
+	return nil
+end
+
+--- Couleur d'une zone sur le plan. Le code couleur doit rester le même
+--- partout dans le jeu : c'est lui que le joueur apprendra.
+VenuesModule.ZoneColor = {
+	plateau = Color3.fromRGB(226, 92, 92),
+	regie = Color3.fromRGB(96, 165, 250),
+	montage = Color3.fromRGB(168, 122, 236),
+	detente = Color3.fromRGB(232, 176, 88),
+	stockage = Color3.fromRGB(128, 136, 150),
+	bureau = Color3.fromRGB(96, 200, 160),
+	public = Color3.fromRGB(236, 130, 190),
+	libre = Color3.fromRGB(90, 96, 110),
+}
+
+return VenuesModule
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX17"><Properties><string name="Name">Websites</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Websites — les boutiques en ligne du jeu.
 
@@ -3065,7 +3448,7 @@ function WebsitesModule.Sells(site: Website, item: any): boolean
 end
 
 return WebsitesModule
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX19"><Properties><string name="Name">Lib</string></Properties><Item class="ModuleScript" referent="RBX16"><Properties><string name="Name">Create</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX22"><Properties><string name="Name">Lib</string></Properties><Item class="ModuleScript" referent="RBX19"><Properties><string name="Name">Create</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Create — sucre syntaxique pour fabriquer des Instances sans dix lignes
 	d'assignations. Les enfants se déclarent dans le même bloc que les
@@ -3103,7 +3486,7 @@ local function Create(className: string)
 end
 
 return Create
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX17"><Properties><string name="Name">Signal</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX20"><Properties><string name="Name">Signal</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Signal — un événement maison, plus léger et plus rapide qu'un BindableEvent,
 	et surtout capable de transporter des tables sans les recopier.
@@ -3191,7 +3574,7 @@ function Signal:Destroy()
 end
 
 return Signal
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX18"><Properties><string name="Name">Trove</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX21"><Properties><string name="Name">Trove</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Trove — un sac à nettoyage. On y jette tout ce qu'on crée (Instances,
 	connexions, fonctions d'annulation), et un seul :Clean() range tout.
@@ -3256,7 +3639,7 @@ end
 Trove.Destroy = Trove.Clean
 
 return Trove
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX35"><Properties><string name="Name">OS</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX40"><Properties><string name="Name">OS</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	KZOS — l'instance d'un système d'exploitation.
 
@@ -3514,7 +3897,7 @@ function KZOS:Destroy()
 end
 
 return KZOS
-]]></ProtectedString></Properties><Item class="Folder" referent="RBX26"><Properties><string name="Name">Apps</string></Properties><Item class="ModuleScript" referent="RBX20"><Properties><string name="Name">Browser</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX31"><Properties><string name="Name">Apps</string></Properties><Item class="ModuleScript" referent="RBX23"><Properties><string name="Name">Browser</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Navigateur — le web de KZ OS.
 
@@ -3538,6 +3921,7 @@ local Catalogue = require(Shared.Config.Catalogue)
 local Placement = require(Shared.Config.Placement)
 local ModelBuilder = require(Shared.Build.ModelBuilder)
 local Websites = require(Shared.Content.Websites)
+local Venues = require(Shared.Content.Venues)
 
 local Browser = {}
 
@@ -3546,6 +3930,17 @@ local TAB_HEIGHT = 34
 
 local HOME = { id = "home", domain = "kzos://accueil" }
 local ORDERS_DOMAIN = "colis-suivi.fr"
+local IMMO_DOMAIN = "immo-studios.fr"
+
+local IMMO_THEME = {
+	background = Color3.fromRGB(242, 240, 235),
+	surface = Color3.fromRGB(255, 255, 253),
+	text = Color3.fromRGB(34, 34, 36),
+	muted = Color3.fromRGB(122, 120, 116),
+	accent = Color3.fromRGB(24, 100, 84),
+	onAccent = Color3.fromRGB(255, 255, 255),
+	banner = Color3.fromRGB(20, 52, 46),
+}
 
 local ORDERS_THEME = {
 	background = Color3.fromRGB(238, 240, 244),
@@ -3918,6 +4313,10 @@ function Browser.mount(container: Frame, api): (() -> ())?
 			end).Parent = bookmarkBar
 		end
 
+		pill("Locaux", Theme.Color.SurfaceRaised, Theme.Color.TextMuted, 98, function()
+			navigate("immo")
+		end).Parent = bookmarkBar
+
 		pill("Suivi de colis", Theme.Color.SurfaceRaised, Theme.Color.TextMuted, 99, function()
 			navigate("orders")
 		end).Parent = bookmarkBar
@@ -4233,6 +4632,240 @@ function Browser.mount(container: Frame, api): (() -> ())?
 		end
 	end
 
+	--- Le plan au sol, dessiné à l'échelle. C'est la pièce maîtresse de
+	--- l'annonce : un loyer ne veut rien dire tant qu'on n'a pas vu si la
+	--- régie tient à côté du plateau.
+	local function floorPlan(venue, width: number, height: number): Frame
+		local scale = math.min(width / venue.planWidth, height / venue.planDepth)
+		local planW = venue.planWidth * scale
+		local planD = venue.planDepth * scale
+
+		local plan = Create("Frame") {
+			Name = "Plan",
+			Size = UDim2.fromOffset(width, height),
+			BackgroundColor3 = Color3.fromRGB(248, 246, 242),
+			BorderSizePixel = 0,
+
+			Create("UICorner") { CornerRadius = UDim.new(0, 4) },
+		}
+
+		local sheet = Create("Frame") {
+			Name = "Sheet",
+			Size = UDim2.fromOffset(planW, planD),
+			Position = UDim2.fromScale(0.5, 0.5),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundColor3 = Color3.fromRGB(232, 229, 222),
+			BorderSizePixel = 0,
+
+			Create("UIStroke") { Color = Color3.fromRGB(60, 62, 60), Thickness = 2 },
+		}
+		sheet.Parent = plan
+
+		for index, zone in ipairs(venue.zones) do
+			local color = Venues.ZoneColor[zone.kind] or Color3.fromRGB(120, 120, 120)
+
+			local block = Create("Frame") {
+				Name = zone.name,
+				Size = UDim2.fromOffset(zone.width * scale, zone.depth * scale),
+				-- L'origine du plan est en bas à gauche : on inverse donc
+				-- l'axe vertical, qui descend en interface.
+				Position = UDim2.fromOffset(zone.x * scale, planD - (zone.y + zone.depth) * scale),
+				BackgroundColor3 = color,
+				BackgroundTransparency = 0.45,
+				BorderSizePixel = 0,
+				ZIndex = 2,
+				LayoutOrder = index,
+
+				Create("UIStroke") { Color = color, Thickness = 1.5 },
+			}
+
+			text {
+				text = zone.name,
+				color = Color3.fromRGB(28, 30, 32),
+				font = Theme.Font.Bold,
+				size = 10,
+				align = Enum.TextXAlignment.Center,
+				bounds = UDim2.fromScale(1, 1),
+				zIndex = 3,
+			}.Parent = block
+
+			block.Parent = sheet
+		end
+
+		text {
+			text = string.format("%.1f m × %.1f m", venue.planWidth, venue.planDepth),
+			color = Color3.fromRGB(120, 118, 112),
+			font = Theme.Font.Mono,
+			size = 10,
+			align = Enum.TextXAlignment.Right,
+			bounds = UDim2.new(1, -8, 0, 14),
+			position = UDim2.new(0, 0, 1, -18),
+			zIndex = 4,
+		}.Parent = plan
+
+		return plan
+	end
+
+	local function venueCard(venue, order: number, currentTier: number)
+		local card = Create("Frame") {
+			Name = venue.id,
+			Size = UDim2.new(1, 0, 0, 210),
+			BackgroundColor3 = IMMO_THEME.surface,
+			BorderSizePixel = 0,
+			LayoutOrder = order,
+
+			Create("UICorner") { CornerRadius = UDim.new(0, 6) },
+			Create("UIPadding") {
+				PaddingTop = UDim.new(0, 16),
+				PaddingBottom = UDim.new(0, 16),
+				PaddingLeft = UDim.new(0, 18),
+				PaddingRight = UDim.new(0, 18),
+			},
+		}
+
+		floorPlan(venue, 236, 178).Parent = card
+
+		local column = Create("Frame") {
+			Name = "Details",
+			Size = UDim2.new(1, -256, 1, 0),
+			Position = UDim2.fromOffset(256, 0),
+			BackgroundTransparency = 1,
+		}
+		column.Parent = card
+
+		text {
+			text = venue.name,
+			color = IMMO_THEME.text,
+			font = Theme.Font.Bold,
+			size = 19,
+			bounds = UDim2.new(1, -120, 0, 24),
+		}.Parent = column
+
+		text {
+			text = venue.district,
+			color = IMMO_THEME.accent,
+			font = Theme.Font.Medium,
+			size = 12,
+			bounds = UDim2.new(1, -120, 0, 16),
+			position = UDim2.fromOffset(0, 25),
+		}.Parent = column
+
+		text {
+			text = venue.rent > 0 and string.format("%d € / mois", venue.rent) or "sans loyer",
+			color = IMMO_THEME.text,
+			font = Theme.Font.Bold,
+			size = 20,
+			align = Enum.TextXAlignment.Right,
+			bounds = UDim2.new(0, 120, 0, 26),
+			position = UDim2.new(1, -120, 0, 0),
+		}.Parent = column
+
+		text {
+			text = venue.deposit > 0 and string.format("caution %d €", venue.deposit) or "",
+			color = IMMO_THEME.muted,
+			size = 11,
+			align = Enum.TextXAlignment.Right,
+			bounds = UDim2.new(0, 120, 0, 14),
+			position = UDim2.new(1, -120, 0, 26),
+		}.Parent = column
+
+		text {
+			text = string.format("%d m²   ·   %.1f m sous plafond   ·   %d zones",
+				venue.area, venue.ceiling, #venue.zones),
+			color = IMMO_THEME.muted,
+			font = Theme.Font.Mono,
+			size = 11,
+			bounds = UDim2.new(1, 0, 0, 16),
+			position = UDim2.fromOffset(0, 48),
+		}.Parent = column
+
+		text {
+			text = venue.pitch,
+			color = IMMO_THEME.text,
+			size = 12,
+			wrapped = true,
+			bounds = UDim2.new(1, 0, 0, 46),
+			position = UDim2.fromOffset(0, 68),
+			alignY = Enum.TextYAlignment.Top,
+		}.Parent = column
+
+		text {
+			text = "+  " .. table.concat(venue.perks, "   ·   "),
+			color = Color3.fromRGB(28, 118, 88),
+			size = 11,
+			bounds = UDim2.new(1, 0, 0, 16),
+			position = UDim2.fromOffset(0, 118),
+			truncate = true,
+		}.Parent = column
+
+		text {
+			text = "—  " .. table.concat(venue.flaws, "   ·   "),
+			color = Color3.fromRGB(178, 74, 62),
+			size = 11,
+			bounds = UDim2.new(1, 0, 0, 16),
+			position = UDim2.fromOffset(0, 136),
+			truncate = true,
+		}.Parent = column
+
+		local reachable = venue.tier <= currentTier + 1
+		local button = Create("TextButton") {
+			Name = "Rent",
+			Size = UDim2.fromOffset(190, 32),
+			Position = UDim2.new(0, 0, 1, -32),
+			BackgroundColor3 = reachable and IMMO_THEME.accent or IMMO_THEME.muted,
+			BorderSizePixel = 0,
+			AutoButtonColor = false,
+			Text = reachable and "Visiter et louer" or "Hors de portée pour l'instant",
+			TextColor3 = IMMO_THEME.onAccent,
+			FontFace = Theme.Font.Bold,
+			TextSize = 12,
+
+			Create("UICorner") { CornerRadius = UDim.new(0, 4) },
+		}
+		button.Parent = column
+
+		return card
+	end
+
+	local function renderVenues()
+		page_.BackgroundColor3 = IMMO_THEME.background
+
+		local scroll = pageScroll(IMMO_THEME)
+		scroll.Parent = page_
+
+		Create("UIListLayout") { Padding = UDim.new(0, 0), SortOrder = Enum.SortOrder.LayoutOrder }.Parent = scroll
+
+		banner(
+			IMMO_THEME,
+			"ImmoPro Studios",
+			"Locaux pour créateurs de contenu",
+			"MAQUETTE — la location n'est pas encore branchée. Les plans et les chiffres sont ceux du jeu final."
+		).Parent = scroll
+
+		local body = Create("Frame") {
+			Name = "Body",
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			LayoutOrder = 1,
+
+			Create("UIListLayout") { Padding = UDim.new(0, 12), SortOrder = Enum.SortOrder.LayoutOrder },
+			Create("UIPadding") {
+				PaddingTop = UDim.new(0, 20),
+				PaddingBottom = UDim.new(0, 28),
+				PaddingLeft = UDim.new(0, 24),
+				PaddingRight = UDim.new(0, 24),
+			},
+		}
+		body.Parent = scroll
+
+		local tier = (api.state.stats and api.state.stats.venueTier) or 1
+
+		for index, venue in ipairs(Venues.All) do
+			venueCard(venue, index, tier).Parent = body
+		end
+	end
+
 	-- ── Navigation ────────────────────────────────────────────────────────
 
 	function navigate(target: string)
@@ -4242,6 +4875,12 @@ function Browser.mount(container: Frame, api): (() -> ())?
 		if target == "orders" then
 			addressLabel.Text = ORDERS_DOMAIN
 			renderOrders()
+			return
+		end
+
+		if target == "immo" then
+			addressLabel.Text = IMMO_DOMAIN
+			renderVenues()
 			return
 		end
 
@@ -4372,7 +5011,475 @@ function Browser.mount(container: Frame, api): (() -> ())?
 end
 
 return Browser
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX21"><Properties><string name="Name">Files</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX24"><Properties><string name="Name">Control</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Régie — le pilotage d'une émission multi-caméras.
+
+	MAQUETTE. Rien n'est branché sur la simulation : couper une caméra ne
+	change encore rien à l'audience. Mais le vocabulaire, la disposition et
+	le geste sont ceux du jeu fini, et les deux grands écrans montrent un
+	VRAI rendu 3D de la pièce depuis chaque angle.
+
+	Le principe d'une régie tient en deux écrans. PROGRAMME, c'est ce qui
+	part à l'antenne à cet instant. PRÉPARATION, c'est le plan suivant, que
+	l'on cadre tranquillement pendant que l'autre est diffusé. Couper, c'est
+	échanger les deux. C'est tout le métier, et c'est ce qui le rend tendu :
+	on ne peut préparer qu'un seul plan à la fois.
+]]
+
+local TweenService = game:GetService("TweenService")
+
+local Shared = script.Parent.Parent.Parent
+local Create = require(Shared.Lib.Create)
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(Shared.OS.Theme)
+local Widgets = require(Shared.OS.Widgets)
+local Rundown = require(Shared.Content.Rundown)
+
+local Control = {}
+
+local MULTIVIEW_WIDTH = 210
+local RUNDOWN_WIDTH = 230
+local TRANSITION_HEIGHT = 74
+
+local TALLY_LIVE = Color3.fromRGB(255, 61, 61)
+local TALLY_PREVIEW = Color3.fromRGB(74, 201, 126)
+
+--- Les angles proposés. Ils sont calculés autour du sujet plutôt que posés
+--- en dur : le jour où le joueur aura plusieurs vraies caméras dans la
+--- pièce, seule cette fonction changera.
+local function buildAngles(subject: Vector3): { any }
+	return {
+		{
+			id = "cam1",
+			label = "CAM 1",
+			name = "Face",
+			cframe = CFrame.lookAt(subject + Vector3.new(0, 0.2, 3.6), subject),
+			fov = 40,
+		},
+		{
+			id = "cam2",
+			label = "CAM 2",
+			name = "Plan large",
+			cframe = CFrame.lookAt(subject + Vector3.new(1.6, 2.4, 7.5), subject),
+			fov = 55,
+		},
+		{
+			id = "cam3",
+			label = "CAM 3",
+			name = "Profil",
+			cframe = CFrame.lookAt(subject + Vector3.new(4.2, 0.6, 2.2), subject),
+			fov = 42,
+		},
+		{
+			id = "cam4",
+			label = "CAM 4",
+			name = "Plongée",
+			cframe = CFrame.lookAt(subject + Vector3.new(-1.2, 4.2, 3.2), subject),
+			fov = 48,
+		},
+	}
+end
+
+--- Un retour caméra : un ViewportFrame contenant une copie du décor.
+---
+--- Un ViewportFrame ne peut pas filmer le monde réel, il ne rend que ses
+--- propres enfants. On duplique donc le décor à l'ouverture de l'app. C'est
+--- coûteux, d'où une copie allégée pour les petites vignettes.
+local function buildFeed(angle, full: boolean): ViewportFrame
+	local viewport = Create("ViewportFrame") {
+		Name = angle.id,
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.fromRGB(6, 7, 9),
+		BorderSizePixel = 0,
+		Ambient = Color3.fromRGB(120, 120, 132),
+		LightColor = Color3.fromRGB(255, 248, 236),
+		LightDirection = Vector3.new(-0.4, -1, -0.5),
+	}
+
+	local world = Instance.new("WorldModel")
+	world.Parent = viewport
+
+	local function copy(source: Instance?)
+		if not source then
+			return
+		end
+		local clone = source:Clone()
+		for _, descendant in ipairs(clone:GetDescendants()) do
+			if descendant:IsA("ProximityPrompt") or descendant:IsA("Sound") then
+				descendant:Destroy()
+			end
+		end
+		clone.Parent = world
+	end
+
+	copy(workspace:FindFirstChild("PlacedItems"))
+	if full then
+		copy(workspace:FindFirstChild("DevRoom"))
+	end
+
+	local camera = Instance.new("Camera")
+	camera.FieldOfView = angle.fov
+	camera.CFrame = angle.cframe
+	camera.Parent = viewport
+	viewport.CurrentCamera = camera
+
+	return viewport
+end
+
+local function tallyBadge(text: string, color: Color3)
+	return Create("Frame") {
+		Name = "Tally",
+		Size = UDim2.fromOffset(52, 16),
+		Position = UDim2.fromOffset(6, 6),
+		BackgroundColor3 = color,
+		BorderSizePixel = 0,
+		ZIndex = 5,
+
+		Create("UICorner") { CornerRadius = UDim.new(0, 2) },
+		Widgets.Text {
+			text = text,
+			color = Color3.new(1, 1, 1),
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Tiny,
+			align = Enum.TextXAlignment.Center,
+			size2 = UDim2.fromScale(1, 1),
+			zIndex = 6,
+		},
+	}
+end
+
+function Control.mount(container: Frame, api): (() -> ())?
+	local trove = Trove.new()
+
+	-- Le sujet : le siège du joueur, à hauteur de visage. Sans siège posé,
+	-- on vise le centre de la pièce.
+	local subject = Vector3.new(0, 3.8, -2.9)
+	for _, entry in ipairs(api.state.placed or {}) do
+		if entry.itemId == "chair_kitchen" or entry.itemId == "chair_gaming" or entry.itemId == "chair_ergonomic" then
+			subject = Vector3.new(entry.x, entry.y + 2.2, entry.z)
+			break
+		end
+	end
+
+	local angles = buildAngles(subject)
+	local programIndex, previewIndex = 1, 2
+
+	local programSlot = Widgets.Panel {
+		name = "ProgramSlot",
+		size = UDim2.new(0.5, -6, 1, 0),
+		position = UDim2.new(0.5, 6, 0, 0),
+		color = Color3.fromRGB(6, 7, 9),
+		clip = true,
+	}
+
+	local previewSlot = Widgets.Panel {
+		name = "PreviewSlot",
+		size = UDim2.new(0.5, -6, 1, 0),
+		color = Color3.fromRGB(6, 7, 9),
+		clip = true,
+	}
+
+	local fadeOverlay = Create("Frame") {
+		Name = "Fade",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ZIndex = 8,
+	}
+	fadeOverlay.Parent = programSlot
+
+	local multiviewSlots = {}
+	local statusLabel
+
+	local function renderBuses()
+		for _, slot in ipairs({ programSlot, previewSlot }) do
+			for _, child in ipairs(slot:GetChildren()) do
+				if child:IsA("ViewportFrame") or child.Name == "Label" then
+					child:Destroy()
+				end
+			end
+		end
+
+		local program = angles[programIndex]
+		local preview = angles[previewIndex]
+
+		buildFeed(program, true).Parent = programSlot
+		buildFeed(preview, true).Parent = previewSlot
+
+		tallyBadge("ANTENNE", TALLY_LIVE).Parent = programSlot
+		tallyBadge("PRÉPA", TALLY_PREVIEW).Parent = previewSlot
+
+		Widgets.Text {
+			name = "Label",
+			text = string.format("%s — %s", program.label, program.name),
+			color = Color3.fromRGB(230, 232, 238),
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Small,
+			size2 = UDim2.new(1, -16, 0, 18),
+			position = UDim2.new(0, 8, 1, -22),
+			zIndex = 5,
+		}.Parent = programSlot
+
+		Widgets.Text {
+			name = "Label",
+			text = string.format("%s — %s", preview.label, preview.name),
+			color = Color3.fromRGB(230, 232, 238),
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Small,
+			size2 = UDim2.new(1, -16, 0, 18),
+			position = UDim2.new(0, 8, 1, -22),
+			zIndex = 5,
+		}.Parent = previewSlot
+
+		fadeOverlay.Parent = programSlot
+
+		for index, slot in ipairs(multiviewSlots) do
+			local stroke = slot:FindFirstChildOfClass("UIStroke")
+			if stroke then
+				stroke.Color = index == programIndex and TALLY_LIVE
+					or (index == previewIndex and TALLY_PREVIEW or Theme.Color.Border)
+				stroke.Thickness = (index == programIndex or index == previewIndex) and 2 or 1
+			end
+		end
+
+		if statusLabel then
+			statusLabel.Text = string.format(
+				"ANTENNE %s  ·  PRÉPA %s  ·  maquette, aucun effet sur l'audience",
+				program.label,
+				preview.label
+			)
+		end
+	end
+
+	local function cut()
+		programIndex, previewIndex = previewIndex, programIndex
+		renderBuses()
+	end
+
+	local function fade()
+		local toBlack = TweenService:Create(fadeOverlay, TweenInfo.new(0.35), { BackgroundTransparency = 0 })
+		toBlack:Play()
+		toBlack.Completed:Wait()
+
+		programIndex, previewIndex = previewIndex, programIndex
+		renderBuses()
+
+		TweenService:Create(fadeOverlay, TweenInfo.new(0.45), { BackgroundTransparency = 1 }):Play()
+	end
+
+	-- ── Mur de retours ────────────────────────────────────────────────────
+
+	local multiview = Widgets.Panel {
+		name = "Multiview",
+		size = UDim2.new(0, MULTIVIEW_WIDTH, 1, 0),
+		color = Theme.Color.Desktop,
+		padding = Theme.Space.SM,
+		list = { gap = Theme.Space.SM },
+	}
+
+	for index, angle in ipairs(angles) do
+		local slot = Widgets.Panel {
+			name = angle.id,
+			size = UDim2.new(1, 0, 0, 108),
+			color = Color3.fromRGB(6, 7, 9),
+			radius = Theme.Radius.Small,
+			stroke = Theme.Color.Border,
+			clip = true,
+			order = index,
+		}
+
+		buildFeed(angle, false).Parent = slot
+
+		Widgets.Text {
+			text = string.format("%s  %s", angle.label, angle.name),
+			color = Color3.fromRGB(226, 230, 238),
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, -12, 0, 16),
+			position = UDim2.new(0, 6, 1, -18),
+			zIndex = 5,
+		}.Parent = slot
+
+		local hit = Create("TextButton") {
+			Name = "Hit",
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			Text = "",
+			ZIndex = 7,
+		}
+		hit.MouseButton1Click:Connect(function()
+			if index ~= programIndex then
+				previewIndex = index
+				renderBuses()
+			end
+		end)
+		hit.Parent = slot
+
+		multiviewSlots[index] = slot
+		slot.Parent = multiview
+	end
+
+	-- ── Conducteur ────────────────────────────────────────────────────────
+
+	local rundownList = Widgets.Scroll {
+		name = "Rundown",
+		size = UDim2.new(1, 0, 1, -30),
+		position = UDim2.fromOffset(0, 30),
+		padding = Theme.Space.SM,
+		gap = 3,
+	}
+
+	local rundownPanel = Widgets.Panel {
+		name = "RundownPanel",
+		size = UDim2.new(0, RUNDOWN_WIDTH, 1, 0),
+		position = UDim2.new(1, -RUNDOWN_WIDTH, 0, 0),
+		color = Theme.Color.Surface,
+
+		Widgets.Text {
+			text = "CONDUCTEUR",
+			color = Theme.Color.TextDisabled,
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, 0, 0, 30),
+			position = UDim2.fromOffset(Theme.Space.MD, 0),
+		},
+		rundownList,
+	}
+
+	local show = Rundown.Example
+	local elapsed = 0
+
+	for index, segment in ipairs(show.segments) do
+		Widgets.Panel {
+			name = segment.name,
+			size = UDim2.new(1, 0, 0, 40),
+			color = index == 2 and Theme.Color.SurfaceOverlay or Theme.Color.SurfaceRaised,
+			radius = Theme.Radius.Small,
+			padding = Theme.Space.SM,
+			order = index,
+
+			Create("Frame") {
+				Name = "Bar",
+				Size = UDim2.fromOffset(3, 24),
+				Position = UDim2.fromOffset(-4, 0),
+				BackgroundColor3 = Rundown.KindColor[segment.kind] or Theme.Color.Border,
+				BorderSizePixel = 0,
+			},
+			Widgets.Text {
+				text = segment.name,
+				color = index == 2 and Theme.Color.Text or Theme.Color.TextMuted,
+				font = Theme.Font.Medium,
+				size = Theme.TextSize.Tiny,
+				size2 = UDim2.new(1, -46, 0, 14),
+				position = UDim2.fromOffset(6, 0),
+				truncate = true,
+			},
+			Widgets.Text {
+				text = string.format("%d min", segment.minutes),
+				color = Theme.Color.TextDisabled,
+				font = Theme.Font.Mono,
+				size = Theme.TextSize.Tiny,
+				align = Enum.TextXAlignment.Right,
+				size2 = UDim2.new(0, 44, 0, 14),
+				position = UDim2.new(1, -44, 0, 0),
+			},
+			Widgets.Text {
+				text = index == 2 and "À L'ANTENNE" or string.format("+%d min", elapsed),
+				color = index == 2 and Theme.Color.Live or Theme.Color.TextDisabled,
+				font = Theme.Font.Mono,
+				size = Theme.TextSize.Tiny,
+				size2 = UDim2.new(1, -12, 0, 12),
+				position = UDim2.fromOffset(6, 16),
+			},
+		}.Parent = rundownList
+
+		elapsed += segment.minutes
+	end
+
+	-- ── Barre de transition ───────────────────────────────────────────────
+
+	statusLabel = Widgets.Text {
+		name = "Status",
+		text = "",
+		color = Theme.Color.TextDisabled,
+		font = Theme.Font.Mono,
+		size = Theme.TextSize.Tiny,
+		size2 = UDim2.new(1, -320, 0, 16),
+		position = UDim2.fromOffset(0, 30),
+		truncate = true,
+	}
+
+	local transitionBar = Widgets.Panel {
+		name = "Transition",
+		size = UDim2.new(1, -MULTIVIEW_WIDTH - RUNDOWN_WIDTH, 0, TRANSITION_HEIGHT),
+		position = UDim2.new(0, MULTIVIEW_WIDTH, 1, -TRANSITION_HEIGHT),
+		color = Theme.Color.SurfaceRaised,
+		padding = Theme.Space.MD,
+
+		Widgets.Button {
+			name = "Cut",
+			text = "COUPER",
+			variant = "live",
+			font = Theme.Font.Bold,
+			size = UDim2.fromOffset(140, 40),
+			onClick = cut,
+		},
+		Widgets.Button {
+			name = "Fade",
+			text = "FONDU",
+			variant = "ghost",
+			font = Theme.Font.Bold,
+			size = UDim2.fromOffset(120, 40),
+			position = UDim2.fromOffset(148, 0),
+			onClick = function()
+				task.spawn(fade)
+			end,
+		},
+		statusLabel,
+	}
+	statusLabel.Position = UDim2.fromOffset(280, 12)
+	statusLabel.Size = UDim2.new(1, -300, 0, 16)
+
+	-- ── Assemblage ────────────────────────────────────────────────────────
+
+	local buses = Widgets.Panel {
+		name = "Buses",
+		size = UDim2.new(1, -MULTIVIEW_WIDTH - RUNDOWN_WIDTH - Theme.Space.MD * 2, 1, -TRANSITION_HEIGHT - Theme.Space.MD),
+		position = UDim2.fromOffset(MULTIVIEW_WIDTH + Theme.Space.MD, Theme.Space.MD),
+		transparency = 1,
+
+		previewSlot,
+		programSlot,
+	}
+
+	for _, slot in ipairs({ previewSlot, programSlot }) do
+		Create("UICorner") { CornerRadius = Theme.Radius.Small }.Parent = slot
+		Create("UIStroke") { Color = Theme.Color.Border, Thickness = 1 }.Parent = slot
+	end
+
+	local root = Widgets.Panel {
+		name = "ControlRoot",
+		color = Theme.Color.Desktop,
+
+		multiview,
+		buses,
+		transitionBar,
+		rundownPanel,
+	}
+	root.Parent = container
+	trove:Add(root)
+
+	renderBuses()
+
+	return function()
+		trove:Clean()
+	end
+end
+
+return Control
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX25"><Properties><string name="Name">Files</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Fichiers — l'explorateur.
 
@@ -4541,7 +5648,7 @@ function Files.mount(container: Frame, api): (() -> ())?
 end
 
 return Files
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX22"><Properties><string name="Name">Layout</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX26"><Properties><string name="Name">Layout</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Aménagement — l'inventaire et le mode construction.
 
@@ -4961,7 +6068,7 @@ function Layout.mount(container: Frame, api): (() -> ())?
 end
 
 return Layout
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX23"><Properties><string name="Name">Mail</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX27"><Properties><string name="Name">Mail</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Courrier — la boîte de réception.
 
@@ -5209,7 +6316,7 @@ function Mail.mount(container: Frame, api): (() -> ())?
 end
 
 return Mail
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX24"><Properties><string name="Name">Placeholder</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX28"><Properties><string name="Name">Placeholder</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Placeholder — l'écran des apps déclarées mais pas encore écrites.
 
@@ -5262,7 +6369,444 @@ function Placeholder.mount(container: Frame, api): (() -> ())?
 end
 
 return Placeholder
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX25"><Properties><string name="Name">Studio</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX29"><Properties><string name="Name">RundownApp</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Conducteur — composer son émission.
+
+	MAQUETTE. Le conducteur se modifie mais n'est pas encore sauvegardé ni
+	joué : c'est la démonstration du geste, pas le système final.
+
+	Le principe : on n'achète pas un « type de stream » dans une liste, on
+	assemble une suite de rubriques, dans l'ordre qu'on veut, avec les
+	durées qu'on veut. La colonne de droite montre en direct l'arbitrage —
+	un débat ravit les fidèles et fait fuir les curieux, et aucun format ne
+	plaît à tout le monde.
+]]
+
+local Shared = script.Parent.Parent.Parent
+local Create = require(Shared.Lib.Create)
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(Shared.OS.Theme)
+local Widgets = require(Shared.OS.Widgets)
+local Rundown = require(Shared.Content.Rundown)
+
+local RundownApp = {}
+
+local LIBRARY_WIDTH = 250
+local ANALYSIS_WIDTH = 250
+local HEADER_HEIGHT = 62
+
+local SEGMENTS = {
+	{ id = "casual", label = "Curieux" },
+	{ id = "hardcore", label = "Fidèles" },
+	{ id = "jeune", label = "Jeune public" },
+	{ id = "donateur", label = "Donateurs" },
+	{ id = "presse", label = "Presse" },
+}
+
+local function formatDuration(minutes: number): string
+	if minutes < 60 then
+		return string.format("%d min", minutes)
+	end
+	return string.format("%dh%02d", math.floor(minutes / 60), minutes % 60)
+end
+
+function RundownApp.mount(container: Frame, api): (() -> ())?
+	local trove = Trove.new()
+
+	-- Copie de travail : la maquette modifie sa propre liste, sans rien
+	-- envoyer au serveur.
+	local segments = {}
+	for _, segment in ipairs(Rundown.Example.segments) do
+		table.insert(segments, { kind = segment.kind, name = segment.name, minutes = segment.minutes })
+	end
+
+	local timeline = Widgets.Scroll {
+		name = "Timeline",
+		size = UDim2.new(1, -LIBRARY_WIDTH - ANALYSIS_WIDTH, 1, -HEADER_HEIGHT),
+		position = UDim2.fromOffset(LIBRARY_WIDTH, HEADER_HEIGHT),
+		padding = Theme.Space.MD,
+		gap = Theme.Space.XS,
+	}
+
+	local analysis = Widgets.Panel {
+		name = "Analysis",
+		size = UDim2.new(0, ANALYSIS_WIDTH, 1, -HEADER_HEIGHT),
+		position = UDim2.new(1, -ANALYSIS_WIDTH, 0, HEADER_HEIGHT),
+		color = Theme.Color.Surface,
+		padding = Theme.Space.MD,
+	}
+
+	local totalLabel = Widgets.Text {
+		name = "Total",
+		text = "",
+		color = Theme.Color.Text,
+		font = Theme.Font.Mono,
+		size = Theme.TextSize.Title,
+		align = Enum.TextXAlignment.Right,
+		size2 = UDim2.new(0, 200, 0, 26),
+		position = UDim2.new(1, -220, 0, 12),
+	}
+
+	local prepLabel = Widgets.Text {
+		name = "Prep",
+		text = "",
+		color = Theme.Color.TextDisabled,
+		size = Theme.TextSize.Tiny,
+		align = Enum.TextXAlignment.Right,
+		size2 = UDim2.new(0, 200, 0, 14),
+		position = UDim2.new(1, -220, 0, 38),
+	}
+
+	local render
+
+	--- La colonne d'arbitrage. C'est elle qui transforme une liste de
+	--- rubriques en décision : on voit immédiatement qui on séduit et qui
+	--- on perd.
+	local function renderAnalysis()
+		for _, child in ipairs(analysis:GetChildren()) do
+			if child:IsA("GuiObject") then
+				child:Destroy()
+			end
+		end
+
+		Widgets.Text {
+			text = "RÉACTION ATTENDUE",
+			color = Theme.Color.TextDisabled,
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, 0, 0, 16),
+		}.Parent = analysis
+
+		local totals: { [string]: number } = {}
+		local weight = 0
+
+		for _, segment in ipairs(segments) do
+			local segmentType = Rundown.GetType(segment.kind)
+			if segmentType then
+				weight += segment.minutes
+				for id, value in pairs(segmentType.appeal) do
+					totals[id] = (totals[id] or 0) + value * segment.minutes
+				end
+			end
+		end
+
+		for index, audience in ipairs(SEGMENTS) do
+			local raw = weight > 0 and (totals[audience.id] or 0) / weight or 0
+			local normalised = math.clamp((raw + 1) / 2, 0, 1)
+
+			local color = Theme.Color.Success
+			if raw < -0.1 then
+				color = Theme.Color.Danger
+			elseif raw < 0.15 then
+				color = Theme.Color.Warning
+			end
+
+			local row = Widgets.Panel {
+				name = audience.id,
+				size = UDim2.new(1, 0, 0, 38),
+				position = UDim2.fromOffset(0, 24 + (index - 1) * 42),
+				transparency = 1,
+
+				Widgets.Text {
+					text = audience.label,
+					color = Theme.Color.TextMuted,
+					size = Theme.TextSize.Tiny,
+					size2 = UDim2.new(1, -46, 0, 14),
+				},
+				Widgets.Text {
+					text = string.format("%+d", math.round(raw * 100)),
+					color = color,
+					font = Theme.Font.Mono,
+					size = Theme.TextSize.Tiny,
+					align = Enum.TextXAlignment.Right,
+					size2 = UDim2.new(0, 44, 0, 14),
+					position = UDim2.new(1, -44, 0, 0),
+				},
+				Create("Frame") {
+					Name = "Track",
+					Size = UDim2.new(1, 0, 0, 4),
+					Position = UDim2.fromOffset(0, 20),
+					BackgroundColor3 = Theme.Color.Border,
+					BorderSizePixel = 0,
+					Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+					Create("Frame") {
+						Name = "Fill",
+						Size = UDim2.fromScale(normalised, 1),
+						BackgroundColor3 = color,
+						BorderSizePixel = 0,
+						Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+					},
+				},
+			}
+			row.Parent = analysis
+		end
+
+		Widgets.Text {
+			text = "Aucun format ne plaît à tout le monde. Un conducteur, c'est le choix de qui on accepte de perdre.",
+			color = Theme.Color.TextDisabled,
+			size = Theme.TextSize.Tiny,
+			wrapped = true,
+			size2 = UDim2.new(1, 0, 0, 60),
+			position = UDim2.fromOffset(0, 24 + #SEGMENTS * 42 + 12),
+			alignY = Enum.TextYAlignment.Top,
+		}.Parent = analysis
+	end
+
+	local function segmentRow(segment, index: number)
+		local segmentType = Rundown.GetType(segment.kind)
+		local color = Rundown.KindColor[segment.kind] or Theme.Color.Border
+
+		local row = Widgets.Panel {
+			name = segment.name,
+			size = UDim2.new(1, 0, 0, 62),
+			color = Theme.Color.SurfaceRaised,
+			radius = Theme.Radius.Small,
+			padding = Theme.Space.MD,
+			order = index,
+
+			Create("Frame") {
+				Name = "Bar",
+				Size = UDim2.fromOffset(4, 40),
+				Position = UDim2.fromOffset(-8, 0),
+				BackgroundColor3 = color,
+				BorderSizePixel = 0,
+				Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+			},
+
+			Widgets.Text {
+				text = string.format("%d.  %s", index, segment.name),
+				font = Theme.Font.Medium,
+				size = Theme.TextSize.Small,
+				size2 = UDim2.new(1, -190, 0, 18),
+				truncate = true,
+			},
+			Widgets.Text {
+				text = segmentType and segmentType.risk or "",
+				color = Theme.Color.TextDisabled,
+				size = Theme.TextSize.Tiny,
+				size2 = UDim2.new(1, -190, 0, 16),
+				position = UDim2.fromOffset(0, 20),
+				truncate = true,
+			},
+			Widgets.Text {
+				text = segmentType and segmentType.requires and ("nécessite : " .. segmentType.requires) or "",
+				color = Theme.Color.Warning,
+				size = Theme.TextSize.Tiny,
+				size2 = UDim2.new(1, -190, 0, 14),
+				position = UDim2.fromOffset(0, 36),
+				truncate = true,
+			},
+
+			Widgets.Text {
+				text = formatDuration(segment.minutes),
+				color = Theme.Color.Text,
+				font = Theme.Font.Mono,
+				size = Theme.TextSize.Body,
+				align = Enum.TextXAlignment.Right,
+				size2 = UDim2.new(0, 66, 0, 20),
+				position = UDim2.new(1, -186, 0, 0),
+			},
+		}
+
+		local controls = {
+			{ text = "−", action = function()
+				segment.minutes = math.max(2, segment.minutes - 5)
+			end },
+			{ text = "+", action = function()
+				segment.minutes = math.min(120, segment.minutes + 5)
+			end },
+			{ text = "▲", action = function()
+				if index > 1 then
+					segments[index], segments[index - 1] = segments[index - 1], segments[index]
+				end
+			end },
+			{ text = "▼", action = function()
+				if index < #segments then
+					segments[index], segments[index + 1] = segments[index + 1], segments[index]
+				end
+			end },
+			{ text = "✕", action = function()
+				table.remove(segments, index)
+			end },
+		}
+
+		for buttonIndex, control in ipairs(controls) do
+			Widgets.Button {
+				text = control.text,
+				variant = control.text == "✕" and "danger" or "ghost",
+				textSize = Theme.TextSize.Small,
+				size = UDim2.fromOffset(30, 28),
+				position = UDim2.new(1, -114 + (buttonIndex - 1) * 32, 0.5, 0),
+				anchor = Vector2.new(0, 0.5),
+				onClick = function()
+					control.action()
+					render()
+				end,
+			}.Parent = row
+		end
+
+		return row
+	end
+
+	function render()
+		timeline:ClearAllChildren()
+
+		Create("UIListLayout") {
+			Padding = UDim.new(0, Theme.Space.XS),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}.Parent = timeline
+
+		Create("UIPadding") {
+			PaddingTop = UDim.new(0, Theme.Space.MD),
+			PaddingLeft = UDim.new(0, Theme.Space.LG),
+			PaddingRight = UDim.new(0, Theme.Space.MD),
+			PaddingBottom = UDim.new(0, Theme.Space.MD),
+		}.Parent = timeline
+
+		local total, prep = 0, 0
+
+		for index, segment in ipairs(segments) do
+			segmentRow(segment, index).Parent = timeline
+			total += segment.minutes
+
+			local segmentType = Rundown.GetType(segment.kind)
+			if segmentType then
+				prep += segmentType.prepCost
+			end
+		end
+
+		if #segments == 0 then
+			Widgets.Text {
+				text = "Conducteur vide. Ajoute une rubrique depuis la colonne de gauche.",
+				color = Theme.Color.TextDisabled,
+				size = Theme.TextSize.Small,
+				align = Enum.TextXAlignment.Center,
+				size2 = UDim2.new(1, 0, 0, 60),
+			}.Parent = timeline
+		end
+
+		totalLabel.Text = formatDuration(total)
+		totalLabel.TextColor3 = total > 150 and Theme.Color.Warning or Theme.Color.Text
+		prepLabel.Text = string.format("%d heures de préparation dans la semaine", prep)
+
+		renderAnalysis()
+	end
+
+	-- ── Bibliothèque de rubriques ─────────────────────────────────────────
+
+	local library = Widgets.Scroll {
+		name = "Library",
+		size = UDim2.new(0, LIBRARY_WIDTH, 1, -HEADER_HEIGHT),
+		position = UDim2.fromOffset(0, HEADER_HEIGHT),
+		padding = Theme.Space.SM,
+		gap = Theme.Space.XS,
+	}
+
+	Widgets.Text {
+		text = "RUBRIQUES DISPONIBLES",
+		color = Theme.Color.TextDisabled,
+		font = Theme.Font.Bold,
+		size = Theme.TextSize.Tiny,
+		size2 = UDim2.new(1, 0, 0, 18),
+		order = 0,
+	}.Parent = library
+
+	for index, segmentType in ipairs(Rundown.Types) do
+		local entry = segmentType :: any
+
+		Widgets.ListRow {
+			height = 54,
+			order = index,
+			onClick = function()
+				table.insert(segments, {
+					kind = entry.kind,
+					name = entry.name,
+					minutes = entry.defaultMinutes,
+				})
+				render()
+			end,
+
+			Create("Frame") {
+				Name = "Bar",
+				Size = UDim2.fromOffset(3, 34),
+				Position = UDim2.new(0, 0, 0.5, 0),
+				AnchorPoint = Vector2.new(0, 0.5),
+				BackgroundColor3 = Rundown.KindColor[entry.kind] or Theme.Color.Border,
+				BorderSizePixel = 0,
+			},
+			Widgets.Text {
+				text = entry.name,
+				font = Theme.Font.Medium,
+				size = Theme.TextSize.Tiny,
+				size2 = UDim2.new(1, -12, 0, 15),
+				position = UDim2.fromOffset(10, 0),
+				truncate = true,
+			},
+			Widgets.Text {
+				text = entry.description,
+				color = Theme.Color.TextDisabled,
+				size = Theme.TextSize.Tiny,
+				wrapped = true,
+				size2 = UDim2.new(1, -12, 0, 26),
+				position = UDim2.fromOffset(10, 15),
+				alignY = Enum.TextYAlignment.Top,
+			},
+		}.Parent = library
+	end
+
+	-- ── En-tête ───────────────────────────────────────────────────────────
+
+	local header = Widgets.Panel {
+		name = "Header",
+		size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
+		color = Theme.Color.SurfaceRaised,
+		padding = Theme.Space.LG,
+
+		Widgets.Text {
+			text = Rundown.Example.name,
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Heading,
+			size2 = UDim2.new(1, -240, 0, 28),
+			truncate = true,
+		},
+		Widgets.Text {
+			text = string.format(
+				"tous les %s à %s   ·   maquette : rien n'est encore sauvegardé",
+				Rundown.Example.weekday,
+				Rundown.Example.hour
+			),
+			color = Theme.Color.TextDisabled,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, -240, 0, 16),
+			position = UDim2.fromOffset(0, 28),
+		},
+
+		totalLabel,
+		prepLabel,
+	}
+
+	local root = Widgets.Panel {
+		name = "RundownRoot",
+		color = Theme.Color.Desktop,
+
+		header,
+		library,
+		timeline,
+		analysis,
+	}
+	root.Parent = container
+	trove:Add(root)
+
+	render()
+
+	return function()
+		trove:Clean()
+	end
+end
+
+return RundownApp
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX30"><Properties><string name="Name">Studio</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	KZ Studio — le logiciel de diffusion.
 
@@ -5721,7 +7265,7 @@ function Studio.mount(container: Frame, api): (() -> ())?
 end
 
 return Studio
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX27"><Properties><string name="Name">AppRegistry</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX32"><Properties><string name="Name">AppRegistry</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	AppRegistry — le catalogue des logiciels installables sur KZ OS.
 
@@ -5734,6 +7278,7 @@ return Studio
 ]]
 
 local Apps = script.Parent.Apps
+local Dev = require(script.Parent.Parent.Config.Dev)
 
 export type AppDefinition = {
 	id: string,
@@ -5756,6 +7301,15 @@ export type AppDefinition = {
 
 local function always(): boolean
 	return true
+end
+
+--- Les maquettes sont visibles tant que le prototypage est actif, ou une
+--- fois la condition réelle atteinte. On peut donc les regarder tout de
+--- suite sans casser la courbe de progression prévue.
+local function prototypeOr(condition: (any) -> boolean)
+	return function(state: any): boolean
+		return Dev.PrototypesEnabled or condition(state)
+	end
 end
 
 --- Beaucoup de déblocages suivent la même forme : "à partir de N abonnés",
@@ -5854,10 +7408,24 @@ local registry: { AppDefinition } = {
 		name = "Conducteur",
 		glyph = "☰",
 		monogram = "Cd",
-		defaultSize = Vector2.new(900, 560),
+		accent = Color3.fromRGB(168, 122, 236),
+		defaultSize = Vector2.new(1060, 640),
+		minSize = Vector2.new(820, 480),
 		-- Composer une émission n'a de sens qu'avec un vrai décor.
-		unlock = requiresStat("venueTier", 3),
-		mount = require(Apps.Placeholder).mount,
+		unlock = prototypeOr(requiresStat("venueTier", 3)),
+		mount = require(Apps.RundownApp).mount,
+	},
+	{
+		id = "control",
+		name = "Régie",
+		glyph = "◨",
+		monogram = "Rg",
+		accent = Color3.fromRGB(255, 61, 61),
+		defaultSize = Vector2.new(1120, 660),
+		minSize = Vector2.new(900, 520),
+		-- La régie suppose plusieurs caméras, donc un vrai plateau.
+		unlock = prototypeOr(requiresStat("venueTier", 4)),
+		mount = require(Apps.Control).mount,
 	},
 }
 
@@ -5889,7 +7457,7 @@ function AppRegistry.GetUnlocked(state: any): { AppDefinition }
 end
 
 return AppRegistry
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX28"><Properties><string name="Name">BootSequence</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX33"><Properties><string name="Name">BootSequence</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	BootSequence — le démarrage de KZ OS.
 
@@ -6030,7 +7598,7 @@ function BootSequence.play(parent: Frame, options: BootOptions, onComplete: () -
 end
 
 return BootSequence
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX29"><Properties><string name="Name">DesktopIcons</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX34"><Properties><string name="Name">DesktopIcons</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	DesktopIcons — les raccourcis posés sur le bureau.
 
@@ -6195,7 +7763,7 @@ function DesktopIcons:Destroy()
 end
 
 return DesktopIcons
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX30"><Properties><string name="Name">Taskbar</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX35"><Properties><string name="Name">Taskbar</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Taskbar — la barre des tâches.
 
@@ -6442,7 +8010,7 @@ function Taskbar:Destroy()
 end
 
 return Taskbar
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX31"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX36"><Properties><string name="Name">Theme</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Theme — les jetons de design de KZ OS.
 
@@ -6572,7 +8140,7 @@ Theme.ZIndex = {
 }
 
 return Theme
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX32"><Properties><string name="Name">Widgets</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX37"><Properties><string name="Name">Widgets</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Widgets — la petite bibliothèque de composants de KZ OS.
 
@@ -6816,7 +8384,7 @@ function Widgets.Divider(vertical: boolean?)
 end
 
 return Widgets
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX33"><Properties><string name="Name">Window</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX38"><Properties><string name="Name">Window</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Window — une fenêtre de KZ OS : barre de titre, contenu, boutons, drag,
 	redimensionnement, focus.
@@ -7259,7 +8827,7 @@ function Window:Destroy()
 end
 
 return Window
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX34"><Properties><string name="Name">WindowManager</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX39"><Properties><string name="Name">WindowManager</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	WindowManager — le gestionnaire de fenêtres de KZ OS.
 
@@ -7449,7 +9017,7 @@ function WindowManager:Destroy()
 end
 
 return WindowManager
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX36"><Properties><string name="Name">Net</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX41"><Properties><string name="Name">Net</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Net — les tuyaux client/serveur.
 
@@ -7510,8 +9078,8 @@ function Net.requestEvent(): RemoteEvent
 end
 
 return Net
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX50"><Properties><string name="Name">Assets</string></Properties><Item class="Folder" referent="RBX49"><Properties><string name="Name">Items</string></Properties></Item></Item></Item>
-<Item class="ServerScriptService" referent="RBX54"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX42"><Properties><string name="Name">Server</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX57"><Properties><string name="Name">Assets</string></Properties><Item class="Folder" referent="RBX56"><Properties><string name="Name">Items</string></Properties></Item></Item></Item>
+<Item class="ServerScriptService" referent="RBX61"><Properties><string name="Name">ServerScriptService</string></Properties><Item class="Script" referent="RBX47"><Properties><string name="Name">Server</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Point d'entrée serveur de KZ Stream Simulator.
 
@@ -7536,6 +9104,7 @@ local Emails = require(Shared.Content.Emails)
 local Placement = require(Shared.Config.Placement)
 local PowerRules = require(Shared.Config.Power)
 local ImageQuality = require(Shared.Config.ImageQuality)
+local Dev = require(Shared.Config.Dev)
 
 local PlayerState = require(script.Services.PlayerState)
 local RoomBuilder = require(script.Services.RoomBuilder)
@@ -7880,6 +9449,102 @@ routes["build/remove"] = function(session, payload)
 	RoomBuilder.rebuild(session:Get().placed)
 end
 
+-- ── Administration ────────────────────────────────────────────────────────
+-- Outils de test. Le serveur refuse ces routes si Dev.AdminEnabled est
+-- faux : masquer l'interface côté client ne protégerait rien.
+
+local ADMIN_MAX_MONEY = 9999999
+
+routes["admin/set"] = function(session, payload)
+	if not Dev.AdminEnabled or typeof(payload) ~= "table" then
+		return
+	end
+
+	session:Update(function(state)
+		if typeof(payload.money) == "number" then
+			state.money = math.clamp(math.floor(payload.money), 0, ADMIN_MAX_MONEY)
+		end
+		if typeof(payload.addMoney) == "number" then
+			state.money = math.clamp(state.money + math.floor(payload.addMoney), 0, ADMIN_MAX_MONEY)
+		end
+		if typeof(payload.energy) == "number" then
+			state.energy = math.clamp(payload.energy, 0, 100)
+		end
+		if typeof(payload.day) == "number" then
+			state.day = math.max(1, math.floor(payload.day))
+		end
+		if typeof(payload.clockMinutes) == "number" then
+			state.clockMinutes = math.clamp(payload.clockMinutes, 0, 1439)
+		end
+		if typeof(payload.subscribers) == "number" then
+			state.stats.subscribers = math.max(0, math.floor(payload.subscribers))
+		end
+		if typeof(payload.venueTier) == "number" then
+			state.stats.venueTier = math.clamp(math.floor(payload.venueTier), 1, 4)
+		end
+		if typeof(payload.employees) == "number" then
+			state.stats.employees = math.max(0, math.floor(payload.employees))
+		end
+		if typeof(payload.streamsCompleted) == "number" then
+			state.stats.streamsCompleted = math.max(0, math.floor(payload.streamsCompleted))
+		end
+		if typeof(payload.blackout) == "number" then
+			state.blackoutRemaining = math.max(0, payload.blackout)
+		end
+	end)
+end
+
+routes["admin/give"] = function(session, payload)
+	if not Dev.AdminEnabled or typeof(payload) ~= "table" then
+		return
+	end
+	if typeof(payload.itemId) ~= "string" or not Catalogue.Get(payload.itemId) then
+		return
+	end
+
+	session:Update(function(state)
+		table.insert(state.inventory, { uid = state.nextUid, itemId = payload.itemId })
+		state.nextUid += 1
+	end)
+end
+
+--- Livre immédiatement tout ce qui est en commande, sans attendre la nuit.
+routes["admin/deliver"] = function(session)
+	if not Dev.AdminEnabled then
+		return
+	end
+
+	session:Update(function(state)
+		for _, order in ipairs(state.orders) do
+			table.insert(state.inventory, { uid = state.nextUid, itemId = order.itemId })
+			state.nextUid += 1
+		end
+		state.orders = {}
+	end)
+end
+
+--- Vide la pièce, sauf ce qui empêcherait de revenir en arrière.
+routes["admin/clearRoom"] = function(session)
+	if not Dev.AdminEnabled then
+		return
+	end
+
+	session:Update(function(state)
+		local kept = {}
+		for _, entry in ipairs(state.placed) do
+			local item = Catalogue.Get(entry.itemId)
+			if item and item.category == "display" then
+				table.insert(kept, entry)
+			else
+				table.insert(state.inventory, { uid = entry.uid, itemId = entry.itemId })
+			end
+		end
+		state.placed = kept
+	end)
+
+	RoomBuilder.rebuild(session:Get().placed)
+end
+
 -- ── Boucle de direct ──────────────────────────────────────────────────────
 
 --- Pour l'instant une simulation volontairement naïve : elle sert à prouver
@@ -8011,7 +9676,7 @@ end)
 DevRoom.build()
 
 print("[KZ] Serveur prêt.")
-]]></ProtectedString></Properties><Item class="Folder" referent="RBX40"><Properties><string name="Name">Services</string></Properties><Item class="ModuleScript" referent="RBX38"><Properties><string name="Name">PlayerState</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX45"><Properties><string name="Name">Services</string></Properties><Item class="ModuleScript" referent="RBX43"><Properties><string name="Name">PlayerState</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	PlayerState — l'état d'un joueur, propriété exclusive du serveur.
 
@@ -8137,7 +9802,7 @@ function PlayerState:Destroy()
 end
 
 return PlayerState
-]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX39"><Properties><string name="Name">RoomBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item><Item class="ModuleScript" referent="RBX44"><Properties><string name="Name">RoomBuilder</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	RoomBuilder — fabrique dans le monde les objets que le joueur a posés.
 
@@ -8281,7 +9946,7 @@ function RoomBuilder.rebuild(placed: { any })
 end
 
 return RoomBuilder
-]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX41"><Properties><string name="Name">DevRoom</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="ModuleScript" referent="RBX46"><Properties><string name="Name">DevRoom</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	DevRoom — la chambre de test, construite par code.
 
@@ -8509,7 +10174,7 @@ end
 
 return DevRoom
 ]]></ProtectedString></Properties></Item></Item></Item>
-<Item class="StarterPlayer" referent="RBX55"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX48"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX47"><Properties><string name="Name">Client</string><ProtectedString name="Source"><![CDATA[--!strict
+<Item class="StarterPlayer" referent="RBX62"><Properties><string name="Name">StarterPlayer</string></Properties><Item class="StarterPlayerScripts" referent="RBX55"><Properties><string name="Name">StarterPlayerScripts</string></Properties><Item class="LocalScript" referent="RBX54"><Properties><string name="Name">Client</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	Point d'entrée client de KZ Stream Simulator.
 
@@ -8539,6 +10204,8 @@ local requestEvent = Net.requestEvent()
 
 local ScreenSurface = require(script.Computer.ScreenSurface)
 local PlacementMode = require(script.Build.PlacementMode)
+local AdminConsole = require(script.Admin.Console)
+local Dev = require(Shared.Config.Dev)
 
 -- ── L'état répliqué et le pont donné aux apps ─────────────────────────────
 
@@ -8905,13 +10572,374 @@ end)
 
 -- ── Démarrage ─────────────────────────────────────────────────────────────
 
+-- La console de test, ouverte par F4. C'est la seule interface flottante
+-- du jeu, et elle disparaît complètement quand Dev.AdminEnabled est faux.
+if Dev.AdminEnabled then
+	AdminConsole.new(api)
+end
+
 -- On signale au serveur qu'on est prêt : il répond avec l'état initial.
 task.defer(function()
 	api.request("ping")
 end)
 
 print("[KZ] Client prêt.")
-]]></ProtectedString></Properties><Item class="Folder" referent="RBX44"><Properties><string name="Name">Build</string></Properties><Item class="ModuleScript" referent="RBX43"><Properties><string name="Name">PlacementMode</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties><Item class="Folder" referent="RBX49"><Properties><string name="Name">Admin</string></Properties><Item class="ModuleScript" referent="RBX48"><Properties><string name="Name">Console</string><ProtectedString name="Source"><![CDATA[--!strict
+--[[
+	Console — les outils de test, ouverts par F4.
+
+	C'est la seule interface flottante du jeu, et c'est assumé : elle n'est
+	pas destinée au joueur. Elle est accessible partout, y compris debout au
+	milieu de la pièce, précisément pour tester le mode construction et les
+	lumières sans faire l'aller-retour jusqu'au bureau.
+
+	Le serveur refuse toutes ces routes si Config/Dev.AdminEnabled est faux.
+	Masquer ce panneau ne protégerait rien.
+]]
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
+local Create = require(Shared.Lib.Create)
+local Trove = require(Shared.Lib.Trove)
+local Theme = require(Shared.OS.Theme)
+local Widgets = require(Shared.OS.Widgets)
+local Catalogue = require(Shared.Config.Catalogue)
+
+local player = Players.LocalPlayer
+
+local Console = {}
+Console.__index = Console
+
+local WIDTH = 560
+local HEADER = 44
+
+local ACCENT = Color3.fromRGB(232, 84, 84)
+
+--- Une ligne de boutons courts, chacun déclenchant une action immédiate.
+local function actionRow(label: string, buttons: { { text: string, action: () -> () } }, order: number)
+	local row = Widgets.Panel {
+		name = label,
+		size = UDim2.new(1, 0, 0, 46),
+		color = Theme.Color.Surface,
+		transparency = 1,
+		order = order,
+
+		Widgets.Text {
+			text = string.upper(label),
+			color = Theme.Color.TextDisabled,
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, 0, 0, 14),
+		},
+	}
+
+	local strip = Widgets.Panel {
+		name = "Buttons",
+		size = UDim2.new(1, 0, 0, 28),
+		position = UDim2.fromOffset(0, 16),
+		transparency = 1,
+		list = { direction = Enum.FillDirection.Horizontal, gap = 4 },
+	}
+	strip.Parent = row
+
+	for index, button in ipairs(buttons) do
+		Widgets.Button {
+			text = button.text,
+			variant = "ghost",
+			textSize = Theme.TextSize.Tiny,
+			size = UDim2.fromOffset(86, 26),
+			order = index,
+			onClick = button.action,
+		}.Parent = strip
+	end
+
+	return row
+end
+
+function Console.new(api)
+	local self = setmetatable({}, Console)
+
+	self._trove = Trove.new()
+	self.api = api
+	self.visible = false
+
+	self:_build()
+
+	self._trove:Add(UserInputService.InputBegan:Connect(function(input, gameProcessed)
+		if gameProcessed then
+			return
+		end
+		if input.KeyCode == Enum.KeyCode.F4 then
+			self:Toggle()
+		end
+	end))
+
+	return self
+end
+
+function Console:_build()
+	local api = self.api
+
+	local function set(payload)
+		api.request("admin/set", payload)
+	end
+
+	-- ── Contenu ───────────────────────────────────────────────────────────
+
+	local content = Widgets.Scroll {
+		name = "Content",
+		size = UDim2.new(1, 0, 1, -HEADER),
+		position = UDim2.fromOffset(0, HEADER),
+		padding = Theme.Space.MD,
+		gap = Theme.Space.SM,
+	}
+
+	self.statusLabel = Widgets.Text {
+		name = "Status",
+		text = "",
+		color = Theme.Color.TextMuted,
+		font = Theme.Font.Mono,
+		size = Theme.TextSize.Tiny,
+		size2 = UDim2.new(1, 0, 0, 30),
+		wrapped = true,
+		order = 0,
+		alignY = Enum.TextYAlignment.Top,
+	}
+	self.statusLabel.Parent = content
+
+	actionRow("argent", {
+		{ text = "+ 100 €", action = function() set({ addMoney = 100 }) end },
+		{ text = "+ 1 000 €", action = function() set({ addMoney = 1000 }) end },
+		{ text = "+ 10 000 €", action = function() set({ addMoney = 10000 }) end },
+		{ text = "remise à 0", action = function() set({ money = 0 }) end },
+	}, 1).Parent = content
+
+	actionRow("temps", {
+		{ text = "jour + 1", action = function() set({ day = (api.state.day or 1) + 1 }) end },
+		{ text = "matin", action = function() set({ clockMinutes = 8 * 60 }) end },
+		{ text = "soir", action = function() set({ clockMinutes = 21 * 60 }) end },
+		{ text = "nuit", action = function() set({ clockMinutes = 3 * 60 }) end },
+	}, 2).Parent = content
+
+	actionRow("vitesse du temps", {
+		{ text = "pause", action = function() api.request("time/setScale", { scale = 0 }) end },
+		{ text = "x1", action = function() api.request("time/setScale", { scale = 1 }) end },
+		{ text = "x4", action = function() api.request("time/setScale", { scale = 4 }) end },
+		{ text = "x10", action = function() api.request("time/setScale", { scale = 10 }) end },
+	}, 3).Parent = content
+
+	actionRow("énergie", {
+		{ text = "épuisé", action = function() set({ energy = 5 }) end },
+		{ text = "moyen", action = function() set({ energy = 50 }) end },
+		{ text = "en forme", action = function() set({ energy = 100 }) end },
+	}, 4).Parent = content
+
+	actionRow("progression", {
+		{ text = "3 lives", action = function() set({ streamsCompleted = 3 }) end },
+		{ text = "1 employé", action = function() set({ employees = 1 }) end },
+		{ text = "local", action = function() set({ venueTier = 3 }) end },
+		{ text = "tout", action = function()
+			set({ streamsCompleted = 20, employees = 4, venueTier = 4, subscribers = 25000 })
+		end },
+	}, 5).Parent = content
+
+	actionRow("systèmes", {
+		{ text = "livrer tout", action = function() api.request("admin/deliver") end },
+		{ text = "vider pièce", action = function() api.request("admin/clearRoom") end },
+		{ text = "coupure", action = function() set({ blackout = 25 }) end },
+		{ text = "rétablir", action = function() set({ blackout = 0 }) end },
+	}, 6).Parent = content
+
+	actionRow("direct", {
+		{ text = "démarrer", action = function()
+			if not api.state.isLive then
+				api.request("stream/toggle")
+			end
+		end },
+		{ text = "arrêter", action = function()
+			if api.state.isLive then
+				api.request("stream/toggle")
+			end
+		end },
+	}, 7).Parent = content
+
+	-- ── Donner un objet ───────────────────────────────────────────────────
+
+	local filterBox = Create("TextBox") {
+		Name = "Filter",
+		Size = UDim2.new(1, 0, 0, 28),
+		BackgroundColor3 = Theme.Color.Desktop,
+		BorderSizePixel = 0,
+		Text = "",
+		PlaceholderText = "filtrer le catalogue…",
+		PlaceholderColor3 = Theme.Color.TextDisabled,
+		TextColor3 = Theme.Color.Text,
+		FontFace = Theme.Font.Mono,
+		TextSize = Theme.TextSize.Small,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		ClearTextOnFocus = false,
+		LayoutOrder = 8,
+
+		Create("UICorner") { CornerRadius = Theme.Radius.Small },
+		Create("UIPadding") { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) },
+	}
+	filterBox.Parent = content
+
+	local itemList = Widgets.Panel {
+		name = "Items",
+		size = UDim2.new(1, 0, 0, 0),
+		transparency = 1,
+		order = 9,
+		list = { gap = 2 },
+	}
+	itemList.AutomaticSize = Enum.AutomaticSize.Y
+	itemList.Parent = content
+
+	local function renderItems()
+		for _, child in ipairs(itemList:GetChildren()) do
+			if child:IsA("GuiButton") then
+				child:Destroy()
+			end
+		end
+
+		local needle = string.lower(filterBox.Text)
+		local shown = 0
+
+		for index, item in ipairs(Catalogue.All()) do
+			local haystack = string.lower(item.id .. " " .. item.name .. " " .. item.brand .. " " .. item.family)
+			if needle == "" or string.find(haystack, needle, 1, true) then
+				shown += 1
+				if shown > 40 then
+					break
+				end
+
+				Widgets.ListRow {
+					height = 26,
+					order = index,
+					onClick = function()
+						api.request("admin/give", { itemId = item.id })
+					end,
+
+					Widgets.Text {
+						text = string.format("%s   ·   %s", item.name, item.id),
+						color = Theme.Color.TextMuted,
+						font = Theme.Font.Mono,
+						size = Theme.TextSize.Tiny,
+						size2 = UDim2.fromScale(1, 1),
+						truncate = true,
+					},
+				}.Parent = itemList
+			end
+		end
+	end
+
+	self._trove:Add(filterBox:GetPropertyChangedSignal("Text"):Connect(renderItems))
+	renderItems()
+
+	-- ── Cadre ─────────────────────────────────────────────────────────────
+
+	local closeButton = Widgets.Button {
+		text = "F4",
+		variant = "ghost",
+		textSize = Theme.TextSize.Tiny,
+		size = UDim2.fromOffset(40, 26),
+		position = UDim2.new(1, -50, 0, 9),
+		onClick = function()
+			self:Toggle()
+		end,
+	}
+
+	self.frame = Widgets.Panel {
+		name = "AdminConsole",
+		size = UDim2.new(0, WIDTH, 1, -80),
+		position = UDim2.fromOffset(24, 40),
+		color = Theme.Color.Surface,
+		radius = Theme.Radius.Medium,
+		stroke = ACCENT,
+		clip = true,
+
+		Widgets.Panel {
+			name = "Header",
+			size = UDim2.new(1, 0, 0, HEADER),
+			color = Theme.Color.SurfaceRaised,
+
+			Create("Frame") {
+				Name = "Stripe",
+				Size = UDim2.new(1, 0, 0, 3),
+				BackgroundColor3 = ACCENT,
+				BorderSizePixel = 0,
+			},
+			Widgets.Text {
+				text = "CONSOLE DE TEST",
+				color = ACCENT,
+				font = Theme.Font.Bold,
+				size = Theme.TextSize.Small,
+				size2 = UDim2.new(1, -70, 1, 0),
+				position = UDim2.fromOffset(Theme.Space.LG, 0),
+			},
+			closeButton,
+		},
+
+		content,
+	}
+
+	self.gui = Create("ScreenGui") {
+		Name = "KZAdmin",
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		DisplayOrder = 500,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		Enabled = false,
+
+		self.frame,
+	}
+	self.gui.Parent = player:WaitForChild("PlayerGui")
+	self._trove:Add(self.gui)
+
+	self._trove:Add(self.api.stateChanged:Connect(function()
+		self:_refreshStatus()
+	end))
+	self:_refreshStatus()
+end
+
+function Console:_refreshStatus()
+	local state = self.api.state
+	local power = state.power or {}
+	local image = state.image or {}
+
+	self.statusLabel.Text = string.format(
+		"jour %d  ·  %02d:%02d  ·  %d €  ·  énergie %d%%\n%d W / %d W  ·  %d/%d prises  ·  image %d%%  ·  %s",
+		math.floor(state.day or 1),
+		math.floor((state.clockMinutes or 0) / 60) % 24,
+		math.floor(state.clockMinutes or 0) % 60,
+		math.floor(state.money or 0),
+		math.floor(state.energy or 0),
+		math.floor(power.load or 0),
+		math.floor(power.capacity or 0),
+		math.floor(power.socketsUsed or 0),
+		math.floor(power.socketsTotal or 0),
+		math.floor((image.total or 0) * 100),
+		state.isLive and "EN DIRECT" or "hors ligne"
+	)
+end
+
+function Console:Toggle()
+	self.visible = not self.visible
+	self.gui.Enabled = self.visible
+
+	if self.visible then
+		UserInputService.MouseIconEnabled = true
+	end
+end
+
+function Console:Destroy()
+	self._trove:Clean()
+end
+
+return Console
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX51"><Properties><string name="Name">Build</string></Properties><Item class="ModuleScript" referent="RBX50"><Properties><string name="Name">PlacementMode</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	PlacementMode — poser un objet dans la pièce.
 
@@ -9112,7 +11140,7 @@ function PlacementMode:Destroy()
 end
 
 return PlacementMode
-]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX46"><Properties><string name="Name">Computer</string></Properties><Item class="ModuleScript" referent="RBX45"><Properties><string name="Name">ScreenSurface</string><ProtectedString name="Source"><![CDATA[--!strict
+]]></ProtectedString></Properties></Item></Item><Item class="Folder" referent="RBX53"><Properties><string name="Name">Computer</string></Properties><Item class="ModuleScript" referent="RBX52"><Properties><string name="Name">ScreenSurface</string><ProtectedString name="Source"><![CDATA[--!strict
 --[[
 	ScreenSurface — projette KZ OS sur une dalle 3D.
 

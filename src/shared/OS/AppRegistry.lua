@@ -11,6 +11,7 @@
 ]]
 
 local Apps = script.Parent.Apps
+local Dev = require(script.Parent.Parent.Config.Dev)
 
 export type AppDefinition = {
 	id: string,
@@ -33,6 +34,15 @@ export type AppDefinition = {
 
 local function always(): boolean
 	return true
+end
+
+--- Les maquettes sont visibles tant que le prototypage est actif, ou une
+--- fois la condition réelle atteinte. On peut donc les regarder tout de
+--- suite sans casser la courbe de progression prévue.
+local function prototypeOr(condition: (any) -> boolean)
+	return function(state: any): boolean
+		return Dev.PrototypesEnabled or condition(state)
+	end
 end
 
 --- Beaucoup de déblocages suivent la même forme : "à partir de N abonnés",
@@ -131,10 +141,24 @@ local registry: { AppDefinition } = {
 		name = "Conducteur",
 		glyph = "☰",
 		monogram = "Cd",
-		defaultSize = Vector2.new(900, 560),
+		accent = Color3.fromRGB(168, 122, 236),
+		defaultSize = Vector2.new(1060, 640),
+		minSize = Vector2.new(820, 480),
 		-- Composer une émission n'a de sens qu'avec un vrai décor.
-		unlock = requiresStat("venueTier", 3),
-		mount = require(Apps.Placeholder).mount,
+		unlock = prototypeOr(requiresStat("venueTier", 3)),
+		mount = require(Apps.RundownApp).mount,
+	},
+	{
+		id = "control",
+		name = "Régie",
+		glyph = "◨",
+		monogram = "Rg",
+		accent = Color3.fromRGB(255, 61, 61),
+		defaultSize = Vector2.new(1120, 660),
+		minSize = Vector2.new(900, 520),
+		-- La régie suppose plusieurs caméras, donc un vrai plateau.
+		unlock = prototypeOr(requiresStat("venueTier", 4)),
+		mount = require(Apps.Control).mount,
 	},
 }
 

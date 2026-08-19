@@ -57,6 +57,14 @@ une dalle 3D. La barre des tâches garde les mêmes monogrammes.
 
 ## À surveiller
 
+- **`Config/Dev.AdminEnabled` doit passer à `false` avant toute
+  publication.** Tant qu'il est vrai, n'importe quel joueur peut s'attribuer
+  de l'argent via la touche F4. Le serveur vérifie ce drapeau à chaque route
+  d'administration — masquer l'interface ne protégerait rien.
+- **`Config/Dev.PrototypesEnabled` rend visibles les maquettes** (Régie,
+  Conducteur, annonces de locaux) avant que leur mécanique existe. À
+  repasser à `false` en même temps.
+
 - **Un deuxième écran posé démarre son propre KZ OS.** Conséquence directe du
   fait qu'une dalle taguée devient un poste complet. C'est spectaculaire à voir
   et ce n'est pas le comportement visé : deux moniteurs branchés sur la même

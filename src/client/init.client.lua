@@ -28,6 +28,8 @@ local requestEvent = Net.requestEvent()
 
 local ScreenSurface = require(script.Computer.ScreenSurface)
 local PlacementMode = require(script.Build.PlacementMode)
+local AdminConsole = require(script.Admin.Console)
+local Dev = require(Shared.Config.Dev)
 
 -- ── L'état répliqué et le pont donné aux apps ─────────────────────────────
 
@@ -393,6 +395,12 @@ task.spawn(function()
 end)
 
 -- ── Démarrage ─────────────────────────────────────────────────────────────
+
+-- La console de test, ouverte par F4. C'est la seule interface flottante
+-- du jeu, et elle disparaît complètement quand Dev.AdminEnabled est faux.
+if Dev.AdminEnabled then
+	AdminConsole.new(api)
+end
 
 -- On signale au serveur qu'on est prêt : il répond avec l'état initial.
 task.defer(function()

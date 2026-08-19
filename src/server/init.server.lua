@@ -23,6 +23,7 @@ local Emails = require(Shared.Content.Emails)
 local Placement = require(Shared.Config.Placement)
 local PowerRules = require(Shared.Config.Power)
 local ImageQuality = require(Shared.Config.ImageQuality)
+local Dev = require(Shared.Config.Dev)
 
 local PlayerState = require(script.Services.PlayerState)
 local RoomBuilder = require(script.Services.RoomBuilder)
@@ -362,6 +363,102 @@ routes["build/remove"] = function(session, payload)
 	session:Update(function(state)
 		table.remove(state.placed, index)
 		table.insert(state.inventory, { uid = entry.uid, itemId = entry.itemId })
+	end)
+
+	RoomBuilder.rebuild(session:Get().placed)
+end
+
+-- ── Administration ────────────────────────────────────────────────────────
+-- Outils de test. Le serveur refuse ces routes si Dev.AdminEnabled est
+-- faux : masquer l'interface côté client ne protégerait rien.
+
+local ADMIN_MAX_MONEY = 9999999
+
+routes["admin/set"] = function(session, payload)
+	if not Dev.AdminEnabled or typeof(payload) ~= "table" then
+		return
+	end
+
+	session:Update(function(state)
+		if typeof(payload.money) == "number" then
+			state.money = math.clamp(math.floor(payload.money), 0, ADMIN_MAX_MONEY)
+		end
+		if typeof(payload.addMoney) == "number" then
+			state.money = math.clamp(state.money + math.floor(payload.addMoney), 0, ADMIN_MAX_MONEY)
+		end
+		if typeof(payload.energy) == "number" then
+			state.energy = math.clamp(payload.energy, 0, 100)
+		end
+		if typeof(payload.day) == "number" then
+			state.day = math.max(1, math.floor(payload.day))
+		end
+		if typeof(payload.clockMinutes) == "number" then
+			state.clockMinutes = math.clamp(payload.clockMinutes, 0, 1439)
+		end
+		if typeof(payload.subscribers) == "number" then
+			state.stats.subscribers = math.max(0, math.floor(payload.subscribers))
+		end
+		if typeof(payload.venueTier) == "number" then
+			state.stats.venueTier = math.clamp(math.floor(payload.venueTier), 1, 4)
+		end
+		if typeof(payload.employees) == "number" then
+			state.stats.employees = math.max(0, math.floor(payload.employees))
+		end
+		if typeof(payload.streamsCompleted) == "number" then
+			state.stats.streamsCompleted = math.max(0, math.floor(payload.streamsCompleted))
+		end
+		if typeof(payload.blackout) == "number" then
+			state.blackoutRemaining = math.max(0, payload.blackout)
+		end
+	end)
+end
+
+routes["admin/give"] = function(session, payload)
+	if not Dev.AdminEnabled or typeof(payload) ~= "table" then
+		return
+	end
+	if typeof(payload.itemId) ~= "string" or not Catalogue.Get(payload.itemId) then
+		return
+	end
+
+	session:Update(function(state)
+		table.insert(state.inventory, { uid = state.nextUid, itemId = payload.itemId })
+		state.nextUid += 1
+	end)
+end
+
+--- Livre immédiatement tout ce qui est en commande, sans attendre la nuit.
+routes["admin/deliver"] = function(session)
+	if not Dev.AdminEnabled then
+		return
+	end
+
+	session:Update(function(state)
+		for _, order in ipairs(state.orders) do
+			table.insert(state.inventory, { uid = state.nextUid, itemId = order.itemId })
+			state.nextUid += 1
+		end
+		state.orders = {}
+	end)
+end
+
+--- Vide la pièce, sauf ce qui empêcherait de revenir en arrière.
+routes["admin/clearRoom"] = function(session)
+	if not Dev.AdminEnabled then
+		return
+	end
+
+	session:Update(function(state)
+		local kept = {}
+		for _, entry in ipairs(state.placed) do
+			local item = Catalogue.Get(entry.itemId)
+			if item and item.category == "display" then
+				table.insert(kept, entry)
+			else
+				table.insert(state.inventory, { uid = entry.uid, itemId = entry.itemId })
+			end
+		end
+		state.placed = kept
 	end)
 
 	RoomBuilder.rebuild(session:Get().placed)

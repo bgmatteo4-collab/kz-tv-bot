@@ -130,8 +130,11 @@ function KZOS:_build()
 end
 
 function KZOS:_updateClock()
-	local minutes = self.state.clockMinutes or (9 * 60)
-	local day = self.state.day or 1
+	-- L'horloge avance en continu, donc en valeurs fractionnaires. On
+	-- arrondit à la minute AVANT le formatage : "%d" refuse un nombre à
+	-- décimales.
+	local minutes = math.floor(self.state.clockMinutes or (9 * 60))
+	local day = math.floor(self.state.day or 1)
 
 	self.taskbar:SetClock(string.format("%02d:%02d", math.floor(minutes / 60) % 24, minutes % 60), day)
 end

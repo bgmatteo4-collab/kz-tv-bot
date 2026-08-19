@@ -20,8 +20,12 @@ local function defaultState()
 		-- Minutes depuis minuit. La journée de jeu avance par créneaux.
 		clockMinutes = 9 * 60,
 
-		money = 40,
+		money = 120,
 		energy = 100,
+
+		-- Vitesse d'écoulement du temps, réglable par le joueur.
+		-- 1 minute réelle = timeScale minutes de jeu. 0 met en pause.
+		timeScale = 10,
 
 		stats = {
 			streamsCompleted = 0,
@@ -60,6 +64,15 @@ local function defaultState()
 		streamElapsed = 0,
 		bitrate = 0,
 		droppedFrames = 0,
+
+		-- Commandes passées et pas encore livrées.
+		orders = {},
+		-- Objets possédés mais pas encore installés dans la pièce.
+		inventory = {},
+		-- Objets installés : { uid, itemId, x, y, z, yaw }
+		placed = {},
+		-- Compteur d'identifiants d'objets, jamais réutilisé.
+		nextUid = 1,
 
 		files = {
 			clips = {},

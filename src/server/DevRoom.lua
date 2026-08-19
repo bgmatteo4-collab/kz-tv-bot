@@ -90,6 +90,18 @@ local function buildBed(room: Model)
 
 	local pillow = part("Pillow", Vector3.new(4.4, 0.7, 1.8), base * CFrame.new(0, 1.9, -3.1), PALETTE.sheets, room)
 	pillow.Material = Enum.Material.Fabric
+
+	-- Dormir fait passer au lendemain matin : l'énergie remonte, et les
+	-- colis commandés la veille arrivent avec le facteur.
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "Sleep"
+	prompt.ObjectText = "Lit"
+	prompt.ActionText = "Dormir"
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.HoldDuration = 0.6
+	prompt.MaxActivationDistance = 10
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = mattress
 end
 
 --- Le poste de travail. Renvoie la dalle de l'écran, sur laquelle le client

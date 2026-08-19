@@ -27,14 +27,28 @@ local stateEvent = Net.stateEvent()
 local requestEvent = Net.requestEvent()
 
 local ScreenSurface = require(script.Computer.ScreenSurface)
+local PlacementMode = require(script.Build.PlacementMode)
 
 -- ── L'état répliqué et le pont donné aux apps ─────────────────────────────
+
+-- Les actions locales ne partent pas au serveur : elles pilotent le client
+-- (ouvrir le mode construction, par exemple). Les apps de l'OS s'en servent
+-- exactement comme de `request`, sans avoir à savoir où ça atterrit.
+local localHandlers: { [string]: (any) -> () } = {}
 
 local api = {
 	state = {},
 	stateChanged = Signal.new(),
 	request = function(route: string, payload: any?)
 		requestEvent:FireServer(route, payload)
+	end,
+	localAction = function(name: string, payload: any?)
+		local handler = localHandlers[name]
+		if handler then
+			handler(payload)
+		else
+			warn(string.format("[KZ] action locale inconnue : %s", name))
+		end
 	end,
 }
 
@@ -147,6 +161,7 @@ end)
 -- dalle : c'est le geste central du jeu, il doit être net.
 
 local focusedStation: any = nil
+local placement: any = nil
 local savedCameraType: Enum.CameraType? = nil
 local savedWalkSpeed: number? = nil
 local focusEnteredAt = 0
@@ -191,7 +206,8 @@ local function exitFocus()
 end
 
 local function enterFocus(station: any)
-	if focusedStation == station then
+	-- On ne se rassoit pas au bureau avec un objet dans les mains.
+	if placement or focusedStation == station then
 		return
 	end
 	exitFocus()
@@ -312,6 +328,60 @@ RunService.Heartbeat:Connect(updateStations)
 
 player.CharacterAdded:Connect(function()
 	exitFocus()
+end)
+
+-- ── Mode construction ────────────────────────────────────────────────────
+
+localHandlers["placement/begin"] = function(payload)
+	if typeof(payload) ~= "table" or not payload.uid or not payload.itemId then
+		return
+	end
+
+	if placement then
+		placement:Destroy()
+		placement = nil
+	end
+
+	-- On se lève d'abord : poser un meuble depuis sa chaise, caméra
+	-- verrouillée sur l'écran, n'aurait aucun sens.
+	exitFocus()
+
+	placement = PlacementMode.start(payload.uid, payload.itemId, function(x, y, z, yaw)
+		api.request("build/place", { uid = payload.uid, x = x, y = y, z = z, yaw = yaw })
+	end, function()
+		placement = nil
+	end)
+end
+
+-- ── Dormir ───────────────────────────────────────────────────────────────
+
+--- L'invite sur le lit est créée par le serveur. On l'attend plutôt que de
+--- la chercher une seule fois : le décor peut arriver après le client.
+local function bindSleepPrompt()
+	local room = workspace:FindFirstChild("DevRoom")
+	local bed = room and room:FindFirstChild("Mattress")
+	if not bed then
+		return false
+	end
+
+	local prompt = bed:FindFirstChildOfClass("ProximityPrompt")
+	if not prompt then
+		return false
+	end
+
+	prompt.Triggered:Connect(function(triggeringPlayer)
+		if triggeringPlayer == player then
+			api.request("sleep")
+		end
+	end)
+
+	return true
+end
+
+task.spawn(function()
+	while not bindSleepPrompt() do
+		task.wait(1)
+	end
 end)
 
 -- ── Démarrage ─────────────────────────────────────────────────────────────

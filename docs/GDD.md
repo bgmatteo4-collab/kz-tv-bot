@@ -278,7 +278,7 @@ comme fin de partie.
 
 ## 7ter. Le sponsoring
 
-Proposition à valider. C'est le système économique le plus visible du jeu :
+C'est le système économique le plus visible du jeu :
 un partenariat doit **se voir à l'antenne**, pas se lire dans un tableau.
 
 ### Les formes de partenariat
@@ -323,6 +323,30 @@ différentes, avec des tarifs liés à leur visibilité réelle depuis les camé
 Chaque marque porte une **réputation**. Un partenaire douteux paie beaucoup plus
 et coûte de la confiance, durablement, auprès de segments précis de l'audience.
 L'argent facile existe, il est simplement toujours cher.
+
+Les marques sont **entièrement fictives, mais leur archétype est reconnaissable** :
+la boisson énergisante agressive, le VPN aux promesses absurdes, la formation
+« deviens indépendant financièrement », l'application qui revend les données, le
+partenaire qui paie à quatre-vingt-dix jours et relance à trente. La satire vise
+le comportement d'un secteur, jamais une entreprise précise.
+
+Contrainte de plateforme à respecter : Roblox interdit toute référence aux jeux
+d'argent, aux paris, à l'alcool et au tabac. Ces sponsors n'existeront pas, et
+le registre reste largement assez fourni sans eux.
+
+### Décrocher un contrat
+
+Le rapport de force évolue avec la carrière, en trois temps :
+
+1. **Entrant.** Les marques écrivent quand les chiffres passent un seuil. On
+   prend ce qui vient.
+2. **Démarchage.** On peut préparer un dossier de presse et contacter des
+   marques soi-même.
+3. **Agence.** On signe avec une régie qui prélève une commission mais apporte
+   des contrats hors de portée en direct.
+
+Chaque étape change la nature de la négociation, et raconte une progression de
+carrière sans qu'un seul chiffre n'ait besoin d'être affiché.
 
 ## 8. Progression
 

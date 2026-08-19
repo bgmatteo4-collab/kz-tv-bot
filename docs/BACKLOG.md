@@ -42,6 +42,15 @@ maintenant que le joueur soit à portée.
 
 ## À surveiller
 
+- **Un deuxième écran posé démarre son propre KZ OS.** Conséquence directe du
+  fait qu'une dalle taguée devient un poste complet. C'est spectaculaire à voir
+  et ce n'est pas le comportement visé : deux moniteurs branchés sur la même
+  machine doivent partager un seul système, avec des fenêtres qui glissent de
+  l'un à l'autre. À unifier quand le multi-écran sera implémenté pour de bon.
+- **Les objets posés ne bloquent pas le passage.** `CanCollide` est à false
+  faute de vrais volumes : on traverse son propre canapé. À rétablir avec les
+  modèles 3D.
+
 - **Lisibilité de l'interface sur la dalle.** Les tailles de texte et les
   marges ont été calibrées sans jamais voir le rendu. Tout est réglable dans
   `src/shared/OS/Theme.lua`.

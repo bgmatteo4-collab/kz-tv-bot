@@ -139,9 +139,27 @@ function Files.mount(container: Frame, api): (() -> ())?
 	root.Parent = container
 	trove:Add(root)
 
+	local function signature(): string
+		local parts = {}
+		for folder, entries in pairs(api.state.files or {}) do
+			table.insert(parts, string.format("%s:%d", folder, #entries))
+		end
+		table.sort(parts)
+		return table.concat(parts, ",")
+	end
+
+	local lastSignature = signature()
+
 	renderSidebar()
 	renderFiles()
-	trove:Add(api.stateChanged:Connect(renderFiles))
+
+	trove:Add(api.stateChanged:Connect(function()
+		local current = signature()
+		if current ~= lastSignature then
+			lastSignature = current
+			renderFiles()
+		end
+	end))
 
 	return function()
 		trove:Clean()

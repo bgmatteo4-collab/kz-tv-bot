@@ -179,6 +179,23 @@ return {
 
 	-- ── Écrans ────────────────────────────────────────────────────────────
 	{
+		id = "monitor_starter",
+		name = "Écran 22 pouces récupéré",
+		brand = "hérité",
+		family = "tech",
+		category = "display",
+		style = "sobre",
+		tier = 1,
+		price = 0,
+		quality = 0.25,
+		requires = { "hdmi", "power" },
+		power = 22,
+		surface = "desk",
+		footprint = Vector2.new(5, 1),
+		screens = 1,
+		description = "Un rémanent d'image en haut à gauche que tu ne remarques plus. Il affiche, c'est déjà ça.",
+	},
+	{
 		id = "monitor_24",
 		name = "Écran 24 pouces",
 		brand = "Novaris",

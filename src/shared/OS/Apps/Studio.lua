@@ -316,14 +316,35 @@ function Studio.mount(container: Frame, api): (() -> ())?
 			or Theme.Color.Text
 	end
 
-	local function renderAll()
-		renderScenes()
-		renderSources()
-		renderLiveState()
+	--- Les compteurs du direct changent chaque seconde ; les listes non.
+	--- On sépare les deux, sinon les lignes seraient détruites et
+	--- recréées sous le curseur en permanence.
+	local function listSignature(): string
+		local parts = { tostring(api.state.activeSceneId) }
+		for _, source in ipairs(api.state.sources or {}) do
+			table.insert(parts, string.format("%s:%s", source.id, tostring(source.connected)))
+		end
+		for _, scene in ipairs(api.state.scenes or {}) do
+			table.insert(parts, scene.id)
+		end
+		return table.concat(parts, ",")
 	end
 
-	renderAll()
-	trove:Add(api.stateChanged:Connect(renderAll))
+	local lastLists = listSignature()
+
+	renderScenes()
+	renderSources()
+	renderLiveState()
+
+	trove:Add(api.stateChanged:Connect(function()
+		local current = listSignature()
+		if current ~= lastLists then
+			lastLists = current
+			renderScenes()
+			renderSources()
+		end
+		renderLiveState()
+	end))
 
 	return function()
 		trove:Clean()

@@ -244,7 +244,7 @@ function Layout.mount(container: Frame, api): (() -> ())?
 		if #entries == 0 then
 			Widgets.Text {
 				text = showPlaced and "Rien n'est encore installé dans la pièce."
-					or "Aucun objet en attente. Passe commande depuis le Marché.",
+					or "Aucun objet en attente. Passe commande depuis le Navigateur.",
 				color = Theme.Color.TextDisabled,
 				size = Theme.TextSize.Small,
 				align = Enum.TextXAlignment.Center,
@@ -279,12 +279,32 @@ function Layout.mount(container: Frame, api): (() -> ())?
 	root.Parent = container
 	trove:Add(root)
 
+	--- Comme le navigateur : l'état change chaque seconde à cause de
+	--- l'horloge, mais cette liste ne bouge que sur un achat, une pose ou
+	--- un rangement.
+	local function signature(): string
+		local parts = {}
+		for _, entry in ipairs(api.state.inventory or {}) do
+			table.insert(parts, "i" .. tostring(entry.uid))
+		end
+		for _, entry in ipairs(api.state.placed or {}) do
+			table.insert(parts, "p" .. tostring(entry.uid))
+		end
+		return table.concat(parts, ",")
+	end
+
+	local lastSignature = signature()
+
 	renderTabs()
 	render()
 
 	trove:Add(api.stateChanged:Connect(function()
-		renderTabs()
-		render()
+		local current = signature()
+		if current ~= lastSignature then
+			lastSignature = current
+			renderTabs()
+			render()
+		end
 	end))
 
 	return function()

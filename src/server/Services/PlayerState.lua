@@ -41,18 +41,6 @@ local function defaultState()
 		memoryMB = 4096,
 		usbDeviceCount = 1,
 
-		-- Le matériel posé dans la pièce. Les sources de KZ Studio en
-		-- découlent directement : rien ici, rien là-bas.
-		devices = {
-			{ id = "pc_handmedown", connected = true },
-			{ id = "cam_attic", connected = true },
-			{ id = "desk_family", connected = true },
-			{ id = "chair_kitchen", connected = true },
-			-- Le casque-micro est là, mais pas branché. Personne ne le
-			-- signalera au joueur : c'est le chat qui s'en chargera.
-			{ id = "mic_headset", connected = false },
-		},
-
 		scenes = {
 			{ id = "main", name = "Scène principale" },
 			{ id = "brb", name = "Pause" },
@@ -67,12 +55,27 @@ local function defaultState()
 
 		-- Commandes passées et pas encore livrées.
 		orders = {},
-		-- Objets possédés mais pas encore installés dans la pièce.
-		inventory = {},
+		-- Objets possédés mais pas encore installés dans la pièce. Le
+		-- casque-micro commence au carton : tant qu'il n'est pas posé, KZ
+		-- Studio l'affiche en rouge et le direct part sans son.
+		inventory = {
+			{ uid = 100, itemId = "mic_headset" },
+		},
 		-- Objets installés : { uid, itemId, x, y, z, yaw }
-		placed = {},
-		-- Compteur d'identifiants d'objets, jamais réutilisé.
-		nextUid = 1,
+		--
+		-- Le matériel de départ est déjà posé plutôt que codé dans le décor :
+		-- il passe par le même constructeur que tout le reste, et le joueur
+		-- peut le déplacer comme n'importe quel meuble.
+		placed = {
+			{ uid = 101, itemId = "desk_family", x = 0, y = 1.8, z = -7, yaw = 180 },
+			{ uid = 102, itemId = "chair_kitchen", x = 0, y = 1.8, z = -2, yaw = 0 },
+			{ uid = 103, itemId = "pc_handmedown", x = -6, y = 2.5, z = -7, yaw = 0 },
+			{ uid = 104, itemId = "monitor_starter", x = 0, y = 6, z = -7, yaw = 180 },
+			{ uid = 105, itemId = "cam_attic", x = 2.5, y = 4.2, z = -6, yaw = 180 },
+		},
+		-- Compteur d'identifiants d'objets, jamais réutilisé. Il démarre
+		-- au-dessus des identifiants du matériel de départ.
+		nextUid = 200,
 
 		files = {
 			clips = {},

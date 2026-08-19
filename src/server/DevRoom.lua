@@ -17,7 +17,6 @@
 	180°, et les décalages se font le long de l'axe local.
 ]]
 
-local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
 
 local DevRoom = {}
@@ -77,6 +76,18 @@ local function buildShell(room: Model)
 
 	local rug = part("Rug", Vector3.new(12, 0.15, 8), CFrame.new(0, 0.08, -1), PALETTE.rug, room)
 	rug.Material = Enum.Material.Fabric
+
+	-- Un plafonnier faible : la pièce doit rester sombre pour que l'écran
+	-- et les LED que le joueur posera dominent vraiment.
+	local ceilingLamp = part("CeilingLamp", Vector3.new(2.4, 0.3, 2.4), CFrame.new(0, ROOM.Y - 0.8, 0),
+		Color3.fromRGB(252, 236, 200), room)
+	ceilingLamp.Material = Enum.Material.Neon
+
+	local bulb = Instance.new("PointLight")
+	bulb.Brightness = 0.9
+	bulb.Range = 30
+	bulb.Color = Color3.fromRGB(255, 226, 180)
+	bulb.Parent = ceilingLamp
 end
 
 local function buildBed(room: Model)
@@ -104,93 +115,12 @@ local function buildBed(room: Model)
 	prompt.Parent = mattress
 end
 
---- Le poste de travail. Renvoie la dalle de l'écran, sur laquelle le client
---- viendra monter KZ OS.
-local function buildDesk(room: Model): Part
-	local halfZ = ROOM.Z / 2
-
-	-- Le meuble est tourné de 180° : sa face Front regarde donc le joueur,
-	-- qui arrive depuis les Z positifs.
-	local deskCFrame = CFrame.new(0, 3.4, -halfZ + 4) * CFrame.Angles(0, math.pi, 0)
-
-	part("DeskTop", Vector3.new(11, 0.4, 4.5), deskCFrame, PALETTE.desk, room)
-	part("DeskLegL", Vector3.new(0.5, 3.4, 4), deskCFrame * CFrame.new(-5, -1.9, 0), PALETTE.desk, room)
-	part("DeskLegR", Vector3.new(0.5, 3.4, 4), deskCFrame * CFrame.new(5, -1.9, 0), PALETTE.desk, room)
-
-	-- La chaise, côté joueur : donc décalée le long du +Z local du bureau.
-	local chairCFrame = deskCFrame * CFrame.new(0, -1.2, 4)
-	part("ChairSeat", Vector3.new(3, 0.4, 3), chairCFrame, PALETTE.bezel, room)
-	part("ChairBack", Vector3.new(3, 3.4, 0.4), chairCFrame * CFrame.new(0, 1.7, 1.4), PALETTE.bezel, room)
-	part("ChairPole", Vector3.new(0.5, 2.2, 0.5), chairCFrame * CFrame.new(0, -1.3, 0), PALETTE.bezel, room)
-
-	-- Le moniteur hérite de l'orientation du bureau, donc sa face Front
-	-- regarde le joueur. C'est indispensable : la SurfaceGui se pose sur
-	-- Front, et un moniteur non tourné afficherait l'écran vers le mur.
-	local monitorCFrame = deskCFrame * CFrame.new(0, 2.9, -0.9)
-
-	part("MonitorBezel", Vector3.new(9, 5.4, 0.4), monitorCFrame, PALETTE.bezel, room)
-	part("MonitorNeck", Vector3.new(1.2, 2.4, 0.6), deskCFrame * CFrame.new(0, 1.1, -0.9), PALETTE.bezel, room)
-	part("MonitorFoot", Vector3.new(3.4, 0.3, 1.6), deskCFrame * CFrame.new(0, 0.35, -0.9), PALETTE.bezel, room)
-
-	-- La dalle avance le long du -Z local, c'est-à-dire vers le joueur.
-	local screen = part(
-		"Screen",
-		Vector3.new(8.4, 4.725, 0.15),
-		monitorCFrame * CFrame.new(0, 0, -0.3),
-		PALETTE.screen,
-		room
-	)
-	screen.CanCollide = false
-
-	-- L'écran éclaire la pièce. C'est ce qui vend l'idée d'un vrai moniteur
-	-- allumé, bien plus qu'une texture lumineuse.
-	local glow = Instance.new("PointLight")
-	glow.Name = "ScreenGlow"
-	glow.Brightness = 1.6
-	glow.Range = 22
-	glow.Color = Color3.fromRGB(150, 180, 255)
-	glow.Parent = screen
-
-	local keyboard = part("Keyboard", Vector3.new(5, 0.25, 1.8), deskCFrame * CFrame.new(0, 0.32, 1.4), PALETTE.bezel, room)
-	keyboard.CanCollide = false
-
-	-- Une lampe de bureau chaude, pour ne pas être uniquement en lumière
-	-- bleue d'écran.
-	local lamp = part("Lamp", Vector3.new(0.8, 2.6, 0.8), deskCFrame * CFrame.new(-4.2, 1.5, 0), PALETTE.bezel, room)
-	local lampLight = Instance.new("PointLight")
-	lampLight.Brightness = 1.4
-	lampLight.Range = 16
-	lampLight.Color = Color3.fromRGB(255, 196, 130)
-	lampLight.Parent = lamp
-
-	return screen
-end
-
---- L'invite d'interaction. Sans elle, le joueur n'a aucun moyen de deviner
---- qu'il peut utiliser l'ordinateur — c'était le reproche principal du
---- premier test.
-local function addPrompt(screen: Part)
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "UseComputer"
-	prompt.ObjectText = "Ordinateur"
-	prompt.ActionText = "S'installer"
-	prompt.KeyboardKeyCode = Enum.KeyCode.E
-	prompt.HoldDuration = 0
-	prompt.MaxActivationDistance = 12
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = screen
-end
-
 function DevRoom.build()
 	local existing = workspace:FindFirstChild("DevRoom")
 	if existing then
-		-- La pièce est peut-être déjà dans le place (construite à la main
-		-- dans Studio). On se contente alors de garantir que la dalle porte
-		-- bien son tag, sinon le client ne la trouverait jamais.
-		local screen = existing:FindFirstChild("Screen")
-		if screen and not CollectionService:HasTag(screen, "ComputerScreen") then
-			CollectionService:AddTag(screen, "ComputerScreen")
-		end
+		-- La pièce est peut-être déjà dans le place, construite à la main
+		-- dans Studio. On ne la touche pas : le mobilier, lui, est posé par
+		-- RoomBuilder à partir de l'état du joueur.
 		return existing
 	end
 
@@ -214,10 +144,6 @@ function DevRoom.build()
 
 	buildShell(room)
 	buildBed(room)
-
-	local screen = buildDesk(room)
-	CollectionService:AddTag(screen, "ComputerScreen")
-	addPrompt(screen)
 
 	-- Le joueur apparaît au milieu de la pièce, face au bureau : il voit
 	-- l'écran allumé dès la première seconde.

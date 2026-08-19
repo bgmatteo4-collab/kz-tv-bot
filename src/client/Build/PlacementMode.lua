@@ -19,6 +19,7 @@ local UserInputService = game:GetService("UserInputService")
 local Shared = game:GetService("ReplicatedStorage"):WaitForChild("Shared")
 local Catalogue = require(Shared.Config.Catalogue)
 local Placement = require(Shared.Config.Placement)
+local ModelBuilder = require(Shared.Build.ModelBuilder)
 local Trove = require(Shared.Lib.Trove)
 
 local player = Players.LocalPlayer
@@ -29,11 +30,11 @@ PlacementMode.__index = PlacementMode
 local VALID_COLOR = Color3.fromRGB(90, 220, 130)
 local INVALID_COLOR = Color3.fromRGB(230, 90, 90)
 
-local function buildHintLabel(parent: BasePart, itemName: string)
+local function buildHintLabel(parent: BasePart, itemName: string, heightOffset: number)
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = "PlacementHint"
 	billboard.Size = UDim2.fromOffset(300, 54)
-	billboard.StudsOffsetWorldSpace = Vector3.new(0, parent.Size.Y / 2 + 2, 0)
+	billboard.StudsOffsetWorldSpace = Vector3.new(0, heightOffset, 0)
 	billboard.AlwaysOnTop = true
 	billboard.Adornee = parent
 	billboard.Parent = parent
@@ -81,22 +82,21 @@ function PlacementMode.start(uid: number, itemId: string, onConfirm, onFinish)
 	self.position = Vector3.zero
 
 	local size = Placement.GetSize(item)
+	self.size = size
 
-	local ghost = Instance.new("Part")
+	-- Le fantôme est le vrai modèle, translucide : ce qu'on voit avant de
+	-- poser est exactement ce qu'on obtient. Les pièces sont déjà en
+	-- CanQuery false dans le constructeur, donc le raycast ne s'accroche
+	-- pas au fantôme lui-même.
+	local ghost = ModelBuilder.buildGhost(item, CFrame.new(), VALID_COLOR)
 	ghost.Name = "PlacementGhost"
-	ghost.Size = size
-	ghost.Anchored = true
-	ghost.CanCollide = false
-	-- Sans CanQuery à false, le fantôme s'accrocherait à lui-même : le
-	-- raycast le toucherait avant le sol.
-	ghost.CanQuery = false
-	ghost.Transparency = 0.45
-	ghost.Material = Enum.Material.SmoothPlastic
-	ghost.Color = VALID_COLOR
 	ghost.Parent = workspace
 	self.ghost = self._trove:Add(ghost)
 
-	buildHintLabel(ghost, item.name)
+	local anchor = ghost:FindFirstChildWhichIsA("BasePart")
+	if anchor then
+		buildHintLabel(anchor, item.name, size.Y / 2 + 2)
+	end
 
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
@@ -160,7 +160,7 @@ function PlacementMode:_update()
 		return
 	end
 
-	local size = self.ghost.Size
+	local size = self.size
 	local normal = result.Normal
 	local position
 
@@ -175,7 +175,7 @@ function PlacementMode:_update()
 
 	local snapped = Placement.SnapToGrid(position)
 	self.position = snapped
-	self.ghost.CFrame = Placement.ToCFrame(snapped.X, snapped.Y, snapped.Z, self.yaw)
+	ModelBuilder.setPivot(self.ghost, Placement.ToCFrame(snapped.X, snapped.Y, snapped.Z, self.yaw))
 
 	self:_setValid(Placement.AcceptsSurface(self.item, normal))
 end
@@ -185,7 +185,13 @@ function PlacementMode:_setValid(valid: boolean)
 		return
 	end
 	self.valid = valid
-	self.ghost.Color = valid and VALID_COLOR or INVALID_COLOR
+
+	local color = valid and VALID_COLOR or INVALID_COLOR
+	for _, part in ipairs(self.ghost:GetChildren()) do
+		if part:IsA("BasePart") then
+			part.Color = color
+		end
+	end
 end
 
 function PlacementMode:Destroy()

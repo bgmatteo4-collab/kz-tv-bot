@@ -42,19 +42,32 @@ local sessions: { [Player]: any } = {}
 --- Les sources visibles dans KZ Studio sont dérivées du matériel posé dans
 --- la pièce. C'est le lien qui tient tout le jeu : pas de micro branché,
 --- pas de source micro, et le joueur ne l'apprendra que par son chat.
+local SOURCE_CATEGORIES = { camera = true, microphone = true, capture = true }
+
 local function buildSources(data)
 	local sources = {}
 
-	for _, owned in ipairs(data.devices) do
-		local device = Catalogue.Get(owned.id)
-		if device and (device.category == "camera" or device.category == "microphone" or device.category == "capture") then
+	local function consider(itemId: string, connected: boolean)
+		local device = Catalogue.Get(itemId)
+		if device and SOURCE_CATEGORIES[device.category] then
 			table.insert(sources, {
-				id = owned.id,
+				id = itemId,
 				name = device.name,
 				category = device.category,
-				connected = owned.connected == true,
+				connected = connected,
 			})
 		end
+	end
+
+	-- Posé dans la pièce : branché, donc détecté.
+	for _, entry in ipairs(data.placed) do
+		consider(entry.itemId, true)
+	end
+
+	-- Possédé mais encore dans son carton : le logiciel le liste en rouge.
+	-- C'est ainsi qu'on peut streamer vingt minutes sans micro.
+	for _, entry in ipairs(data.inventory) do
+		consider(entry.itemId, false)
 	end
 
 	return sources
@@ -310,6 +323,23 @@ routes["build/remove"] = function(session, payload)
 		return
 	end
 
+	-- Ranger son dernier écran enfermerait le joueur dehors : toute
+	-- l'interface du jeu vit sur cet écran, y compris le bouton qui
+	-- permettrait de le ressortir.
+	local item = Catalogue.Get(entry.itemId)
+	if item and item.category == "display" then
+		local displays = 0
+		for _, candidate in ipairs(data.placed) do
+			local other = Catalogue.Get(candidate.itemId)
+			if other and other.category == "display" then
+				displays += 1
+			end
+		end
+		if displays <= 1 then
+			return
+		end
+	end
+
 	session:Update(function(state)
 		table.remove(state.placed, index)
 		table.insert(state.inventory, { uid = entry.uid, itemId = entry.itemId })
@@ -350,6 +380,10 @@ local function onPlayerAdded(player: Player)
 	session.Changed:Connect(function()
 		push(player)
 	end)
+
+	-- Le mobilier de départ est dans l'état du joueur : il faut donc le
+	-- construire, exactement comme un objet acheté.
+	RoomBuilder.rebuild(session:Get().placed)
 
 	push(player)
 end

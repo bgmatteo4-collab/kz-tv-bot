@@ -42,6 +42,15 @@ Ici, trois renversements :
 | Interface | 100 % diégétique. Zéro HUD flottant. |
 | Plateforme | PC d'abord. Le mobile reste possible plus tard, l'UI est paramétrée pour. |
 | Multijoueur | Solo au lancement, mais **serveur autoritaire dès le départ**. Les collaborations à deux sont la première marche prévue. |
+| Gameplay du live | **Attention partagée.** Le direct tourne pendant que le joueur travaille à autre chose ; il le rappelle par des incidents. |
+| Écoulement du temps | Horloge continue, **vitesse réglable par le joueur** (pause, x1, x4, x10). |
+| Fatigue | Continue et progressive. On dort quand on veut ; veiller est rentable le soir et coûteux le lendemain. |
+| Achats | Commande en ligne depuis l'OS, **livraison le lendemain**. Le colis arrive physiquement et s'ouvre. |
+| Écrans | **Vrais écrans indépendants.** Chaque moniteur a son bureau ; on fait glisser une fenêtre de l'un à l'autre. |
+| Connectiques | Branchement automatique à portée, **alimentation gérée manuellement** (prises, puissance, rallonges). |
+| Locaux | Plans préconçus, mais **cloisons et zones modifiables** pour que deux studios ne se ressemblent pas. |
+| Émissions | **Éditeur complet** : identité, habillage, rubriques, chroniqueurs, invités, récurrence. |
+| Menus | Aucun menu classique. Écran-titre au lancement, puis tout vit dans KZ OS. Quitter, c'est se coucher. |
 
 ## 4. Les trois piliers de gestion
 
@@ -65,6 +74,36 @@ paiement réels.
 Monteur, modérateur, community manager, réalisateur. Chacun a un salaire, un
 niveau, une charge de travail et un moral. La journée est découpée en créneaux :
 streamer, monter, publier, dormir. On ne peut pas tout faire.
+
+## 4bis. Le live : partager son attention
+
+C'est le gameplay minute par minute, et donc la décision la plus structurante
+du projet.
+
+Le direct tourne tout seul. Pendant ce temps, le joueur veut avancer : répondre
+à un sponsor, monter un clip, préparer l'émission de demain, négocier un
+contrat. Mais le live le rappelle sans arrêt — un troll dans le chat, le micro
+qui sature, un viewer qui pose une vraie question, la rétention qui décroche.
+
+**La tension vient de ce qu'il ne peut pas tout surveiller à la fois.**
+
+Cette contrainte est matérielle, pas artificielle : au début il n'y a qu'un seul
+moniteur. Ouvrir le chat cache le logiciel de stream. Lire ses mails, c'est
+devenir aveugle à son propre direct. Le deuxième écran devient l'achat le plus
+désirable du jeu, et le Stream Deck la façon d'agir sans rien regarder.
+
+### Les rappels du direct
+
+Chaque incident a un délai avant conséquence. Le joueur peut l'ignorer, mais pas
+gratuitement.
+
+| Incident | Si on l'ignore |
+|---|---|
+| Troll ou dérapage dans le chat | Ambiance qui se dégrade, modération à refaire |
+| Micro saturé, image gelée | Chute de rétention, clips embarrassants |
+| Question sincère d'un habitué | Perte de fidélité sur le segment concerné |
+| Don important non remercié | Effet très négatif sur les donateurs |
+| Segment qui déborde | Le suivant est sacrifié |
 
 ## 5. Le setup comme problème d'espace
 
@@ -98,6 +137,48 @@ détection de collision. La disposition est sauvegardée. La vraie contrainte
 devient la **place disponible** : le déménagement n'est pas cosmétique, c'est un
 déblocage d'espace.
 
+## 5bis. Écrans, connectiques et Stream Deck
+
+### Les écrans
+
+Chaque moniteur posé sur le bureau est une dalle indépendante avec **son propre
+bureau**. Les fenêtres se font glisser d'un écran à l'autre en les poussant par
+le bord. Techniquement, c'est une instance de KZ OS par machine, et un
+gestionnaire de fenêtres par dalle rattachée à cette machine.
+
+La progression est directe et lisible :
+
+| | Ce qu'on peut surveiller en même temps |
+|---|---|
+| 1 écran | Une seule chose. Lire le chat, c'est perdre le logiciel de stream de vue. |
+| 2 écrans | Le direct d'un côté, le travail de l'autre. Le vrai saut de confort. |
+| 3 écrans et plus | Chat, régie, analytique, montage. Réservé au local et au plateau. |
+
+### L'alimentation
+
+Poser un appareil à portée de la machine le branche : pas de câble à tirer à la
+main, le geste ne devient jamais une corvée. En revanche **l'électricité se
+gère** : chaque prise a une puissance, la multiprise a une limite, et la
+dépasser fait tout sauter — y compris en plein direct.
+
+Les rallonges et les multiprises deviennent donc du matériel à acheter, et la
+disposition du bureau reste une contrainte réelle.
+
+### Le Stream Deck
+
+Un boîtier de touches programmables posé sur le bureau. Techniquement, c'est une
+petite dalle : la même `SurfaceGui` que les moniteurs, à plus petite échelle,
+avec une grille de touches lisibles et cliquables directement dans le monde.
+
+On programme chaque touche depuis une app de l'OS : changer de scène, couper le
+micro, lancer un jingle, déclencher un enregistrement de clip, basculer une
+ambiance lumineuse.
+
+**C'est un appareil qui achète de l'attention.** Sans lui, chaque action pendant
+un live coûte une fenêtre ouverte donc un écran occupé. Avec lui, une touche
+suffit — à condition de l'avoir configurée à l'avance, au calme. Il s'intègre
+donc exactement au cœur du jeu au lieu d'être un gadget.
+
 ## 6. Le conducteur : composer son émission
 
 Le joueur ne choisit pas un « type de stream » dans une liste. Il compose un
@@ -117,6 +198,27 @@ Dans la chambre, le format tient en une ligne (« je joue à ce jeu deux heures 
 Au plateau, c'est douze segments et deux invités. **C'est le même système**, qui
 gagne en profondeur au lieu d'être remplacé.
 
+### L'éditeur d'émission
+
+La personnalisation va jusqu'au bout, parce que c'est ce qui donne envie de
+montrer son émission aux autres :
+
+- **Identité** — nom, logo, palette de couleurs, habillage à l'antenne, jingle.
+- **Récurrence** — jour et heure fixes. Un rendez-vous hebdomadaire construit
+  une audience d'habitude, bien plus fidèle qu'une audience de passage. Le rater
+  coûte cher.
+- **Rubriques** — ordonnées librement, avec leur durée prévue.
+- **Chroniqueurs** — recrutés parmi ses employés, ils reviennent chaque semaine
+  et développent leur propre popularité. Un bon chroniqueur peut partir monter
+  sa propre chaîne.
+- **Invités** — négociés par mail, chacun apportant son audience.
+- **Public en studio** — à partir du local. Une jauge d'ambiance qui influence
+  le direct : un plateau qui rit porte l'émission, un plateau froid la plombe.
+
+Les modèles réels sont documentés : Popcorn fonctionne en quatuor présentateur
+plus chroniqueurs plus invités, Backseat tient sur un rendez-vous hebdomadaire
+fixe avec une quarantaine de personnes physiquement dans le studio.
+
 ## 7. Les événements et les invités
 
 Annoncer une émission construit une attente, qui est une **dette** : livrer en
@@ -127,6 +229,38 @@ Les invités se négocient par mail. Chacun apporte sa propre audience, avec sa
 propre composition — et deux publics incompatibles se déclarent la guerre dans
 le chat pendant le live. Quand le multijoueur arrivera, l'invité deviendra un
 joueur réel sans que le reste du système change.
+
+## 7bis. Les grands événements
+
+Le vrai endgame n'est pas d'avoir un plateau, c'est d'**organiser son propre
+événement**. Trois échelles existent dans le paysage réel, et elles servent de
+paliers.
+
+### L'émission récurrente
+
+Le rendez-vous hebdomadaire depuis son local. C'est le socle : une audience
+d'habitude, des chroniqueurs, un public en studio.
+
+### Le marathon caritatif
+
+Plusieurs créateurs réunis, non-stop, une cagnotte commune. La mécanique
+intéressante n'est pas l'argent : **on ne s'y invite pas soi-même, on est
+choisi**. C'est une jauge de réputation qui ne s'achète avec rien, et le seul
+contenu du jeu totalement inaccessible à l'argent.
+
+Y participer, c'est aussi accepter une épreuve d'endurance qui met la fatigue au
+centre : plusieurs jours quasiment sans dormir, avec des conséquences longues.
+
+### L'événement-spectacle
+
+Le sommet. Un lieu réel loué, des sponsors à convaincre, une régie
+multi-caméras, des créateurs à recruter, une billetterie, et des mois de
+préparation pendant lesquels la chaîne doit continuer de tourner.
+
+C'est un projet parallèle qui consomme du temps, de l'argent et de l'équipe
+pendant des semaines — et qui peut échouer en public. Le GP Explorer a réuni
+près de 1,5 million de spectateurs simultanés ; c'est l'ordre de grandeur visé
+comme fin de partie.
 
 ## 8. Progression
 
@@ -140,6 +274,25 @@ joueur réel sans que le reste du système change.
 
 Le passage d'un lieu à l'autre est un vrai déménagement, pas un changement de
 décor.
+
+### Les locaux et leur aménagement
+
+La chambre et l'appartement sont fixes : c'est précisément leur contrainte, et
+elle doit se subir. La liberté arrive comme récompense.
+
+À partir du local, on choisit parmi **plusieurs lieux au plan différent** (un
+ancien commerce en rez-de-chaussée, un plateau de bureaux, un hangar, un
+demi-étage d'immeuble), chacun avec ses avantages : surface, hauteur sous
+plafond, lumière naturelle, isolation phonique, loyer, quartier.
+
+L'enveloppe est fixe — murs porteurs, fenêtres, piliers. **Tout le reste se
+modifie** : cloisons à poser et à abattre, portes, revêtements de sol et de mur,
+et surtout des **zones à assigner** (plateau, régie, montage, détente,
+stockage). C'est le joueur qui décide que ce coin devient la régie, et le jeu en
+tire les conséquences.
+
+Deux joueurs partant du même hangar n'auront donc pas le même studio, sans qu'il
+faille dessiner cinquante plans différents.
 
 ## 9. Les applications de KZ OS
 
@@ -184,13 +337,48 @@ maintenant. **Le joueur ne lit jamais un tutoriel, il lit son courrier.**
    1280x720 et ignore où il est projeté. La même instance tourne sur un moniteur
    de chambre et sur le mur d'écrans d'une régie.
 
+## 11bis. Documents liés
+
+- [CATALOGUE.md](CATALOGUE.md) — familles d'objets, styles de décor, LED
+  pilotables, Stream Deck.
+- [BACKLOG.md](BACKLOG.md) — bugs remontés en test et leur traitement.
+- [INSTALLATION.md](INSTALLATION.md) — lancer le projet.
+
 ## 12. Prochaines étapes
 
-- [ ] Système de placement d'objets (fantôme, grille, collisions, sauvegarde)
-- [ ] Calcul de la note d'image (cadrage, lumière, fond, propreté)
+Dans l'ordre, chaque étape s'appuyant sur la précédente.
+
+**Socle**
+- [ ] Catalogue d'objets étendu (mobilier, éclairage, décor, alimentation)
+- [ ] Système de placement (fantôme, aimantation, collisions, rotation)
+- [ ] Sauvegarde `DataStore` (état du joueur + disposition de la pièce)
+- [ ] Boutique dans l'OS, commande et livraison le lendemain
+
+**Le setup devient jouable**
+- [ ] Multi-écran : une dalle = un bureau, fenêtres déplaçables entre écrans
+- [ ] Alimentation : prises, puissance, surcharge, coupure
+- [ ] Stream Deck : dalle réduite, touches programmables, pages
+- [ ] Hub LED : ambiances, liaison aux scènes et aux touches
+- [ ] Note d'image : cadrage, lumière, fond, cohérence de style
 - [ ] Incrustation du fond vert dans l'aperçu
-- [ ] Câblage et ports, avec les câbles visibles en `Beam`
-- [ ] Moteur d'audience par segments et chat réactif
-- [ ] Sauvegarde `DataStore` (état + disposition de la pièce)
-- [ ] Cycle jour / créneaux / fatigue
-- [ ] Apps Analytique, Gestion, Conducteur
+
+**Le live prend vie**
+- [ ] Moteur d'audience par segments
+- [ ] Chat réactif à ce qui se passe réellement
+- [ ] Incidents et rappels du direct
+- [ ] Horloge continue, vitesse réglable, fatigue
+
+**L'entreprise**
+- [ ] Apps Analytique, Gestion, Paramètres
+- [ ] Employés : recrutement, salaires, charge, moral
+- [ ] Locaux : choix du lieu, cloisons, zones assignables
+
+**L'émission**
+- [ ] Éditeur de format : identité, rubriques, récurrence
+- [ ] Chroniqueurs et invités
+- [ ] Régie multi-caméras et conducteur en direct
+- [ ] Public en studio
+
+**L'endgame**
+- [ ] Marathon caritatif sur invitation
+- [ ] Organisation d'un événement-spectacle

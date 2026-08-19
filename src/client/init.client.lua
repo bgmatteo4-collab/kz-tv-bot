@@ -65,23 +65,20 @@ local function createStation(screenPart: BasePart)
 	}
 	stations[screenPart] = station
 
-	-- L'OS ne démarre qu'une fois l'état reçu : sans lui, on ne connaît ni
-	-- la machine du joueur ni la durée de son boot.
-	local function start()
-		if station.os then
+	-- L'OS ne démarre pas tout de suite. Il lui faut deux choses : l'état du
+	-- joueur (sans lui on ne connaît ni sa machine ni la durée de son boot)
+	-- et un joueur assez proche pour voir l'écran — sinon la séquence de
+	-- démarrage se jouerait dans le vide pendant qu'il traverse la pièce.
+	function station.ensureStarted()
+		if station.os or not api.state.day then
 			return
 		end
+
 		station.os = KZOS.new(surface.root, {
 			getPointer = function()
 				return surface:GetPointer()
 			end,
 		}, api)
-	end
-
-	if api.state.day then
-		start()
-	else
-		api.stateChanged:Once(start)
 	end
 
 	return station
@@ -156,7 +153,12 @@ local function updateFocus()
 		-- Économie de performance : au-delà de SIT_DISTANCE, on éteint la
 		-- dalle. Un écran allumé qu'on ne peut pas lire ne sert à rien et
 		-- coûte une passe de rendu d'interface complète.
-		station.surface:SetActive(distance <= SIT_DISTANCE)
+		local inRange = distance <= SIT_DISTANCE
+		station.surface:SetActive(inRange)
+
+		if inRange then
+			station.ensureStarted()
+		end
 
 		if distance < closestDistance then
 			closest, closestDistance = station, distance

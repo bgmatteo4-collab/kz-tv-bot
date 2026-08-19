@@ -45,6 +45,21 @@ function DevRoom.build()
 		return workspace.DevRoom
 	end
 
+	-- Si on synchronise dans un place "Baseplate" de Studio, son sol et son
+	-- point d'apparition entrent en conflit avec les nôtres : le joueur
+	-- apparaît une fois sur deux à côté de la chambre. On les retire, mais
+	-- uniquement s'ils portent exactement les noms par défaut de Studio —
+	-- on ne veut surtout pas manger du décor construit à la main.
+	local baseplate = workspace:FindFirstChild("Baseplate")
+	if baseplate and baseplate:IsA("BasePart") then
+		baseplate:Destroy()
+	end
+
+	local defaultSpawn = workspace:FindFirstChild("SpawnLocation")
+	if defaultSpawn and defaultSpawn:IsA("SpawnLocation") then
+		defaultSpawn:Destroy()
+	end
+
 	local room = Instance.new("Model")
 	room.Name = "DevRoom"
 	room.Parent = workspace

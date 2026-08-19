@@ -258,9 +258,71 @@ multi-caméras, des créateurs à recruter, une billetterie, et des mois de
 préparation pendant lesquels la chaîne doit continuer de tourner.
 
 C'est un projet parallèle qui consomme du temps, de l'argent et de l'équipe
-pendant des semaines — et qui peut échouer en public. Le GP Explorer a réuni
+pendant des semaines — et qui peut échouer en public.
+
+### Sa propre salle
+
+Palier ultime, prévu tardivement : **posséder son lieu** au lieu de le louer.
+Une salle capable de recevoir du public — tournois e-sport, concerts, émissions
+sur scène.
+
+Elle change la nature du jeu : le lieu devient un actif à rentabiliser. On peut
+le louer à d'autres créateurs, y programmer des soirées, vendre de la
+billetterie et des emplacements de banderoles. C'est le moment où la boîte
+existe indépendamment de la personne qui la dirige.
+
+À traiter après tout le reste — mais l'architecture des locaux doit anticiper
+qu'un lieu puisse contenir une scène, des gradins et des flux de public. Le GP Explorer a réuni
 près de 1,5 million de spectateurs simultanés ; c'est l'ordre de grandeur visé
 comme fin de partie.
+
+## 7ter. Le sponsoring
+
+Proposition à valider. C'est le système économique le plus visible du jeu :
+un partenariat doit **se voir à l'antenne**, pas se lire dans un tableau.
+
+### Les formes de partenariat
+
+| Forme | Ce que la marque veut | Ce qu'elle donne |
+|---|---|---|
+| Affiliation | Un code promo lu à voix haute | Une commission par vente |
+| Placement ponctuel | Une mention sur un direct précis | Un cachet fixe |
+| Partenariat récurrent | Des mentions régulières sur la durée | Un versement mensuel |
+| Sponsor de chaîne | Un logo permanent à l'antenne | Le contrat le plus rémunérateur |
+| Dotation matérielle | De la visibilité, pas d'argent versé | Du matériel envoyé |
+| Sponsor d'événement | Son nom sur l'affiche et les banderoles | Le budget qui rend l'événement possible |
+| Exclusivité | L'interdiction de citer un concurrent | Une prime, et une porte fermée |
+
+### Le placement produit est physique
+
+C'est le point qui relie le sponsoring au reste du jeu. Une marque n'envoie pas
+une ligne de contrat : **elle envoie le produit chez toi**. Un colis arrive, tu
+l'ouvres, et l'objet doit être posé dans ta pièce.
+
+Et il doit être **visible à la caméra**. Le jeu le vérifie avec la même
+technique que le fond vert : l'objet est-il dans le champ de la webcam, non
+masqué, du bon côté ? Poser la canette derrière l'écran, c'est ne pas honorer le
+contrat.
+
+Le joueur peut tricher. La marque peut s'en apercevoir — un audit, une capture
+envoyée par un viewer zélé, une relance par mail. Cacher un produit devient donc
+un pari, pas une gratuité.
+
+### Overlays et habillage
+
+Un sponsor de chaîne impose un bandeau, un logo dans un coin, un habillage de
+scène. Ça occupe de la place à l'antenne, ça entre en conflit avec l'identité
+visuelle de l'émission, et une accumulation de logos fait fuir l'audience.
+
+Le même principe s'applique en événement : les banderoles autour d'un plateau
+ou d'une scène sont des emplacements physiques, vendus à des marques
+différentes, avec des tarifs liés à leur visibilité réelle depuis les caméras.
+
+### Le coût invisible
+
+Chaque marque porte une **réputation**. Un partenaire douteux paie beaucoup plus
+et coûte de la confiance, durablement, auprès de segments précis de l'audience.
+L'argent facile existe, il est simplement toujours cher.
 
 ## 8. Progression
 
@@ -379,6 +441,13 @@ Dans l'ordre, chaque étape s'appuyant sur la précédente.
 - [ ] Régie multi-caméras et conducteur en direct
 - [ ] Public en studio
 
+**Le sponsoring**
+- [ ] Formes de contrat et négociation par mail
+- [ ] Placement produit physique, vérifié à la caméra
+- [ ] Overlays et habillage imposés à l'antenne
+- [ ] Réputation des marques et conflits d'exclusivité
+
 **L'endgame**
 - [ ] Marathon caritatif sur invitation
 - [ ] Organisation d'un événement-spectacle
+- [ ] Salle d'événement en propre : billetterie, location, programmation

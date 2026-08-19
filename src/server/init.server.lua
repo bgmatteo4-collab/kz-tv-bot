@@ -17,7 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared.Net)
-local DeviceCatalogue = require(Shared.Config.Devices)
+local Catalogue = require(Shared.Config.Catalogue)
 local Emails = require(Shared.Content.Emails)
 
 local PlayerState = require(script.Services.PlayerState)
@@ -35,7 +35,7 @@ local function buildSources(data)
 	local sources = {}
 
 	for _, owned in ipairs(data.devices) do
-		local device = DeviceCatalogue[owned.id]
+		local device = Catalogue.Get(owned.id)
 		if device and (device.category == "camera" or device.category == "microphone" or device.category == "capture") then
 			table.insert(sources, {
 				id = owned.id,

@@ -103,6 +103,26 @@ Une ambiance peut alors être :
 C'est la première mécanique qui relie le décor, l'OS et le direct dans une même
 boucle.
 
+### 2.4bis Écrans décoratifs
+
+Les setups de référence en 2026 ne sont plus des bureaux mais des **studios de
+production compacts**, avec des écrans intégrés au décor. C'est peu coûteux pour
+nous : toute notre technologie d'affichage est déjà de la `SurfaceGui`.
+
+Un écran décoratif affiche ce qu'on lui assigne — logo, compteur d'abonnés,
+animation, dernier don, ou une vue de caméra. Du petit écran d'ambiance au mur
+d'écrans 2x2 piloté depuis la régie.
+
+### 2.4ter L'espace libre au sol
+
+Contrainte apprise des setups modernes : il faut de la **place vide devant la
+caméra**. Les séquences debout, les réactions, les invités, les défis, les
+collaborations — tout cela demande du sol dégagé dans le champ.
+
+L'espace au sol devient donc une ressource à arbitrer, et pas seulement une
+limite de rangement : chaque meuble posé dans le champ réduit ce qu'on pourra
+tourner plus tard.
+
 ### 2.5 Acoustique
 
 Panneaux muraux, pièges à basses d'angle, tapis épais, rideaux lourds.

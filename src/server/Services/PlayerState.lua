@@ -40,8 +40,12 @@ local function defaultState()
 		-- Le matériel posé dans la pièce. Les sources de KZ Studio en
 		-- découlent directement : rien ici, rien là-bas.
 		devices = {
-			{ id = "pc_hand_me_down", connected = true },
-			{ id = "webcam_basic", connected = true },
+			{ id = "pc_handmedown", connected = true },
+			{ id = "cam_attic", connected = true },
+			{ id = "desk_family", connected = true },
+			{ id = "chair_kitchen", connected = true },
+			-- Le casque-micro est là, mais pas branché. Personne ne le
+			-- signalera au joueur : c'est le chat qui s'en chargera.
 			{ id = "mic_headset", connected = false },
 		},
 

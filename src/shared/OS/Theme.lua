@@ -44,13 +44,28 @@ Theme.Color = {
 	Shadow = Color3.fromRGB(0, 0, 0),
 }
 
+--- Résout une police par son nom, avec repli. Les polices Builder ne sont
+--- pas présentes sur toutes les versions du client, et une seule police
+--- manquante suffirait à empêcher tout l'OS de se charger.
+local function font(name: string, fallback: Enum.Font): Font
+	local ok, value = pcall(function()
+		return (Enum.Font :: any)[name]
+	end)
+
+	if ok and value then
+		return Font.fromEnum(value)
+	end
+
+	return Font.fromEnum(fallback)
+end
+
 Theme.Font = {
-	Regular = Font.fromEnum(Enum.Font.BuilderSans),
-	Medium = Font.fromEnum(Enum.Font.BuilderSansMedium),
-	Bold = Font.fromEnum(Enum.Font.BuilderSansExtraBold),
+	Regular = font("BuilderSans", Enum.Font.Gotham),
+	Medium = font("BuilderSansMedium", Enum.Font.GothamMedium),
+	Bold = font("BuilderSansExtraBold", Enum.Font.GothamBold),
 	-- Le monospace sert au BIOS, aux logs et aux chiffres qui défilent :
 	-- une largeur fixe évite que les compteurs tremblent en changeant.
-	Mono = Font.fromEnum(Enum.Font.Code),
+	Mono = font("Code", Enum.Font.RobotoMono),
 }
 
 Theme.TextSize = {

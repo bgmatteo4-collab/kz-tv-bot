@@ -78,10 +78,25 @@ function KZOS:_build()
 		size = UDim2.new(1, 0, 1, -Theme.Layout.TaskbarHeight),
 	}
 
+	-- La seule information hors application de tout le jeu, et elle vit
+	-- quand même sur l'écran : le rappel de la touche pour se lever. Sans
+	-- lui, un joueur qui s'installe devant l'ordinateur ne sait plus
+	-- comment en repartir.
+	self.hintLabel = Widgets.Text {
+		name = "Hint",
+		text = "",
+		color = Theme.Color.TextDisabled,
+		size = Theme.TextSize.Tiny,
+		size2 = UDim2.new(0, 260, 0, 18),
+		position = UDim2.new(0, Theme.Space.LG, 1, -Theme.Layout.TaskbarHeight - 24),
+	}
+
 	self.desktop.Parent = self.root
 	self.windowLayer.Parent = self.root
+	self.hintLabel.Parent = self.root
 	self._trove:Add(self.desktop)
 	self._trove:Add(self.windowLayer)
+	self._trove:Add(self.hintLabel)
 
 	self.windows = WindowManager.new(self.windowLayer, {
 		getPointer = self.context.getPointer,
@@ -134,6 +149,11 @@ function KZOS:_boot()
 		-- le joueur lance en premier tous les jours, autant l'admettre.
 		self:OpenApp("studio")
 	end)
+end
+
+--- Affiche un rappel discret en bas du bureau (vide pour l'effacer).
+function KZOS:SetHint(text: string)
+	self.hintLabel.Text = text
 end
 
 function KZOS:OpenApp(id: string)

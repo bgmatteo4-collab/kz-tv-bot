@@ -48,7 +48,6 @@ end)
 local stations: { [BasePart]: any } = {}
 
 local SIT_DISTANCE = 14
-local FOCUS_DISTANCE = 7.5
 
 local function createStation(screenPart: BasePart)
 	if stations[screenPart] then
@@ -70,15 +69,41 @@ local function createStation(screenPart: BasePart)
 	-- et un joueur assez proche pour voir l'écran — sinon la séquence de
 	-- démarrage se jouerait dans le vide pendant qu'il traverse la pièce.
 	function station.ensureStarted()
-		if station.os or not api.state.day then
+		if station.os or station.failed or not api.state.day then
 			return
 		end
 
-		station.os = KZOS.new(surface.root, {
-			getPointer = function()
-				return surface:GetPointer()
-			end,
-		}, api)
+		-- Un écran noir est indiscernable d'un écran cassé. Si l'OS refuse
+		-- de démarrer, on affiche l'erreur sur la dalle : le joueur voit
+		-- immédiatement qu'il s'agit d'un bug, et le message est lisible
+		-- sans ouvrir la console.
+		local ok, result = pcall(function()
+			return KZOS.new(surface.root, {
+				getPointer = function()
+					return surface:GetPointer()
+				end,
+			}, api)
+		end)
+
+		if ok then
+			station.os = result
+			return
+		end
+
+		station.failed = true
+		warn("[KZ] KZ OS n'a pas démarré : " .. tostring(result))
+
+		local message = Instance.new("TextLabel")
+		message.Name = "BootError"
+		message.Size = UDim2.fromScale(1, 1)
+		message.BackgroundColor3 = Color3.fromRGB(12, 8, 10)
+		message.BorderSizePixel = 0
+		message.Text = "KZ OS n'a pas pu démarrer\n\n" .. tostring(result)
+		message.TextColor3 = Color3.fromRGB(255, 120, 120)
+		message.TextSize = 20
+		message.TextWrapped = true
+		message.Font = Enum.Font.Code
+		message.Parent = surface.root
 	end
 
 	return station
@@ -115,60 +140,179 @@ CollectionService:GetInstanceRemovedSignal("ComputerScreen"):Connect(function(in
 	end
 end)
 
--- ── S'asseoir devant l'écran ──────────────────────────────────────────────
+-- ── S'installer devant l'ordinateur ──────────────────────────────────────
+
+-- Une interface de 1280x720 vue de biais à trois mètres est illisible et
+-- impossible à cliquer. S'installer verrouille donc la caméra en face de la
+-- dalle : c'est le geste central du jeu, il doit être net.
 
 local focusedStation: any = nil
+local savedCameraType: Enum.CameraType? = nil
+local savedWalkSpeed: number? = nil
+local focusEnteredAt = 0
 
-local function setFocused(station: any?)
+-- Distance de caméra calculée pour que la dalle remplisse le cadre sans
+-- déborder, avec une marge.
+local FOCUS_PADDING = 1.25
+
+local function getHumanoid(): Humanoid?
+	local character = player.Character
+	return character and character:FindFirstChildOfClass("Humanoid") or nil
+end
+
+local function exitFocus()
+	if not focusedStation then
+		return
+	end
+
+	local camera = workspace.CurrentCamera
+	if camera and savedCameraType then
+		camera.CameraType = savedCameraType
+	end
+
+	local humanoid = getHumanoid()
+	if humanoid and savedWalkSpeed then
+		humanoid.WalkSpeed = savedWalkSpeed
+	end
+
+	local prompt = focusedStation.part:FindFirstChildOfClass("ProximityPrompt")
+	if prompt then
+		prompt.Enabled = true
+	end
+
+	if focusedStation.os then
+		focusedStation.os:SetHint("")
+	end
+	focusedStation.hintShown = false
+
+	focusedStation = nil
+	savedCameraType = nil
+	savedWalkSpeed = nil
+end
+
+local function enterFocus(station: any)
 	if focusedStation == station then
 		return
 	end
+	exitFocus()
 
-	focusedStation = station
-
-	if station then
-		UserInputService.MouseBehavior = Enum.MouseBehavior.Default
-		UserInputService.MouseIconEnabled = true
-	else
-		UserInputService.MouseIconEnabled = true
-	end
-end
-
---- On ne fige pas la caméra de force : le joueur reste libre de ses
---- mouvements, on se contente de savoir quel écran il utilise. Le verrou
---- caméra viendra avec le vrai mobilier (s'asseoir sur une chaise).
-local function updateFocus()
-	local character = player.Character
-	local rootPart = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
-	if not rootPart then
-		setFocused(nil)
+	local camera = workspace.CurrentCamera
+	if not camera then
 		return
 	end
 
-	local closest, closestDistance = nil, math.huge
+	station.ensureStarted()
+
+	local screenPart = station.part
+	-- La face avant d'une part regarde son -Z local : la caméra se place
+	-- donc de ce côté, sinon on cadre l'arrière du moniteur.
+	local halfHeight = screenPart.Size.Y / 2
+	local distance = (halfHeight / math.tan(math.rad(camera.FieldOfView / 2))) * FOCUS_PADDING
+
+	savedCameraType = camera.CameraType
+	camera.CameraType = Enum.CameraType.Scriptable
+	camera.CFrame = CFrame.lookAt(
+		(screenPart.CFrame * CFrame.new(0, 0, -distance)).Position,
+		screenPart.Position
+	)
+
+	-- On immobilise le joueur : marcher pendant que la caméra est figée
+	-- donne l'impression que le jeu a planté.
+	local humanoid = getHumanoid()
+	if humanoid then
+		savedWalkSpeed = humanoid.WalkSpeed
+		humanoid.WalkSpeed = 0
+	end
+
+	local prompt = screenPart:FindFirstChildOfClass("ProximityPrompt")
+	if prompt then
+		prompt.Enabled = false
+	end
+
+	UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+	UserInputService.MouseIconEnabled = true
+
+	focusedStation = station
+	focusEnteredAt = os.clock()
+
+	if station.os then
+		station.os:SetHint("E — se lever")
+	end
+end
+
+--- L'invite est créée par le serveur : elle peut arriver après la dalle.
+--- On tente donc de s'y accrocher à chaque passage, jusqu'à y parvenir.
+local function bindPrompt(station: any)
+	if station.promptBound then
+		return
+	end
+
+	local prompt = station.part:FindFirstChildOfClass("ProximityPrompt")
+	if not prompt then
+		return
+	end
+
+	station.promptBound = true
+
+	prompt.Triggered:Connect(function(triggeringPlayer)
+		if triggeringPlayer == player then
+			enterFocus(station)
+		end
+	end)
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed or not focusedStation then
+		return
+	end
+	-- Le même appui qui déclenche l'invite arrive aussi ici : on ignore la
+	-- touche pendant un court instant pour ne pas se relever aussitôt.
+	if input.KeyCode == Enum.KeyCode.E and os.clock() - focusEnteredAt > 0.4 then
+		exitFocus()
+	end
+end)
+
+--- Allume les dalles proches, éteint les autres, et relève le joueur s'il
+--- s'éloigne d'un poste où il était installé.
+local function updateStations()
+	local character = player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not rootPart then
+		exitFocus()
+		return
+	end
 
 	for screenPart, station in pairs(stations) do
+		bindPrompt(station)
+
 		local distance = (screenPart.Position - rootPart.Position).Magnitude
 
 		-- Économie de performance : au-delà de SIT_DISTANCE, on éteint la
 		-- dalle. Un écran allumé qu'on ne peut pas lire ne sert à rien et
 		-- coûte une passe de rendu d'interface complète.
 		local inRange = distance <= SIT_DISTANCE
-		station.surface:SetActive(inRange)
+		station.surface:SetActive(inRange or station == focusedStation)
 
 		if inRange then
 			station.ensureStarted()
 		end
 
-		if distance < closestDistance then
-			closest, closestDistance = station, distance
+		if station == focusedStation and station.os and not station.hintShown then
+			station.hintShown = true
+			station.os:SetHint("E — se lever")
+		end
+
+		if station == focusedStation and distance > SIT_DISTANCE then
+			exitFocus()
 		end
 	end
-
-	setFocused(closestDistance <= FOCUS_DISTANCE and closest or nil)
 end
 
-RunService.Heartbeat:Connect(updateFocus)
+RunService.Heartbeat:Connect(updateStations)
+
+player.CharacterAdded:Connect(function()
+	exitFocus()
+end)
 
 -- ── Démarrage ─────────────────────────────────────────────────────────────
 

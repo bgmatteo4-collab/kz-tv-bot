@@ -60,8 +60,6 @@ function ScreenSurface.new(screenPart: BasePart, face: Enum.NormalId?)
 		PixelsPerStud = pixelsPerStud,
 		LightInfluence = 0,
 		AlwaysOnTop = false,
-		ResetOnSpawn = false,
-		ClipsDescendants = true,
 		MaxDistance = 90,
 
 		self.root,

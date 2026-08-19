@@ -18,6 +18,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalogue = require(Shared.Config.Catalogue)
 local Placement = require(Shared.Config.Placement)
+local Power = require(Shared.Config.Power)
 local ModelBuilder = require(Shared.Build.ModelBuilder)
 
 local RoomBuilder = {}
@@ -62,7 +63,7 @@ local function addLight(model: Model, item)
 	light.Parent = emitter
 end
 
-local function spawn(entry, item): Model
+local function spawn(entry, item, powered: boolean): Model
 	local cframe = Placement.ToCFrame(entry.x, entry.y, entry.z, entry.yaw)
 	local model = ModelBuilder.build(item, cframe)
 	model.Name = string.format("%s_%d", item.id, entry.uid)
@@ -72,14 +73,27 @@ local function spawn(entry, item): Model
 	uid.Value = entry.uid
 	uid.Parent = model
 
+	-- Un luminaire non alimenté ne brille pas, et sa pièce émissive redevient
+	-- du plastique éteint. C'est le retour visuel le plus direct possible sur
+	-- une installation électrique saturée.
 	if item.family == "lighting" and item.category ~= "hub" then
-		addLight(model, item)
+		if powered then
+			addLight(model, item)
+		else
+			local emitter = findEmissive(model)
+			if emitter then
+				emitter.Material = Enum.Material.SmoothPlastic
+				emitter.Color = emitter.Color:Lerp(Color3.fromRGB(40, 40, 46), 0.75)
+			end
+		end
 	end
 
 	-- Un écran posé devient un vrai écran : le client y montera une
 	-- instance de KZ OS, exactement comme sur le moniteur d'origine. Seule
 	-- la dalle porte le tag, pas le boîtier.
-	if Placement.IsScreen(item) then
+	-- Un écran non alimenté reste une dalle noire : pas de tag, donc pas
+	-- d'interface, et l'invite d'installation disparaît avec.
+	if Placement.IsScreen(item) and powered then
 		local screen = model:FindFirstChild("Screen")
 		if screen and screen:IsA("BasePart") then
 			-- La dalle doit redevenir interrogeable, sinon le raycast qui
@@ -114,10 +128,15 @@ function RoomBuilder.rebuild(placed: { any })
 	local folder = getFolder()
 	folder:ClearAllChildren()
 
+	-- L'alimentation se recalcule ici plutôt que d'être passée en argument :
+	-- la pièce reconstruite reflète toujours l'état électrique réel, sans
+	-- qu'un appelant puisse oublier de le fournir.
+	local power = Power.evaluate(placed)
+
 	for _, entry in ipairs(placed) do
 		local item = Catalogue.Get(entry.itemId)
 		if item then
-			spawn(entry, item)
+			spawn(entry, item, not power.unpowered[entry.uid])
 		end
 	end
 end

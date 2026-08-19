@@ -47,6 +47,9 @@ local function defaultState()
 		},
 		activeSceneId = "main",
 
+		-- Secondes restantes de coupure de courant. Zéro le reste du temps.
+		blackoutRemaining = 0,
+
 		isLive = false,
 		viewers = 0,
 		streamElapsed = 0,

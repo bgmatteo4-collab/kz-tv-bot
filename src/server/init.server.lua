@@ -21,6 +21,8 @@ local Catalogue = require(Shared.Config.Catalogue)
 local Emails = require(Shared.Content.Emails)
 
 local Placement = require(Shared.Config.Placement)
+local PowerRules = require(Shared.Config.Power)
+local ImageQuality = require(Shared.Config.ImageQuality)
 
 local PlayerState = require(script.Services.PlayerState)
 local RoomBuilder = require(script.Services.RoomBuilder)
@@ -44,7 +46,7 @@ local sessions: { [Player]: any } = {}
 --- pas de source micro, et le joueur ne l'apprendra que par son chat.
 local SOURCE_CATEGORIES = { camera = true, microphone = true, capture = true }
 
-local function buildSources(data)
+local function buildSources(data, power)
 	local sources = {}
 
 	local function consider(itemId: string, connected: boolean)
@@ -59,9 +61,11 @@ local function buildSources(data)
 		end
 	end
 
-	-- Posé dans la pièce : branché, donc détecté.
+	-- Posé dans la pièce ET alimenté : détecté. Un appareil que la ligne
+	-- électrique n'a pas pu servir apparaît comme s'il était débranché,
+	-- ce qui est exactement le cas.
 	for _, entry in ipairs(data.placed) do
-		consider(entry.itemId, true)
+		consider(entry.itemId, not power.unpowered[entry.uid])
 	end
 
 	-- Possédé mais encore dans son carton : le logiciel le liste en rouge.
@@ -79,7 +83,22 @@ local function buildPayload(session)
 	local data = session:Get()
 	local payload = table.clone(data)
 
-	payload.sources = buildSources(data)
+	-- Les valeurs dérivées sont calculées ici, une fois : l'interface ne
+	-- doit jamais avoir à appliquer une règle métier elle-même.
+	local power = PowerRules.evaluate(data.placed)
+
+	payload.power = {
+		load = power.load,
+		capacity = power.capacity,
+		socketsUsed = power.socketsUsed,
+		socketsTotal = power.socketsTotal,
+		overloaded = power.overloaded,
+		strain = power.strain,
+		unpowered = power.unpowered,
+	}
+
+	payload.image = ImageQuality.evaluate(data.placed)
+	payload.sources = buildSources(data, power)
 
 	return payload
 end
@@ -109,7 +128,7 @@ routes["stream/toggle"] = function(session)
 			data.streamElapsed = 0
 			data.droppedFrames = 0
 			data.stats.streamsCompleted += 1
-		else
+		elseif (data.blackoutRemaining or 0) <= 0 then
 			data.isLive = true
 			data.streamElapsed = 0
 			-- Le débit dépend de la machine : une tour de récup n'encode pas
@@ -418,6 +437,36 @@ end
 
 -- Un tick à 1 Hz suffit : l'audience d'un live ne change pas à 60 images
 -- par seconde, et ça garde le trafic réseau négligeable.
+--- Le disjoncteur. Il ne saute jamais au repos : uniquement en direct, et
+--- uniquement si la ligne est déjà proche de la saturation. La coupure est
+--- temporaire — on ne veut pas enfermer le joueur dans le noir, seulement
+--- lui faire perdre son live devant témoins.
+local function tickPower(session, deltaTime: number)
+	local data = session:Get()
+
+	if (data.blackoutRemaining or 0) > 0 then
+		session:Update(function(state)
+			state.blackoutRemaining = math.max(0, state.blackoutRemaining - deltaTime)
+		end)
+		return
+	end
+
+	if not data.isLive then
+		return
+	end
+
+	local power = PowerRules.evaluate(data.placed)
+	if PowerRules.shouldTrip(power) then
+		session:Update(function(state)
+			state.blackoutRemaining = PowerRules.TripDuration
+			state.isLive = false
+			state.viewers = 0
+			state.bitrate = 0
+			state.streamElapsed = 0
+		end)
+	end
+end
+
 local function tickClock(session, deltaTime: number)
 	local scale = session:Get().timeScale or 0
 	if scale <= 0 then
@@ -440,6 +489,7 @@ task.spawn(function()
 		task.wait(1)
 		for _, session in pairs(sessions) do
 			tickClock(session, 1)
+			tickPower(session, 1)
 			tickLive(session, 1)
 		end
 	end

@@ -23,6 +23,9 @@ local Styles = require(Shared.Config.Styles)
 local Layout = {}
 
 local HEADER_HEIGHT = 64
+local POWER_HEIGHT = 48
+local TABS_HEIGHT = 38
+local TABS_Y = HEADER_HEIGHT + POWER_HEIGHT
 
 local SURFACE_LABEL = {
 	floor = "au sol",
@@ -107,7 +110,83 @@ local function buildCoherenceBar(coherence: number, dominant: string?)
 	}
 end
 
-local function buildRow(entry, item, placed: boolean, order: number, onAction: () -> ())
+--- Bandeau électrique : la charge de la ligne et les prises occupées.
+--- Il vit dans cette app parce que c'est ici qu'on ajoute et qu'on retire
+--- des appareils — la conséquence doit être visible au même endroit que la
+--- cause.
+local function buildPowerBar(power)
+	local load = power and power.load or 0
+	local capacity = power and power.capacity or 1
+	local strain = math.clamp(capacity > 0 and load / capacity or 0, 0, 1)
+
+	local color = Theme.Color.Success
+	if strain >= 0.85 then
+		color = Theme.Color.Danger
+	elseif strain >= 0.6 then
+		color = Theme.Color.Warning
+	end
+
+	local verdict
+	if power and power.overloaded then
+		verdict = "Installation saturée : certains appareils ne sont pas alimentés."
+		color = Theme.Color.Danger
+	elseif strain >= 0.85 then
+		verdict = "Ligne au bord de la rupture. Le disjoncteur peut sauter en direct."
+	elseif strain >= 0.6 then
+		verdict = "Ligne bien chargée, mais elle tient."
+	else
+		verdict = "Installation confortable."
+	end
+
+	return Widgets.Panel {
+		name = "PowerBar",
+		size = UDim2.new(1, 0, 0, POWER_HEIGHT),
+		position = UDim2.fromOffset(0, HEADER_HEIGHT),
+		color = Theme.Color.Surface,
+		padding = Theme.Space.LG,
+
+		Widgets.Text {
+			text = string.format(
+				"ÉLECTRICITÉ — %d W / %d W · %d prises sur %d",
+				load,
+				capacity,
+				power and power.socketsUsed or 0,
+				power and power.socketsTotal or 0
+			),
+			color = Theme.Color.TextDisabled,
+			font = Theme.Font.Bold,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, -60, 0, 14),
+		},
+		Widgets.Text {
+			text = verdict,
+			color = color,
+			size = Theme.TextSize.Tiny,
+			size2 = UDim2.new(1, -60, 0, 14),
+			position = UDim2.fromOffset(0, 15),
+			truncate = true,
+		},
+
+		Create("Frame") {
+			Name = "Track",
+			Size = UDim2.new(1, 0, 0, 4),
+			Position = UDim2.fromOffset(0, 32),
+			BackgroundColor3 = Theme.Color.Border,
+			BorderSizePixel = 0,
+
+			Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+			Create("Frame") {
+				Name = "Fill",
+				Size = UDim2.fromScale(strain, 1),
+				BackgroundColor3 = color,
+				BorderSizePixel = 0,
+				Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+			},
+		},
+	}
+end
+
+local function buildRow(entry, item, placed: boolean, order: number, unpowered: boolean, onAction: () -> ())
 	local style = item.style and Styles.Get(item.style)
 
 	return Widgets.ListRow {
@@ -133,8 +212,10 @@ local function buildRow(entry, item, placed: boolean, order: number, onAction: (
 			truncate = true,
 		},
 		Widgets.Text {
-			text = string.format("%s · %s", item.brand, SURFACE_LABEL[item.surface] or item.surface or ""),
-			color = Theme.Color.TextDisabled,
+			text = unpowered and "NON ALIMENTÉ — l'installation ne suit plus"
+				or string.format("%s · %s", item.brand, SURFACE_LABEL[item.surface] or item.surface or ""),
+			color = unpowered and Theme.Color.Danger or Theme.Color.TextDisabled,
+			font = unpowered and Theme.Font.Bold or Theme.Font.Regular,
 			size = Theme.TextSize.Tiny,
 			size2 = UDim2.new(1, -140, 0, 15),
 			position = UDim2.fromOffset(18, 18),
@@ -158,16 +239,16 @@ function Layout.mount(container: Frame, api): (() -> ())?
 	local showPlaced = false
 
 	local list = Widgets.Scroll {
-		size = UDim2.new(1, 0, 1, -HEADER_HEIGHT - 38),
-		position = UDim2.fromOffset(0, HEADER_HEIGHT + 38),
+		size = UDim2.new(1, 0, 1, -TABS_Y - TABS_HEIGHT),
+		position = UDim2.fromOffset(0, TABS_Y + TABS_HEIGHT),
 		padding = Theme.Space.MD,
 		gap = 2,
 	}
 
 	local tabs = Widgets.Panel {
 		name = "Tabs",
-		size = UDim2.new(1, 0, 0, 38),
-		position = UDim2.fromOffset(0, HEADER_HEIGHT),
+		size = UDim2.new(1, 0, 0, TABS_HEIGHT),
+		position = UDim2.fromOffset(0, TABS_Y),
 		color = Theme.Color.Surface,
 		padding = Theme.Space.SM,
 		list = { direction = Enum.FillDirection.Horizontal, gap = Theme.Space.XS },
@@ -177,6 +258,13 @@ function Layout.mount(container: Frame, api): (() -> ())?
 		name = "HeaderSlot",
 		size = UDim2.new(1, 0, 0, HEADER_HEIGHT),
 		color = Theme.Color.SurfaceRaised,
+	}
+
+	local powerSlot = Widgets.Panel {
+		name = "PowerSlot",
+		size = UDim2.new(1, 0, 0, POWER_HEIGHT),
+		position = UDim2.fromOffset(0, HEADER_HEIGHT),
+		color = Theme.Color.Surface,
 	}
 
 	local render
@@ -226,6 +314,11 @@ function Layout.mount(container: Frame, api): (() -> ())?
 		local coherence, dominant = Styles.ComputeCoherence(counts)
 		buildCoherenceBar(coherence, dominant).Parent = header
 
+		powerSlot:ClearAllChildren()
+		local powerBar = buildPowerBar(api.state.power)
+		powerBar.Position = UDim2.fromOffset(0, 0)
+		powerBar.Parent = powerSlot
+
 		list:ClearAllChildren()
 
 		Create("UIListLayout") {
@@ -257,7 +350,12 @@ function Layout.mount(container: Frame, api): (() -> ())?
 		for index, entry in ipairs(entries) do
 			local item = Catalogue.Get(entry.itemId)
 			if item then
-				buildRow(entry, item, showPlaced, index, function()
+				local unpowered = showPlaced
+					and api.state.power
+					and api.state.power.unpowered
+					and api.state.power.unpowered[entry.uid] == true
+
+				buildRow(entry, item, showPlaced, index, unpowered == true, function()
 					if showPlaced then
 						api.request("build/remove", { uid = entry.uid })
 					else
@@ -273,6 +371,7 @@ function Layout.mount(container: Frame, api): (() -> ())?
 		color = Theme.Color.Desktop,
 
 		header,
+		powerSlot,
 		tabs,
 		list,
 	}
@@ -290,6 +389,12 @@ function Layout.mount(container: Frame, api): (() -> ())?
 		for _, entry in ipairs(api.state.placed or {}) do
 			table.insert(parts, "p" .. tostring(entry.uid))
 		end
+
+		local power = api.state.power
+		if power then
+			table.insert(parts, string.format("w%d/%d", power.load or 0, power.socketsUsed or 0))
+		end
+
 		return table.concat(parts, ",")
 	end
 

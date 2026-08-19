@@ -125,6 +125,83 @@ function Studio.mount(container: Frame, api): (() -> ())?
 	}
 	noSignal.Parent = viewport
 
+	-- ── Note d'image ──────────────────────────────────────────────────────
+	-- Quatre barres plutôt qu'une note globale : le joueur doit savoir QUOI
+	-- corriger, pas seulement qu'il est mauvais.
+
+	local qualityBars = {}
+
+	local function qualityBar(label: string, order: number)
+		local fill = Create("Frame") {
+			Name = "Fill",
+			Size = UDim2.fromScale(0, 1),
+			BackgroundColor3 = Theme.Color.Success,
+			BorderSizePixel = 0,
+			Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+		}
+
+		local block = Widgets.Panel {
+			name = label,
+			size = UDim2.new(0.25, -Theme.Space.SM, 1, 0),
+			transparency = 1,
+			order = order,
+
+			Widgets.Text {
+				text = string.upper(label),
+				color = Theme.Color.TextDisabled,
+				font = Theme.Font.Bold,
+				size = Theme.TextSize.Tiny,
+				size2 = UDim2.new(1, 0, 0, 13),
+			},
+			Create("Frame") {
+				Name = "Track",
+				Size = UDim2.new(1, 0, 0, 5),
+				Position = UDim2.fromOffset(0, 17),
+				BackgroundColor3 = Theme.Color.Border,
+				BorderSizePixel = 0,
+				Create("UICorner") { CornerRadius = Theme.Radius.Pill },
+				fill,
+			},
+		}
+
+		qualityBars[label] = fill
+		return block
+	end
+
+	local issueLabel = Widgets.Text {
+		name = "Issue",
+		text = "",
+		color = Theme.Color.Warning,
+		size = Theme.TextSize.Tiny,
+		size2 = UDim2.new(1, 0, 0, 16),
+		position = UDim2.new(0, 0, 1, -18),
+		truncate = true,
+	}
+
+	local qualityPanel = Widgets.Panel {
+		name = "Quality",
+		size = UDim2.new(1, 0, 0, 68),
+		position = UDim2.new(0, 0, 1, 0),
+		anchor = Vector2.new(0, 1),
+		color = Color3.fromRGB(10, 11, 14),
+		transparency = 0.15,
+		padding = Theme.Space.MD,
+		zIndex = 4,
+
+		Widgets.Panel {
+			name = "Bars",
+			size = UDim2.new(1, 0, 0, 24),
+			transparency = 1,
+			list = { direction = Enum.FillDirection.Horizontal, gap = Theme.Space.SM },
+
+			qualityBar("cadrage", 1),
+			qualityBar("lumière", 2),
+			qualityBar("fond", 3),
+			qualityBar("décor", 4),
+		},
+		issueLabel,
+	}
+
 	local previewFrame = Widgets.Panel {
 		name = "PreviewFrame",
 		size = UDim2.new(1, -SIDEBAR_WIDTH - Theme.Space.MD * 3, 1, -FOOTER_HEIGHT - Theme.Space.MD * 3),
@@ -135,6 +212,7 @@ function Studio.mount(container: Frame, api): (() -> ())?
 		clip = true,
 
 		viewport,
+		qualityPanel,
 	}
 
 	-- ── Barre latérale : scènes puis sources.
@@ -291,6 +369,31 @@ function Studio.mount(container: Frame, api): (() -> ())?
 		end
 	end
 
+	local function renderQuality()
+		local report = api.state.image
+		if not report then
+			return
+		end
+
+		local values = {
+			["cadrage"] = report.framing or 0,
+			["lumière"] = report.lighting or 0,
+			["fond"] = report.background or 0,
+			["décor"] = report.coherence or 0,
+		}
+
+		for label, fill in pairs(qualityBars) do
+			local value = math.clamp(values[label] or 0, 0, 1)
+			fill.Size = UDim2.fromScale(value, 1)
+			fill.BackgroundColor3 = value >= 0.7 and Theme.Color.Success
+				or (value >= 0.4 and Theme.Color.Warning or Theme.Color.Danger)
+		end
+
+		local issues = report.issues or {}
+		issueLabel.Text = issues[1] or "Rien à redire sur ton image."
+		issueLabel.TextColor3 = issues[1] and Theme.Color.Warning or Theme.Color.TextDisabled
+	end
+
 	local function renderLiveState()
 		local live = api.state.isLive == true
 
@@ -335,6 +438,7 @@ function Studio.mount(container: Frame, api): (() -> ())?
 	renderScenes()
 	renderSources()
 	renderLiveState()
+	renderQuality()
 
 	trove:Add(api.stateChanged:Connect(function()
 		local current = listSignature()
@@ -344,6 +448,7 @@ function Studio.mount(container: Frame, api): (() -> ())?
 			renderSources()
 		end
 		renderLiveState()
+		renderQuality()
 	end))
 
 	return function()

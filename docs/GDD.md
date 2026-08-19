@@ -435,17 +435,17 @@ maintenant. **Le joueur ne lit jamais un tutoriel, il lit son courrier.**
 Dans l'ordre, chaque étape s'appuyant sur la précédente.
 
 **Socle**
-- [ ] Catalogue d'objets étendu (mobilier, éclairage, décor, alimentation)
-- [ ] Système de placement (fantôme, aimantation, collisions, rotation)
+- [x] Catalogue d'objets étendu (mobilier, éclairage, décor, alimentation)
+- [x] Système de placement (fantôme, aimantation, collisions, rotation)
 - [ ] Sauvegarde `DataStore` (état du joueur + disposition de la pièce)
-- [ ] Boutique dans l'OS, commande et livraison le lendemain
+- [x] Boutique dans l'OS, commande et livraison le lendemain
 
 **Le setup devient jouable**
 - [ ] Multi-écran : une dalle = un bureau, fenêtres déplaçables entre écrans
-- [ ] Alimentation : prises, puissance, surcharge, coupure
+- [x] Alimentation : prises, puissance, surcharge, coupure
 - [ ] Stream Deck : dalle réduite, touches programmables, pages
 - [ ] Hub LED : ambiances, liaison aux scènes et aux touches
-- [ ] Note d'image : cadrage, lumière, fond, cohérence de style
+- [x] Note d'image : cadrage, lumière, fond, cohérence de style
 - [ ] Incrustation du fond vert dans l'aperçu
 
 **Le live prend vie**

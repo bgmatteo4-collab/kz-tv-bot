@@ -306,8 +306,16 @@ local function updateStations()
 		-- Économie de performance : au-delà de SIT_DISTANCE, on éteint la
 		-- dalle. Un écran allumé qu'on ne peut pas lire ne sert à rien et
 		-- coûte une passe de rendu d'interface complète.
+		-- Pendant une coupure de courant, aucun écran ne s'allume. C'est la
+		-- sanction la plus lisible possible d'une ligne électrique saturée.
+		local blackout = (api.state.blackoutRemaining or 0) > 0
 		local inRange = distance <= SIT_DISTANCE
-		station.surface:SetActive(inRange or station == focusedStation)
+
+		station.surface:SetActive(not blackout and (inRange or station == focusedStation))
+
+		if blackout and station == focusedStation then
+			exitFocus()
+		end
 
 		if inRange then
 			station.ensureStarted()

@@ -1,0 +1,47 @@
+/* Socle de l'overlay.
+   Aucune valeur visuelle ici : tout vient de partage/design/tokens.css. */
+
+@import '../../partage/design/tokens.css';
+@import '../../partage/design/police.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Fond réellement transparent : OBS compose la page par-dessus la vidéo.
+   Aucune surface pleine page, jamais. */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: var(--police);
+  color: var(--ink);
+  /* L'overlay n'est pas une page : rien ne se sélectionne, rien ne se clique. */
+  user-select: none;
+  cursor: none;
+}
+
+/* Canevas de référence 1920×1080. La mise à l'échelle passe par une seule
+   transformation à la racine, jamais par des unités relatives dispersées
+   dans tout le CSS. Dans OBS le facteur vaut 1 ; ailleurs il permet de
+   prévisualiser dans une fenêtre plus petite. */
+#canevas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: top left;
+}
+
+/* Zones sûres : rien de vital au-delà, les plateformes recadrent. */
+#scene {
+  position: absolute;
+  inset: var(--zone-sure);
+}

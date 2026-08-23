@@ -1,0 +1,19 @@
+{
+  "libelle": "Match de démonstration — Ligue 1",
+  "competition": "LIGUE 1 · J14",
+  "domicile": { "nom": "Paris", "abrege": "PAR", "couleur": "#1B3A6B" },
+  "exterieur": { "nom": "Marseille", "abrege": "MAR", "couleur": "#2FA8DC" },
+  "evenements": [
+    { "aMs": 0, "statut": "premiere-periode", "chronoEcouleMs": 0, "chronoEnMarche": true },
+    { "aMs": 720000, "domicile": { "score": 1 } },
+    { "aMs": 2040000, "exterieur": { "score": 1 } },
+    { "aMs": 2700000, "tempsAdditionnel": 2 },
+    { "aMs": 2830000, "statut": "mi-temps", "chronoEnMarche": false, "tempsAdditionnel": 0 },
+    { "aMs": 2890000, "statut": "seconde-periode", "chronoEcouleMs": 2700000, "chronoEnMarche": true },
+    { "aMs": 3660000, "domicile": { "score": 2 } },
+    { "aMs": 4680000, "exterieur": { "score": 2 } },
+    { "aMs": 5400000, "tempsAdditionnel": 4 },
+    { "aMs": 5640000, "domicile": { "score": 3 } },
+    { "aMs": 5670000, "statut": "termine", "chronoEnMarche": false }
+  ]
+}

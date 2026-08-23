@@ -1,0 +1,50 @@
+/* Généré par « npm run tokens » depuis outils/tokens-source.ts.
+   Ne pas éditer à la main : docs/DESIGN_SYSTEM.md fait autorité. */
+
+:root {
+  --surface: #0E1620;
+  --surface-raised: #18242F;
+  --line: #2B3A48;
+  --ink: #F2F6F9;
+  --ink-muted: #8DA0B0;
+  --signal: #FFB020;
+  --live: #FF4438;
+  --good: #3DD68C;
+  --opacite-surface: 0.94;
+
+  --espace-4: 4px;
+  --espace-8: 8px;
+  --espace-12: 12px;
+  --espace-16: 16px;
+  --espace-24: 24px;
+  --espace-32: 32px;
+  --espace-48: 48px;
+
+  --texte-11: 11px;
+  --texte-13: 13px;
+  --texte-15: 15px;
+  --texte-18: 18px;
+  --texte-24: 24px;
+  --texte-32: 32px;
+  --texte-44: 44px;
+  --texte-64: 64px;
+
+  --rayon: 3px;
+  --zone-sure: 48px;
+  --lame: 3px;
+  --ombre: 0 8px 24px rgba(0,0,0,.45);
+
+  --duree-lame: 120ms;
+  --duree-entree: 220ms;
+  --duree-sortie: 160ms;
+  --duree-valeur: 180ms;
+  --duree-interaction: 80ms;
+  --duree-cascade: 40ms;
+  --duree-sequence: 80ms;
+  --duree-pouls: 900ms;
+
+  --courbe-entree: cubic-bezier(.16,1,.3,1);
+  --courbe-sortie: cubic-bezier(.4,0,1,1);
+  --courbe-valeur: ease-out;
+  --courbe-interaction: ease-out;
+}

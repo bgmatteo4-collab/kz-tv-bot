@@ -112,8 +112,15 @@ regie/
   panneaux/        un panneau par zone de contrôle
 partage/
   contrats/        types partagés serveur ↔ clients (source unique)
+  liaison/         la connexion temps réel, commune aux deux clients
   design/          tokens issus de DESIGN_SYSTEM.md, générés, jamais édités à la main
+outils/            génération des tokens, lancement, banc d'essai en conditions réelles
 ```
+
+`partage/liaison/` n'était pas prévu au départ. Il existe parce que la
+reconnexion est précisément ce qui a fait échouer la version précédente :
+deux implémentations séparées, c'est deux comportements qui divergent, et la
+divergence se découvre en direct.
 
 ## Modules de l'overlay (portée initiale)
 

@@ -1,19 +1,18 @@
-# Rojo / build
-*.rbxl
-*.rbxlx
-*.rbxl.lock
-*.rbxlx.lock
-build/
+# Dépendances
+node_modules/
 
-# Sauf le place prêt à l'emploi : c'est le fichier que l'on télécharge
-# pour tester le jeu sans rien installer.
-!KZStreamSimulator.rbxlx
+# Build
+dist/
+.vite/
 
-# Outils
-/sourcemap.json
+# État persisté du serveur
+/donnees/
+*.local.json
+
+# Secrets — jamais de clé d'API dans le dépôt
+.env
+.env.*
+!.env.exemple
+
+# Système
 .DS_Store
-
-# Dependances Wally (si on en ajoute plus tard)
-/Packages
-/ServerPackages
-/DevPackages

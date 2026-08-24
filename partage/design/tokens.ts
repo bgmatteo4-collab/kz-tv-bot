@@ -28,7 +28,8 @@ export const TAILLES_TEXTE = [
   24,
   32,
   44,
-  64
+  64,
+  88
 ] as const;
 export const RAYON = 3;
 export const ZONE_SURE = 48;
@@ -52,4 +53,15 @@ export const COURBES = {
 export const CANEVAS = {
   "largeur": 1920,
   "hauteur": 1080
+} as const;
+export const SCENE = {
+  "x": 320,
+  "y": 180,
+  "largeur": 1280,
+  "hauteur": 720
+} as const;
+export const CADRE = {
+  "haut": 180,
+  "colonne": 320,
+  "bas": 180
 } as const;

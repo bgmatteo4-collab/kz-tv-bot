@@ -28,6 +28,15 @@
   --texte-32: 32px;
   --texte-44: 44px;
   --texte-64: 64px;
+  --texte-88: 88px;
+
+  --cadre-haut: 180px;
+  --cadre-colonne: 320px;
+  --cadre-bas: 180px;
+  --scene-x: 320px;
+  --scene-y: 180px;
+  --scene-largeur: 1280px;
+  --scene-hauteur: 720px;
 
   --rayon: 3px;
   --zone-sure: 48px;

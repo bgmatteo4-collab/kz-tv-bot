@@ -57,8 +57,12 @@ C'est la partie la plus piégeuse d'un overlay sportif.
 
 ## Contraintes OBS
 
-- Fond réellement transparent : `body { background: transparent }`, aucune surface pleine
-  page.
+- **Aucune vidéo de match ne passe sous l'overlay : il est l'image.** Le cadre est une
+  surface pleine, opaque, permanente. La seule zone réellement transparente est la scène
+  centrale, quand la webcam l'occupe — voir `docs/DESIGN_SYSTEM.md`.
+- Conséquence directe : **la scène n'est jamais vide**. Un module qui sort sans que le
+  suivant entre laisse un rectangle noir en plein direct. Le suivant commence son entrée
+  pendant que le précédent finit sa sortie.
 - Canevas de référence 1920×1080. Mise à l'échelle par `transform: scale()` sur un conteneur
   racine, pas par des unités relatives dispersées dans tout le CSS.
 - Zones sûres de 48px sur chaque bord.

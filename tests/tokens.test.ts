@@ -9,7 +9,15 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { COULEURS, ESPACEMENTS, RAYON, TAILLES_TEXTE } from '../outils/tokens-source.js';
+import {
+  CADRE,
+  CANEVAS,
+  COULEURS,
+  ESPACEMENTS,
+  RAYON,
+  SCENE,
+  TAILLES_TEXTE,
+} from '../outils/tokens-source.js';
 
 const RACINE = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const DOCUMENT = readFileSync(join(RACINE, 'docs', 'DESIGN_SYSTEM.md'), 'utf8');
@@ -20,6 +28,16 @@ function couleursDuDocument(): Record<string, string> {
   const motif = /`--([a-z-]+)`[^|]*\|\s*`(#[0-9A-Fa-f]{6})`/g;
   for (const [, nom, hex] of DOCUMENT.matchAll(motif)) {
     if (nom && hex) releve[nom] = hex.toUpperCase();
+  }
+  return releve;
+}
+
+/** Relève les paires `--token` … `valeur` du tableau de géométrie. */
+function geometrieDuDocument(): Record<string, number> {
+  const releve: Record<string, number> = {};
+  const motif = /`--((?:cadre|scene)-[a-z]+)`\s*\|\s*`(\d+)`/g;
+  for (const [, nom, valeur] of DOCUMENT.matchAll(motif)) {
+    if (nom && valeur) releve[nom] = Number(valeur);
   }
   return releve;
 }
@@ -51,5 +69,33 @@ describe('les tokens ne dérivent pas du design system', () => {
   it('reprend le rayon d’angle', () => {
     const rayon = DOCUMENT.match(/\*\*Rayon d'angle : (\d+)px\.\*\*/);
     expect(Number(rayon?.[1])).toBe(RAYON);
+  });
+
+  it('reprend la géométrie du cadre et de la scène', () => {
+    expect(geometrieDuDocument()).toEqual({
+      'cadre-haut': CADRE.haut,
+      'cadre-colonne': CADRE.colonne,
+      'cadre-bas': CADRE.bas,
+      'scene-x': SCENE.x,
+      'scene-y': SCENE.y,
+      'scene-largeur': SCENE.largeur,
+      'scene-hauteur': SCENE.hauteur,
+    });
+  });
+});
+
+describe('le cadre borde la scène', () => {
+  // Sans ça, ajuster la scène laisserait une bande orpheline — un liseré de
+  // fond nu à l'antenne, que personne ne verrait avant le direct.
+  it('ne laisse aucune bande orpheline en largeur', () => {
+    expect(CADRE.colonne + SCENE.largeur + CADRE.colonne).toBe(CANEVAS.largeur);
+  });
+
+  it('ne laisse aucune bande orpheline en hauteur', () => {
+    expect(CADRE.haut + SCENE.hauteur + CADRE.bas).toBe(CANEVAS.hauteur);
+  });
+
+  it('garde la scène en 16:9', () => {
+    expect(SCENE.largeur / SCENE.hauteur).toBeCloseTo(16 / 9, 5);
   });
 });

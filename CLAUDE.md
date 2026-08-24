@@ -3,8 +3,10 @@
 Outil d'habillage graphique (overlay) pour la diffusion live de matchs de football sur
 Twitch et YouTube. Deux surfaces :
 
-- **L'overlay** — ce que voit le public. Browser Source dans OBS, 1920×1080, fond
-  transparent, superposé à la vidéo du stream.
+- **L'overlay** — ce que voit le public. Browser Source dans OBS, 1920×1080. **Aucune
+  vidéo de match ne passe dessous : l'overlay est l'image.** Un cadre permanent occupe
+  tout l'écran, et une scène 16:9 centrale accueille tour à tour la webcam, le terrain
+  et les statistiques.
 - **La régie** — ce que pilote le streamer. Choisir le match, déclencher les scènes,
   corriger les données, lancer les animations.
 
@@ -42,7 +44,10 @@ La régie envoie des **intentions**. L'overlay ne demande rien et ne calcule rie
 ## Contraintes techniques dures
 
 - L'overlay tourne dans le Chromium embarqué d'OBS. Pas d'extension, pas de permission
-  spéciale, fond réellement transparent.
+  spéciale. La transparence ne subsiste que dans la scène centrale, là où OBS compose
+  la webcam.
+- **Rien n'est jamais vide à l'antenne.** Sans vidéo dessous, un module qui disparaît
+  sans successeur laisse un rectangle noir devant le public.
 - 60 fps pendant l'encodage vidéo. Animer uniquement `transform` et `opacity`, jamais de
   layout thrashing.
 - Latence perçue régie → overlay sous 100 ms. **C'est le critère de réussite du projet.**

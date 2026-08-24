@@ -9,6 +9,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  CADRE,
   CANEVAS,
   COULEURS,
   COURBES,
@@ -18,6 +19,7 @@ import {
   OMBRE,
   OPACITE_SURFACE,
   RAYON,
+  SCENE,
   TAILLES_TEXTE,
   ZONE_SURE,
 } from './tokens-source.js';
@@ -39,6 +41,14 @@ function css(): string {
   for (const valeur of ESPACEMENTS) lignes.push(`  --espace-${valeur}: ${valeur}px;`);
   lignes.push('');
   for (const valeur of TAILLES_TEXTE) lignes.push(`  --texte-${valeur}: ${valeur}px;`);
+  lignes.push('');
+  lignes.push(`  --cadre-haut: ${CADRE.haut}px;`);
+  lignes.push(`  --cadre-colonne: ${CADRE.colonne}px;`);
+  lignes.push(`  --cadre-bas: ${CADRE.bas}px;`);
+  lignes.push(`  --scene-x: ${SCENE.x}px;`);
+  lignes.push(`  --scene-y: ${SCENE.y}px;`);
+  lignes.push(`  --scene-largeur: ${SCENE.largeur}px;`);
+  lignes.push(`  --scene-hauteur: ${SCENE.hauteur}px;`);
   lignes.push('');
   lignes.push(`  --rayon: ${RAYON}px;`);
   lignes.push(`  --zone-sure: ${ZONE_SURE}px;`);
@@ -66,6 +76,8 @@ export const LAME = ${LAME};
 export const DUREES = ${json(DUREES)} as const;
 export const COURBES = ${json(COURBES)} as const;
 export const CANEVAS = ${json(CANEVAS)} as const;
+export const SCENE = ${json(SCENE)} as const;
+export const CADRE = ${json(CADRE)} as const;
 `;
 }
 

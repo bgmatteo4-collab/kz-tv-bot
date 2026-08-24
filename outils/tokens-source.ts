@@ -23,8 +23,11 @@ export const OPACITE_SURFACE = 0.94;
 /** Multiples de 4. Rien entre deux valeurs. */
 export const ESPACEMENTS = [4, 8, 12, 16, 24, 32, 48] as const;
 
-/** Échelle typographique, base 1920×1080. Le 64 est réservé au score. */
-export const TAILLES_TEXTE = [11, 13, 15, 18, 24, 32, 44, 64] as const;
+/**
+ * Échelle typographique, base 1920×1080. Le 88 est réservé au score du bandeau
+ * haut, le 64 aux chiffres mis en avant dans une scène.
+ */
+export const TAILLES_TEXTE = [11, 13, 15, 18, 24, 32, 44, 64, 88] as const;
 
 export const RAYON = 3;
 
@@ -60,3 +63,20 @@ export const COURBES = {
 
 /** Canevas de référence. La mise à l'échelle se fait par transform. */
 export const CANEVAS = { largeur: 1920, hauteur: 1080 } as const;
+
+/**
+ * La scène : le seul endroit du canevas qui change. 1280×720 est une taille
+ * native de webcam — aucun rééchantillonnage — et les marges tombent rondes.
+ */
+export const SCENE = { x: 320, y: 180, largeur: 1280, hauteur: 720 } as const;
+
+/**
+ * Le cadre borde la scène ; ses bandes ne sont pas des valeurs indépendantes.
+ * Les dériver ici plutôt que de les écrire à la main interdit qu'un ajustement
+ * de la scène laisse une bande orpheline.
+ */
+export const CADRE = {
+  haut: SCENE.y,
+  colonne: SCENE.x,
+  bas: CANEVAS.hauteur - SCENE.y - SCENE.hauteur,
+} as const;

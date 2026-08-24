@@ -122,13 +122,27 @@ reconnexion est précisément ce qui a fait échouer la version précédente :
 deux implémentations séparées, c'est deux comportements qui divergent, et la
 divergence se découvre en direct.
 
+## Le cadre et la scène
+
+L'overlay est l'image : aucune vidéo de match ne passe dessous. Le canevas se divise en un
+**cadre permanent** — score en haut, informations autour — et une **scène 16:9 centrale**
+qui accueille tour à tour la webcam, le terrain et les statistiques. La géométrie fait
+autorité dans `docs/DESIGN_SYSTEM.md`.
+
+Deux conséquences pour le moteur :
+
+- **Une scène est toujours à l'antenne.** Le moteur ne connaît pas d'état « rien
+  d'affiché » : sans vidéo dessous, ce serait un rectangle noir en direct.
+- **Le cadre n'entre ni ne sort.** Il n'est pas un module ; il est monté au démarrage et
+  ses valeurs seules changent.
+
 ## Modules de l'overlay (portée initiale)
 
 Reprise de ce qui existait, à reconstruire proprement :
 
-1. **Bandeau score** — équipes, score, chrono, statut. Le module toujours affiché.
+1. **Bandeau score** — équipes, score, chrono, statut. Permanent, porté par le cadre.
 2. **Statistiques** — possession, tirs, tirs cadrés, corners, cartons.
-3. **Compositions** — onze de départ, formation, remplacements.
+3. **Compositions** — un seul terrain, une équipe à la fois, bascule vers l'adversaire.
 4. **Ticker autres matchs** — rotation paginée des scores en cours.
 5. **Scène d'ouverture** — avant match, avec compte à rebours vers le coup d'envoi.
 6. **Scène de clôture** — score final, faits marquants.

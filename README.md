@@ -12,27 +12,63 @@ piloter, et un serveur local qui détient l'état du match et le pousse aux deux
 intentions, l'overlay reçoit et rend. Rien n'exige jamais un rafraîchissement
 manuel — c'est ce qui avait tué la version précédente.
 
+## Installer
+
+Il faut **Node.js 22 LTS** (ou 20.19 minimum) — [nodejs.org](https://nodejs.org).
+Vérifie avec `node --version`.
+
+```sh
+git clone https://github.com/bgmatteo4-collab/kz-tv-bot.git touchline
+cd touchline
+git checkout claude/sports-broadcast-scoping-d9ay6t
+npm install
+```
+
 ## Lancer
 
 ```sh
-npm install
 npm run demarrer
 ```
 
-Puis dans OBS : **Source navigateur**, largeur 1920, hauteur 1080, URL
+La commande construit les deux clients puis démarre le serveur. Elle affiche :
 
 ```
-http://localhost:4000/overlay/
+[serveur] TOUCHLINE écoute sur http://localhost:4000
+[serveur]   régie   → http://localhost:4000/regie/
+[serveur]   overlay → http://localhost:4000/overlay/
 ```
 
-La régie s'ouvre dans un navigateur, sur le deuxième écran :
+**Laisse cette fenêtre ouverte pendant tout le direct.** La fermer arrête le
+serveur : l'overlay garderait son dernier affichage, mais plus rien ne
+bougerait.
 
-```
-http://localhost:4000/regie/
-```
+Il n'y a pas d'adresse publique. Le serveur tourne sur ta machine et rien ne
+sort sur Internet — c'est ce qui garantit la latence et l'absence de panne
+réseau en plein match.
 
-Pour développer avec rechargement à chaud, `npm run dev` remplace
-`npm run demarrer` (les clients passent alors par le port 5173).
+## Régler OBS
+
+1. Dans ta scène, **ajoute une source → Navigateur**.
+2. URL : `http://localhost:4000/overlay/`
+3. Largeur **1920**, hauteur **1080**.
+4. Coche **Rafraîchir le navigateur lorsque la scène devient active**.
+5. Dans la liste des sources, **place ta webcam SOUS la source navigateur.**
+   Le centre de l'overlay est un trou réellement transparent : c'est OBS qui y
+   compose ta caméra. Si la webcam est au-dessus, elle masquera l'habillage.
+6. Redimensionne ta webcam pour qu'elle remplisse le trou central : il fait
+   1280×720 à partir du point (320, 180).
+
+## Ouvrir la régie
+
+Dans un navigateur, sur ton deuxième écran : **http://localhost:4000/regie/**
+
+Elle occupe l'écran entier, sans défilement. Mets-la en plein écran (F11).
+
+## Développer
+
+`npm run dev` remplace `npm run demarrer` et ajoute le rechargement à chaud.
+Les clients passent alors par le port 5173 : `http://localhost:5173/overlay/`
+et `http://localhost:5173/regie/`.
 
 ## Commandes
 

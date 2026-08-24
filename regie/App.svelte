@@ -9,6 +9,7 @@
   import PanneauChrono from './panneaux/PanneauChrono.svelte';
   import PanneauEquipes from './panneaux/PanneauEquipes.svelte';
   import PanneauDiffusion from './panneaux/PanneauDiffusion.svelte';
+  import PanneauDonnees from './panneaux/PanneauDonnees.svelte';
 
   const etat = $derived(regie.etat);
 </script>
@@ -20,6 +21,7 @@
     <div class="grille">
       <PanneauScore {etat} />
       <PanneauChrono {etat} />
+      <div class="colonne-donnees"><PanneauDonnees {etat} /></div>
       <PanneauEquipes {etat} />
       <PanneauDiffusion {etat} />
     </div>
@@ -45,11 +47,24 @@
 
   .grille {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     gap: var(--espace-12);
     flex: 1;
     min-height: 0;
+  }
+
+  /* La liste des rencontres a besoin de hauteur : le panneau prend les deux
+     rangées plutôt que de faire défiler. */
+  .colonne-donnees {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    display: flex;
+    min-height: 0;
+  }
+
+  .colonne-donnees :global(section) {
+    flex: 1;
   }
 
   .attente {

@@ -165,8 +165,13 @@ export function reduire(
       return { ...etat, verrous: [] };
 
     case 'definir-provider':
-      // Le basculement réel est piloté par la gestion des providers ; le
-      // réducteur ne fait qu'enregistrer l'intention du streamer.
+    case 'definir-cle-api':
+    case 'effacer-cle-api':
+    case 'suivre-rencontre':
+      // Ces intentions ont un effet au-delà de l'état : cycle de vie des
+      // providers, écriture d'un secret sur disque, appel réseau. Le serveur
+      // les intercepte. Le réducteur, lui, reste une fonction pure — et la
+      // clé d'API ne traverse jamais l'état.
       return etat;
 
     case 'nouveau-match': {

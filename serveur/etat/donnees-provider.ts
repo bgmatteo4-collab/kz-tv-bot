@@ -26,6 +26,13 @@ export interface DonneesProvider {
   exterieur?: DonneesEquipe;
   statut?: Statut;
   chronoEcouleMs?: number;
+  /**
+   * Minute de jeu, quand la source ne connaît que la minute — c'est le cas
+   * d'API-Football. Volontairement distincte de `chronoEcouleMs` : la convertir
+   * en millisecondes ferait croire à une précision à la seconde, et le chrono
+   * sauterait à chaque interrogation.
+   */
+  chronoMinute?: number;
   chronoEnMarche?: boolean;
   tempsAdditionnel?: number;
 }

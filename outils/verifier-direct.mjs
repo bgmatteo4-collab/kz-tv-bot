@@ -262,6 +262,14 @@ async function main() {
     `corrigé à ${scoreCorrige}, toujours à ${scoreApres} après six secondes de provider actif`,
   );
 
+  const repliAtteignable = await regie
+    .getByRole('button', { name: 'Saisie manuelle' })
+    .isEnabled();
+  noter(
+    'Le repli sur la saisie manuelle est atteignable sans clé d’API',
+    repliAtteignable,
+    'le bouton existe et répond alors qu’aucune clé n’est enregistrée',
+  );
   await regie.getByRole('button', { name: 'Saisie manuelle' }).click();
   await patienter(300);
 

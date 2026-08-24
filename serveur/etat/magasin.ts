@@ -5,7 +5,11 @@
  * provider, et prévient ses abonnés. Il ne connaît ni le WebSocket ni les
  * clients — c'est ce qui le rend testable sans réseau.
  */
-import type { EtatMatch, InfoProvider } from '../../partage/contrats/etat.js';
+import type {
+  ConfigurationPublique,
+  EtatMatch,
+  InfoProvider,
+} from '../../partage/contrats/etat.js';
 import type { Intention } from '../../partage/contrats/intentions.js';
 import type { DonneesProvider } from './donnees-provider.js';
 import { appliquerDonneesProvider } from './appliquer-provider.js';
@@ -81,6 +85,30 @@ export class Magasin {
   /** Change le provider actif sans toucher aux données du match en cours. */
   definirProvider(provider: InfoProvider): EtatMatch {
     return this.#publier({ ...this.#etat, provider });
+  }
+
+  /**
+   * Publie ce que les clients ont le droit de savoir de la configuration.
+   * Jamais la clé elle-même — voir `serveur/configuration/secrets.ts`.
+   */
+  definirConfiguration(configuration: Partial<ConfigurationPublique>): EtatMatch {
+    return this.#publier({
+      ...this.#etat,
+      configuration: { ...this.#etat.configuration, ...configuration },
+    });
+  }
+
+  /** Rattache l'état à une nouvelle rencontre, en repartant des données à vide. */
+  suivreRencontre(identifiantMatch: string): EtatMatch {
+    if (identifiantMatch === this.#etat.identifiantMatch) return this.#etat;
+    const neuf = etatInitial(this.#maintenant(), this.#etat.provider, this.#etat.decalageVideoSecondes);
+    return this.#publier({
+      ...neuf,
+      identifiantMatch,
+      // Ce qui appartient au poste et non au match survit au changement.
+      modules: this.#etat.modules,
+      configuration: this.#etat.configuration,
+    });
   }
 
   #publier(suivant: EtatMatch): EtatMatch {

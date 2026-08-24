@@ -5,7 +5,7 @@
  * façon de lire l'état, pas une valeur qu'un client se calculerait dans son
  * coin. Le client interpole entre deux réceptions, il n'invente rien.
  */
-import type { EtatMatch, Statut } from './etat.js';
+import type { Chrono, EtatMatch, Statut } from './etat.js';
 
 const MINUTE_MS = 60_000;
 
@@ -84,11 +84,19 @@ export function formaterHorloge(ms: number): string {
  * @param maintenantMs Horloge du serveur, corrigée de la dérive côté client.
  */
 export function tempsDeJeuMs(etat: EtatMatch, maintenantMs: number): number {
-  const { chrono } = etat;
-  const brut = chrono.enMarche
+  return Math.max(0, tempsDeJeuBrutMs(etat.chrono, maintenantMs) - etat.decalageVideoSecondes * 1000);
+}
+
+/**
+ * Temps de jeu réel, sans le décalage d'affichage.
+ *
+ * C'est cette valeur qu'on confronte à ce que dit un provider : il parle du
+ * match, pas du flux que regarde le streamer.
+ */
+export function tempsDeJeuBrutMs(chrono: Chrono, maintenantMs: number): number {
+  return chrono.enMarche
     ? chrono.ecouleMs + (maintenantMs - chrono.referenceMs)
     : chrono.ecouleMs;
-  return Math.max(0, brut - etat.decalageVideoSecondes * 1000);
 }
 
 export function lireChrono(etat: EtatMatch, maintenantMs: number): AffichageChrono {

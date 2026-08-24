@@ -66,6 +66,20 @@ export interface Verrou {
   posseeMs: number;
 }
 
+/**
+ * Ce que les clients ont le droit de savoir de la configuration.
+ *
+ * La clé d'API n'est pas ici, et n'y sera jamais : l'état est diffusé à
+ * l'overlay, qui tourne dans une source navigateur pendant que le stream
+ * enregistre. Un secret n'a rien à faire sur ce canal. Le serveur garde la clé
+ * pour lui et n'expose que le fait qu'elle existe.
+ */
+export interface ConfigurationPublique {
+  cleApiConfiguree: boolean;
+  /** Requêtes restantes annoncées par le fournisseur, si connu. */
+  requetesRestantes: number | null;
+}
+
 export interface InfoProvider {
   nom: string;
   /**
@@ -104,6 +118,7 @@ export interface EtatMatch {
   modules: Record<NomModule, EtatModule>;
   verrous: Verrou[];
   provider: InfoProvider;
+  configuration: ConfigurationPublique;
   /** Horodatage serveur de la dernière donnée reçue d'un provider. */
   derniereDonneeMs: number | null;
 }

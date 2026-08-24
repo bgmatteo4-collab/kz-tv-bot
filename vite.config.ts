@@ -23,5 +23,10 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    // En développement les clients sont servis par Vite ; la recherche de
+    // rencontres doit tout de même atteindre le serveur TOUCHLINE.
+    proxy: {
+      '/api': 'http://localhost:4000',
+    },
   },
 });

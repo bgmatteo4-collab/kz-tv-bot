@@ -29,6 +29,7 @@ export function etatInitial(
     modules: { 'bandeau-score': { visible: false } },
     verrous: [],
     provider,
+    configuration: { cleApiConfiguree: false, requetesRestantes: null },
     derniereDonneeMs: null,
   };
 }

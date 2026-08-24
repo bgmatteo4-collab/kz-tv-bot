@@ -20,6 +20,13 @@ export type Intention =
   | { type: 'liberer-verrou'; chemin: string }
   | { type: 'liberer-tous-les-verrous' }
   | { type: 'definir-provider'; nom: string }
+  /**
+   * La clé ne transite que dans ce sens : régie → serveur. Elle n'est jamais
+   * rediffusée, jamais écrite dans l'état, jamais versionnée.
+   */
+  | { type: 'definir-cle-api'; cle: string }
+  | { type: 'effacer-cle-api' }
+  | { type: 'suivre-rencontre'; identifiantFournisseur: string }
   | { type: 'nouveau-match' };
 
 export type TypeIntention = Intention['type'];

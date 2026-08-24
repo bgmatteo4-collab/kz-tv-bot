@@ -42,7 +42,8 @@ export const DUREES = {
   "interaction": 80,
   "cascade": 40,
   "sequence": 80,
-  "pouls": 900
+  "pouls": 900,
+  "bascule": 320
 } as const;
 export const COURBES = {
   "entree": "cubic-bezier(.16,1,.3,1)",

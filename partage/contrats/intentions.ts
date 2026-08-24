@@ -17,6 +17,9 @@ export type Intention =
   | { type: 'definir-decalage-video'; secondes: number }
   | { type: 'definir-scene'; scene: NomScene }
   | { type: 'definir-coup-d-envoi'; horodatageMs: number | null }
+  /** La bascule du terrain d'une équipe à l'autre. */
+  | { type: 'afficher-camp'; cote: Cote }
+  | { type: 'basculer-camp' }
   | { type: 'liberer-verrou'; chemin: string }
   | { type: 'liberer-tous-les-verrous' }
   | { type: 'definir-provider'; nom: string }

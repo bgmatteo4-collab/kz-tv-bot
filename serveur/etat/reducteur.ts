@@ -154,6 +154,14 @@ export function reduire(
     case 'definir-coup-d-envoi':
       return { ...etat, coupDEnvoiMs: intention.horodatageMs };
 
+    case 'afficher-camp':
+      return { ...etat, campAffiche: intention.cote };
+
+    case 'basculer-camp':
+      // Une action, un clic : le streamer n'a pas à désigner l'équipe qu'il
+      // veut, il retourne le terrain.
+      return { ...etat, campAffiche: etat.campAffiche === 'domicile' ? 'exterieur' : 'domicile' };
+
     case 'liberer-verrou':
       return { ...etat, verrous: liberer(etat.verrous, intention.chemin) };
 

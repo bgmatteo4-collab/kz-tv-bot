@@ -20,7 +20,9 @@ export type CheminVerrouillable =
   | 'domicile.score'
   | 'exterieur.score'
   | 'domicile.identite'
-  | 'exterieur.identite';
+  | 'exterieur.identite'
+  | 'domicile.composition'
+  | 'exterieur.composition';
 
 export function estVerrouille(etat: EtatMatch, chemin: CheminVerrouillable): boolean {
   return etat.verrous.some((verrou) => verrou.chemin === chemin);

@@ -11,6 +11,7 @@
   const SCENES: readonly { nom: NomScene; libelle: string; quoi: string }[] = [
     { nom: 'camera', libelle: 'Caméra', quoi: 'Le centre laisse passer ta webcam' },
     { nom: 'ouverture', libelle: 'Ouverture', quoi: 'Affiche et compte à rebours' },
+    { nom: 'compositions', libelle: 'Compositions', quoi: 'Le terrain, une équipe à la fois' },
   ];
 
   const heureCoupDEnvoi = $derived(
@@ -49,6 +50,14 @@
       </button>
     {/each}
   </div>
+
+  {#if etat.scene === 'compositions'}
+    <!-- Une action, un clic : on retourne le terrain, on ne désigne pas
+         l'équipe qu'on veut voir. -->
+    <button class="bascule" onclick={() => regie.envoyer({ type: 'basculer-camp' })}>
+      Retourner vers {etat.campAffiche === 'domicile' ? etat.exterieur.nom : etat.domicile.nom}
+    </button>
+  {/if}
 
   <div class="ligne">
     <span class="etiquette">Coup d’envoi</span>
@@ -92,8 +101,14 @@
 <style>
   .scenes {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--espace-4);
+  }
+
+  .bascule {
+    padding: var(--espace-12);
+    font-size: var(--texte-15);
+    font-weight: 600;
   }
 
   .scene {

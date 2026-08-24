@@ -14,6 +14,7 @@ import {
   traduireRencontre,
   type RencontreApi,
 } from '../serveur/providers/api-football/correspondance.js';
+import { traduireComposition } from '../serveur/providers/api-football/compositions.js';
 import { saisonPour } from '../serveur/providers/api-football/index.js';
 import { Magasin } from '../serveur/etat/magasin.js';
 
@@ -218,5 +219,67 @@ describe('le recalage du chrono sur une minute', () => {
     });
 
     expect(magasin.etat.chrono.ecouleMs).toBe(50 * MINUTE);
+  });
+});
+
+describe('la traduction des compositions', () => {
+  const joueur = (nom: string, numero: number, grid: string | null) => ({
+    player: { id: 1, name: nom, number: numero, grid },
+  });
+
+  it('place les titulaires à partir de la grille quand elle est fournie', () => {
+    const composition = traduireComposition({
+      formation: '4-4-2',
+      startXI: [
+        joueur('Kovacs', 1, '1:1'),
+        joueur('Delgado', 2, '2:1'),
+        joueur('Traoré', 5, '2:2'),
+        joueur('Hansen', 6, '2:3'),
+        joueur('Moreau', 3, '2:4'),
+        joueur('Ricci', 4, '3:1'),
+        joueur('Yildiz', 8, '3:2'),
+        joueur('Blanco', 7, '3:3'),
+        joueur('Novak', 10, '3:4'),
+        joueur('Diarra', 11, '4:1'),
+        joueur('Weber', 9, '4:2'),
+      ],
+      substitutes: [joueur('Sanchez', 12, null)],
+    });
+
+    expect(composition.titulaires).toHaveLength(11);
+    expect(composition.formation).toBe('4-4-2');
+    // Le gardien est seul sur sa ligne, donc centré et au plus bas.
+    expect(composition.titulaires[0]).toMatchObject({ nom: 'Kovacs', x: 50 });
+    expect(composition.titulaires[0]?.y).toBeLessThan(composition.titulaires[1]?.y ?? 0);
+    expect(composition.remplacants).toHaveLength(1);
+  });
+
+  it('retombe sur la formation quand les grilles manquent', () => {
+    const startXI = Array.from({ length: 11 }, (_, rang) =>
+      joueur(`Joueur ${rang}`, rang + 1, null),
+    );
+    const composition = traduireComposition({ formation: '4-3-3', startXI });
+
+    expect(composition.titulaires).toHaveLength(11);
+    const xs = composition.titulaires.map((titulaire) => titulaire.x);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThan(50);
+  });
+
+  it('ne place personne quand ni grille ni formation ne tiennent', () => {
+    // Un onze faux à l'antenne se voit tout de suite : mieux vaut un terrain
+    // vide et une mention honnête.
+    const composition = traduireComposition({
+      formation: '',
+      startXI: [joueur('Seul', 1, null)],
+    });
+    expect(composition.titulaires).toEqual([]);
+  });
+
+  it('ignore les entrées sans nom plutôt que d’afficher un maillot vide', () => {
+    const composition = traduireComposition({
+      formation: '4-3-3',
+      substitutes: [joueur('Sanchez', 12, null), { player: { id: 2, name: '' } }],
+    });
+    expect(composition.remplacants).toHaveLength(1);
   });
 });

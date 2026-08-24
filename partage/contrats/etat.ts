@@ -25,6 +25,27 @@ export type Statut =
   | 'termine'
   | 'suspendu';
 
+export interface Joueur {
+  /** Numéro de maillot. Null quand la source ne le donne pas. */
+  numero: number | null;
+  nom: string;
+  /**
+   * Position sur le terrain, en pourcentage du demi-terrain de l'équipe.
+   * `x` va de 0 (ligne de touche gauche) à 100, `y` de 0 (ligne de but) à 100
+   * (ligne médiane). C'est une position d'habillage, pas une position réelle :
+   * elle vient de la formation, pas d'un tracking.
+   */
+  x: number;
+  y: number;
+}
+
+export interface Composition {
+  /** « 4-3-3 », « 3-5-2 »… Vide tant qu'elle n'est pas connue. */
+  formation: string;
+  titulaires: Joueur[];
+  remplacants: Joueur[];
+}
+
 export interface Equipe {
   nom: string;
   /** Trois lettres, pour les affichages contraints. */
@@ -35,6 +56,7 @@ export interface Equipe {
    */
   couleur: string;
   score: number;
+  composition: Composition;
 }
 
 /**
@@ -100,7 +122,7 @@ export interface InfoProvider {
  * - `camera` : le centre est réellement transparent, OBS y compose la webcam.
  * - `ouverture` : avant-match, compte à rebours vers le coup d'envoi.
  */
-export type NomScene = 'camera' | 'ouverture';
+export type NomScene = 'camera' | 'ouverture' | 'compositions';
 
 export interface EtatMatch {
   /**
@@ -122,6 +144,8 @@ export interface EtatMatch {
   decalageVideoSecondes: number;
   /** La scène à l'antenne. Il y en a toujours une. */
   scene: NomScene;
+  /** L'équipe montrée par la scène compositions. La bascule change ce champ. */
+  campAffiche: Cote;
   /** Coup d'envoi annoncé, pour le compte à rebours. */
   coupDEnvoiMs: number | null;
   verrous: Verrou[];

@@ -1,19 +1,277 @@
 {
   "libelle": "Match de démonstration — Ligue 1",
   "competition": "LIGUE 1 · J14",
-  "domicile": { "nom": "Paris", "abrege": "PAR", "couleur": "#1B3A6B" },
-  "exterieur": { "nom": "Marseille", "abrege": "MAR", "couleur": "#2FA8DC" },
+  "domicile": {
+    "nom": "Paris",
+    "abrege": "PAR",
+    "couleur": "#1B3A6B",
+    "composition": {
+      "formation": "4-3-3",
+      "titulaires": [
+        {
+          "numero": 1,
+          "nom": "Rossi",
+          "x": 50,
+          "y": 7
+        },
+        {
+          "numero": 2,
+          "nom": "Lemaire",
+          "x": 12.0,
+          "y": 26.0
+        },
+        {
+          "numero": 4,
+          "nom": "Duval",
+          "x": 37.33,
+          "y": 26.0
+        },
+        {
+          "numero": 5,
+          "nom": "Bianchi",
+          "x": 62.67,
+          "y": 26.0
+        },
+        {
+          "numero": 3,
+          "nom": "Nkemba",
+          "x": 88.0,
+          "y": 26.0
+        },
+        {
+          "numero": 6,
+          "nom": "Andersen",
+          "x": 12.0,
+          "y": 58.0
+        },
+        {
+          "numero": 8,
+          "nom": "Petrov",
+          "x": 50.0,
+          "y": 58.0
+        },
+        {
+          "numero": 10,
+          "nom": "Vidal",
+          "x": 88.0,
+          "y": 58.0
+        },
+        {
+          "numero": 7,
+          "nom": "Sow",
+          "x": 12.0,
+          "y": 90.0
+        },
+        {
+          "numero": 9,
+          "nom": "Almeida",
+          "x": 50.0,
+          "y": 90.0
+        },
+        {
+          "numero": 11,
+          "nom": "Keita",
+          "x": 88.0,
+          "y": 90.0
+        }
+      ],
+      "remplacants": [
+        {
+          "numero": 16,
+          "nom": "Marchal",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "numero": 13,
+          "nom": "Ferreira",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "numero": 15,
+          "nom": "Okonkwo",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "numero": 17,
+          "nom": "Baumann",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "numero": 19,
+          "nom": "Costa",
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "exterieur": {
+    "nom": "Marseille",
+    "abrege": "MAR",
+    "couleur": "#2FA8DC",
+    "composition": {
+      "formation": "4-2-3-1",
+      "titulaires": [
+        {
+          "numero": 1,
+          "nom": "Kovacs",
+          "x": 50,
+          "y": 7
+        },
+        {
+          "numero": 2,
+          "nom": "Delgado",
+          "x": 12.0,
+          "y": 26.0
+        },
+        {
+          "numero": 5,
+          "nom": "Traoré",
+          "x": 37.33,
+          "y": 26.0
+        },
+        {
+          "numero": 6,
+          "nom": "Hansen",
+          "x": 62.67,
+          "y": 26.0
+        },
+        {
+          "numero": 3,
+          "nom": "Moreau",
+          "x": 88.0,
+          "y": 26.0
+        },
+        {
+          "numero": 4,
+          "nom": "Ricci",
+          "x": 12.0,
+          "y": 47.33
+        },
+        {
+          "numero": 8,
+          "nom": "Yildiz",
+          "x": 88.0,
+          "y": 47.33
+        },
+        {
+          "numero": 7,
+          "nom": "Blanco",
+          "x": 12.0,
+          "y": 68.67
+        },
+        {
+          "numero": 10,
+          "nom": "Novak",
+          "x": 50.0,
+          "y": 68.67
+        },
+        {
+          "numero": 11,
+          "nom": "Diarra",
+          "x": 88.0,
+          "y": 68.67
+        },
+        {
+          "numero": 9,
+          "nom": "Weber",
+          "x": 50,
+          "y": 90.0
+        }
+      ],
+      "remplacants": [
+        {
+          "numero": 12,
+          "nom": "Sanchez",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "numero": 14,
+          "nom": "Larsson",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "numero": 18,
+          "nom": "Mbeki",
+          "x": 0,
+          "y": 0
+        },
+        {
+          "numero": 20,
+          "nom": "Rinaldi",
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
   "evenements": [
-    { "aMs": 0, "statut": "premiere-periode", "chronoEcouleMs": 0, "chronoEnMarche": true },
-    { "aMs": 720000, "domicile": { "score": 1 } },
-    { "aMs": 2040000, "exterieur": { "score": 1 } },
-    { "aMs": 2700000, "tempsAdditionnel": 2 },
-    { "aMs": 2830000, "statut": "mi-temps", "chronoEnMarche": false, "tempsAdditionnel": 0 },
-    { "aMs": 2890000, "statut": "seconde-periode", "chronoEcouleMs": 2700000, "chronoEnMarche": true },
-    { "aMs": 3660000, "domicile": { "score": 2 } },
-    { "aMs": 4680000, "exterieur": { "score": 2 } },
-    { "aMs": 5400000, "tempsAdditionnel": 4 },
-    { "aMs": 5640000, "domicile": { "score": 3 } },
-    { "aMs": 5670000, "statut": "termine", "chronoEnMarche": false }
+    {
+      "aMs": 0,
+      "statut": "premiere-periode",
+      "chronoEcouleMs": 0,
+      "chronoEnMarche": true
+    },
+    {
+      "aMs": 720000,
+      "domicile": {
+        "score": 1
+      }
+    },
+    {
+      "aMs": 2040000,
+      "exterieur": {
+        "score": 1
+      }
+    },
+    {
+      "aMs": 2700000,
+      "tempsAdditionnel": 2
+    },
+    {
+      "aMs": 2830000,
+      "statut": "mi-temps",
+      "chronoEnMarche": false,
+      "tempsAdditionnel": 0
+    },
+    {
+      "aMs": 2890000,
+      "statut": "seconde-periode",
+      "chronoEcouleMs": 2700000,
+      "chronoEnMarche": true
+    },
+    {
+      "aMs": 3660000,
+      "domicile": {
+        "score": 2
+      }
+    },
+    {
+      "aMs": 4680000,
+      "exterieur": {
+        "score": 2
+      }
+    },
+    {
+      "aMs": 5400000,
+      "tempsAdditionnel": 4
+    },
+    {
+      "aMs": 5640000,
+      "domicile": {
+        "score": 3
+      }
+    },
+    {
+      "aMs": 5670000,
+      "statut": "termine",
+      "chronoEnMarche": false
+    }
   ]
 }

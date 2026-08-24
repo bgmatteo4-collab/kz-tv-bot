@@ -256,6 +256,52 @@ async function main() {
   // ---- Critère 5 : une correction manuelle n’est pas écrasée -------------
   await regie.getByRole('button', { name: 'Démonstration' }).click();
   await patienter(1200);
+
+  // La scène compositions et sa bascule : on la regarde, on ne se contente
+  // pas de savoir que le test est vert.
+  await regie.getByRole('button', { name: 'Compositions' }).click();
+  await overlay.waitForSelector('[data-scene="compositions"] .joueur', { timeout: 5000 });
+  await patienter(900);
+  // Compter ne suffit pas : onze joueurs empilés dans un coin, c'est onze
+  // joueurs. On regarde leur dispersion réelle sur le terrain.
+  const placement = await overlay.evaluate(() => {
+    const terrain = document.querySelector('.terrain')?.getBoundingClientRect();
+    const joueurs = [...document.querySelectorAll('[data-scene="compositions"] .joueur')].map(
+      (noeud) => noeud.getBoundingClientRect(),
+    );
+    if (!terrain || joueurs.length === 0) return { nombre: 0, largeur: 0, hauteur: 0 };
+    const gauche = Math.min(...joueurs.map((boite) => boite.left));
+    const droite = Math.max(...joueurs.map((boite) => boite.right));
+    const haut = Math.min(...joueurs.map((boite) => boite.top));
+    const bas = Math.max(...joueurs.map((boite) => boite.bottom));
+    return {
+      nombre: joueurs.length,
+      largeur: (droite - gauche) / terrain.width,
+      hauteur: (bas - haut) / terrain.height,
+    };
+  });
+  const titulairesAffiches = placement.nombre;
+  await overlay.screenshot({ path: `${CAPTURES}/compositions-domicile.png` });
+
+  const equipeAvant = await overlay.textContent('.compositions__equipe');
+  await regie.getByRole('button', { name: /^Retourner vers/ }).click();
+  await patienter(600);
+  const equipeApres = await overlay.textContent('.compositions__equipe');
+  await overlay.screenshot({ path: `${CAPTURES}/compositions-exterieur.png` });
+
+  noter(
+    'Le onze occupe le terrain et la bascule retourne vers l’autre équipe',
+    titulairesAffiches === 11 &&
+      placement.largeur > 0.6 &&
+      placement.hauteur > 0.6 &&
+      equipeAvant !== equipeApres,
+    `11 titulaires étalés sur ${Math.round(placement.largeur * 100)} % de la largeur et ` +
+      `${Math.round(placement.hauteur * 100)} % de la hauteur ; ` +
+      `« ${equipeAvant?.trim()} » devient « ${equipeApres?.trim()} »`,
+  );
+
+  await regie.getByRole('button', { name: 'Caméra' }).click();
+  await patienter(600);
   const scoreAvantCorrection = await regie.locator('output.valeur').first().textContent();
   await regie.getByRole('button', { name: 'Retirer' }).first().click();
   // La correction doit d'abord avoir fait l'aller-retour : lire le DOM trop

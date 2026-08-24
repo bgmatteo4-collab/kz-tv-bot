@@ -26,6 +26,7 @@ import { CANEVAS } from '../partage/design/tokens.js';
 import { Cadre } from './cadre/cadre.js';
 import { Regisseur } from './moteur/regisseur.js';
 import { SceneOuverture } from './scenes/ouverture.js';
+import { SceneCompositions } from './scenes/compositions.js';
 
 const canevas = document.querySelector<HTMLElement>('#canevas');
 if (!canevas) throw new Error('Canevas introuvable dans overlay/index.html');
@@ -55,6 +56,7 @@ const regisseur = new Regisseur(cadre.hoteScene, contexte);
 // La scène caméra n'a pas de fabrique : ne rien monter est son rendu, et le
 // centre redevient réellement transparent pour qu'OBS y compose la webcam.
 regisseur.enregistrer('ouverture', () => new SceneOuverture());
+regisseur.enregistrer('compositions', () => new SceneCompositions());
 
 const liaison = new Liaison({
   adresse: adresseTempsReel(window.location),

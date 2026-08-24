@@ -14,9 +14,11 @@
  * - **Il ne décide de rien.** Il traduit et il pousse ; c'est l'état qui
  *   arbitre, notamment face à une correction manuelle.
  */
+import type { DonneesProvider } from '../../etat/donnees-provider.js';
 import type { Provider, PousserDonnees } from '../interface.js';
 import { ClientApiFootball, ErreurApi } from './client.js';
 import { COMPETITIONS } from './competitions.js';
+import { traduireComposition, type CompositionApi } from './compositions.js';
 import {
   resumerRencontre,
   traduireRencontre,
@@ -54,6 +56,12 @@ export class ProviderApiFootball implements Provider {
   #minuterie: ReturnType<typeof setTimeout> | null = null;
   #enMarche = false;
   #dernierStatutApi = '';
+  /**
+   * Les compositions ne se demandent qu'une fois. Elles paraissent environ une
+   * heure avant le coup d'envoi et ne changent plus ; les redemander à chaque
+   * cycle brûlerait le quota pour rien.
+   */
+  #compositionsObtenues = false;
 
   constructor(options: OptionsApiFootball) {
     this.#options = options;
@@ -86,6 +94,8 @@ export class ProviderApiFootball implements Provider {
         const donnees = traduireRencontre(rencontre, this.#options.identifiantMatch);
         if (donnees) pousser(donnees);
       }
+
+      if (!this.#compositionsObtenues) await this.#chercherCompositions(pousser);
     } catch (erreur) {
       if (erreur instanceof ErreurApi && !erreur.recuperable) {
         // Définitif : on ne réessaiera pas en boucle contre un mur.
@@ -108,6 +118,28 @@ export class ProviderApiFootball implements Provider {
       ? CADENCE_MS.enCours
       : CADENCE_MS.avantMatch;
     this.#minuterie = setTimeout(() => void this.#interroger(pousser), delai);
+  }
+
+  /**
+   * Les compositions, une seule fois.
+   *
+   * Un échec ici n'arrête rien : le match se commente sans le onze de départ,
+   * et on retentera au cycle suivant.
+   */
+  async #chercherCompositions(pousser: PousserDonnees): Promise<void> {
+    const reponse = await this.#client.interroger<CompositionApi>('/fixtures/lineups', {
+      fixture: this.#options.identifiantFournisseur,
+    });
+    this.#options.surQuota?.(reponse.requetesRestantes);
+
+    const [domicile, exterieur] = reponse.donnees;
+    if (!domicile && !exterieur) return;
+
+    const donnees: DonneesProvider = { identifiantMatch: this.#options.identifiantMatch };
+    if (domicile) donnees.domicile = { composition: traduireComposition(domicile) };
+    if (exterieur) donnees.exterieur = { composition: traduireComposition(exterieur) };
+    pousser(donnees);
+    this.#compositionsObtenues = true;
   }
 }
 

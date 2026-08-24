@@ -1,4 +1,6 @@
-import type { EtatMatch, InfoProvider } from '../../partage/contrats/etat.js';
+import type { Composition, EtatMatch, InfoProvider } from '../../partage/contrats/etat.js';
+
+const COMPOSITION_VIDE: Composition = { formation: '', titulaires: [], remplacants: [] };
 
 /** Couleurs de repli, prises dans la palette du design system. */
 const COULEUR_DOMICILE = '#F2F6F9';
@@ -16,8 +18,20 @@ export function etatInitial(
   return {
     identifiantMatch: nouvelIdentifiantMatch(maintenantMs),
     competition: '',
-    domicile: { nom: 'Domicile', abrege: 'DOM', couleur: COULEUR_DOMICILE, score: 0 },
-    exterieur: { nom: 'Extérieur', abrege: 'EXT', couleur: COULEUR_EXTERIEUR, score: 0 },
+    domicile: {
+      nom: 'Domicile',
+      abrege: 'DOM',
+      couleur: COULEUR_DOMICILE,
+      score: 0,
+      composition: COMPOSITION_VIDE,
+    },
+    exterieur: {
+      nom: 'Extérieur',
+      abrege: 'EXT',
+      couleur: COULEUR_EXTERIEUR,
+      score: 0,
+      composition: COMPOSITION_VIDE,
+    },
     statut: 'avant-match',
     chrono: {
       ecouleMs: 0,
@@ -30,6 +44,7 @@ export function etatInitial(
     // cadre est déjà juste. Rien n'oblige le streamer à cliquer avant d'être
     // présentable.
     scene: 'camera',
+    campAffiche: 'domicile',
     coupDEnvoiMs: null,
     verrous: [],
     provider,

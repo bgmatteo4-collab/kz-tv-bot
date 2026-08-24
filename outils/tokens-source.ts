@@ -52,6 +52,8 @@ export const DUREES = {
   sequence: 80,
   /** Pouls de la lame, une fois par minute de jeu. */
   pouls: 900,
+  /** Retournement du terrain d'une équipe à l'autre. */
+  bascule: 320,
 } as const;
 
 export const COURBES = {

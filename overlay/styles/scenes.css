@@ -120,3 +120,177 @@
     visibility: visible;
   }
 }
+
+/* ---- Scène compositions ------------------------------------------------- */
+
+.compositions {
+  /* La perspective est portée par le parent : sans elle, le retournement du
+     terrain se lit comme un simple écrasement. */
+  perspective: 1600px;
+  justify-content: flex-start;
+  gap: var(--espace-16);
+  padding: var(--espace-24) var(--espace-32);
+}
+
+.compositions__entete {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-16);
+  align-self: flex-start;
+}
+
+.compositions__identite {
+  display: flex;
+  flex-direction: column;
+}
+
+.compositions__equipe {
+  font-size: var(--texte-32);
+  font-weight: 600;
+  font-stretch: var(--largeur-noms);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.compositions__formation {
+  font-size: var(--texte-13);
+  font-weight: 500;
+  font-stretch: var(--largeur-chiffres);
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+
+/* Le terrain. Un demi-terrain vu de dessus : c'est celui de l'équipe
+   affichée, et il se retourne pour montrer l'adversaire. */
+.terrain {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--rayon);
+  overflow: hidden;
+  /* La perspective donne au retournement une épaisseur ; sans elle, la
+     rotation ne se lit pas comme un objet qu'on retourne. */
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.terrain[data-connue='non'] {
+  opacity: 0.4;
+}
+
+/* Les repères du terrain : une surface, une petite surface, un rond central.
+   Des traits, pas un décor — le terrain porte les joueurs, il ne s'expose
+   pas lui-même. */
+.terrain__surface {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 58%;
+  height: 22%;
+  transform: translateX(-50%);
+  border: 1px solid var(--line);
+  border-bottom: none;
+}
+
+.terrain__surface--petite {
+  width: 26%;
+  height: 9%;
+}
+
+.terrain__rond {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 22%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+}
+
+.terrain__joueurs {
+  position: absolute;
+  inset: 0;
+}
+
+.joueur {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espace-4);
+  width: 96px;
+  /* `left` et `top` viennent du script ; ce translate ne fait que centrer
+     l'élément sur son point. */
+  transform: translate(-50%, -50%);
+}
+
+.joueur__maillot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--espace-32);
+  height: var(--espace-32);
+  border-radius: var(--rayon);
+  background: var(--couleur-equipe, var(--surface-raised));
+  border: 1px solid var(--line);
+  font-size: var(--texte-13);
+  font-weight: 700;
+  font-stretch: var(--largeur-chiffres);
+  font-variant-numeric: tabular-nums;
+  color: var(--surface);
+}
+
+.joueur__nom {
+  font-size: var(--texte-11);
+  font-weight: 500;
+  font-stretch: var(--largeur-noms);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Un écran vide ne constate pas le vide : il dit ce qui manque. */
+.compositions__vide {
+  display: none;
+  font-size: var(--texte-13);
+  color: var(--ink-muted);
+  letter-spacing: 0.12em;
+}
+
+.compositions__vide[data-visible='oui'] {
+  display: block;
+}
+
+.compositions__remplacants {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-4);
+  align-self: flex-start;
+  width: 100%;
+}
+
+.compositions__titre {
+  font-size: var(--texte-11);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+
+.compositions__liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espace-4) var(--espace-16);
+}
+
+.compositions__remplacant {
+  font-size: var(--texte-13);
+  font-stretch: var(--largeur-noms);
+  color: var(--ink-muted);
+}

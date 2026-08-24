@@ -62,6 +62,11 @@ function appliquerEquipe(
 
   const identiteVerrouillee = estVerrouille(etat, `${cote}.identite`);
   const scoreVerrouille = estVerrouille(etat, `${cote}.score`);
+  const compositionVerrouillee = estVerrouille(etat, `${cote}.composition`);
+
+  if (compositionVerrouillee && donnees.composition !== undefined) {
+    ignores.push(`${cote}.composition`);
+  }
 
   if (identiteVerrouillee && (donnees.nom ?? donnees.abrege ?? donnees.couleur) !== undefined) {
     ignores.push(`${cote}.identite`);
@@ -75,6 +80,9 @@ function appliquerEquipe(
     abrege: identiteVerrouillee ? equipe.abrege : donnees.abrege ?? equipe.abrege,
     couleur: identiteVerrouillee ? equipe.couleur : donnees.couleur ?? equipe.couleur,
     score: scoreVerrouille ? equipe.score : donnees.score ?? equipe.score,
+    composition: compositionVerrouillee
+      ? equipe.composition
+      : donnees.composition ?? equipe.composition,
   };
 }
 

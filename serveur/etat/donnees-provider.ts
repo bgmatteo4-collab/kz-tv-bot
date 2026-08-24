@@ -5,13 +5,14 @@
  * c'est l'état qui décide de ce qu'il accepte. Tout est facultatif — un
  * provider n'a aucune obligation de tout connaître.
  */
-import type { Statut } from '../../partage/contrats/etat.js';
+import type { Composition, Statut } from '../../partage/contrats/etat.js';
 
 export interface DonneesEquipe {
   nom?: string;
   abrege?: string;
   couleur?: string;
   score?: number;
+  composition?: Composition;
 }
 
 export interface DonneesProvider {

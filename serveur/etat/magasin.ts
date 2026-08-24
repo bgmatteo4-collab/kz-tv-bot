@@ -107,6 +107,7 @@ export class Magasin {
       identifiantMatch,
       // Ce qui appartient au poste et non au match survit au changement.
       scene: this.#etat.scene,
+      campAffiche: this.#etat.campAffiche,
       configuration: this.#etat.configuration,
     });
   }

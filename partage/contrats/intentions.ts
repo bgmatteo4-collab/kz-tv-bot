@@ -2,7 +2,7 @@
  * Ce que la régie envoie au serveur. Des intentions, jamais des états : la
  * régie déclare ce qu'elle veut, le serveur décide de ce que ça produit.
  */
-import type { Cote, NomModule, Statut } from './etat.js';
+import type { Cote, NomScene, Statut } from './etat.js';
 
 export type Intention =
   | { type: 'definir-competition'; nom: string }
@@ -15,8 +15,8 @@ export type Intention =
   | { type: 'definir-chrono'; ecouleMs: number }
   | { type: 'definir-temps-additionnel'; minutes: number }
   | { type: 'definir-decalage-video'; secondes: number }
-  | { type: 'afficher-module'; module: NomModule }
-  | { type: 'masquer-module'; module: NomModule }
+  | { type: 'definir-scene'; scene: NomScene }
+  | { type: 'definir-coup-d-envoi'; horodatageMs: number | null }
   | { type: 'liberer-verrou'; chemin: string }
   | { type: 'liberer-tous-les-verrous' }
   | { type: 'definir-provider'; nom: string }

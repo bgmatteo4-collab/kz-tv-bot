@@ -146,17 +146,13 @@ export function reduire(
       // Réglage du poste, pas une donnée de match : aucun verrou.
       return { ...etat, decalageVideoSecondes: Math.max(0, intention.secondes) };
 
-    case 'afficher-module':
-      return {
-        ...etat,
-        modules: { ...etat.modules, [intention.module]: { visible: true } },
-      };
+    case 'definir-scene':
+      // Pas de verrou : la scène est un choix de réalisation, pas une donnée
+      // de match qu'un provider pourrait revendiquer.
+      return { ...etat, scene: intention.scene };
 
-    case 'masquer-module':
-      return {
-        ...etat,
-        modules: { ...etat.modules, [intention.module]: { visible: false } },
-      };
+    case 'definir-coup-d-envoi':
+      return { ...etat, coupDEnvoiMs: intention.horodatageMs };
 
     case 'liberer-verrou':
       return { ...etat, verrous: liberer(etat.verrous, intention.chemin) };
@@ -177,7 +173,7 @@ export function reduire(
     case 'nouveau-match': {
       // Le décalage vidéo est un réglage du poste : il survit au match.
       const neuf = etatInitial(maintenantMs, etat.provider, etat.decalageVideoSecondes);
-      return { ...neuf, modules: etat.modules };
+      return { ...neuf, scene: etat.scene, configuration: etat.configuration };
     }
   }
 }

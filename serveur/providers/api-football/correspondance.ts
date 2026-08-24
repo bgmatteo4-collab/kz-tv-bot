@@ -149,6 +149,14 @@ export function traduireRencontre(
 
   if (statut) donnees.statut = statut;
 
+  // L'heure du coup d'envoi alimente le compte à rebours de la scène
+  // d'ouverture. Le fournisseur la connaît, le streamer n'a pas à la saisir.
+  const debut = rencontre.fixture?.date;
+  if (debut) {
+    const horodatage = Date.parse(debut);
+    if (Number.isFinite(horodatage)) donnees.coupDEnvoiMs = horodatage;
+  }
+
   const court = rencontre.fixture?.status?.short ?? '';
   const minute = rencontre.fixture?.status?.elapsed;
   if (typeof minute === 'number') donnees.chronoMinute = minute;

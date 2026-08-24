@@ -1,0 +1,122 @@
+/* Les scènes : ce qui occupe le centre du cadre.
+
+   Une scène est un objet posé sur le trou transparent. Elle est donc opaque et
+   franche, comme le reste du produit — et elle porte une lame, parce qu'elle,
+   contrairement au cadre, entre et sort. */
+
+.scene-panneau {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  /* La découpe fait tout le travail : le corps se déplie depuis la lame en
+     glissant hors de dessous elle, sans qu'un `scaleX` vienne écraser le
+     texte. */
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.scene-panneau[data-pose='oui'] {
+  visibility: visible;
+}
+
+.lame {
+  flex: 0 0 var(--lame);
+  background: var(--signal);
+  transform-origin: center;
+}
+
+.scene-panneau__corps {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espace-48);
+  /* La scène se pose sur le cadre : c'est `--surface-raised` qui la porte.
+     Avec `--surface`, elle se confondait avec le sol et la hiérarchie
+     disparaissait. */
+  background: color-mix(
+    in srgb,
+    var(--surface-raised) calc(var(--opacite-surface) * 100%),
+    transparent
+  );
+  border: 1px solid var(--line);
+  border-left: none;
+  padding: var(--espace-48);
+}
+
+/* ---- Scène d'ouverture -------------------------------------------------- */
+
+.ouverture__competition {
+  font-size: var(--texte-15);
+  font-weight: 500;
+  font-stretch: var(--largeur-noms);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.ouverture__affiche {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espace-24);
+}
+
+.ouverture__camp {
+  display: flex;
+  align-items: center;
+  gap: var(--espace-16);
+}
+
+.ouverture__nom {
+  font-size: var(--texte-44);
+  font-weight: 600;
+  font-stretch: var(--largeur-noms);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ouverture__contre {
+  font-size: var(--texte-11);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+
+.ouverture__compte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espace-8);
+}
+
+.ouverture__libelle {
+  font-size: var(--texte-11);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+
+.ouverture__compteur {
+  font-size: var(--texte-64);
+  font-weight: 700;
+  font-stretch: var(--largeur-chiffres);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* Sans heure de coup d'envoi, le compteur n'affiche pas un faux chiffre. */
+.scene-panneau__corps[data-compte='non'] .ouverture__compteur {
+  font-size: var(--texte-24);
+  font-stretch: var(--largeur-noms);
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-panneau {
+    visibility: visible;
+  }
+}

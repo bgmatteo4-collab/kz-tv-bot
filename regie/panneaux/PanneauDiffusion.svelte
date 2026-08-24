@@ -6,21 +6,61 @@
 
   const { etat }: { etat: EtatMatch } = $props();
 
-  const bandeauVisible = $derived(etat.modules['bandeau-score'].visible);
+  import type { NomScene } from '../../partage/contrats/etat.js';
+
+  const SCENES: readonly { nom: NomScene; libelle: string; quoi: string }[] = [
+    { nom: 'camera', libelle: 'Caméra', quoi: 'Le centre laisse passer ta webcam' },
+    { nom: 'ouverture', libelle: 'Ouverture', quoi: 'Affiche et compte à rebours' },
+  ];
+
+  const heureCoupDEnvoi = $derived(
+    etat.coupDEnvoiMs === null
+      ? ''
+      : new Date(etat.coupDEnvoiMs).toLocaleTimeString('fr-FR', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+  );
+
+  function definirCoupDEnvoi(valeur: string) {
+    if (!valeur) {
+      regie.envoyer({ type: 'definir-coup-d-envoi', horodatageMs: null });
+      return;
+    }
+    const [heures, minutes] = valeur.split(':').map(Number);
+    const date = new Date();
+    date.setHours(heures ?? 0, minutes ?? 0, 0, 0);
+    regie.envoyer({ type: 'definir-coup-d-envoi', horodatageMs: date.getTime() });
+  }
 </script>
 
 <Panneau titre="Antenne">
-  <button
-    class="diffuser"
-    data-actif={bandeauVisible ? 'oui' : 'non'}
-    onclick={() =>
-      regie.envoyer({
-        type: bandeauVisible ? 'masquer-module' : 'afficher-module',
-        module: 'bandeau-score',
-      })}
-  >
-    {bandeauVisible ? 'Masquer le bandeau' : 'Afficher le bandeau'}
-  </button>
+  <!-- Il y a toujours une scène à l'antenne : ce sont des boutons de choix,
+       jamais un interrupteur. Éteindre laisserait un rectangle noir. -->
+  <div class="scenes">
+    {#each SCENES as scene}
+      <button
+        class="scene"
+        data-actif={etat.scene === scene.nom ? 'oui' : 'non'}
+        onclick={() => regie.envoyer({ type: 'definir-scene', scene: scene.nom })}
+      >
+        <span class="scene__nom">{scene.libelle}</span>
+        <span class="scene__quoi">{scene.quoi}</span>
+      </button>
+    {/each}
+  </div>
+
+  <div class="ligne">
+    <span class="etiquette">Coup d’envoi</span>
+    <input
+      type="time"
+      value={heureCoupDEnvoi}
+      oninput={(evenement) => definirCoupDEnvoi(evenement.currentTarget.value)}
+    />
+    <button class="discret" onclick={() => regie.envoyer({ type: 'definir-coup-d-envoi', horodatageMs: null })}>
+      Effacer
+    </button>
+  </div>
 
   {#if etat.verrous.length > 0}
     <div class="verrous">
@@ -50,10 +90,45 @@
 </Panneau>
 
 <style>
-  .diffuser {
-    padding: var(--espace-16);
-    font-size: var(--texte-18);
+  .scenes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--espace-4);
+  }
+
+  .scene {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-4);
+    padding: var(--espace-12);
+    text-align: left;
+  }
+
+  .scene__nom {
+    font-size: var(--texte-15);
     font-weight: 600;
+  }
+
+  .scene__quoi {
+    font-size: var(--texte-11);
+    color: var(--ink-muted);
+  }
+
+  .ligne {
+    display: flex;
+    align-items: center;
+    gap: var(--espace-8);
+  }
+
+  .ligne input {
+    width: 110px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .discret {
+    padding: var(--espace-8);
+    font-size: var(--texte-13);
+    color: var(--ink-muted);
   }
 
   .etiquette {

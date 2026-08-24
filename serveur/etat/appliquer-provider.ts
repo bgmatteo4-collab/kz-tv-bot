@@ -137,6 +137,7 @@ export function appliquerDonneesProvider(
         ? etat.competition
         : donnees.competition ?? etat.competition,
       statut: statutVerrouille ? etat.statut : donnees.statut ?? etat.statut,
+      coupDEnvoiMs: donnees.coupDEnvoiMs ?? etat.coupDEnvoiMs,
       chrono,
       domicile: appliquerEquipe(etat, 'domicile', donnees.domicile, ignores),
       exterieur: appliquerEquipe(etat, 'exterieur', donnees.exterieur, ignores),

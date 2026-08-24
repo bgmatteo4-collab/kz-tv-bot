@@ -97,6 +97,15 @@ function noter(critere, reussi, detail) {
   console.log(`${reussi ? '  OK  ' : ' ÉCHEC'}  ${critere}\n         ${detail}`);
 }
 
+/** Les scores seuls : le chrono du bandeau avance, et c'est voulu. */
+async function scores(page) {
+  return page.evaluate(() =>
+    [...document.querySelectorAll('.bandeau__score')]
+      .map((noeud) => noeud.querySelector('.valeur__texte:last-child')?.textContent?.trim() ?? '')
+      .join('-'),
+  );
+}
+
 async function main() {
   await rm(CAPTURES, { recursive: true, force: true });
   await mkdir(CAPTURES, { recursive: true });
@@ -124,7 +133,7 @@ async function main() {
 
   await regie.goto(`${BASE}/regie/`);
   await overlay.goto(`${BASE}/overlay/`);
-  await regie.waitForSelector('button:has-text("Afficher le bandeau")');
+  await regie.waitForSelector('button:has-text("Ouverture")');
   // On ne chronomètre rien tant que l'overlay n'a pas reçu son premier état :
   // sinon on mesurerait l'établissement de la liaison, pas le produit.
   await overlay.waitForSelector('#canevas[data-synchronise="oui"]', { timeout: 10000 });
@@ -155,7 +164,7 @@ async function main() {
       () =>
         new Promise((resoudre) => {
           const observateur = new MutationObserver(() => {
-            if (document.querySelector('[data-module="bandeau-score"]')) {
+            if (document.querySelector('[data-scene="ouverture"]')) {
               observateur.disconnect();
               resoudre(Date.now());
             }
@@ -165,7 +174,7 @@ async function main() {
     );
     const clic = await regie.evaluate(() => {
       const bouton = [...document.querySelectorAll('button')].find((candidat) =>
-        candidat.textContent?.includes('Afficher le bandeau'),
+        candidat.textContent?.includes('Ouverture'),
       );
       bouton?.click();
       return Date.now();
@@ -175,11 +184,11 @@ async function main() {
     if (essai < 4) {
       await regie.evaluate(() => {
         const bouton = [...document.querySelectorAll('button')].find((candidat) =>
-          candidat.textContent?.includes('Masquer le bandeau'),
+          candidat.textContent?.includes('Caméra'),
         );
         bouton?.click();
       });
-      await overlay.waitForSelector('[data-module="bandeau-score"]', {
+      await overlay.waitForSelector('[data-scene="ouverture"]', {
         state: 'detached',
         timeout: 5000,
       });
@@ -187,7 +196,7 @@ async function main() {
   }
   const latenceAffichage = Math.max(...latences);
 
-  await overlay.waitForSelector('[data-module="bandeau-score"]', { timeout: 5000 });
+  await overlay.waitForSelector('[data-scene="ouverture"]', { timeout: 5000 });
 
   const debutBut = await regie.evaluate(() => {
     const bouton = [...document.querySelectorAll('button')].find((candidat) =>
@@ -197,7 +206,13 @@ async function main() {
     return Date.now();
   });
   await overlay.waitForFunction(
-    () => document.querySelector('.scores')?.textContent?.includes('1') ?? false,
+    // Le dernier exemplaire, pas le contenu entier : pendant que le chiffre
+    // monte, l'ancien et le nouveau cohabitent 180 ms. Lire le tout
+    // mesurerait l'animation au lieu de l'arrivée de la donnée.
+    () =>
+      [...document.querySelectorAll('.bandeau__score')]
+        .map((noeud) => noeud.querySelector('.valeur__texte:last-child')?.textContent?.trim())
+        .join('-') === '1-0',
     { timeout: 5000 },
   );
   const latenceBut = Date.now() - debutBut;
@@ -212,33 +227,30 @@ async function main() {
   await patienter(700);
   await overlay.screenshot({ path: `${CAPTURES}/overlay-fond-transparent.png`, omitBackground: true });
 
-  // Lisibilité : le module doit tenir sur tout ce que produit un match.
-  for (const [nom, fond] of Object.entries({
-    pelouse: '#2E7D32',
-    'maillot-blanc': '#F4F4F2',
-    'ralenti-sombre': '#0B0B0C',
-    'flash-stade': '#FFF6D8',
-  })) {
-    await overlay.evaluate((couleur) => {
-      let banc = document.querySelector('#banc-essai');
-      if (!banc) {
-        banc = document.createElement('div');
-        banc.id = 'banc-essai';
-        banc.style.cssText = 'position:fixed;inset:0;z-index:-1';
-        document.body.prepend(banc);
-      }
-      banc.style.background = couleur;
-    }, fond);
-    await overlay.screenshot({ path: `${CAPTURES}/lisibilite-${nom}.png`, clip: { x: 0, y: 0, width: 900, height: 200 } });
-  }
+  // Le centre laisse-t-il réellement passer ? OBS compose la webcam SOUS la
+  // source navigateur : un centre qui paraît vide sans être transparent
+  // masquerait la caméra.
+  await overlay.evaluate(() => {
+    const banc = document.createElement('div');
+    banc.id = 'banc-essai';
+    banc.style.cssText = 'position:fixed;inset:0;z-index:-1;background:#2E7D32';
+    document.body.prepend(banc);
+  });
+  await overlay.screenshot({ path: `${CAPTURES}/cadre-sur-fond.png` });
   await overlay.evaluate(() => document.querySelector('#banc-essai')?.remove());
+  await overlay.screenshot({ path: `${CAPTURES}/cadre-transparent.png`, omitBackground: true });
 
-  // Le fond est-il réellement transparent ? OBS compose par-dessus la vidéo.
-  const fondBody = await overlay.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  const transparence = await overlay.evaluate(() => ({
+    corps: getComputedStyle(document.body).backgroundColor,
+    scene: getComputedStyle(document.querySelector('#scene')).backgroundColor,
+    cadre: getComputedStyle(document.querySelector('.bande--haut')).backgroundColor,
+  }));
   noter(
-    'Fond réellement transparent',
-    fondBody === 'rgba(0, 0, 0, 0)',
-    `background-color du body : ${fondBody}`,
+    'Le centre laisse passer, le cadre est opaque',
+    transparence.corps === 'rgba(0, 0, 0, 0)' &&
+      transparence.scene === 'rgba(0, 0, 0, 0)' &&
+      transparence.cadre !== 'rgba(0, 0, 0, 0)',
+    `corps ${transparence.corps}, scène ${transparence.scene}, bande ${transparence.cadre}`,
   );
 
   // ---- Critère 5 : une correction manuelle n’est pas écrasée -------------
@@ -277,13 +289,13 @@ async function main() {
   // On compare les données — le score — et non tout le bandeau : le chrono
   // continue d'avancer sur sa dernière référence, et c'est voulu. Un chrono
   // figé à l'antenne se voit tout de suite ; une donnée de dix secondes, non.
-  const scoreAvantCoupure = await overlay.textContent('.scores');
-  const chronoAvantCoupure = await overlay.textContent('.horloge');
+  const scoreAvantCoupure = await scores(overlay);
+  const chronoAvantCoupure = await overlay.textContent('.bandeau__horloge');
   await tuerServeur();
   await patienter(2500);
-  const scoreApresCoupure = await overlay.textContent('.scores');
-  const chronoApresCoupure = await overlay.textContent('.horloge');
-  const bandeauPresent = await overlay.locator('[data-module="bandeau-score"]').count();
+  const scoreApresCoupure = await scores(overlay);
+  const chronoApresCoupure = await overlay.textContent('.bandeau__horloge');
+  const bandeauPresent = await overlay.locator('.bandeau').count();
   await overlay.screenshot({ path: `${CAPTURES}/serveur-coupe-overlay.png`, omitBackground: true });
 
   const messageRegie = await regie.textContent('header .libelle');
@@ -292,7 +304,7 @@ async function main() {
   noter(
     '2. Serveur coupé : l’overlay garde son affichage, la régie signale',
     bandeauPresent === 1 && scoreAvantCoupure === scoreApresCoupure && messageRegie !== 'Connecté',
-    `bandeau toujours à l’antenne, score ${scoreApresCoupure?.trim()} conservé, ` +
+    `bandeau toujours à l’antenne, score ${scoreApresCoupure} conservé, ` +
       `chrono toujours vivant (${chronoAvantCoupure?.trim()} → ${chronoApresCoupure?.trim()}) ; ` +
       `la régie annonce « ${messageRegie} »`,
   );
@@ -303,7 +315,7 @@ async function main() {
     () => document.querySelector('header .libelle')?.textContent === 'Connecté',
     { timeout: 15000 },
   );
-  const bandeauApresRetour = await overlay.locator('[data-module="bandeau-score"]').count();
+  const bandeauApresRetour = await overlay.locator('.bandeau').count();
   const messageRetour = await regie.textContent('header .libelle');
   noter(
     '3. Serveur redémarré : les deux clients se réalignent seuls',
@@ -312,22 +324,23 @@ async function main() {
   );
 
   // ---- Critère 4 : overlay rechargé en plein match -----------------------
-  const scoreAvantRechargement = await overlay.textContent('.scores');
+  const scoreAvantRechargement = await scores(overlay);
   await overlay.reload();
-  await overlay.waitForSelector('[data-module="bandeau-score"]', { timeout: 5000 });
-  const scoreApresRechargement = await overlay.textContent('.scores');
+  await overlay.waitForSelector('#canevas[data-synchronise="oui"]', { timeout: 10000 });
+  const scoreApresRechargement = await scores(overlay);
   // Une resynchronisation pose le module sans rejouer son entrée : il est
   // déjà visible et à sa place au premier rendu.
   const poseImmediate = await overlay.evaluate(() => {
-    const module = document.querySelector('[data-module="bandeau-score"]');
-    return module?.getAttribute('data-pose') === 'oui';
+    const scene = document.querySelector('[data-scene]');
+    // Le cadre, lui, est toujours là : il n'entre ni ne sort.
+    return scene === null || scene.getAttribute('data-pose') === 'oui';
   });
   await overlay.screenshot({ path: `${CAPTURES}/overlay-apres-rechargement.png`, omitBackground: true });
 
   noter(
     '4. Overlay rechargé en plein match : il revient dans le bon état',
     scoreAvantRechargement === scoreApresRechargement && poseImmediate,
-    `score ${scoreApresRechargement?.trim()} retrouvé, module posé sans rejouer l’entrée`,
+    `score ${scoreApresRechargement} retrouvé, scène posée sans rejouer l’entrée`,
   );
 
   await regie.screenshot({ path: `${CAPTURES}/regie.png` });

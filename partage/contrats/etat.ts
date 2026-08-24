@@ -90,12 +90,17 @@ export interface InfoProvider {
   manuel: boolean;
 }
 
-/** Les modules d'overlay connus. Le jalon 1 n'en implémente qu'un. */
-export type NomModule = 'bandeau-score';
-
-export interface EtatModule {
-  visible: boolean;
-}
+/**
+ * Les scènes qui peuvent occuper le centre du cadre.
+ *
+ * Il n'y a pas d'état « rien à l'antenne » : aucune vidéo ne passe sous
+ * l'overlay, donc une scène absente serait un rectangle noir devant le public.
+ * C'est pour ça que c'est une valeur unique et pas une liste de visibilités.
+ *
+ * - `camera` : le centre est réellement transparent, OBS y compose la webcam.
+ * - `ouverture` : avant-match, compte à rebours vers le coup d'envoi.
+ */
+export type NomScene = 'camera' | 'ouverture';
 
 export interface EtatMatch {
   /**
@@ -115,7 +120,10 @@ export interface EtatMatch {
    * dessus au jalon 2.
    */
   decalageVideoSecondes: number;
-  modules: Record<NomModule, EtatModule>;
+  /** La scène à l'antenne. Il y en a toujours une. */
+  scene: NomScene;
+  /** Coup d'envoi annoncé, pour le compte à rebours. */
+  coupDEnvoiMs: number | null;
   verrous: Verrou[];
   provider: InfoProvider;
   configuration: ConfigurationPublique;

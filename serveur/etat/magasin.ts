@@ -106,7 +106,7 @@ export class Magasin {
       ...neuf,
       identifiantMatch,
       // Ce qui appartient au poste et non au match survit au changement.
-      modules: this.#etat.modules,
+      scene: this.#etat.scene,
       configuration: this.#etat.configuration,
     });
   }

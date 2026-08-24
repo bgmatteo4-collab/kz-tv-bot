@@ -154,8 +154,33 @@ describe('un nouveau match', () => {
 });
 
 describe('l’état initial', () => {
-  it('n’affiche rien tant que la régie n’a pas diffusé', () => {
+  it('a déjà une scène à l’antenne', () => {
+    // Il n'existe pas d'état « rien d'affiché » : aucune vidéo ne passe sous
+    // l'overlay, donc ce serait un rectangle noir devant le public.
     const etat = etatInitial(0, PROVIDER_AUTO);
-    expect(etat.modules['bandeau-score'].visible).toBe(false);
+    expect(etat.scene).toBe('camera');
+  });
+
+  it('démarre sur la caméra, donc sur un centre transparent', () => {
+    // Rien n'oblige le streamer à cliquer pour être présentable à l'antenne.
+    expect(etatInitial(0, PROVIDER_AUTO).scene).toBe('camera');
+  });
+});
+
+describe('la scène', () => {
+  it('se change sans poser de verrou', () => {
+    // C'est un choix de réalisation, pas une donnée de match qu'un provider
+    // pourrait revendiquer.
+    const magasin = new Magasin({ provider: PROVIDER_AUTO });
+    magasin.appliquerIntention({ type: 'definir-scene', scene: 'ouverture' });
+    expect(magasin.etat.scene).toBe('ouverture');
+    expect(magasin.etat.verrous).toHaveLength(0);
+  });
+
+  it('survit à un nouveau match', () => {
+    const magasin = new Magasin({ provider: PROVIDER_AUTO });
+    magasin.appliquerIntention({ type: 'definir-scene', scene: 'ouverture' });
+    magasin.appliquerIntention({ type: 'nouveau-match' });
+    expect(magasin.etat.scene).toBe('ouverture');
   });
 });

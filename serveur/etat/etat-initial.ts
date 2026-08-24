@@ -26,7 +26,11 @@ export function etatInitial(
       tempsAdditionnel: 0,
     },
     decalageVideoSecondes,
-    modules: { 'bandeau-score': { visible: false } },
+    // La caméra par défaut : au démarrage, le centre est transparent et le
+    // cadre est déjà juste. Rien n'oblige le streamer à cliquer avant d'être
+    // présentable.
+    scene: 'camera',
+    coupDEnvoiMs: null,
     verrous: [],
     provider,
     configuration: { cleApiConfiguree: false, requetesRestantes: null },

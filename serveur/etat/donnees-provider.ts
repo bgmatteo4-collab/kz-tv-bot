@@ -35,4 +35,6 @@ export interface DonneesProvider {
   chronoMinute?: number;
   chronoEnMarche?: boolean;
   tempsAdditionnel?: number;
+  /** Heure du coup d'envoi annoncée par le fournisseur. */
+  coupDEnvoiMs?: number;
 }

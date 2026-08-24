@@ -40,8 +40,16 @@ body {
   transform-origin: top left;
 }
 
-/* Zones sûres : rien de vital au-delà, les plateformes recadrent. */
-#scene {
+/* Le cadre occupe tout le canevas. Il est le sol : c'est lui qui porte
+   l'opacité, et c'est autour de lui qu'on raisonne. */
+#cadre {
   position: absolute;
-  inset: var(--zone-sure);
+  inset: 0;
+  display: grid;
+  grid-template-columns: var(--cadre-colonne) var(--scene-largeur) var(--cadre-colonne);
+  grid-template-rows: var(--cadre-haut) var(--scene-hauteur) var(--cadre-bas);
+  grid-template-areas:
+    'haut haut haut'
+    'gauche scene droite'
+    'bas bas bas';
 }

@@ -13,7 +13,8 @@
  * Toutes les durées et les courbes viennent des tokens. Aucune valeur en dur.
  */
 import { COURBES, DUREES } from '../../partage/design/tokens.js';
-import type { CoteEntree } from './module.js';
+/** Le côté par lequel un élément entre. Il décide où se pose la lame. */
+export type CoteEntree = 'gauche' | 'droite';
 
 function sens(cote: CoteEntree): -1 | 1 {
   return cote === 'gauche' ? -1 : 1;

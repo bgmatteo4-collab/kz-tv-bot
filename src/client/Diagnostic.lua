@@ -152,6 +152,9 @@ function Diagnostic.demarrer()
 
 		texte.Text = table.concat({
 			"LE LOCAL — v0.1        F3 masque · V change de vue",
+			if Workspace:GetAttribute("DecorConstruit") == false
+				then "DÉCOR         ÉCHEC : " .. tostring(Workspace:GetAttribute("DecorErreur"))
+				else "décor          bâti",
 			"",
 			string.format(
 				"images/s       %.0f   (plancher %s)",

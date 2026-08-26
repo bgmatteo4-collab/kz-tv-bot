@@ -98,6 +98,26 @@ local function planDeFeuDuFond(): { Projecteur }
 	return fond
 end
 
+--- Le sas d'entrée. Sans lui la pièce est noire : l'ambiance générale du jeu
+--- est réglée sur noir absolu, comme il se doit pour un studio, donc toute
+--- pièce fermée sans source est parfaitement aveugle. Et c'est précisément la
+--- pièce où le joueur apparaît.
+local function planDeFeuSas(): { Projecteur }
+	local sas = {}
+	for index, x in { -9.2, -7.2 } do
+		table.insert(sas, {
+			nom = `PlafonnierSas_{index}`,
+			position = Vector3.new(x, 2.85, 0),
+			cible = Vector3.new(x, 0, 0),
+			couleur = Palette.LumiereNeutre,
+			intensite = 2.2,
+			angle = 110,
+			ombres = index == 1,
+		})
+	end
+	return sas
+end
+
 --- La régie reste sombre : les écrans y sont les sources dominantes, et deux
 --- plafonniers froids suffisent à ne pas travailler dans le noir complet.
 local function planDeFeuRegie(): { Projecteur }
@@ -160,6 +180,9 @@ function Eclairage.construire(parent: Instance): number
 		table.insert(plan, projecteur)
 	end
 	for _, projecteur in planDeFeuRegie() do
+		table.insert(plan, projecteur)
+	end
+	for _, projecteur in planDeFeuSas() do
 		table.insert(plan, projecteur)
 	end
 

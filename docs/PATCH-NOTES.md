@@ -88,6 +88,18 @@ le réalisme poussé tient-il dans les budgets de performance du §14 ?
 - Les couleurs d'ambiance du fichier Rojo étaient écrites en octets alors que le
   format attend des flottants de 0 à 1.
 
+**Corrigé au premier lancement réel**
+- **Le sas d'entrée n'avait aucune source de lumière.** L'ambiance générale est
+  réglée sur noir absolu, comme il se doit pour un studio : toute pièce fermée
+  sans lampe est donc parfaitement aveugle. C'était justement la pièce où le
+  joueur apparaît. Plan de feu ajouté.
+- L'ambiance générale passe de noir absolu à une valeur très basse : plus rien
+  ne peut être un trou noir, et la boîte noire reste noire.
+- La construction est désormais protégée. Une erreur ne peut plus se traduire
+  par un écran noir muet : le joueur atterrit sur une dalle de secours éclairée,
+  la console affiche la cause, et le panneau `F3` affiche `DÉCOR ÉCHEC` avec le
+  message. Un défaut invisible est pire qu'un défaut bruyant.
+
 **Ce qui n'est pas dans cette version, et pourquoi**
 Le mobilier de la configuration talk-show — canapés, table basse, caméras —
 demande de vrais modèles 3D. Plutôt que de poser des cubes en attendant, ils

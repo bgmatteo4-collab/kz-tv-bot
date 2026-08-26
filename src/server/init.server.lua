@@ -63,6 +63,42 @@ local function verifierLesMateriaux()
 	return nombre
 end
 
+--- Un sol et un point d'apparition de secours. Ils ne servent que si la
+--- construction échoue : sans eux, une erreur laisserait le joueur dans le
+--- vide noir, sans le moindre indice sur ce qui s'est passé.
+local function filetDeSecurite()
+	local sol = Instance.new("Part")
+	sol.Name = "SolDeSecours"
+	sol.Anchored = true
+	sol.Size = Vector3.new(120, 2, 120)
+	sol.Position = Vector3.new(0, -20, 0)
+	sol.Material = Enum.Material.Concrete
+	sol.Parent = Workspace
+
+	local apparition = Instance.new("SpawnLocation")
+	apparition.Name = "ApparitionDeSecours"
+	apparition.Anchored = true
+	apparition.CanCollide = false
+	apparition.Transparency = 1
+	apparition.Size = Vector3.new(12, 1, 12)
+	apparition.Position = Vector3.new(0, -18, 0)
+	apparition.Parent = Workspace
+
+	local lumiere = Instance.new("PointLight")
+	lumiere.Brightness = 3
+	lumiere.Range = 60
+	lumiere.Parent = sol
+end
+
+local function retirerLeFiletDeSecurite()
+	for _, nom in { "SolDeSecours", "ApparitionDeSecours" } do
+		local objet = Workspace:FindFirstChild(nom)
+		if objet then
+			objet:Destroy()
+		end
+	end
+end
+
 local function construire()
 	local depart = os.clock()
 
@@ -99,7 +135,22 @@ Players.CharacterAutoLoads = false
 
 nettoyerLeDecorParDefaut()
 verifierLeRendu()
-construire()
+filetDeSecurite()
+
+-- La construction est protégée : une erreur ici ne doit jamais se traduire par
+-- un écran noir sans explication. Elle doit se voir, se lire, et laisser le
+-- joueur debout quelque part.
+local reussite, souci = pcall(construire)
+
+if reussite then
+	retirerLeFiletDeSecurite()
+else
+	warn("[Le Local] LA CONSTRUCTION A ÉCHOUÉ : " .. tostring(souci))
+	warn("[Le Local] Filet de sécurité actif : tu es sur une dalle de secours.")
+end
+
+Workspace:SetAttribute("DecorConstruit", reussite)
+Workspace:SetAttribute("DecorErreur", if reussite then "" else tostring(souci))
 
 Players.CharacterAutoLoads = true
 for _, joueur in Players:GetPlayers() do

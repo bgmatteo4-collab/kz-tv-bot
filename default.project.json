@@ -42,9 +42,9 @@
         "ClockTime": 15,
         "GeographicLatitude": 45,
         "Ambient": [
-          0.0,
-          0.0,
-          0.0
+          0.047,
+          0.047,
+          0.055
         ],
         "OutdoorAmbient": [
           0.275,

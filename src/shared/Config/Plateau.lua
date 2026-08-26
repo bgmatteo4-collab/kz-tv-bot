@@ -7,19 +7,19 @@
 	suffit à modifier la construction.
 
 	Repère : le plateau est centré sur l'origine, sol à Y = 0.
-	         X va de -6 à +6, Z va de -5 à +5.
-	         La régie est accolée au nord, de Z = +5 à Z = +10.
+	         X va de -8 à +8, Z va de -6 à +6.
+	         La régie est accolée au nord, de Z = +6 à Z = +11.
 ]]
 
 return {
 	plateau = {
-		largeur = 12, -- axe X
-		profondeur = 10, -- axe Z
-		hauteur = 6, -- sous plafond, non négociable (CDC §5.2)
+		largeur = 16, -- axe X
+		profondeur = 12, -- axe Z
+		hauteur = 7, -- sous plafond, non négociable (CDC §5.2)
 	},
 
 	regie = {
-		largeur = 6,
+		largeur = 7,
 		profondeur = 5,
 		hauteur = 3,
 	},
@@ -29,7 +29,7 @@ return {
 
 	--- Le grill technique : la grille de poutres qui porte les projecteurs.
 	grill = {
-		hauteur = 4.8,
+		hauteur = 5.5,
 		section = 0.3,
 		pas = 2, -- une poutre transversale tous les 2 m
 	},
@@ -49,7 +49,7 @@ return {
 		-- goulot d'étranglement (backlog V2).
 		largeur = 1.2,
 		hauteur = 2.1,
-		centreX = 2.2,
+		centreX = 2.6,
 	},
 
 	--- Porte de service, à l'ouest : par où passe le matériel.
@@ -59,10 +59,13 @@ return {
 		centreZ = 0,
 	},
 
-	--- Le fond habillé de la configuration talk-show, contre le mur sud.
+	--- Le mur LED : le fond de la configuration talk-show, contre le mur sud.
 	fond = {
-		largeur = 8,
-		hauteur = 3.2,
-		retrait = 0.15, -- décollé du mur, comme un vrai panneau monté sur ossature
+		largeur = 10,
+		hauteur = 3.5,
+		retrait = 0.25, -- décollé du mur, monté sur ossature comme un vrai
+		allege = 0.5, -- posé sur un socle bas, pas à même le sol
+		panneau = 0.5, -- un module LED fait 50 cm de côté
+		joint = 0.012, -- l'interstice entre deux dalles, qui se voit toujours
 	},
 }

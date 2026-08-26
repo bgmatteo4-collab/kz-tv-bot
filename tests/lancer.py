@@ -24,11 +24,15 @@ MODULES = [
     "src/shared/Charte/Materiaux.lua",
     "src/shared/Config/Dev.lua",
     "src/shared/Config/Plateau.lua",
+    "src/shared/Config/Equipement.lua",
     "src/server/Construction/Batir.lua",
     "src/server/Construction/Mur.lua",
     "src/server/Construction/Coque.lua",
     "src/server/Construction/Grill.lua",
     "src/server/Construction/Eclairage.lua",
+    "src/server/Construction/Scenographie.lua",
+    "src/server/Construction/Materiel.lua",
+    "src/server/Construction/Mobilier.lua",
 ]
 
 

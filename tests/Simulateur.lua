@@ -223,14 +223,16 @@ function Simulateur.environnement()
 	for _, nom in { "Echelle", "Palette", "Materiaux" } do
 		poserModule(charte, nom, "src/shared/Charte/" .. nom .. ".lua")
 	end
-	for _, nom in { "Dev", "Plateau" } do
+	for _, nom in { "Dev", "Plateau", "Equipement" } do
 		poserModule(config, nom, "src/shared/Config/" .. nom .. ".lua")
 	end
 
 	local serveur = noeud("Script", "Serveur")
 	local construction = noeud("Folder", "Construction")
 	construction.Parent = serveur
-	for _, nom in { "Batir", "Mur", "Coque", "Grill", "Eclairage" } do
+	for _, nom in
+		{ "Batir", "Mur", "Coque", "Grill", "Eclairage", "Scenographie", "Materiel", "Mobilier" }
+	do
 		poserModule(construction, nom, "src/server/Construction/" .. nom .. ".lua")
 	end
 

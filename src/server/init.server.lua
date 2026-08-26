@@ -22,8 +22,11 @@ local Materiaux = require(Partage.Charte.Materiaux)
 local Coque = require(script.Construction.Coque)
 local Eclairage = require(script.Construction.Eclairage)
 local Grill = require(script.Construction.Grill)
+local Materiel = require(script.Construction.Materiel)
+local Mobilier = require(script.Construction.Mobilier)
+local Scenographie = require(script.Construction.Scenographie)
 
-local PLAFOND_MATERIAUX = 12
+local PLAFOND_MATERIAUX = 14
 
 --- Retire ce que Studio pose dans un place vide et qui n'a rien à faire ici.
 local function nettoyerLeDecorParDefaut()
@@ -84,6 +87,9 @@ local function construire()
 	local materiaux = verifierLesMateriaux()
 	local racine = Coque.construire(Workspace)
 	local poutres = Grill.construire(racine)
+	local dalles = Scenographie.construire(racine)
+	local cameras = Materiel.construire(racine)
+	local places, moniteurs = Mobilier.construire(racine)
 	local ombres = Eclairage.construire(racine)
 
 	local parts = 0
@@ -95,14 +101,23 @@ local function construire()
 
 	print(
 		string.format(
-			"[Le Local] v0.1 bâtie en %.0f ms — %d parts, %d poutres, %d sources à ombre sur %d, %d matériaux sur %d.",
+			"[Le Local] v0.1 bâtie en %.0f ms — %d parts, %d matériaux sur %d.",
 			(os.clock() - depart) * 1000,
 			parts,
-			poutres,
-			ombres,
-			Eclairage.BUDGET_OMBRES,
 			materiaux,
 			PLAFOND_MATERIAUX
+		)
+	)
+	print(
+		string.format(
+			"[Le Local] %d poutres · %d dalles LED · %d caméras · %d places · %d moniteurs · %d sources à ombre sur %d.",
+			poutres,
+			dalles,
+			cameras,
+			places,
+			moniteurs,
+			ombres,
+			Eclairage.BUDGET_OMBRES
 		)
 	)
 end

@@ -106,6 +106,56 @@ demande de vrais modèles 3D. Plutôt que de poser des cubes en attendant, ils
 sont absents et inscrits en dette (backlog T3). Le §17.1 interdit le placeholder
 dans une version livrée ; la boîte, elle, est finie.
 
+---
+
+## v0.1.1 — le plateau devient un plateau
+
+> Livrée après le premier essai réel. La v0.1 était géométriquement conforme et
+> visuellement vide : une coque nue ne peut rien prouver d'une direction
+> artistique. C'était une erreur de découpage de ma part, pas un défaut
+> d'exécution.
+
+**Le plateau grandit**
+- 16 × 12 m et 7 m sous plafond, au lieu de 12 × 10 et 6 m. À 120 m² il ne se
+  lisait pas comme un plateau — et Roblox amplifie l'exiguïté, puisque l'avatar
+  est large et traversait la pièce en 2,6 secondes.
+- Le grill monte à 5,50 m, la régie passe à 7 × 5 m.
+
+**Le plateau s'habille**
+- **Mur LED de 10 × 3,5 m, bâti dalle par dalle** — 140 modules de 50 cm avec
+  leurs joints visibles. Une seule grande surface bleue ne ressemble à rien ;
+  c'est l'interstice entre modules qui fait lire l'objet.
+- **Praticable de 9 × 5 m** avec nez de scène et deux marches. Sans lui, tout
+  est posé à même le sol et la pièce reste un gymnase.
+- **Traitement acoustique en panneaux espacés** sur les murs latéraux, au lieu
+  d'un aplat.
+- **Trois caméras sur pied** complètes : embase, colonne, tête, corps, optique,
+  pare-soleil, viseur et voyant d'antenne. Objectif à 1,45 m, hauteur d'œil
+  d'une personne assise — plus haut, on filme en plongée.
+- **Deux moniteurs de retour** sur pied, **cinq flight cases** empilés près de
+  la porte de service, **chemins de câbles** au sol, **voyant d'antenne**
+  au-dessus de la porte de régie.
+- **Gradins de trois rangs**, quinze places, décalés pour dégager la porte.
+- **Régie équipée** : pupitre, mur de neuf moniteurs monté écran par écran,
+  deux sièges d'opérateur.
+- **Pupitre de présentation** avec bandeau lumineux — l'emplacement prévu pour
+  le logo Kay Prod.
+
+Le décor passe de 48 à 346 parts.
+
+**Ce que j'avais eu tort d'écarter**
+J'avais annoncé que le mobilier demandait de vrais modèles 3D. C'est vrai d'un
+canapé, faux de presque tout le reste : un pied de caméra, un flight case, un
+pupitre ou un mur LED sont des volumes anguleux, entièrement modélisables. Seules
+les assises rembourrées restent en attente (backlog T3).
+
+**Le décor se mesure maintenant sans Roblox**
+Un simulateur exécute les modules de construction hors du moteur. Douze
+contrôles chiffrés vérifient les cotes, les jonctions entre pièces et les
+dégagements. Il a trouvé deux collisions invisibles à l'œil : le praticable
+entrait dans le socle du mur LED, et les gradins condamnaient la porte de la
+régie.
+
 **Prochaine étape**
 Ouvrir la v0.1 dans Studio et faire les cinq mesures listées dans
 [INSTALLATION.md](INSTALLATION.md). Elles décident si la v0.2 démarre ou si la

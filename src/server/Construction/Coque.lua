@@ -169,16 +169,6 @@ local function construirePlateau(parent: Instance)
 		epaisseur = ep,
 	})
 
-	-- Le fond habillé de la configuration talk-show, décollé du mur comme un
-	-- vrai panneau monté sur ossature.
-	Batir.bloc({
-		nom = "FondDeScene",
-		parent = dossier,
-		materiau = "acoustique_anthracite",
-		tailleM = Vector3.new(C.fond.largeur, C.fond.hauteur, 0.1),
-		positionM = Vector3.new(0, C.fond.hauteur / 2, -demiProfondeur + C.fond.retrait),
-	})
-
 	return dossier
 end
 

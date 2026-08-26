@@ -29,6 +29,10 @@ Palette.Plexiglas = Color3.fromRGB(196, 206, 212)
 Palette.BetonLisse = Color3.fromRGB(150, 149, 145)
 Palette.CaoutchoucNoir = Color3.fromRGB(30, 30, 32)
 
+-- Écrans et dalles LED.
+Palette.LedRepos = Color3.fromRGB(58, 96, 140)
+Palette.EcranEteint = Color3.fromRGB(18, 20, 24)
+
 -- Températures de lumière. Une couleur de source reste une couleur : elle n'a
 -- pas plus le droit d'être écrite ailleurs qu'une couleur de matériau.
 Palette.LumiereChaude = Color3.fromRGB(255, 236, 210)

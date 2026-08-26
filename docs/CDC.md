@@ -127,8 +127,8 @@ Un local de plain-pied, compact et dense. **La qualité prime sur la surface** :
 mieux vaut 700 m² irréprochables que 2000 m² inégaux. C'est le premier garde-fou
 imposé par le choix du réalisme poussé.
 
-Surface cible : **environ 670 m² utiles** dans une enveloppe de **768 m² hors
-tout**, soit une emprise de **112 × 84 studs** (32 × 24 m). L'écart entre les deux
+Surface cible : **environ 748 m² utiles** dans une enveloppe de **845 m² hors
+tout**, soit une emprise de **120 × 87 studs** (34,3 × 24,9 m). L'écart entre les deux
 est la place prise par les murs et les cloisons : environ 13 %, ce qui est la
 proportion normale d'un bâtiment de cette taille. Une enveloppe calée au plus
 juste sur la somme des pièces ne rentrerait pas.
@@ -157,12 +157,12 @@ plateau et la régie sont aveugles**, comme il se doit.
 | Salle de montage | 35 m² | 3 m | 3 postes, éclairage tamisé |
 | Loge / maquillage | 20 m² | 3 m | Invités, miroirs, portants |
 | Réserve matériel | 40 m² | 4 m | Flight cases, racks, pieds |
-| **Plateau** | **120 m²** | **6 m** | 12 × 10 m, grill technique |
-| **Régie** | **30 m²** | **3 m** | Attenante, vitre sur le plateau |
+| **Plateau** | **192 m²** | **7 m** | 16 × 12 m, grill technique à 5,50 m |
+| **Régie** | **35 m²** | **3 m** | 7 × 5 m, attenante, vitre sur le plateau |
 | Circulations, sanitaires | ~120 m² | 3 m | Couloirs, dégagements |
-| **Total utile** | **671 m²** | | Hors murs et cloisons |
+| **Total utile** | **748 m²** | | Hors murs et cloisons |
 
-La hauteur sous plafond du plateau (6 m) est **non négociable** : c'est elle qui
+La hauteur sous plafond du plateau (7 m) est **non négociable** : c'est elle qui
 fait la différence entre un vrai studio et une salle de classe repeinte en noir.
 C'est l'erreur la plus fréquente et la plus visible.
 
@@ -626,7 +626,7 @@ sont pas des objectifs souhaitables, ce sont des **limites de conception**.
 | Lumières avec ombre, simultanées | 12 au maximum |
 | PNJ animés visibles simultanément | 25 au maximum |
 | Surfaces d'interface actives | 6 au maximum, extinction au-delà d'une distance |
-| Matériaux PBR distincts | 12 au maximum sur tout le projet |
+| Matériaux distincts | 14 au maximum sur tout le projet |
 
 **Moyens.** `StreamingEnabled` obligatoire (le local n'est jamais chargé
 entièrement). Niveaux de détail sur les écrans : actif près, image figée à
@@ -809,3 +809,6 @@ Aucune ne bloque la v0.1. À trancher au fil des versions concernées.
 | 26/08 | Échelle révisée : 1 m = 3,5 studs au lieu de 3 | Mesure en moteur : l'avatar fait 6,12 studs, pas 5,2. À l'ancienne échelle une porte n'était que 3 % plus haute qu'un personnage |
 | 26/08 | Portes intérieures portées à 1,20 m | L'avatar Roblox est proportionnellement bien plus large qu'un humain ; 0,90 m devenait un goulot |
 | 26/08 | Toute lecture de réglage de rendu est protégée | `Lighting.Technology` n'est pas lisible par un script serveur ordinaire, et une simple vérification de confort empêchait toute la construction |
+| 26/08 | Plateau porté de 120 à 192 m², hauteur de 6 à 7 m | À 120 m² il ne se lisait pas comme un plateau, et Roblox amplifie l'exiguïté : l'avatar est large et traverse la pièce en 2,6 secondes |
+| 26/08 | Plafond de matériaux porté de 12 à 14 | La bibliothèque avait été écrite avant qu'aucun équipement existe : il lui manquait la dalle émissive, la matière la plus caractéristique d'un studio |
+| 26/08 | Le mobilier technique est bâti en géométrie native | Pied de caméra, flight case, pupitre, mur LED : tout cela est anguleux. Seules les assises rembourrées demandent de vrais modèles |

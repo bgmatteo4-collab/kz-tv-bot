@@ -44,8 +44,8 @@ local accroche = C.grill.hauteur - C.grill.section - 0.15
 local PLAN_DE_FEU: { Projecteur } = {
 	{
 		nom = "Face",
-		position = Vector3.new(-3, accroche, 1.5),
-		cible = Vector3.new(0, 1.4, -2),
+		position = Vector3.new(-4, accroche, 2),
+		cible = Vector3.new(0, 1.4, -3),
 		couleur = Palette.LumiereChaude,
 		intensite = 3,
 		angle = 62,
@@ -53,8 +53,8 @@ local PLAN_DE_FEU: { Projecteur } = {
 	},
 	{
 		nom = "Laterale",
-		position = Vector3.new(3, accroche, 1.5),
-		cible = Vector3.new(0, 1.4, -2),
+		position = Vector3.new(4, accroche, 2),
+		cible = Vector3.new(0, 1.4, -3),
 		couleur = Palette.LumiereNeutre,
 		intensite = 1.6,
 		angle = 72,
@@ -62,8 +62,8 @@ local PLAN_DE_FEU: { Projecteur } = {
 	},
 	{
 		nom = "ContreJourGauche",
-		position = Vector3.new(-2.2, accroche, -4.2),
-		cible = Vector3.new(-1, 1.6, -1.5),
+		position = Vector3.new(-3, accroche, -5.2),
+		cible = Vector3.new(-1.5, 1.6, -2.5),
 		couleur = Palette.LumiereNeutre,
 		intensite = 2.4,
 		angle = 46,
@@ -71,8 +71,8 @@ local PLAN_DE_FEU: { Projecteur } = {
 	},
 	{
 		nom = "ContreJourDroit",
-		position = Vector3.new(2.2, accroche, -4.2),
-		cible = Vector3.new(1, 1.6, -1.5),
+		position = Vector3.new(3, accroche, -5.2),
+		cible = Vector3.new(1.5, 1.6, -2.5),
 		couleur = Palette.LumiereNeutre,
 		intensite = 2.4,
 		angle = 46,
@@ -84,10 +84,10 @@ local PLAN_DE_FEU: { Projecteur } = {
 --- l'identité Kay Prod n'existe pas (CDC §9.6).
 local function planDeFeuDuFond(): { Projecteur }
 	local fond = {}
-	for _, x in { -2.5, 0, 2.5 } do
+	for _, x in { -3.5, 0, 3.5 } do
 		table.insert(fond, {
 			nom = `LavageFond_{x}`,
-			position = Vector3.new(x, accroche, -3.4),
+			position = Vector3.new(x, accroche, -4.4),
 			cible = Vector3.new(x, 1.6, -C.plateau.profondeur / 2 + C.fond.retrait),
 			couleur = Palette.AccentProvisoire,
 			intensite = 2,
@@ -104,7 +104,10 @@ end
 --- pièce où le joueur apparaît.
 local function planDeFeuSas(): { Projecteur }
 	local sas = {}
-	for index, x in { -9.2, -7.2 } do
+	-- Positions dérivées de la face extérieure du mur ouest : le sas suit le
+	-- plateau quand celui-ci change de taille.
+	local sasFin = -(C.plateau.largeur / 2 + C.epaisseurMur)
+	for index, x in { sasFin - 1.2, sasFin - 3 } do
 		table.insert(sas, {
 			nom = `PlafonnierSas_{index}`,
 			position = Vector3.new(x, 2.85, 0),

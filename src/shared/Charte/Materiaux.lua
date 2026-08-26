@@ -2,8 +2,11 @@
 --[[
 	Materiaux — la bibliothèque unique du projet.
 
-	Cahier des charges §14 : **douze matériaux au maximum sur tout le projet**,
-	les deux palettes comprises. Ce plafond est une limite de conception, pas un
+	Cahier des charges §14 : **quatorze matériaux au maximum sur tout le projet**,
+	les deux palettes comprises. Le plafond était de douze ; il a été relevé le
+	26/08 parce que la bibliothèque avait été écrite avant que le moindre
+	équipement existe, et qu'il lui manquait la matière la plus caractéristique
+	d'un studio : la dalle émissive. Ce plafond est une limite de conception, pas un
 	objectif : dépasser douze, c'est perdre la cohérence que le réalisme exige.
 
 	Chaque matériau existe en une seule version, utilisée partout. Le champ
@@ -60,6 +63,10 @@ Materiaux.parNom = {
 	),
 	alu_noir_mat = definir("alu_noir_mat", Enum.Material.Metal, Palette.AluNoirMat, 0.05),
 	plexiglas = definir("plexiglas", Enum.Material.SmoothPlastic, Palette.Plexiglas, 0.2, 0.6),
+
+	-- Émissif : écrans, dalles LED, voyants.
+	led_ecran = definir("led_ecran", Enum.Material.Neon, Palette.LedRepos),
+	ecran_eteint = definir("ecran_eteint", Enum.Material.Glass, Palette.EcranEteint, 0.35),
 
 	-- Commun.
 	beton_lisse = definir("beton_lisse", Enum.Material.Concrete, Palette.BetonLisse),

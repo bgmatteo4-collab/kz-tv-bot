@@ -45,9 +45,9 @@ diagnostic de la v0.1, touche `F3`. Il reste à faire la mesure dans Studio.
 
 | # | Sujet | Pourquoi |
 |---|---|---|
-| V1 | Hauteur exacte de l'avatar par défaut | Toute la table d'échelle en dépend (CDC §9.1) |
-| V2 | Largeur de porte praticable | 6,3 studs est juste au réel, mais l'avatar Roblox est large |
-| V3 | Plafond de bureau à 9 studs | Peut paraître écrasant en vue première personne |
+| ~~V1~~ | ~~Hauteur exacte de l'avatar~~ | **Résolu le 26/08 : 6,12 studs mesurés. L'échelle passe de 3 à 3,5 studs par mètre.** |
+| ~~V2~~ | ~~Largeur de porte praticable~~ | **Traité : portes intérieures portées de 0,90 m à 1,20 m.** À reconfirmer en jeu. |
+| V3 | Plafond de bureau à 10,5 studs | Peut paraître écrasant en vue première personne |
 | V4 | Budget de 12 lumières à ombre | Valeur posée par prudence, à mesurer réellement |
 | V5 | Coût réel des matériaux PBR sur un plateau entier | Détermine si le plafond de 12 matériaux tient |
 
@@ -69,3 +69,5 @@ diagnostic de la v0.1, touche `F3`. Il reste à faire la mesure dans Studio.
 | P3 | Aucun décor visible côté client : sans personnage, le chargement par flux ne chargeait rien | **corrigé** — flux désactivé en v0.1 (dette T4) |
 | P4 | Le compte de parts du panneau était figé au démarrage du client, donc pris avant la fin de la construction | **corrigé** — recalculé à chaque rafraîchissement |
 | P5 | Le panneau de diagnostic passait sous le menu Roblox en haut à gauche | **corrigé** — descendu de 116 pixels |
+| P6 | La construction échouait entièrement : lire `Lighting.Technology` demande une capacité qu'un script serveur ordinaire n'a pas | **corrigé** — lecture protégée. Une vérification de confort ne doit jamais pouvoir empêcher la construction |
+| P7 | L'échelle était fausse de 18 % : avatar supposé à 5,2 studs, mesuré à 6,12 | **corrigé** — 1 m = 3,5 studs |

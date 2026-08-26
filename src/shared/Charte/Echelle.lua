@@ -12,11 +12,18 @@
 local Echelle = {}
 
 --- Le rapport fondateur. Ne jamais l'écrire ailleurs.
-Echelle.STUDS_PAR_METRE = 3
+Echelle.STUDS_PAR_METRE = 3.5
 
---- Hauteur d'avatar attendue, à confronter au moteur (backlog V1).
---- 5,2 studs ÷ 3 = 1,73 m, soit la taille moyenne d'un adulte.
-Echelle.AVATAR_ATTENDU_STUDS = 5.2
+--- Hauteur d'avatar mesurée en moteur le 26/08 (backlog V1, résolu).
+--- 6,12 studs ÷ 3,5 = 1,749 m, soit la taille moyenne d'un adulte.
+---
+--- L'hypothèse initiale de 5,2 studs était fausse de 18 %. À l'ancienne
+--- échelle, une porte n'était que 3 % plus haute que le personnage : tout le
+--- bâtiment aurait paru écrasé sans qu'on sache pourquoi.
+---
+--- Réserve : la taille d'un avatar Roblox varie d'un joueur à l'autre. La
+--- charte se cale sur un avatar adulte standard, pas sur les extrêmes.
+Echelle.AVATAR_ATTENDU_STUDS = 6.12
 
 --- Mètres vers studs.
 function Echelle.m(metres: number): number

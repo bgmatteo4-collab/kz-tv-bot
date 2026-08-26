@@ -38,9 +38,17 @@ end
 --- éclairé en Voxel n'a rien à voir avec le rendu visé, et il vaut mieux le
 --- savoir tout de suite que le découvrir sur une capture d'écran.
 local function verifierLeRendu()
-	if Lighting.Technology ~= Enum.Technology.Future then
+	-- `Lighting.Technology` n'est pas lisible depuis un script serveur
+	-- ordinaire : Roblox le réserve à une capacité que nous n'avons pas. La
+	-- lecture est donc protégée. Une vérification de confort ne doit jamais
+	-- pouvoir empêcher la construction — c'est exactement ce qui est arrivé.
+	local lisible, technologie = pcall(function()
+		return Lighting.Technology
+	end)
+
+	if lisible and technologie ~= Enum.Technology.Future then
 		warn(
-			`[Rendu] Lighting.Technology vaut {Lighting.Technology.Name} au lieu de Future. `
+			`[Rendu] Lighting.Technology vaut {technologie.Name} au lieu de Future. `
 				.. "Les mesures de performance ne seront pas représentatives."
 		)
 	end
@@ -49,7 +57,13 @@ local function verifierLeRendu()
 	-- aucun intérêt sur une pièce de soixante parts et ajoute une variable de
 	-- plus au diagnostic. Il redevient obligatoire en v0.2, quand le local
 	-- entier existera (CDC §14, écart consigné au backlog).
-	if Workspace.StreamingEnabled then
+	local flux = select(
+		2,
+		pcall(function()
+			return Workspace.StreamingEnabled
+		end)
+	)
+	if flux == true then
 		warn("[Rendu] StreamingEnabled est actif ; la v0.1 se mesure sans lui.")
 	end
 end

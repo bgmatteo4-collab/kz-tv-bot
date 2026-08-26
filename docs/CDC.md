@@ -87,7 +87,7 @@ du projet, consignée ici.
 | Style graphique | **Réaliste poussé** : PBR, éclairage Future | 26/08 |
 | PNJ | Équipe qui travaille dans les bureaux + public et invités sur le plateau | 26/08 |
 | Formats d'événement | Talk-show, LAN esport, session live, journal/débat | 26/08 |
-| Échelle | **1 mètre = 3 studs**, sans exception | 26/08 |
+| Échelle | **1 mètre = 3,5 studs**, sans exception. Mesuré en moteur, pas supposé | 26/08 |
 | Marques | **Aucune marque réelle.** Identité originale créée pour le projet | 26/08 |
 | Monétisation | Non traitée à ce stade. Aucun achat accélérant la progression. | 26/08 |
 | Nom du projet | **Le Local by Kay Prod** | 26/08 |
@@ -128,7 +128,7 @@ mieux vaut 700 m² irréprochables que 2000 m² inégaux. C'est le premier garde
 imposé par le choix du réalisme poussé.
 
 Surface cible : **environ 670 m² utiles** dans une enveloppe de **768 m² hors
-tout**, soit une emprise de **96 × 72 studs** (32 × 24 m). L'écart entre les deux
+tout**, soit une emprise de **112 × 84 studs** (32 × 24 m). L'écart entre les deux
 est la place prise par les murs et les cloisons : environ 13 %, ce qui est la
 proportion normale d'un bâtiment de cette taille. Une enveloppe calée au plus
 juste sur la somme des pièces ne rentrerait pas.
@@ -317,31 +317,42 @@ principal risque de performance du projet. Traité en §14.
 
 ### 9.1 L'échelle — la règle fondatrice
 
-**1 mètre = 3 studs.** Sans exception, dans tout le projet.
+**1 mètre = 3,5 studs.** Sans exception, dans tout le projet.
 
-L'avatar Roblox par défaut mesure environ 5,2 studs, soit **1,73 m** — la taille
-moyenne d'un adulte. Toutes les dimensions du monde réel se convertissent donc
-directement, et tout objet doit être dimensionné à partir de sa cote réelle.
+Ce rapport n'est pas supposé, il est **mesuré**. L'avatar fait 6,12 studs en
+moteur, soit **1,749 m** — la taille moyenne d'un adulte.
+
+L'hypothèse initiale était 3 studs par mètre, calée sur une hauteur d'avatar de
+5,2 studs. Elle était fausse de 18 %. La conséquence était invisible sur le
+papier et brutale en jeu : une porte n'aurait été que 3 % plus haute que le
+personnage, au lieu des 20 % du monde réel. Tout le bâtiment aurait paru écrasé
+sans que rien n'indique pourquoi.
+
+Réserve à connaître : la taille d'un avatar Roblox **varie d'un joueur à
+l'autre**. La charte se cale sur un avatar adulte standard, pas sur les
+extrêmes. Un joueur au personnage très petit ou très grand verra le local
+autrement, et c'est une limite de la plateforme, pas un défaut à corriger.
 
 | Élément | Réel | Studs |
 |---|---|---|
-| Hauteur de porte | 2,10 m | 6,3 |
-| Hauteur de plan de bureau | 0,74 m | 2,2 |
-| Assise de chaise | 0,45 m | 1,35 |
-| Plafond de bureau | 3,00 m | 9 |
-| Plafond de plateau | 6,00 m | 18 |
-| Praticable, module bas | 0,20 m | 0,6 |
-| Écran 27 pouces (largeur) | 0,60 m | 1,8 |
+| Avatar (mesuré) | 1,749 m | 6,12 |
+| Hauteur de porte | 2,10 m | 7,35 |
+| Hauteur de plan de bureau | 0,74 m | 2,59 |
+| Assise de chaise | 0,45 m | 1,58 |
+| Plafond de bureau | 3,00 m | 10,5 |
+| Plafond de plateau | 6,00 m | 21 |
+| Praticable, module bas | 0,20 m | 0,70 |
+| Écran 27 pouces (largeur) | 0,60 m | 2,10 |
 
 **Aucune dimension d'objet ne sera choisie à l'œil.** Chaque entrée du catalogue
 déclare sa cote réelle en mètres ; la conversion est faite par le code.
 
 ### 9.2 La grille
 
-- **Grille de placement** : 0,25 m (0,75 stud) — assez fin pour du mobilier,
+- **Grille de placement** : 0,25 m (0,875 stud) — assez fin pour du mobilier,
   assez grossier pour que rien ne flotte entre deux positions.
-- **Grille de construction du plateau** : 0,50 m (1,5 stud) pour les praticables
-  et panneaux, afin que les modules s'alignent toujours.
+- **Grille de construction du plateau** : 0,50 m (1,75 stud) pour les
+  praticables et panneaux, afin que les modules s'alignent toujours.
 - **Rotations** : par pas de 15°.
 
 ### 9.3 La lumière
@@ -795,3 +806,6 @@ Aucune ne bloque la v0.1. À trancher au fil des versions concernées.
 | 26/08 | Objets instantanés depuis le catalogue | Annule le transport depuis la réserve prévu en §6.3 |
 | 26/08 | Exigence élevée assumée, deux garde-fous ajoutés | Une réussite sans risque d'échec ne vaut rien |
 | 26/08 | v0.1 réduite à une seule pièce finie à 100 % | Prouver la direction artistique avant de bâtir 671 m² |
+| 26/08 | Échelle révisée : 1 m = 3,5 studs au lieu de 3 | Mesure en moteur : l'avatar fait 6,12 studs, pas 5,2. À l'ancienne échelle une porte n'était que 3 % plus haute qu'un personnage |
+| 26/08 | Portes intérieures portées à 1,20 m | L'avatar Roblox est proportionnellement bien plus large qu'un humain ; 0,90 m devenait un goulot |
+| 26/08 | Toute lecture de réglage de rendu est protégée | `Lighting.Technology` n'est pas lisible par un script serveur ordinaire, et une simple vérification de confort empêchait toute la construction |

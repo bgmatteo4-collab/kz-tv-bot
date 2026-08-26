@@ -345,13 +345,29 @@ local function construireSas(parent: Instance)
 	return dossier
 end
 
---- Le point d'apparition est statique : il est déclaré dans le fichier de
---- place, pas créé ici. Un joueur doit pouvoir apparaître même si cette
---- construction échoue entièrement — c'est la seule garantie qui tienne.
-local function verifierApparition(parent: Instance)
-	if not parent:FindFirstChildWhichIsA("SpawnLocation", true) then
-		warn("[Le Local] Aucun point d'apparition dans le Workspace.")
+--- Le point d'apparition existe dans le fichier de place : il est là avant que
+--- la moindre ligne de code tourne, donc rien ne peut empêcher un joueur
+--- d'apparaître. Sa POSITION, elle, est recalculée ici depuis les cotes en
+--- mètres — sinon elle dériverait au premier changement d'échelle, ce qui vient
+--- précisément d'arriver.
+local function placerApparition()
+	local apparition = Workspace:FindFirstChild("Apparition")
+
+	if not apparition or not apparition:IsA("SpawnLocation") then
+		warn("[Le Local] Point d'apparition absent du fichier de place ; recréé.")
+		apparition = Instance.new("SpawnLocation")
+		apparition.Name = "Apparition"
+		apparition.Parent = Workspace
 	end
+
+	local socle = apparition :: SpawnLocation
+	socle.Anchored = true
+	socle.CanCollide = true
+	socle.Transparency = 1
+	socle.Size = Echelle.v(Vector3.new(3.4, 0.3, 3.4))
+	-- Le haut de la dalle affleure le sol fini du sas.
+	socle.CFrame = CFrame.new(Echelle.v(Vector3.new(sasXDebut + 1.9, -0.15, 0)))
+		* CFrame.Angles(0, math.rad(-90), 0)
 end
 
 --- Bâtit tout le gros œuvre et renvoie le dossier racine.
@@ -362,7 +378,7 @@ function Coque.construire(parent: Instance): Folder
 	construireRegie(racine)
 	construirePortes(racine)
 	construireSas(racine)
-	verifierApparition(Workspace)
+	placerApparition()
 
 	return racine
 end

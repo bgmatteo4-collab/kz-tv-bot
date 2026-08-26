@@ -44,7 +44,10 @@ return {
 
 	--- Porte de communication entre la régie et le plateau.
 	porteRegie = {
-		largeur = 0.9,
+		-- 1,20 m et non 0,90 : l'avatar Roblox est proportionnellement bien
+		-- plus large qu'un humain. Une porte de bureau standard deviendrait un
+		-- goulot d'étranglement (backlog V2).
+		largeur = 1.2,
 		hauteur = 2.1,
 		centreX = 2.2,
 	},

@@ -111,7 +111,11 @@ Un local de plain-pied, compact et dense. **La qualité prime sur la surface** :
 mieux vaut 700 m² irréprochables que 2000 m² inégaux. C'est le premier garde-fou
 imposé par le choix du réalisme poussé.
 
-Surface cible : **environ 700 m²**, soit une emprise d'environ **90 × 70 studs**.
+Surface cible : **environ 670 m² utiles** dans une enveloppe de **768 m² hors
+tout**, soit une emprise de **96 × 72 studs** (32 × 24 m). L'écart entre les deux
+est la place prise par les murs et les cloisons : environ 13 %, ce qui est la
+proportion normale d'un bâtiment de cette taille. Une enveloppe calée au plus
+juste sur la somme des pièces ne rentrerait pas.
 
 ### 5.2 Programme des espaces *(proposition à valider)*
 
@@ -129,6 +133,7 @@ Surface cible : **environ 700 m²**, soit une emprise d'environ **90 × 70 studs
 | **Plateau** | **120 m²** | **6 m** | 12 × 10 m, grill technique |
 | **Régie** | **30 m²** | **3 m** | Attenante, vitre sur le plateau |
 | Circulations, sanitaires | ~120 m² | 3 m | Couloirs, dégagements |
+| **Total utile** | **671 m²** | | Hors murs et cloisons |
 
 La hauteur sous plafond du plateau (6 m) est **non négociable** : c'est elle qui
 fait la différence entre un vrai studio et une salle de classe repeinte en noir.
@@ -695,3 +700,4 @@ de place jouable produit par la CI plutôt que versionné à la main.
 | 26/08 | Réalisme poussé retenu malgré la charge de travail | Choix assumé, compensé par un local compact |
 | 26/08 | Bac à sable retenu, complété par la production comme activité | Éviter le lieu vide sans imposer un tunnel de déblocage |
 | 26/08 | Échelle fixée à 1 m = 3 studs | Toute cote doit dériver du réel |
+| 26/08 | Enveloppe portée à 96 × 72 studs | Les 671 m² utiles ne tenaient pas dans l'emprise annoncée |

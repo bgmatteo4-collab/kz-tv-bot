@@ -48,3 +48,15 @@ raison d'être et ce qui devra la remplacer.*
 ## Problèmes connus
 
 *Vide. Aucun code écrit.*
+
+## À vérifier dans le moteur
+
+Points dont la valeur a été posée par le calcul et qui doivent être confrontés
+au rendu réel avant d'être figés.
+
+| # | Sujet | Pourquoi |
+|---|---|---|
+| V1 | Hauteur exacte de l'avatar par défaut | Toute la table d'échelle en dépend (CDC §9.1) |
+| V2 | Largeur de porte praticable | 6,3 studs est juste au réel, mais l'avatar Roblox est large |
+| V3 | Plafond de bureau à 9 studs | Peut paraître écrasant en vue première personne |
+| V4 | Budget de 12 lumières à ombre | Valeur posée par prudence, à mesurer réellement |

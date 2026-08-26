@@ -13,6 +13,7 @@
 ]]
 
 local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
@@ -91,6 +92,16 @@ local function construire()
 	)
 end
 
+-- Le décor n'existe pas encore quand le script démarre : il n'y a donc ni sol
+-- ni point d'apparition. Un joueur qui rejoint pendant la construction
+-- tomberait dans le vide. On suspend l'apparition, on bâtit, puis on la rend.
+Players.CharacterAutoLoads = false
+
 nettoyerLeDecorParDefaut()
 verifierLeRendu()
 construire()
+
+Players.CharacterAutoLoads = true
+for _, joueur in Players:GetPlayers() do
+	joueur:LoadCharacter()
+end

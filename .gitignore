@@ -16,3 +16,4 @@ build/
 
 # Binaires : jamais versionnés. Les outils s'installent via Aftman.
 *.exe
+tests/paquet.lua

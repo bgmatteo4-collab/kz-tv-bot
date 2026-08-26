@@ -47,8 +47,8 @@ local function creerPanneau(): (ScreenGui, TextLabel)
 	local cadre = Instance.new("Frame")
 	cadre.Name = "Cadre"
 	cadre.AnchorPoint = Vector2.new(0, 0)
-	cadre.Position = UDim2.fromOffset(16, 16)
-	cadre.Size = UDim2.fromOffset(320, 168)
+	cadre.Position = UDim2.fromOffset(16, 132)
+	cadre.Size = UDim2.fromOffset(340, 190)
 	cadre.BackgroundColor3 = Palette.NoirTechnique
 	cadre.BackgroundTransparency = 0.15
 	cadre.BorderSizePixel = 0
@@ -115,7 +115,6 @@ end
 
 function Diagnostic.demarrer()
 	local ecran, texte = creerPanneau()
-	local parts = compterParts()
 
 	UserInputService.InputBegan:Connect(function(entree, capturee)
 		if not capturee and entree.KeyCode == TOUCHE then
@@ -162,7 +161,7 @@ function Diagnostic.demarrer()
 				if plancher == math.huge then "mesure en cours" else string.format("%.0f", plancher)
 			),
 			ligneAvatar,
-			string.format("parts           %d", parts),
+			string.format("parts           %d", compterParts()),
 			string.format(
 				"position        %.1f ; %.1f ; %.1f m",
 				Echelle.enMetres(position.X),

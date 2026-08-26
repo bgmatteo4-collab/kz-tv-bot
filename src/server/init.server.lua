@@ -13,7 +13,6 @@
 ]]
 
 local Lighting = game:GetService("Lighting")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
@@ -28,11 +27,9 @@ local PLAFOND_MATERIAUX = 12
 
 --- Retire ce que Studio pose dans un place vide et qui n'a rien à faire ici.
 local function nettoyerLeDecorParDefaut()
-	for _, nom in { "Baseplate", "SpawnLocation" } do
-		local objet = Workspace:FindFirstChild(nom)
-		if objet then
-			objet:Destroy()
-		end
+	local socle = Workspace:FindFirstChild("Baseplate")
+	if socle then
+		socle:Destroy()
 	end
 end
 
@@ -48,8 +45,12 @@ local function verifierLeRendu()
 		)
 	end
 
-	if not Workspace.StreamingEnabled then
-		warn("[Rendu] StreamingEnabled est désactivé (CDC §14).")
+	-- Le chargement par flux est volontairement désactivé en v0.1 : il n'a
+	-- aucun intérêt sur une pièce de soixante parts et ajoute une variable de
+	-- plus au diagnostic. Il redevient obligatoire en v0.2, quand le local
+	-- entier existera (CDC §14, écart consigné au backlog).
+	if Workspace.StreamingEnabled then
+		warn("[Rendu] StreamingEnabled est actif ; la v0.1 se mesure sans lui.")
 	end
 end
 
@@ -61,42 +62,6 @@ local function verifierLesMateriaux()
 		)
 	end
 	return nombre
-end
-
---- Un sol et un point d'apparition de secours. Ils ne servent que si la
---- construction échoue : sans eux, une erreur laisserait le joueur dans le
---- vide noir, sans le moindre indice sur ce qui s'est passé.
-local function filetDeSecurite()
-	local sol = Instance.new("Part")
-	sol.Name = "SolDeSecours"
-	sol.Anchored = true
-	sol.Size = Vector3.new(120, 2, 120)
-	sol.Position = Vector3.new(0, -20, 0)
-	sol.Material = Enum.Material.Concrete
-	sol.Parent = Workspace
-
-	local apparition = Instance.new("SpawnLocation")
-	apparition.Name = "ApparitionDeSecours"
-	apparition.Anchored = true
-	apparition.CanCollide = false
-	apparition.Transparency = 1
-	apparition.Size = Vector3.new(12, 1, 12)
-	apparition.Position = Vector3.new(0, -18, 0)
-	apparition.Parent = Workspace
-
-	local lumiere = Instance.new("PointLight")
-	lumiere.Brightness = 3
-	lumiere.Range = 60
-	lumiere.Parent = sol
-end
-
-local function retirerLeFiletDeSecurite()
-	for _, nom in { "SolDeSecours", "ApparitionDeSecours" } do
-		local objet = Workspace:FindFirstChild(nom)
-		if objet then
-			objet:Destroy()
-		end
-	end
 end
 
 local function construire()
@@ -128,31 +93,19 @@ local function construire()
 	)
 end
 
--- Le décor n'existe pas encore quand le script démarre : il n'y a donc ni sol
--- ni point d'apparition. Un joueur qui rejoint pendant la construction
--- tomberait dans le vide. On suspend l'apparition, on bâtit, puis on la rend.
-Players.CharacterAutoLoads = false
+-- La construction est protégée : une erreur ne doit jamais se traduire par un
+-- écran vide et muet. Elle doit se voir, se lire, et laisser le joueur debout.
+-- Le point d'apparition, lui, est statique : il vit dans le fichier de place et
+-- existe donc avant que la moindre ligne de code tourne.
+local reussite, souci = pcall(function()
+	nettoyerLeDecorParDefaut()
+	verifierLeRendu()
+	construire()
+end)
 
-nettoyerLeDecorParDefaut()
-verifierLeRendu()
-filetDeSecurite()
-
--- La construction est protégée : une erreur ici ne doit jamais se traduire par
--- un écran noir sans explication. Elle doit se voir, se lire, et laisser le
--- joueur debout quelque part.
-local reussite, souci = pcall(construire)
-
-if reussite then
-	retirerLeFiletDeSecurite()
-else
+if not reussite then
 	warn("[Le Local] LA CONSTRUCTION A ÉCHOUÉ : " .. tostring(souci))
-	warn("[Le Local] Filet de sécurité actif : tu es sur une dalle de secours.")
 end
 
 Workspace:SetAttribute("DecorConstruit", reussite)
 Workspace:SetAttribute("DecorErreur", if reussite then "" else tostring(souci))
-
-Players.CharacterAutoLoads = true
-for _, joueur in Players:GetPlayers() do
-	joueur:LoadCharacter()
-end

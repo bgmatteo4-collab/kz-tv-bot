@@ -57,9 +57,15 @@ diagnostic de la v0.1, touche `F3`. Il reste à faire la mesure dans Studio.
 |---|---|---|---|
 | T1 | Selene absent de la CI | La génération de sa bibliothèque standard Roblox échoue depuis l'environnement de développement. La syntaxe, le format et la construction sont vérifiés ; le linting ne l'est pas. | Fiabiliser `selene generate-roblox-std`, ou committer une bibliothèque standard générée, puis ajouter l'étape à `controles.yml`. |
 | T2 | `Palette.AccentProvisoire` | La couleur d'accent du lavage de fond attend l'identité Kay Prod (CDC §9.6). Nommée « provisoire » pour qu'elle ne s'installe pas par oubli. | La remplacer par la couleur d'accent de la charte de marque. |
+| T4 | `StreamingEnabled` désactivé | Le chargement par flux n'apporte rien sur une pièce de soixante parts et a masqué un défaut au premier lancement : sans personnage, aucun décor ne se chargeait, donnant un ciel vide. Le CDC §14 le rend obligatoire. | Le réactiver en v0.2, quand le local entier existera et qu'il aura une raison d'être. |
 | T3 | Aucun mobilier de plateau | Les canapés, la table basse et les caméras de la configuration talk-show demandent de vrais modèles 3D, qui ne peuvent pas être produits par code. Aucun cube n'a été posé à leur place (CDC §17.1). | Produire ou acquérir les modèles, puis les intégrer aux cotes réelles. |
 
 ## Problèmes connus
 
-*Vide. La v0.1 n'a pas encore tourné dans Studio — cette section se remplira au
-premier test.*
+| # | Problème | État |
+|---|---|---|
+| P1 | Le sas d'entrée était totalement noir : aucune source de lumière dans une pièce fermée, avec une ambiance générale à zéro | **corrigé** |
+| P2 | Le personnage n'apparaissait pas : la suspension d'apparition pendant la construction ne se relâchait pas | **corrigé** — point d'apparition désormais statique, présent dans le fichier de place |
+| P3 | Aucun décor visible côté client : sans personnage, le chargement par flux ne chargeait rien | **corrigé** — flux désactivé en v0.1 (dette T4) |
+| P4 | Le compte de parts du panneau était figé au démarrage du client, donc pris avant la fin de la construction | **corrigé** — recalculé à chaque rafraîchissement |
+| P5 | Le panneau de diagnostic passait sous le menu Roblox en haut à gauche | **corrigé** — descendu de 116 pixels |

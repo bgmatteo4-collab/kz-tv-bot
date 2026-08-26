@@ -16,6 +16,7 @@
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Partage = ReplicatedStorage:WaitForChild("Partage")
 local C = require(Partage.Config.Plateau)
@@ -344,22 +345,13 @@ local function construireSas(parent: Instance)
 	return dossier
 end
 
---- Le joueur apparaît dans le sas : il entre donc dans le studio par la porte
---- de service, et découvre la boîte noire depuis la lumière. C'est la première
---- impression que la direction artistique doit réussir.
-local function poserApparition(parent: Instance)
-	local apparition = Instance.new("SpawnLocation")
-	apparition.Name = "Apparition"
-	apparition.Anchored = true
-	apparition.CanCollide = false
-	apparition.Transparency = 1
-	apparition.Size = Echelle.v(Vector3.new(2, 0.2, 2))
-	-- Tourné vers l'est : le joueur fait face à la porte de service, donc au
-	-- plateau, dès la première image.
-	apparition.CFrame = CFrame.new(Echelle.v(Vector3.new(sasXDebut + 1.5, 0.4, 0)))
-		* CFrame.Angles(0, math.rad(-90), 0)
-	apparition.Parent = parent
-	return apparition
+--- Le point d'apparition est statique : il est déclaré dans le fichier de
+--- place, pas créé ici. Un joueur doit pouvoir apparaître même si cette
+--- construction échoue entièrement — c'est la seule garantie qui tienne.
+local function verifierApparition(parent: Instance)
+	if not parent:FindFirstChildWhichIsA("SpawnLocation", true) then
+		warn("[Le Local] Aucun point d'apparition dans le Workspace.")
+	end
 end
 
 --- Bâtit tout le gros œuvre et renvoie le dossier racine.
@@ -370,7 +362,7 @@ function Coque.construire(parent: Instance): Folder
 	construireRegie(racine)
 	construirePortes(racine)
 	construireSas(racine)
-	poserApparition(racine)
+	verifierApparition(Workspace)
 
 	return racine
 end

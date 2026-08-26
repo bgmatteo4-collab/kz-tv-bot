@@ -27,7 +27,25 @@
       "$className": "Workspace",
       "$properties": {
         "FilteringEnabled": true,
-        "StreamingEnabled": true
+        "StreamingEnabled": false
+      },
+      "Apparition": {
+        "$className": "SpawnLocation",
+        "$properties": {
+          "Anchored": true,
+          "CanCollide": true,
+          "Transparency": 1,
+          "Size": [
+            12,
+            1,
+            12
+          ],
+          "Position": [
+            -25.5,
+            -0.5,
+            0
+          ]
+        }
       }
     },
     "Lighting": {

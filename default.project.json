@@ -1,0 +1,63 @@
+{
+  "name": "LeLocal",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Partage": {
+        "$path": "src/shared"
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Serveur": {
+        "$path": "src/server"
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": {
+        "FilteringEnabled": true,
+        "StreamingEnabled": true
+      }
+    },
+    "Lighting": {
+      "$className": "Lighting",
+      "$properties": {
+        "Technology": "Future",
+        "GlobalShadows": true,
+        "Brightness": 2,
+        "EnvironmentDiffuseScale": 0.35,
+        "EnvironmentSpecularScale": 0.35,
+        "ShadowSoftness": 0.2,
+        "ClockTime": 15,
+        "GeographicLatitude": 45,
+        "Ambient": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "OutdoorAmbient": [
+          0.275,
+          0.282,
+          0.306
+        ]
+      }
+    },
+    "SoundService": {
+      "$className": "SoundService",
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    }
+  }
+}

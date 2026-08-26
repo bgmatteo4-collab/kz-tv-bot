@@ -40,7 +40,8 @@ entrent dans la version, et se retrouvent dans `PATCH-NOTES.md` une fois livrée
 ## À vérifier dans le moteur
 
 Points dont la valeur a été posée par le calcul et qui doivent être confrontés
-au rendu réel avant d'être figés. **Tous relèvent de la v0.1.**
+au rendu réel avant d'être figés. **L'instrument existe** : le panneau de
+diagnostic de la v0.1, touche `F3`. Il reste à faire la mesure dans Studio.
 
 | # | Sujet | Pourquoi |
 |---|---|---|
@@ -52,9 +53,13 @@ au rendu réel avant d'être figés. **Tous relèvent de la v0.1.**
 
 ## Dette technique et éléments temporaires
 
-*Vide. À remplir dès la première solution provisoire introduite — avec sa raison
-d'être et ce qui devra la remplacer.*
+| # | Sujet | Pourquoi c'est là | Ce qu'il faudra |
+|---|---|---|---|
+| T1 | Selene absent de la CI | La génération de sa bibliothèque standard Roblox échoue depuis l'environnement de développement. La syntaxe, le format et la construction sont vérifiés ; le linting ne l'est pas. | Fiabiliser `selene generate-roblox-std`, ou committer une bibliothèque standard générée, puis ajouter l'étape à `controles.yml`. |
+| T2 | `Palette.AccentProvisoire` | La couleur d'accent du lavage de fond attend l'identité Kay Prod (CDC §9.6). Nommée « provisoire » pour qu'elle ne s'installe pas par oubli. | La remplacer par la couleur d'accent de la charte de marque. |
+| T3 | Aucun mobilier de plateau | Les canapés, la table basse et les caméras de la configuration talk-show demandent de vrais modèles 3D, qui ne peuvent pas être produits par code. Aucun cube n'a été posé à leur place (CDC §17.1). | Produire ou acquérir les modèles, puis les intégrer aux cotes réelles. |
 
 ## Problèmes connus
 
-*Vide. Aucun code écrit.*
+*Vide. La v0.1 n'a pas encore tourné dans Studio — cette section se remplira au
+premier test.*

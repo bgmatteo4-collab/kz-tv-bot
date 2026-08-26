@@ -1,0 +1,53 @@
+name: Contrôles
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+env:
+  ROJO: "7.4.4"
+  STYLUA: "0.20.0"
+
+jobs:
+  verifier:
+    name: Syntaxe, format et construction
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Luau
+        run: |
+          curl -sSL -o luau.zip https://github.com/luau-lang/luau/releases/latest/download/luau-ubuntu.zip
+          sudo unzip -oq luau.zip -d /usr/local/bin
+          sudo chmod +x /usr/local/bin/luau-compile
+
+      - name: Syntaxe Luau
+        run: find src -name '*.lua' -print0 | xargs -0 -n1 luau-compile --binary > /dev/null
+
+      - name: Installer StyLua
+        run: |
+          curl -sSL -o stylua.zip "https://github.com/JohnnyMorganz/StyLua/releases/download/v${STYLUA}/stylua-linux-x86_64.zip"
+          sudo unzip -oq stylua.zip -d /usr/local/bin
+          sudo chmod +x /usr/local/bin/stylua
+
+      - name: Format
+        run: stylua --check src
+
+      - name: Installer Rojo
+        run: |
+          curl -sSL -o rojo.zip "https://github.com/rojo-rbx/rojo/releases/download/v${ROJO}/rojo-${ROJO}-linux-x86_64.zip"
+          sudo unzip -oq rojo.zip -d /usr/local/bin
+          sudo chmod +x /usr/local/bin/rojo
+
+      - name: Construire le place
+        run: rojo build --output LeLocal.rbxlx
+
+      # Le place jouable est produit par la CI, jamais versionné à la main :
+      # un fichier binaire committé diverge du code en quelques jours.
+      - name: Publier le place jouable
+        uses: actions/upload-artifact@v4
+        with:
+          name: LeLocal-place
+          path: LeLocal.rbxlx
+          retention-days: 30

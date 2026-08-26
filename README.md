@@ -8,7 +8,12 @@ On aménage le lieu librement, on configure le plateau pour un talk-show, une
 LAN esport, une session live ou un débat, puis on produit : régie, caméra,
 antenne. 671 m² de plain-pied, clairs et neufs, avec une boîte noire au milieu.
 
-**Statut : conception.** Aucun code n'a encore été écrit — c'est délibéré.
+**Statut : v0.1 livrée, en attente de validation en moteur.** Le plateau, sa
+régie et le sas d'entrée sont bâtis aux cotes réelles. Aucune mécanique de jeu :
+cette version ne sert qu'à vérifier que le réalisme visé tient dans les budgets
+de performance.
+
+Pour lancer le projet : **[docs/INSTALLATION.md](docs/INSTALLATION.md)**.
 
 ## Les trois documents du projet
 

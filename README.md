@@ -1,12 +1,12 @@
-# Plateau *(nom de travail)*
+# Le Local by Kay Prod
 
-Un local de production audiovisuelle complet sur Roblox — bureaux, cuisine,
-salon, salle de réunion, cabines de stream, montage — et un **plateau
-modulable** au milieu, où l'on produit ses propres émissions.
+Le studio de la chaîne Kay Prod, sur Roblox. Un local de production complet —
+bureaux, cuisine, salon, salle de réunion, cabines de stream, montage — et un
+**plateau modulable** au milieu, où l'on produit ses émissions.
 
-On aménage le lieu librement, on configure le plateau pour un talk-show, un
-plateau esport, une session live ou un débat, puis on produit : régie, caméra,
-antenne. Le lieu est meublé, éclairé et habité.
+On aménage le lieu librement, on configure le plateau pour un talk-show, une
+LAN esport, une session live ou un débat, puis on produit : régie, caméra,
+antenne. 671 m² de plain-pied, clairs et neufs, avec une boîte noire au milieu.
 
 **Statut : conception.** Aucun code n'a encore été écrit — c'est délibéré.
 

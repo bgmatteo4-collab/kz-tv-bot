@@ -1,4 +1,4 @@
-# Cahier des charges — *Plateau* (nom de travail)
+# Cahier des charges — *Le Local by Kay Prod*
 
 > **Statut** : v0.1 — conception. Aucun code écrit.
 > **Dernière mise à jour** : 26 août 2026.
@@ -86,10 +86,26 @@ du projet, consignée ici.
 | Aménagement | **Tout le local** est modifiable, pas seulement le plateau | 26/08 |
 | Style graphique | **Réaliste poussé** : PBR, éclairage Future | 26/08 |
 | PNJ | Équipe qui travaille dans les bureaux + public et invités sur le plateau | 26/08 |
-| Formats d'événement | Talk-show, plateau esport, session live, journal/débat | 26/08 |
+| Formats d'événement | Talk-show, LAN esport, session live, journal/débat | 26/08 |
 | Échelle | **1 mètre = 3 studs**, sans exception | 26/08 |
 | Marques | **Aucune marque réelle.** Identité originale créée pour le projet | 26/08 |
 | Monétisation | Non traitée à ce stade. Aucun achat accélérant la progression. | 26/08 |
+| Nom du projet | **Le Local by Kay Prod** | 26/08 |
+| Cadre | Le studio de la chaîne Kay Prod, pas un média fictif | 26/08 |
+| Plan du local | **Validé** : 12 espaces, 671 m² utiles, 96 × 72 studs | 26/08 |
+| Niveaux | De plain-pied | 26/08 |
+| Vue | Première et troisième personne au choix ; troisième imposée en aménagement | 26/08 |
+| Environnement | Zone d'activité de périphérie, lumière naturelle rasante | 26/08 |
+| Ambiance | Locaux neufs et haut de gamme | 26/08 |
+| Palette | Claire et naturelle — sauf le plateau, boîte noire assumée | 26/08 |
+| Identité Kay Prod | Entièrement à créer pour le projet | 26/08 |
+| Marques sponsors | Fictives par défaut, vraies marques insérables sur accord écrit | 26/08 |
+| Personnage | Le joueur dirige Kay Prod. Avatar personnalisable | 26/08 |
+| Durée d'une production | 10 à 15 minutes réelles | 26/08 |
+| Écoulement du temps | Horloge continue, vitesse réglable (pause, x1, x4) | 26/08 |
+| Arrivée des objets | **Instantanée** depuis le catalogue, sans transport | 26/08 |
+| Exigence | **Exigeante** : une émission peut rater | 26/08 |
+| Ordre de développement | La direction artistique se prouve avant que le lieu se bâtisse | 26/08 |
 
 ### Décisions écartées, et pourquoi
 
@@ -117,7 +133,18 @@ est la place prise par les murs et les cloisons : environ 13 %, ce qui est la
 proportion normale d'un bâtiment de cette taille. Une enveloppe calée au plus
 juste sur la somme des pièces ne rentrerait pas.
 
-### 5.2 Programme des espaces *(proposition à valider)*
+**De plain-pied.** Un seul niveau, ni escalier ni mezzanine. Circulation simple,
+chargement par zones efficace, aucun PNJ coincé dans une cage d'escalier. C'est
+suffisant pour 670 m².
+
+**L'environnement.** Le local donne sur une zone d'activité de périphérie :
+parking, hangars voisins, ciel dégagé. Trois raisons : c'est l'implantation
+réelle de la plupart des locaux de médias, le décor extérieur reste modeste à
+produire, et la lumière rasante d'un ciel ouvert est la plus flatteuse pour un
+intérieur clair. Les baies concernent l'open space, le salon et la cuisine. **Le
+plateau et la régie sont aveugles**, comme il se doit.
+
+### 5.2 Programme des espaces *(validé)*
 
 | Espace | Surface | Hauteur | Rôle |
 |---|---|---|---|
@@ -180,16 +207,23 @@ préenregistrée que le joueur peut charger, puis modifier librement.
 | Format | Configuration | Contrainte propre |
 |---|---|---|
 | **Talk-show** | Canapés en L, table basse, fond habillé, public de face | Le format le plus polyvalent, celui du tutoriel |
-| **Plateau esport** | Pupitres commentateurs, écran géant, cabines joueurs | Beaucoup d'écrans allumés : coût de rendu à surveiller |
+| **LAN esport** | Pupitres commentateurs, écran géant, postes joueurs face à face | Petite LAN : huit postes au maximum, la pièce n'en tient pas plus. Beaucoup d'écrans allumés, coût de rendu à surveiller |
 | **Session live** | Scène basse, backline réduit, ponts lumière, public debout | Format volontairement modeste : le plateau est petit, une vraie salle de concert serait un mensonge |
 | **Journal / débat** | Bureau de présentation ou pupitres, fond LED, tribune | Le plus dense en habillage à l'écran |
 
 ### 6.3 Le montage et le démontage
 
-Changer de format est une **opération**, pas un bouton. Charger une disposition
-place les pièces, mais elles arrivent depuis la réserve : le passage d'un format
-à l'autre prend du temps de jeu et occupe l'équipe. C'est ce qui donne du poids
-à la modularité au lieu d'en faire un menu.
+Les objets arrivent **instantanément depuis le catalogue** : aucun transport,
+aucune attente. Meubler 671 m² objet par objet serait une corvée, et un bac à
+sable suppose de pouvoir essayer vite puis se tromper sans être puni.
+
+Conséquence assumée, et c'est un renversement par rapport à une première version
+de ce document : **la réserve matérielle est un décor, pas une mécanique.** Elle
+existe parce qu'un vrai local en a une, pas parce qu'elle contraint le joueur.
+
+Le poids d'un changement de format ne vient donc pas du transport, mais du
+travail de composition lui-même : recâbler la lumière, replacer les caméras,
+refaire les cadres. C'est du travail d'atelier, pas de la manutention.
 
 ---
 
@@ -203,6 +237,10 @@ place les pièces, mais elles arrivent depuis la réserve : le passage d'un form
 3. **Produire** — l'émission se déroule en temps réel, segment par segment.
 4. **Résultat** — un bilan à la fin, dépendant de ce qui a été préparé et de la
    façon dont les imprévus ont été gérés.
+
+**Durée.** Une production dure de **10 à 15 minutes réelles**, soit quatre à six
+segments. Assez pour installer une tension, assez peu pour refaire une prise
+immédiatement après un échec.
 
 ### 7.2 Pendant la prise
 
@@ -230,6 +268,15 @@ coûte l'attention prise ailleurs.
 | Invité qui décroche | Blanc à l'antenne |
 | Projecteur qui lâche | Zone d'ombre sur le plateau |
 | Public sans réaction | Ambiance plate, l'émission tombe à plat |
+
+**Niveau d'exigence : élevé.** Une émission peut réellement rater. Les imprévus
+pardonnent peu et une mauvaise préparation se paie à l'antenne — c'est ce qui
+donne son prix à une réussite.
+
+Contrepartie à traiter sérieusement : sans apprentissage progressif, l'exigence
+devient de la frustration. Deux garde-fous, donc — le premier format proposé au
+joueur est le talk-show, le plus tolérant ; et chaque note du bilan expose sa
+cause (§7.4), pour qu'un échec enseigne au lieu de punir.
 
 ### 7.4 Le résultat
 
@@ -302,7 +349,7 @@ déclare sa cote réelle en mètres ; la conversion est faite par le code.
 C'est elle qui fait « studio professionnel », davantage que la géométrie.
 
 - **Technologie** : `Future` (ombres portées, lumières locales réalistes).
-- **Bureaux** : lumière neutre et froide, plafonniers, apport de fenêtres.
+- **Bureaux** : lumière du jour dominante par les baies, complétée de plafonniers neutres. Clair, jamais crépusculaire.
 - **Salon, cuisine** : lumière chaude, sources basses, contraste doux.
 - **Montage, régie** : sombre, contrastée, écrans comme sources dominantes.
 - **Plateau** : trois points classiques (face, latérale, contre-jour), plus les
@@ -318,9 +365,21 @@ Bibliothèque PBR restreinte et partagée par tout le projet, via
 `SurfaceAppearance`. Une dizaine de matériaux maîtrisés valent mieux que
 cinquante hétérogènes.
 
-Palette de base : moquette technique noire, béton lissé, alu brossé, bois clair,
-verre, plexiglas, tissu, peinture mate. Chaque matériau existe en une seule
-version, utilisée partout.
+**Deux palettes, une seule bibliothèque.**
+
+*Le local — clair, naturel, neuf* : plâtre peint blanc mat, chêne clair, alu
+brossé, verre clair, dalle de moquette gris perle, tissu écru, végétal.
+
+*Le plateau — la boîte noire* : moquette technique noire, panneau acoustique
+anthracite, structure alu noir mat, plexiglas.
+
+Le contraste entre les deux est **délibéré**, et c'est le moment fort du lieu.
+C'est ainsi que les vrais locaux sont bâtis : des bureaux lumineux, une boîte
+noire au milieu. Franchir la porte du plateau doit être un basculement
+d'ambiance, jamais une continuité.
+
+Chaque matériau existe en une seule version, utilisée partout. Le plafond de 12
+matériaux PBR (§14) couvre les deux palettes ensemble.
 
 ### 9.5 L'habillage à l'écran
 
@@ -335,13 +394,22 @@ thème unique. **Aucune valeur graphique en dur ailleurs.**
 
 ### 9.6 Identité
 
-Le projet crée sa **propre identité de média** : nom, logo vectoriel, palette,
-déclinaisons, habillage. Elle est conçue pour de vrai, pas approximée.
+Le lieu est **Le Local by Kay Prod** : le studio de la chaîne, pas un média
+inventé. Le joueur y dirige Kay Prod.
 
-**Aucune marque réelle n'est reproduite.** Les codes du secteur s'étudient et se
-reprennent ; une marque, un logo ou une charte appartenant à quelqu'un, non.
-Cette règle est absolue et ne souffre aucune exception, y compris pour un
-placeholder temporaire.
+L'identité Kay Prod est **entièrement à créer** — logo vectoriel, déclinaisons,
+palette, typographie, habillage à l'antenne, signalétique du local. Elle sera
+conçue comme une vraie identité de marque, utilisable au-delà du jeu, et non
+comme une décoration de jeu.
+
+**Les marques sponsors** sont fictives par défaut : inventées, dotées de vrais
+logos conçus pour elles, reconnaissables par leur archétype sectoriel. Une vraie
+marque partenaire peut être insérée — le système traite les deux identiquement,
+ce n'est qu'une entrée de données de plus. Une vraie marque n'est intégrée
+**qu'avec l'accord écrit de son détenteur**, consigné au registre d'assets.
+
+**Aucune marque de tiers n'est reproduite sans accord**, sous aucune forme, pas
+même comme placeholder temporaire.
 
 ---
 
@@ -372,22 +440,39 @@ matérielle avec transport des pièces · plusieurs identités d'émission ·
 personnalisation de l'avatar · cycle jour/nuit · météo visible par les fenêtres ·
 photo mode.
 
-### 10.3 Priorités
+### 10.3 Ordre de développement
 
-**P0 — le lieu existe** : F1, F2, F3, F4.
-Un local parcourable, aménageable, et qui se souvient. Rien d'autre.
+L'ordre est dicté par **le risque à retirer le plus tôt**, pas par la valeur
+apparente. Le plus grand risque du projet est de découvrir tard que le réalisme
+poussé n'est pas atteignable dans les budgets du §14. On le vérifie donc en
+premier, sur une seule pièce, avant d'engager 671 m².
 
-**P1 — le plateau existe** : F5.
-Le plateau se configure, les formats se chargent.
+| Version | Objet | Ce qu'elle prouve |
+|---|---|---|
+| **v0.1** | Plateau et régie finis à 100 % | Que la charte, l'échelle, l'éclairage et les budgets tiennent |
+| **v0.2** | Les 12 espaces bâtis et finis | Que le lieu entier tient au même niveau |
+| **v0.3** | Placement, catalogue, sauvegarde | Que le local devient celui du joueur |
+| **v0.4** | Plateau modulable, 4 formats | Que la modularité fonctionne |
+| **v0.5** | Conducteur, production, régie, bilan | Que produire une émission est un jeu |
+| **v0.6** | PNJ équipe, public, imprévus | Que le lieu est vivant |
+| **v1.0** | Identité Kay Prod, habillage, finition | Que c'est publiable |
 
-**P2 — l'émission existe** : F6, F7, F8, F10.
-On produit, il se passe quelque chose, on obtient un résultat.
+Règle non négociable : **une version ne commence pas tant que la précédente
+n'est pas terminée** au sens du §18.
 
-**P3 — le lieu est vivant** : F11, F12, F9.
-Les PNJ peuplent le local, les imprévus surviennent.
+### 10.4 Le périmètre de la v0.1
 
-Ordre non négociable : **une fonctionnalité de priorité N ne commence pas tant
-que toutes celles de N-1 ne sont pas terminées** au sens du §18.
+Ni placement, ni sauvegarde, ni production. C'est délibéré : la v0.1 ne répond
+qu'à une seule question, et y répondre demande du décor, pas de la mécanique.
+
+**Contenu.** L'enveloppe du plateau (12 × 10 m, 6 m sous grill) et de la régie
+attenante · la configuration talk-show entièrement habillée · matériaux PBR et
+éclairage définitifs · déplacement et les deux vues · relevé des images par
+seconde.
+
+**Critère de réussite.** 60 img/s tenus sur PC de milieu de gamme dans la zone la
+plus chargée, **et** un rendu qu'on peut montrer sans s'excuser. Si l'un des deux
+manque, la v0.2 ne démarre pas : c'est la charte qu'on révise.
 
 ---
 
@@ -489,6 +574,10 @@ et aucun secret à gérer — cette section restera vide tant que ce sera vrai.
 
 - **Diégétique par défaut.** Une information qui peut vivre sur un écran du
   monde y vit. La régie s'utilise depuis la régie, pas depuis un menu.
+- **Deux vues.** Première et troisième personne au choix du joueur. Le mode
+  aménagement bascule en troisième personne, où le recul est indispensable.
+  Conséquence : tout objet doit tenir la vue rapprochée, donc aucun ne peut être
+  approximatif.
 - **Le HUD flottant est réservé** à ce qui n'a pas de support physique : les
   invites contextuelles et le mode aménagement.
 - **Aucune information critique en simultané** hors du champ de vision : si le
@@ -677,17 +766,16 @@ de place jouable produit par la CI plutôt que versionné à la main.
 
 ## 22. Questions ouvertes
 
-À trancher avant ou pendant la v0.1. Aucune ne bloque le démarrage.
+Aucune ne bloque la v0.1. À trancher au fil des versions concernées.
 
-1. **Le nom du projet.** « Plateau » est un nom de travail.
-2. **Le plan du local** (§5.2) est une proposition : nombre de pièces, surfaces
-   et disposition restent à valider.
-3. **Le nom et l'identité du média fictif** produit dans le local.
-4. **La vue** : première personne, troisième personne, ou les deux.
-5. **Le déplacement des objets lourds** : instantané ou transporté depuis la
-   réserve.
-6. **La durée d'une production** en temps de jeu.
-7. **Le passage du temps** : horloge continue ou journées découpées.
+1. **L'ambiance sonore** : bruit de fond du local, musique, jingles d'antenne.
+   À traiter en v0.5.
+2. **La capacité du public** sur le plateau, et son rendu dans le budget de 25
+   PNJ animés (§14). À trancher en v0.6.
+3. **La manette** : prise en charge ou non. Non prioritaire.
+4. **La monétisation**, s'il doit y en avoir une. Hors périmètre jusqu'à la v1.0.
+5. **Le mode répétition** : un entraînement sans enjeu servirait d'apprentissage
+   face à une exigence volontairement élevée (§7.3). Proposé, non décidé.
 
 ---
 
@@ -701,3 +789,9 @@ de place jouable produit par la CI plutôt que versionné à la main.
 | 26/08 | Bac à sable retenu, complété par la production comme activité | Éviter le lieu vide sans imposer un tunnel de déblocage |
 | 26/08 | Échelle fixée à 1 m = 3 studs | Toute cote doit dériver du réel |
 | 26/08 | Enveloppe portée à 96 × 72 studs | Les 671 m² utiles ne tenaient pas dans l'emprise annoncée |
+| 26/08 | Nom arrêté : Le Local by Kay Prod | Le lieu est le studio d'une chaîne réelle, pas un média inventé |
+| 26/08 | Plan du local validé, de plain-pied | Programme des 12 espaces figé |
+| 26/08 | Palette claire, plateau en boîte noire | Le contraste devient le moment fort du lieu au lieu d'un défaut |
+| 26/08 | Objets instantanés depuis le catalogue | Annule le transport depuis la réserve prévu en §6.3 |
+| 26/08 | Exigence élevée assumée, deux garde-fous ajoutés | Une réussite sans risque d'échec ne vaut rien |
+| 26/08 | v0.1 réduite à une seule pièce finie à 100 % | Prouver la direction artistique avant de bâtir 671 m² |

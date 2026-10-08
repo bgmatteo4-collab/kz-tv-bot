@@ -21,3 +21,7 @@ build/
 # Intro de stream : rendus et dépendances
 intro/out/
 intro/node_modules/
+
+# Démo GTA 6 : médias officiels Rockstar, jamais publiés
+gta6/assets/
+gta6/out/

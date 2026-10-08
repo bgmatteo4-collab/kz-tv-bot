@@ -17,3 +17,7 @@ build/
 /Packages
 /ServerPackages
 /DevPackages
+
+# Intro de stream : rendus et dépendances
+intro/out/
+intro/node_modules/

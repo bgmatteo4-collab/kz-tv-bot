@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kayzx TV — Intro</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="viewport">
+<div id="stage">
+
+  <!-- OUVERTURE — la définition, façon Pulp Fiction -->
+  <section class="scene" id="s-open">
+    <div class="fill" style="background: var(--teal-900)"></div>
+    <div class="grid" id="op-grid" style="opacity: 0"></div>
+    <div class="abs" id="op-def">
+      <div class="op-head"><span class="op-word js-nom" id="op-word"></span><span class="op-pos" id="op-pos">n. m.</span></div>
+      <div class="op-rule" id="op-rule"></div>
+      <div class="op-li"><span class="op-n" id="op-n1">1.</span><span id="op-t1">Un live où l’on passe <em>«&nbsp;cinq minutes&nbsp;»</em>.</span></div>
+      <div class="op-li"><span class="op-n" id="op-n2">2.</span><span id="op-t2">…&nbsp;et où l’on reste trois heures.</span></div>
+    </div>
+  </section>
+
+  <!-- CHAPITRE 1 — Le lancement -->
+  <section class="scene" id="s-ch1">
+    <div class="cam" id="c1-cam">
+      <div class="fill" style="background: radial-gradient(1100px 780px at 72% 46%, #165048 0%, var(--teal) 64%)"></div>
+      <div class="grid"></div>
+      <div class="abs" id="c1-boot">
+        <div class="app-icon" id="c1-icon"></div>
+        <div class="boot-name" id="c1-bname">KZ OS</div>
+        <div class="boot-state mono" id="c1-bstate">Démarrage du studio</div>
+        <div class="boot-bar" id="c1-barwrap"><i id="c1-bar"></i></div>
+      </div>
+      <div class="win" id="c1-win">
+        <div class="win-in" id="c1-in">
+          <div class="win-bar"><i></i><i></i><i></i><span class="win-title"><span class="js-nom"></span> Studio — Tableau de bord</span></div>
+          <div class="status" id="c1-status"><span id="c1-stxt">Hors ligne</span></div>
+          <div class="side" id="c1-side"><i class="on" style="top: 24px"></i><i style="top: 80px"></i><i style="top: 136px"></i><i style="top: 192px"></i><i style="top: 248px"></i></div>
+          <div class="preview" id="c1-prev">
+            <div class="prev-chip mono">Scène · Intro</div>
+            <div class="prev-logo"><i></i><span class="js-nom"></span></div>
+            <div class="prev-chat" id="c1-chat"><b style="width: 190px"></b><b style="width: 140px"></b><b style="width: 168px"></b></div>
+            <div class="prev-cam"><i class="head"></i><i class="body"></i></div>
+          </div>
+          <div class="stats">
+            <div class="tile"><span class="mono">Qualité</span><b>1080p60</b></div>
+            <div class="tile"><span class="mono">Débit</span><b id="c1-rate">0 kb/s</b></div>
+            <div class="tile"><span class="mono">Micro</span><b>−12 dB</b></div>
+          </div>
+          <div class="meters" id="c1-meters"></div>
+          <div class="chips" id="c1-chips"><span class="on">Intro</span><span>Live</span><span>Pause</span><span>Fin</span></div>
+        </div>
+      </div>
+      <div class="eyebrow" id="c1-eye" style="left: 150px; top: 262px"><i></i>Ce soir · <span class="js-heure"></span></div>
+      <h1 class="h1" id="c1-h" style="left: 150px; top: 330px">Ce soir,<br>on passe<br><em>en direct.</em></h1>
+      <div class="abs" id="c1-ctas"><span class="btn gold" id="c1-cta1">Rejoindre le live</span><span class="btn ghost" id="c1-cta2">Voir le planning</span></div>
+    </div>
+    <div class="fill" id="c1-circle" style="background: var(--teal-900); clip-path: circle(0px at 0 0)"></div>
+  </section>
+
+  <!-- CHAPITRE 2 — Destination (Retour vers le futur) -->
+  <section class="scene" id="s-ch2">
+    <div class="cam" id="c2-cam">
+      <div class="fill" style="background: radial-gradient(1100px 760px at 70% 50%, #0F3B37 0%, var(--teal-800) 68%)"></div>
+      <div class="grid"></div>
+      <canvas class="fill" id="c2-cv" width="1920" height="1080"></canvas>
+      <div class="fill" id="c2-left" style="transform-origin: 0 50%">
+        <div class="eyebrow" id="c2-eye" style="left: 150px; top: 262px"><i></i>Planning</div>
+        <h1 class="h1" id="c2-h" style="left: 150px; top: 330px; font-size: 108px">Là où on va,<br>pas besoin<br>de <em>replay.</em></h1>
+        <div class="sub" id="c2-sub" style="left: 150px; top: 708px"></div>
+      </div>
+      <div class="panel" id="c2-panel">
+        <i class="screw" style="left: 14px; top: 14px"></i><i class="screw" style="right: 14px; top: 14px"></i>
+        <i class="screw" style="left: 14px; bottom: 14px"></i><i class="screw" style="right: 14px; bottom: 14px"></i>
+        <div class="panel-head mono"><i class="led" id="c2-led"></i>Circuits temporels<span>KZ-88 · <span class="js-nom"></span></span></div>
+        <div class="tc-row" id="tc0">
+          <div class="tc-cells">
+            <div class="tc-cell"><div class="tc-cap">Jours</div><div class="tc-win" id="tc-days"></div></div>
+            <div class="tc-cell"><div class="tc-cap">Heure</div><div class="tc-win" id="tc0-h"></div></div>
+            <div class="tc-colon" id="tc0-c"><i></i><i></i></div>
+            <div class="tc-cell"><div class="tc-cap">Min</div><div class="tc-win" id="tc0-m"></div></div>
+          </div>
+          <div class="tc-plate">Prochain départ</div>
+        </div>
+        <div class="tc-row" id="tc1" style="--tone: var(--mist)">
+          <div class="tc-cells">
+            <div class="tc-cell"><div class="tc-cap">Heures</div><div class="tc-win" id="tc1-h"></div></div>
+            <div class="tc-colon" id="tc1-c"><i></i><i></i></div>
+            <div class="tc-cell"><div class="tc-cap">Min</div><div class="tc-win" id="tc1-m"></div></div>
+            <div class="tc-cell grow"><div class="tc-cap">Note</div><div class="tc-win tc-txt" id="tc1-n">Minimum</div></div>
+          </div>
+          <div class="tc-plate">Durée du voyage</div>
+        </div>
+        <div class="tc-row" id="tc2" style="--tone: var(--teal-200)">
+          <div class="tc-cells">
+            <div class="tc-cell"><div class="tc-cap">Vitesse</div><div class="tc-win" id="tc2-v"></div></div>
+            <div class="tc-cell"><div class="tc-cap">Unité</div><div class="tc-win tc-txt" id="tc2-u">MPH</div></div>
+            <div class="tc-cell grow"><div class="tc-cap">Jauge</div><div class="tc-win"><div class="gauge" id="tc2-g"></div></div></div>
+          </div>
+          <div class="tc-plate">Vitesse requise</div>
+        </div>
+      </div>
+    </div>
+    <div class="fill" id="c2-dark" style="background: var(--teal-900); opacity: 0"></div>
+  </section>
+
+  <!-- CHAPITRE 3 — Multivers (Rick et Morty) -->
+  <section class="scene" id="s-ch3">
+    <div class="fill" style="background: var(--teal-900)"></div>
+    <canvas class="fill" id="c3-cv" width="1920" height="1080"></canvas>
+    <div class="cam" id="c3-cam">
+      <div id="c3-cats"></div>
+      <div class="eyebrow" id="c3-eye" style="left: 150px; top: 262px"><i></i>Catégories</div>
+      <h1 class="h1" id="c3-h" style="left: 150px; top: 330px; font-size: 108px">Un seul stream.<br>Mille <em>dimensions.</em></h1>
+      <div class="select" id="c3-sel">
+        <div class="sel-cap mono">Dimension de ce soir</div>
+        <div class="sel-box" id="c3-box"><span class="sel-code mono" id="c3-code">K-???</span><span class="sel-name" id="c3-name">Choisir une dimension…</span><svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div>
+        <div class="sel-list" id="c3-list"><div class="sel-hl" id="c3-hl"></div></div>
+      </div>
+    </div>
+    <div class="fill" id="c3-dark" style="background: var(--teal-900); opacity: 0"></div>
+  </section>
+
+  <!-- CHAPITRE 4 — Rassemblement (Avengers) -->
+  <section class="scene" id="s-ch4">
+    <div class="cam" id="c4-cam">
+      <div class="fill" style="background: radial-gradient(1500px 900px at 50% 38%, #DDE4E3 0%, var(--mist) 72%)"></div>
+      <div class="grid dark"></div>
+      <div class="abs" style="left: 0; right: 0; top: 178px; display: flex; justify-content: center"><div class="eyebrow on-light" id="c4-eye"><i></i>Communauté</div></div>
+      <h1 class="h1 on-light center" id="c4-h" style="top: 244px; font-size: 92px">Seul, c’est un écran.<br>Ensemble, c’est un <em class="hl">live.</em></h1>
+      <div id="c4-mems"></div>
+      <div class="abs" style="left: 0; right: 0; top: 812px; display: flex; justify-content: center">
+        <div class="bar" id="c4-bar"><span class="mono bar-lab">Communauté</span><span class="gems" id="c4-gems"></span><span class="mono bar-count" id="c4-count">0/6</span><span class="btn gold" id="c4-cta">Rassemblement&nbsp;!</span></div>
+      </div>
+    </div>
+    <div class="fill" id="c4-circle" style="background: var(--teal-900); clip-path: circle(0px at 960px 560px)"></div>
+  </section>
+
+  <!-- CHAPITRE 5 — La mallette (Pulp Fiction) -->
+  <section class="scene" id="s-ch5">
+    <div class="fill" style="background: radial-gradient(1000px 760px at 50% 58%, #0F3935 0%, var(--teal-900) 70%)"></div>
+    <canvas class="fill" id="c5-cv" width="1920" height="1080"></canvas>
+    <div class="cam" id="c5-cam">
+      <div class="abs serif" id="c5-q">Ce qu’il y a dedans&nbsp;?</div>
+      <div class="case-shadow" id="c5-shadow"></div>
+      <div class="case" id="c5-case">
+        <div class="case-light" id="c5-light"></div>
+        <div class="case-handle"></div>
+        <div class="case-body">
+          <div class="lock" id="c5-lock">
+            <div class="reels" id="c5-reels"></div>
+            <div class="lock-lab mono"><i id="c5-led"></i>Code</div>
+          </div>
+          <i class="corner bl"></i><i class="corner br"></i>
+        </div>
+        <div class="case-lid" id="c5-lid"><i class="corner tl"></i><i class="corner tr"></i><span class="lid-brand mono js-nom"></span></div>
+        <div class="latch l" id="c5-latch-l"></div>
+        <div class="latch r" id="c5-latch-r"></div>
+        <div class="case-tag" id="c5-tag"><i class="cord"></i><div class="tag"><b class="mono js-nom"></b><span class="mono">Ne pas ouvrir</span></div></div>
+        <div class="case-bloom" id="c5-bloom"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FIN — l'identité -->
+  <section class="scene" id="s-end">
+    <div class="fill" style="background: radial-gradient(1000px 640px at 50% 48%, #164A45 0%, var(--teal-900) 72%)"></div>
+    <div class="grid" style="opacity: .6"></div>
+    <div class="fill" id="end-glow"></div>
+    <div class="cam" id="end-cam">
+      <div class="abs" id="end-logo"><span id="end-slot"></span><span id="end-word" class="js-nom"></span></div>
+      <div class="abs serif" id="end-tag">Le direct commence.</div>
+      <div class="abs" id="end-pill-wrap"><div class="mono" id="end-pill"><i id="end-pill-dot"></i>En direct</div></div>
+    </div>
+  </section>
+
+  <!-- Calques globaux -->
+  <div class="ring" id="ring0"></div><div class="ring" id="ring1"></div>
+  <div id="dot"></div>
+  <canvas id="fx" width="1920" height="1080"></canvas>
+  <div id="flash"></div>
+  <div id="hud">
+    <svg width="1920" height="1080" viewBox="0 0 1920 1080">
+      <path d="M40 76V40H76"/><path d="M1844 40H1880V76"/><path d="M40 1004V1040H76"/><path d="M1844 1040H1880V1004"/>
+    </svg>
+    <div class="hud-t" id="hud-tl"><i></i><span id="hud-brand"></span></div>
+    <div class="hud-t" id="hud-tr"></div>
+    <div class="hud-t" id="hud-bl"></div>
+    <div class="hud-t" id="hud-br"></div>
+    <div id="hud-prog"><b><i></i></b><b><i></i></b><b><i></i></b><b><i></i></b><b><i></i></b></div>
+  </div>
+  <div id="click"></div>
+  <svg id="cursor" viewBox="0 0 36 44"><path d="M3 2 L3 33 L11 25.5 L16.5 38.5 L22 36 L16.6 23.4 L27.5 23.4 Z" fill="#EEF2F1" stroke="#082624" stroke-width="2.4" stroke-linejoin="round"/></svg>
+  <div id="vignette"></div>
+  <div id="grain"></div>
+
+</div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/core.js"></script>
+<script src="js/build.js"></script>
+<script src="js/scenes-a.js"></script>
+<script src="js/scenes-b.js"></script>
+<script src="js/layers.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

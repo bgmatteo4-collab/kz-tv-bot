@@ -1,0 +1,43 @@
+{
+  "_lisezmoi": [
+    "Tous les plans vidéo cités dans gta6/storyboard.md. Bornes relevées sur les planches de gta6/assets/plans/ (détection de coupes, 30 i/s).",
+    "debut / fin : secondes dans le fichier source, bornes du plan SANS marge. L'extraction ajoute 0,3 s (9 images) de chaque côté.",
+    "Images : gta6/assets/frames/<id>/000001.jpg… 1920 px de large, JPEG qualité 3, 30 i/s. L'image 000001 correspond à la seconde (debut - 0,3).",
+    "recadrage : zone utile du 4K avant mise à l'échelle (le trailer 2 a des bandes noires : 3840×1728 utiles, soit 1920×864 extraits).",
+    "Lancer : node gta6/demo/extraire.js [--seul id1,id2] [--force]"
+  ],
+  "fps": 30,
+  "marge": 0.3,
+  "sources": {
+    "T1": { "fichier": "trailers/trailer-1.mp4", "recadrage": null },
+    "T2": { "fichier": "trailers/trailer-2.mp4", "recadrage": "3840:1728:0:216" },
+    "EL": { "fichier": "trailers/extended-look.mp4", "recadrage": null }
+  },
+  "plans": [
+    { "id": "t1-03", "source": "T1", "plan": 3,  "debut": 2.667,  "fin": 5.000,  "actes": [1],    "contenu": "Autoroute au coucher du soleil (photo de la carte Visit Leonida)" },
+    { "id": "t1-07", "source": "T1", "plan": 7,  "debut": 9.633,  "fin": 10.933, "actes": [3],    "contenu": "Lucia en prison, combinaison orange" },
+    { "id": "t1-09", "source": "T1", "plan": 9,  "debut": 11.267, "fin": 17.300, "actes": [1],    "contenu": "Un seul mouvement de caméra : bateau vu du ciel (11,3 – 12,5 s), la caméra se relève sur la plage et les tours (12,5 – 14,6 s), puis « Rockstar Games presents » s'incruste (14,7 s) et fondu au noir (17 s). Plage propre : 12,6 – 14,6 s" },
+    { "id": "t1-14", "source": "T1", "plan": 14, "debut": 19.167, "fin": 20.733, "actes": [2],    "contenu": "Grassrivers : marais à l'aube" },
+    { "id": "t1-15", "source": "T1", "plan": 15, "debut": 20.733, "fin": 21.733, "actes": [2, 4], "contenu": "Flamants roses dans le marais" },
+    { "id": "t1-16", "source": "T1", "plan": 16, "debut": 21.733, "fin": 23.267, "actes": [4],    "contenu": "Plage bondée, foule" },
+    { "id": "t1-17", "source": "T1", "plan": 17, "debut": 23.267, "fin": 24.833, "actes": [4],    "contenu": "Bateau rapide au port : sillage, écume" },
+    { "id": "t1-25", "source": "T1", "plan": 25, "debut": 31.033, "fin": 32.567, "actes": [2],    "contenu": "Vice City vue aérienne de nuit" },
+    { "id": "t1-26", "source": "T1", "plan": 26, "debut": 32.567, "fin": 34.133, "actes": [2],    "contenu": "Ocean Drive de nuit, néons" },
+    { "id": "t1-28", "source": "T1", "plan": 28, "debut": 35.667, "fin": 37.433, "actes": [2],    "contenu": "Leonida Keys : pont au-dessus de la mer" },
+    { "id": "t1-30", "source": "T1", "plan": 30, "debut": 39.800, "fin": 41.333, "actes": [5],    "contenu": "Enseigne VICE au coucher du soleil" },
+    { "id": "t1-31", "source": "T1", "plan": 31, "debut": 41.333, "fin": 42.400, "actes": [5],    "contenu": "Réseau social : fête sur un bateau (vidéo verticale, côtés floutés)" },
+    { "id": "t1-32", "source": "T1", "plan": 32, "debut": 42.400, "fin": 43.900, "actes": [5],    "contenu": "Réseau social : alligator dans la piscine" },
+    { "id": "t1-33", "source": "T1", "plan": 33, "debut": 43.900, "fin": 45.467, "actes": [5],    "contenu": "Réseau social : femme sur une benne (vertical)" },
+    { "id": "t1-34", "source": "T1", "plan": 34, "debut": 45.467, "fin": 46.533, "actes": [5],    "contenu": "Réseau social : carrefour de nuit vu d'en haut" },
+    { "id": "t1-35", "source": "T1", "plan": 35, "debut": 46.533, "fin": 47.533, "actes": [5],    "contenu": "Réseau social : live, danseuses et commentaires (vertical)" },
+    { "id": "t1-50", "source": "T1", "plan": 50, "debut": 61.733, "fin": 62.533, "actes": [3],    "contenu": "Jason au volant" },
+    { "id": "t1-51", "source": "T1", "plan": 51, "debut": 62.533, "fin": 63.567, "actes": [3],    "contenu": "Lucia passagère, bandana" },
+    { "id": "t1-58", "source": "T1", "plan": 58, "debut": 68.667, "fin": 70.267, "actes": [3],    "contenu": "Braquage de la supérette, bandanas" },
+    { "id": "t1-61", "source": "T1", "plan": 61, "debut": 72.833, "fin": 76.500, "actes": [3],    "contenu": "Motel : Lucia et Jason, lampe de chevet (plan lent)" },
+    { "id": "t2-03", "source": "T2", "plan": 3,  "debut": 6.133,  "fin": 8.133,  "actes": [1],    "contenu": "Leonida Keys vue aérienne (bandes noires retirées). Fondu depuis le noir de 6,13 à ≈ 6,55 s" },
+    { "id": "t2-21", "source": "T2", "plan": 21, "debut": 63.100, "fin": 66.200, "actes": [4],    "contenu": "Lucia de face, lumière dorée, grillage" },
+    { "id": "t2-97", "source": "T2", "plan": 97, "debut": 153.267, "fin": 156.467, "actes": [4],   "contenu": "Vice City au coucher du soleil, rayons. Fondu au noir de ≈ 155,8 à 156,4 s" },
+    { "id": "t2-98", "source": "T2", "plan": 98, "debut": 156.467, "fin": 164.667, "actes": [6],   "contenu": "Animation officielle du logo VI (part du noir) puis logo complet + « November 19, 2026 »" },
+    { "id": "el-0824", "source": "EL", "plan": null, "debut": 504.0, "fin": 520.0, "actes": [4],  "contenu": "Vrai gameplay : conduite en cabriolet rouge en ville, minicarte en bas à gauche" }
+  ]
+}

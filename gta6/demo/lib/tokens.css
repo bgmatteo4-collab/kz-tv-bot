@@ -1,0 +1,99 @@
+/* lib/tokens.css — système visuel commun de la démo GTA 6.
+   Palette mesurée sur le logo VI officiel (voir gta6/storyboard.md). Toutes les teintes
+   sont ici et nulle part ailleurs : un acte n'invente pas de couleur.
+   Polices : Inter Tight (titres, 800), Instrument Serif italique (mots clés),
+   JetBrains Mono (légendes, annotations, cadre). Licences OFL dans lib/fonts/.
+   Une page d'acte : <link rel="stylesheet" href="../lib/tokens.css"> puis
+   <div id="viewport"><div id="stage">…</div></div> (1920×1080, mis à l'échelle en aperçu). */
+
+@font-face { font-family: "Inter Tight"; src: url("fonts/InterTight-normal.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+@font-face { font-family: "Instrument Serif"; src: url("fonts/InstrumentSerif-normal.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: "Instrument Serif"; src: url("fonts/InstrumentSerif-italic.woff2") format("woff2"); font-weight: 400; font-style: italic; font-display: block; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-normal.woff2") format("woff2"); font-weight: 100 800; font-display: block; }
+
+:root {
+  /* Palette du logo VI, de la nuit au soleil */
+  --encre: #1E0032;     /* encre de nuit : fond de raccord */
+  --indigo: #3B1A7B;
+  --violet: #715AC6;
+  --magenta: #B835BA;
+  --rose: #EB6289;
+  --corail: #FC856D;
+  --orange: #FF9A50;
+  --ambre: #FFB14D;
+  --creme: #FCE5D1;
+  /* Dérivées (opacités sur crème / encre) */
+  --creme-80: rgba(252, 229, 209, .8);
+  --creme-50: rgba(252, 229, 209, .5);
+  --creme-20: rgba(252, 229, 209, .2);
+  --creme-08: rgba(252, 229, 209, .08);
+  --encre-80: rgba(30, 0, 50, .8);
+  --encre-50: rgba(30, 0, 50, .5);
+  /* Dégradés signature */
+  --degrade-vi: linear-gradient(90deg, #715AC6 0%, #B835BA 34%, #EB6289 66%, #FF9A50 100%);
+  --degrade-vi-vertical: linear-gradient(180deg, #715AC6 0%, #B835BA 34%, #EB6289 66%, #FF9A50 100%);
+  --degrade-ligne: linear-gradient(90deg, #EB6289, #FF9A50);
+  --degrade-ciel: linear-gradient(180deg, #1E0032 0%, #3B1A7B 45%, #B835BA 75%, #FC856D 100%);
+  /* Polices */
+  --sans: "Inter Tight", system-ui, sans-serif;
+  --serif: "Instrument Serif", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Grille : marges du cadre d'analyse (le contenu reste dans [120, 1800] × [110, 970]) */
+  --marge-x: 88px;
+  --marge-y: 50px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+#viewport { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#stage {
+  position: relative; flex: none; width: 1920px; height: 1080px; overflow: hidden;
+  background: var(--encre); color: var(--creme); font-family: var(--sans);
+  -webkit-font-smoothing: antialiased; transform-origin: 50% 50%;
+}
+
+/* Calques génériques */
+.abs { position: absolute; }
+.fill { position: absolute; inset: 0; }
+canvas.fill { width: 1920px; height: 1080px; display: block; }
+.scene { position: absolute; inset: 0; overflow: hidden; display: none; }
+.scene.on { display: block; }
+
+/* Typographie */
+.titre { font-family: var(--sans); font-weight: 800; letter-spacing: -.035em; line-height: .92; }
+.titre em, .serif { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -.01em; }
+.mono { font-family: var(--mono); font-weight: 500; letter-spacing: .18em; text-transform: uppercase; }
+.legende { font-family: var(--mono); font-size: 16px; font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--creme-80); }
+.degrade-texte { background: var(--degrade-vi); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Texte découpé par split() (core.js) : chaque mot glisse dans son masque */
+.mask { display: inline-block; overflow: hidden; vertical-align: top; padding: 0 .02em .08em; margin: 0 -.02em -.08em; }
+.mask > .w { display: inline-block; will-change: transform; }
+.word { display: inline-block; white-space: nowrap; }
+
+/* Cadre d'analyse (cadre.js) */
+.cadre { position: absolute; inset: 0; z-index: 80; pointer-events: none; color: var(--creme-80); }
+.cadre svg { position: absolute; inset: 0; overflow: visible; }
+.cadre path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: square; }
+.cadre .txt { position: absolute; font-family: var(--mono); font-size: 14px; font-weight: 500; line-height: 16px; letter-spacing: .2em; text-transform: uppercase; white-space: pre; }
+.cadre .hg { left: 88px; top: 50px; display: flex; align-items: center; gap: 12px; }
+.cadre .hg i { width: 8px; height: 8px; border-radius: 50%; background: var(--rose); box-shadow: 0 0 10px var(--rose), 0 0 18px var(--orange); }
+.cadre .hd { right: 88px; top: 50px; }
+.cadre .bg { left: 88px; bottom: 50px; display: flex; align-items: center; gap: 12px; }
+.cadre .bg b { display: inline-block; height: 2px; background: var(--degrade-ligne); }
+.cadre .bd { right: 88px; bottom: 50px; }
+.cadre.clair { color: var(--encre-80); }
+
+/* Habillage (habillage.js) : grain, vignette, bandes cinéma */
+.grain { position: absolute; inset: -256px; z-index: 90; pointer-events: none; mix-blend-mode: overlay; opacity: 0; }
+.vignette { position: absolute; inset: 0; z-index: 85; pointer-events: none; opacity: 0;
+  background: radial-gradient(130% 120% at 50% 50%, rgba(30, 0, 50, 0) 52%, rgba(30, 0, 50, .55) 82%, rgba(12, 0, 22, .9) 100%); }
+.bande { position: absolute; left: 0; right: 0; height: 0; z-index: 84; background: #08000F; pointer-events: none; }
+.bande.haut { top: 0; }
+.bande.bas { bottom: 0; }
+
+/* Barre de développement (?dev) */
+#dev { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 12px; align-items: center; padding: 8px 12px;
+  background: rgba(0, 0, 0, .75); color: #fff; font: 12px var(--mono); z-index: 1000; }
+#dev input { flex: 1; }
+#dev button { font: inherit; background: #333; color: #fff; border: 0; padding: 4px 10px; }

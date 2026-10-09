@@ -1,0 +1,47 @@
+<!doctype html>
+<!-- Acte 3 — Lucia et Jason (20.8 s). Squelette fourni par la fondation : il respecte déjà le contrat
+     (image de raccord à t = 0 et t = 20.8). Remplacer le contenu de preparer() et render().
+     Mode d'emploi : ../LISEZMOI-equipes.md · Exemple complet : ../acte-0/index.html -->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GTA VI — Acte 3 · Lucia et Jason</title>
+<link rel="stylesheet" href="../lib/tokens.css">
+<style>
+  /* Styles propres à l'acte 3 (préfixer les identifiants par a3-) */
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+  <canvas id="fond" class="fill" width="1920" height="1080"></canvas>
+</div></div>
+<script type="module">
+import { $, ACTES, E, tw, prog, clamp, lerp } from '../lib/core.js';
+import { dessinerFond, dessinerLigne, ligne, LIGNE } from '../lib/raccord.js';
+import { plan, photo } from '../lib/footage.js';
+import { creerCadre } from '../lib/cadre.js';
+import { creerHabillage } from '../lib/habillage.js';
+import { demarrer } from '../lib/acte.js';
+
+const ACTE = 3;
+const stage = $('stage');
+const ctx = $('fond').getContext('2d');
+let cadre, hab;
+
+demarrer({
+  acte: ACTE,
+  async preparer() {
+    cadre = creerCadre(stage, { acte: ACTE, techniques: [[0, 'Lucia et Jason']] });
+    hab = creerHabillage(stage, { duree: ACTES[ACTE - 1].duree, vignette: 0.6 });
+  },
+  async render(t) {
+    dessinerFond(ctx);
+    dessinerLigne(ctx, LIGNE);
+    cadre.maj(t);
+    hab.maj(t);
+  },
+});
+</script>
+</body>
+</html>

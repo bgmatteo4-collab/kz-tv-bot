@@ -1,0 +1,112 @@
+<!doctype html>
+<!-- Acte 0 — page de démonstration de la fondation (n'entre pas dans le film).
+     Utilise toutes les briques : raccord (ligne animée), footage (vrai plan T1 #3 ralenti à 50 %),
+     Three.js (carte postale 3D texturée par T1 #9), texte découpé, cadre d'analyse, habillage.
+     Durée 6 s. À t = 0 et t = 6 : image de raccord exacte (vérifiée par render.js --verifier).
+     Modèle à copier pour démarrer un acte : gta6/demo/acte-N/index.html. -->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GTA VI — Acte 0 (démonstration)</title>
+<link rel="stylesheet" href="../lib/tokens.css">
+<style>
+  #titre { left: 150px; top: 560px; z-index: 30; }
+  #titre .visit { font-family: var(--serif); font-style: italic; font-size: 120px; line-height: 1; color: var(--creme); }
+  #titre .nom { font-size: 230px; margin-top: -18px; }
+  #titre .nom .w { background: var(--degrade-vi); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #legende { left: 158px; top: 884px; z-index: 30; }
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+  <canvas id="fond" class="fill" width="1920" height="1080"></canvas>
+  <div class="abs" id="titre"><div class="visit">Visit</div><div class="titre nom" id="nom">LEONIDA</div></div>
+  <div class="abs legende" id="legende">T1 #03 · 00:02.67 → 00:05.00 · ralenti 50 %</div>
+</div></div>
+<script type="module">
+import { $, E, tw, prog, clamp, lerp, bump, split, setStyle } from '../lib/core.js';
+import { dessinerFond, dessinerLigne, ligne, LIGNE } from '../lib/raccord.js';
+import { plan } from '../lib/footage.js';
+import { creerCadre } from '../lib/cadre.js';
+import { creerHabillage } from '../lib/habillage.js';
+import { THREE, creerScene3D, texturePlan } from '../lib/trois.js';
+import { demarrer } from '../lib/acte.js';
+
+const DUREE = 6;
+const stage = $('stage');
+const ctx = $('fond').getContext('2d');
+let P3, P9, tex, s3, carte, cadre, hab, lettres;
+
+demarrer({
+  acte: 0,
+  duree: DUREE,
+  async preparer() {
+    P3 = await plan('t1-03', { vitesse: 0.5 });                 // autoroute au coucher du soleil
+    P9 = await plan('t1-09', { vitesse: 0.5, decalage: 1.6, fondu: false }); // la plage ; mouvement rapide : pas de fondu (sinon images doublées)
+    lettres = split($('nom'), 'letters');
+    s3 = creerScene3D(stage, { z: 20, fov: 30, distance: 10 });
+    tex = texturePlan(P9, 1024, 640);
+    carte = new THREE.Group();
+    const bord = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 2.18), new THREE.MeshBasicMaterial({ color: 0xFCE5D1 }));
+    const photo = new THREE.Mesh(new THREE.PlaneGeometry(3.1, 1.94), new THREE.MeshBasicMaterial({ map: tex.texture }));
+    photo.position.z = 0.002;
+    carte.add(bord, photo);
+    s3.scene.add(carte);
+    cadre = creerCadre(stage, {
+      acte: 0, duree: DUREE, compteurs: [[0, '00 / 06']],
+      techniques: [[0, 'Raccord · ligne de coucher de soleil'], [1.0, 'Footage · ralenti 50 %'], [2.2, 'WebGL · carte postale 3D'], [4.4, 'Raccord · retour à la ligne']],
+    });
+    hab = creerHabillage(stage, { duree: DUREE, grain: 0.08, vignette: 0.7 });
+  },
+
+  async render(t) {
+    // 1. Ouverture du « store » : la ligne se dédouble et révèle le plan entre ses deux moitiés.
+    const o = tw(t, 0.8, 1.0, E.inOut) * (1 - tw(t, 4.4, 1.0, E.inOut));
+    const yh = 540 - 400 * o, yb = 540 + 400 * o;
+    dessinerFond(ctx);
+    if (o > 0) {
+      await P3.dessiner(ctx, t - 0.7, {
+        opacite: clamp(o * 3), zoom: lerp(1.12, 1.02, prog(t, 0.7, 4.5)),
+        masque: (c) => { c.beginPath(); c.rect(0, yh, 1920, yb - yh); },
+      });
+    }
+    // 2. La ligne : flash et allongement, puis retour EXACT à l'état de référence avant t = 6.
+    const long = lerp(LIGNE.longueur, 2100, tw(t, 0.25, 0.9, E.inOut) * (1 - tw(t, 4.9, 0.9, E.inOut)));
+    const flash = 0.7 * bump(prog(t, 0.2, 0.9)) + 0.4 * bump(prog(t, 5.0, 0.8));
+    const etat = ligne({ longueur: long, intensite: 1 + flash });
+    if (o > 0) {
+      const i2 = etat.intensite * clamp(o * 6); // la 2e moitié naît sans « pop »
+      dessinerLigne(ctx, { ...etat, y: yh });
+      dessinerLigne(ctx, { ...etat, y: yb, intensite: i2 });
+    } else dessinerLigne(ctx, etat);
+
+    // 3. Titre lettre par lettre (masques), puis sortie vers le haut.
+    for (let i = 0; i < lettres.length; i++) {
+      const a = E.out(prog(t, 1.5 + i * 0.045, 0.9)), b = E.in(prog(t, 4.2 + i * 0.03, 0.5));
+      const y = (1 - a) * 110 - b * 110;
+      setStyle(lettres[i], 'transform', y === 0 ? 'none' : `translateY(${y}%)`);
+    }
+    const vis = tw(t, 1.3, 0.7) * (1 - tw(t, 4.2, 0.4, E.in));
+    setStyle($('titre').querySelector('.visit'), 'opacity', vis);
+    setStyle($('titre').querySelector('.visit'), 'transform', `translateY(${(1 - tw(t, 1.3, 0.9)) * 30}px)`);
+    setStyle($('legende'), 'opacity', tw(t, 1.9, 0.5) * (1 - tw(t, 4.1, 0.3)));
+
+    // 4. Carte postale 3D (Three.js) texturée par le plan de la plage.
+    const c = tw(t, 2.0, 1.4) * (1 - tw(t, 4.0, 0.7, E.in));
+    s3.visible(c > 0);
+    if (c > 0) {
+      await tex.maj(t - 2.0);
+      carte.position.set(lerp(6.5, 2.55, tw(t, 2.0, 1.4)) + 4 * tw(t, 4.0, 0.7, E.in), 0.55 + 0.05 * Math.sin(t * 1.3), 0);
+      carte.rotation.set(-0.08, lerp(-1.1, -0.32, tw(t, 2.0, 1.6)) + 0.05 * Math.sin(t * 0.9), lerp(0.25, 0.06, tw(t, 2.0, 1.6)));
+      s3.rendre();
+    }
+
+    // 5. Cadre d'analyse et habillage (tous deux à zéro à t = 0 et t = 6).
+    cadre.maj(t);
+    hab.maj(t);
+  },
+});
+</script>
+</body>
+</html>

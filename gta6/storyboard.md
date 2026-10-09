@@ -25,8 +25,23 @@ Abréviations : **T1** = trailer 1 (`assets/trailers/trailer-1.mp4`, 30 i/s), **
 |---|---|---|
 | 0:00.0 – 0:17.1 | T1 0:00.2 → 0:17.3 | Ouverture du trailer 1 (voix de Lucia, montée musicale) |
 | 0:17.1 – 1:04.8 | T1 0:17.3 → 1:05.0 | Chanson du trailer 1, montage Vice City (fondu de sortie 0,8 s) |
-| 1:04.8 – 2:05.6 | T2 à partir du début de la chanson (≈ 1:11.2), 60,8 s | Chanson du trailer 2 (point de départ exact à caler sur l'attaque musicale) |
+| 1:04.8 – 2:05.6 | T2 1:11.24 → 2:12.04 (60,8 s) | Chanson du trailer 2, depuis le temps fort qui suit « Rockstar Games presents » |
 | 2:05.6 – 2:19.0 | T2 2:33.3 → 2:46.7 | Fin du trailer 2 : coucher de soleil, logo VI, logo Rockstar |
+
+Raccords audio (dans `demo/assembler.js`, tableau `BANDE_SON`) : T1 d'un seul tenant de 0:00.2 à 1:05.0
+avec fondu de sortie 0,8 s ; entrée de la chanson du T2 avec un fondu de 20 ms (on garde l'attaque),
+sortie 0,12 s ; fin du T2 avec fondu d'entrée 0,25 s et de sortie 0,4 s.
+
+**Début de la chanson du trailer 2 (analyse d'énergie, piste `assets/audio/trailer-2.wav`)** :
+niveau lissé sur 0,5 s et flux spectral (fenêtres de 64 ms, pas de 10 ms) entre 1:04 et 1:20.
+- Avant 1:06 : dialogue seul, niveau ≈ −24 dB sous le maximum.
+- 1:07.0 : premier impact (niveau −3,6 dB), puis musique continue dès 1:08.0 (≈ −3 à −5 dB).
+- Attaques régulières à 1:08.93, 1:09.62, 1:09.85, 1:10.31, 1:10.78… : période 0,46 s, soit
+  **≈ 130 BPM** (autocorrélation du flux sur 1:10 – 1:20).
+- Le carton « Rockstar Games presents » (plan #23, 1:09.67 – 1:11.23) passe sur la musique déjà
+  lancée ; la coupe suivante (1:11.23 – 1:11.27) tombe sur un temps de la grille (1:11.24).
+- Point retenu : **1:11.24** (71,24 s), sur la coupe et sur le temps fort. Si l'on veut l'impact
+  d'ouverture plutôt que la reprise après le carton, l'autre candidat est 1:07.0.
 
 ## Les six actes
 

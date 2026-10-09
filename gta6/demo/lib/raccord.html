@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- Image de raccord de référence : fond encre de nuit + ligne de coucher de soleil, rien d'autre.
+     render.js --verifier compare les images t = 0 et t = durée de chaque acte à celle-ci. -->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Raccord de référence</title>
+<link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+<div id="viewport"><div id="stage"><canvas id="c" class="fill" width="1920" height="1080"></canvas></div></div>
+<script type="module">
+import { demarrer } from './acte.js';
+import { dessinerRaccord } from './raccord.js';
+const ctx = document.getElementById('c').getContext('2d');
+demarrer({ acte: 0, duree: 1, render: async () => dessinerRaccord(ctx) });
+</script>
+</body>
+</html>

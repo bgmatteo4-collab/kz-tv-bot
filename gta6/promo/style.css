@@ -1,0 +1,73 @@
+/* Promo de lancement GTA VI — valeurs tirées de DESIGN.md */
+
+@font-face { font-family: "Archivo"; src: url("fonts/Archivo-wdth.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-display: block; }
+@font-face { font-family: "Archivo"; src: url("fonts/Archivo-wdth-italic.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-style: italic; font-display: block; }
+@font-face { font-family: "Instrument Serif"; src: url("fonts/InstrumentSerif-italic.woff2") format("woff2"); font-style: italic; font-display: block; }
+@font-face { font-family: "Instrument Serif"; src: url("fonts/InstrumentSerif-normal.woff2") format("woff2"); font-display: block; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-normal.woff2") format("woff2"); font-weight: 100 800; font-display: block; }
+
+:root {
+  --nuit: #14021F; --aubergine: #1D002E; --contour: #1E0031;
+  --bleu: #3F45BB; --violet: #9A39BB; --rose: #E25790; --corail: #FF775C; --orange: #FF9745;
+  --creme: #FFF4E8; --brume: rgba(255, 244, 232, .62);
+  --vi: linear-gradient(180deg, #3F45BB 0%, #9A39BB 32%, #E25790 58%, #FF775C 80%, #FF9745 100%);
+  --vi-h: linear-gradient(90deg, #3F45BB 0%, #9A39BB 30%, #E25790 56%, #FF775C 80%, #FF9745 100%);
+  --titre: "Archivo", Impact, sans-serif;
+  --serif: "Instrument Serif", Georgia, serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+#viewport { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+#stage { position: relative; flex: none; width: 1920px; height: 1080px; overflow: hidden; background: var(--nuit); color: var(--creme); font-family: var(--titre); -webkit-font-smoothing: antialiased; transform-origin: 50% 50%; }
+#film, #fx { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+#ui { position: absolute; inset: 0; }
+#fx { pointer-events: none; }
+
+.scene { position: absolute; inset: 0; visibility: hidden; }
+.abs { position: absolute; }
+
+/* Textes */
+.mono { font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: .22em; font-size: 18px; color: var(--brume); }
+.serif { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -.01em; }
+.geant { font-family: var(--titre); font-weight: 900; font-stretch: 62%; text-transform: uppercase; line-height: .86; letter-spacing: -.01em; }
+.geant .ligne + .ligne { margin-top: .1em; }
+.mot { display: inline-block; }
+.ligne { display: block; white-space: nowrap; }
+.degrade { background: var(--vi); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.degrade-h { background: var(--vi-h); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ombre { filter: drop-shadow(0 10px 40px rgba(20, 2, 31, .55)); }
+.tab { font-variant-numeric: tabular-nums; }
+
+/* Pastille éclairée (référence TikTok) : liseré, traînée de lumière qui fait le tour, halo */
+.pastille { position: absolute; display: inline-flex; align-items: center; gap: 14px; height: 64px; padding: 0 28px; border-radius: 999px;
+  background: rgba(24, 6, 36, .78); border: 1.5px solid rgba(255, 244, 232, .16); white-space: nowrap;
+  font-family: var(--titre); font-weight: 700; font-stretch: 85%; font-size: 28px; color: var(--creme); letter-spacing: .01em;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .08); }
+.pastille .lueur { position: absolute; inset: -2px; border-radius: inherit; pointer-events: none; filter: drop-shadow(0 0 5px rgba(255, 244, 232, .9)) drop-shadow(0 0 16px rgba(255, 151, 69, .85)); }
+.pastille .lueur i { position: absolute; inset: 0; border-radius: inherit; padding: 2.5px;
+  background: conic-gradient(from var(--a, 0deg), transparent 0deg, transparent 230deg, rgba(255, 119, 92, .0) 250deg, rgba(255, 151, 69, .85) 320deg, #FFF4E8 352deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.pastille b { font-family: var(--mono); font-weight: 600; font-size: 15px; letter-spacing: .2em; color: var(--orange); }
+.pastille.petite { height: 50px; padding: 0 22px; font-size: 22px; }
+.pastille.grande { height: 88px; padding: 0 40px; font-size: 40px; }
+
+/* Carte en verre */
+.verre { position: absolute; border-radius: 28px; background: linear-gradient(160deg, rgba(255, 255, 255, .11), rgba(255, 255, 255, .03));
+  border: 1.5px solid rgba(255, 244, 232, .18); backdrop-filter: blur(24px); box-shadow: 0 30px 80px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .12); }
+
+/* Compteur à rouleaux */
+.compteur { display: inline-flex; align-items: flex-start; overflow: hidden; contain: paint; line-height: 1; height: 1em; font-variant-numeric: tabular-nums; }
+.compteur .col { display: flex; flex-direction: column; }
+.compteur .col span, .compteur .fixe { display: block; height: 1em; line-height: 1; text-align: center; }
+
+/* Cadre de régie (collant) */
+#hud .coin { position: absolute; width: 34px; height: 34px; border-color: rgba(255, 244, 232, .7); border-style: solid; border-width: 0; }
+#hud .tl { left: 56px; top: 44px; border-left-width: 2px; border-top-width: 2px; }
+#hud .tr { right: 56px; top: 44px; border-right-width: 2px; border-top-width: 2px; }
+#hud .bl { left: 56px; bottom: 44px; border-left-width: 2px; border-bottom-width: 2px; }
+#hud .br { right: 56px; bottom: 44px; border-right-width: 2px; border-bottom-width: 2px; }
+#hud .barre { position: absolute; left: 96px; right: 96px; bottom: 58px; height: 3px; background: rgba(255, 244, 232, .14); border-radius: 2px; overflow: hidden; }
+#hud .barre i { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; transform-origin: 0 50%; background: var(--vi-h); box-shadow: 0 0 12px rgba(255, 151, 69, .8); }
+#hud .rec { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #FF3B3B; box-shadow: 0 0 14px #FF3B3B; margin-right: 12px; vertical-align: 1px; }

@@ -1,0 +1,376 @@
+{
+ "_lisezmoi": "Plans du footage officiel utilisés par la promo. debut / fin : secondes dans la source, sans marge. Extraction : node extraire.js → ../assets/promo/<id>/000001.jpg… (30 i/s, marge de 0,1 s de chaque côté, l'image 000001 correspond à debut - 0,1 s).",
+ "fps": 30,
+ "marge": 0.1,
+ "sources": {
+  "T1": {
+   "fichier": "trailers/trailer-1.mp4",
+   "vf": "scale=1920:1080:flags=lanczos"
+  },
+  "T2": {
+   "fichier": "trailers/trailer-2.mp4",
+   "vf": "crop=3840:1728:0:216,scale=2400:1080:flags=lanczos"
+  },
+  "EL": {
+   "fichier": "trailers/extended-look.mp4",
+   "vf": "scale=1920:1080:flags=lanczos"
+  },
+  "P": {
+   "dossier": "clips/personnages",
+   "vf": "scale=1920:-2:flags=lanczos"
+  }
+ },
+ "plans": [
+  {
+   "id": "vc_aerien",
+   "source": "T1",
+   "debut": 31.1,
+   "fin": 32.5,
+   "contenu": "Vice City vue aérienne de nuit"
+  },
+  {
+   "id": "ocean_drive",
+   "source": "T1",
+   "debut": 32.62,
+   "fin": 34.08,
+   "contenu": "Ocean Drive de nuit, néons"
+  },
+  {
+   "id": "keys_pont",
+   "source": "T1",
+   "debut": 35.72,
+   "fin": 37.38,
+   "contenu": "Leonida Keys : pont au-dessus de la mer"
+  },
+  {
+   "id": "marais",
+   "source": "T1",
+   "debut": 19.22,
+   "fin": 20.68,
+   "contenu": "Grassrivers : marais à l'aube"
+  },
+  {
+   "id": "flamants",
+   "source": "T1",
+   "debut": 20.78,
+   "fin": 21.68,
+   "contenu": "Flamants roses dans le marais"
+  },
+  {
+   "id": "plage",
+   "source": "T1",
+   "debut": 21.78,
+   "fin": 23.22,
+   "contenu": "Plage bondée"
+  },
+  {
+   "id": "vice",
+   "source": "T1",
+   "debut": 39.85,
+   "fin": 41.28,
+   "contenu": "Enseigne VICE au coucher du soleil"
+  },
+  {
+   "id": "keys_aerien",
+   "source": "T2",
+   "debut": 6.6,
+   "fin": 8.1,
+   "contenu": "Leonida Keys vue aérienne"
+  },
+  {
+   "id": "braquage_rouge",
+   "source": "T2",
+   "debut": 75.0,
+   "fin": 75.85,
+   "contenu": "Braquage, lumière rouge"
+  },
+  {
+   "id": "bar_duo",
+   "source": "T2",
+   "debut": 79.55,
+   "fin": 81.35,
+   "contenu": "Lucia et Jason au bar, bières"
+  },
+  {
+   "id": "ponton",
+   "source": "T2",
+   "debut": 81.45,
+   "fin": 83.05,
+   "contenu": "Ponton au coucher du soleil"
+  },
+  {
+   "id": "cuisine",
+   "source": "T2",
+   "debut": 88.28,
+   "fin": 89.45,
+   "contenu": "Lucia et Jason dans la cuisine"
+  },
+  {
+   "id": "casquette",
+   "source": "T2",
+   "debut": 89.55,
+   "fin": 90.3,
+   "contenu": "Homme à casquette qui danse"
+  },
+  {
+   "id": "bagarre_bar",
+   "source": "T2",
+   "debut": 92.05,
+   "fin": 94.3,
+   "contenu": "Bagarre dans un bar"
+  },
+  {
+   "id": "robe_or",
+   "source": "T2",
+   "debut": 94.6,
+   "fin": 95.95,
+   "contenu": "Robe dorée, danse"
+  },
+  {
+   "id": "jason_volant",
+   "source": "T2",
+   "debut": 97.7,
+   "fin": 98.42,
+   "contenu": "Jason au volant, coucher de soleil"
+  },
+  {
+   "id": "duo_marche",
+   "source": "T2",
+   "debut": 98.5,
+   "fin": 99.62,
+   "contenu": "Lucia et Jason marchent main dans la main"
+  },
+  {
+   "id": "club_violet",
+   "source": "T2",
+   "debut": 99.72,
+   "fin": 100.9,
+   "contenu": "Club, foule violette"
+  },
+  {
+   "id": "club_bleu",
+   "source": "T2",
+   "debut": 101.0,
+   "fin": 102.1,
+   "contenu": "Club, lumière bleue, paillettes"
+  },
+  {
+   "id": "boobie_salle",
+   "source": "T2",
+   "debut": 103.0,
+   "fin": 103.9,
+   "contenu": "Salle de sport"
+  },
+  {
+   "id": "police",
+   "source": "T2",
+   "debut": 108.0,
+   "fin": 109.3,
+   "contenu": "Policier en gilet"
+  },
+  {
+   "id": "lucia_pose",
+   "source": "T2",
+   "debut": 111.35,
+   "fin": 112.3,
+   "contenu": "Lucia, lunettes de soleil, geste"
+  },
+  {
+   "id": "paillettes",
+   "source": "T2",
+   "debut": 112.5,
+   "fin": 113.9,
+   "contenu": "Danseuse, éclats bleus"
+  },
+  {
+   "id": "lucia_coup",
+   "source": "T2",
+   "debut": 114.6,
+   "fin": 115.4,
+   "contenu": "Lucia, coup de pied"
+  },
+  {
+   "id": "explosion",
+   "source": "T2",
+   "debut": 117.97,
+   "fin": 118.8,
+   "contenu": "Voiture en feu"
+  },
+  {
+   "id": "maillot",
+   "source": "T2",
+   "debut": 118.86,
+   "fin": 119.6,
+   "contenu": "Maillot Manatees"
+  },
+  {
+   "id": "quad",
+   "source": "T2",
+   "debut": 119.66,
+   "fin": 120.4,
+   "contenu": "Quad en l'air"
+  },
+  {
+   "id": "baiser",
+   "source": "T2",
+   "debut": 123.0,
+   "fin": 124.4,
+   "contenu": "Baiser dans la pénombre bleue"
+  },
+  {
+   "id": "selfie",
+   "source": "T2",
+   "debut": 124.6,
+   "fin": 125.72,
+   "contenu": "Selfie, chemise violette"
+  },
+  {
+   "id": "rue_jour",
+   "source": "T2",
+   "debut": 125.8,
+   "fin": 126.7,
+   "contenu": "Rue de Vice City en plein jour"
+  },
+  {
+   "id": "gilet_orange",
+   "source": "T2",
+   "debut": 134.45,
+   "fin": 138.05,
+   "contenu": "Cambriolage, gilet orange"
+  },
+  {
+   "id": "helico",
+   "source": "T2",
+   "debut": 138.16,
+   "fin": 139.05,
+   "contenu": "Hélicoptère au-dessus du marais"
+  },
+  {
+   "id": "helico2",
+   "source": "T2",
+   "debut": 139.12,
+   "fin": 140.0,
+   "contenu": "Poursuite vue de l'hélicoptère"
+  },
+  {
+   "id": "jetski",
+   "source": "T2",
+   "debut": 140.06,
+   "fin": 141.8,
+   "contenu": "Jet-ski en plein soleil"
+  },
+  {
+   "id": "moto_avion",
+   "source": "T2",
+   "debut": 141.86,
+   "fin": 143.7,
+   "contenu": "Moto devant un hydravion"
+  },
+  {
+   "id": "poursuite",
+   "source": "T2",
+   "debut": 143.76,
+   "fin": 147.25,
+   "contenu": "Poursuite de nuit, étincelles"
+  },
+  {
+   "id": "horsbord",
+   "source": "T2",
+   "debut": 147.35,
+   "fin": 148.0,
+   "contenu": "Hors-bord"
+  },
+  {
+   "id": "moto_police",
+   "source": "T2",
+   "debut": 148.05,
+   "fin": 149.4,
+   "contenu": "Moto poursuivie par la police"
+  },
+  {
+   "id": "duo_voiture",
+   "source": "T2",
+   "debut": 149.5,
+   "fin": 150.9,
+   "contenu": "Jason et Lucia en voiture"
+  },
+  {
+   "id": "couchant",
+   "source": "T2",
+   "debut": 153.3,
+   "fin": 156.4,
+   "contenu": "Vice City au coucher du soleil, rayons"
+  },
+  {
+   "id": "cabriolet",
+   "source": "EL",
+   "debut": 504.0,
+   "fin": 512.0,
+   "contenu": "Gameplay : cabriolet rouge en ville"
+  },
+  {
+   "id": "perso_lucia",
+   "source": "P",
+   "fichier": "Lucia_Caminos_Video_Clip.mp4",
+   "debut": 0,
+   "fin": null,
+   "contenu": "Portrait animé officiel : Lucia Caminos"
+  },
+  {
+   "id": "perso_jason",
+   "source": "P",
+   "fichier": "Jason_Duval_Video_Clip.mp4",
+   "debut": 0,
+   "fin": null,
+   "contenu": "Portrait animé officiel : Jason Duval"
+  },
+  {
+   "id": "perso_cal",
+   "source": "P",
+   "fichier": "Cal_Hampton_Video_Clip.mp4",
+   "debut": 0,
+   "fin": null,
+   "contenu": "Portrait animé officiel : Cal Hampton"
+  },
+  {
+   "id": "perso_boobie",
+   "source": "P",
+   "fichier": "Boobie_Ike_Video_Clip.mp4",
+   "debut": 0,
+   "fin": null,
+   "contenu": "Portrait animé officiel : Boobie Ike"
+  },
+  {
+   "id": "perso_drequan",
+   "source": "P",
+   "fichier": "DreQuan_Priest_Video_Clip.mp4",
+   "debut": 0,
+   "fin": null,
+   "contenu": "Portrait animé officiel : DreQuan Priest"
+  },
+  {
+   "id": "perso_real",
+   "source": "P",
+   "fichier": "Real_Dimez_Video_Clip.mp4",
+   "debut": 0,
+   "fin": null,
+   "contenu": "Portrait animé officiel : Real Dimez"
+  },
+  {
+   "id": "perso_raul",
+   "source": "P",
+   "fichier": "Raul_Bautista_Video_Clip.mp4",
+   "debut": 0,
+   "fin": null,
+   "contenu": "Portrait animé officiel : Raul Bautista"
+  },
+  {
+   "id": "perso_brian",
+   "source": "P",
+   "fichier": "Brian_Heder_Video_Clip.mp4",
+   "debut": 0,
+   "fin": null,
+   "contenu": "Portrait animé officiel : Brian Heder"
+  }
+ ]
+}

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kayzx TV — Le live commence bientôt</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "three": "./node_modules/three/build/three.module.js", "three/addons/": "./node_modules/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="viewport">
+<div id="stage">
+  <canvas id="gl" width="1920" height="1080"></canvas>
+  <canvas id="faisceaux" width="1920" height="1080"></canvas>
+
+  <!-- Habillage permanent -->
+  <div id="kicker"><span id="kicker-num">01</span><i></i><span id="kicker-txt">Le studio</span></div>
+  <div id="marque"><i></i>Kayzx TV</div>
+  <div id="attente">
+    <div id="attente-barre"></div>
+    <div id="attente-titre">Le live commence bientôt</div>
+    <div id="attente-etat"><i id="attente-dot"></i>En attente</div>
+  </div>
+  <div id="bandeau"><div id="bandeau-piste"></div></div>
+
+  <!-- Régie : notifications et curseur -->
+  <div id="toasts"></div>
+  <div id="clic"></div>
+  <svg id="curseur" viewBox="0 0 36 44"><path d="M3 2 L3 33 L11 25.5 L16.5 38.5 L22 36 L16.6 23.4 L27.5 23.4 Z" fill="#EEF2F1" stroke="#061C1B" stroke-width="2.4" stroke-linejoin="round"/></svg>
+
+  <div id="vignette"></div>
+  <div id="grain"></div>
+</div>
+</div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

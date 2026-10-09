@@ -1,0 +1,61 @@
+/* Kayzx TV — écran d'attente en boucle.
+   Couleurs de la chaîne (forest teal, honey gold, mist gray) dans le langage
+   graphique de la promo Ligue 1+ : typo condensée, diagonales, faisceaux. */
+
+@font-face { font-family: "Insatiable Compressed"; src: url("assets/InsatiableDisplay-BoldCompressed.woff2") format("woff2"); font-display: block; }
+@font-face { font-family: "Insatiable Condensed"; src: url("assets/InsatiableDisplay-BoldCondensed.woff2") format("woff2"); font-display: block; }
+@font-face { font-family: "Inter Tight"; src: url("fonts/InterTight-normal.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-normal.woff2") format("woff2"); font-weight: 100 800; font-display: block; }
+
+:root {
+  --encre: #061C1B; --nuit: #082624; --teal: #0F3D3A; --teal-2: #1F6F66; --teal-3: #5FA89C; --teal-4: #9CCFC5;
+  --or: #E3A83B; --or-2: #F2C76E; --brume: #C9D1D1; --blanc: #EEF2F1;
+  --titre: "Insatiable Compressed", Impact, sans-serif;
+  --titre-2: "Insatiable Condensed", Impact, sans-serif;
+  --texte: "Inter Tight", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+#viewport { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+#stage { position: relative; flex: none; width: 1920px; height: 1080px; overflow: hidden; background: var(--encre); color: var(--blanc); font-family: var(--texte); -webkit-font-smoothing: antialiased; transform-origin: 50% 50%; }
+#gl, #faisceaux { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+#faisceaux { mix-blend-mode: screen; pointer-events: none; }
+
+/* Rubrique en haut à gauche, façon chapitre */
+#kicker { position: absolute; left: 72px; top: 54px; display: flex; align-items: center; gap: 16px; font-family: var(--mono); font-size: 19px; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: rgba(201,209,209,.85); }
+#kicker-num { color: var(--or); }
+#kicker i { width: 46px; height: 2px; background: linear-gradient(90deg, var(--or), rgba(227,168,59,0)); }
+
+/* Marque en haut à droite */
+#marque { position: absolute; right: 72px; top: 46px; display: flex; align-items: center; gap: 14px; font-family: var(--titre-2); font-size: 34px; text-transform: uppercase; letter-spacing: .02em; color: var(--blanc); }
+#marque i { width: 14px; height: 14px; border-radius: 50%; background: var(--or); box-shadow: 0 0 16px var(--or); }
+
+/* Le titre d'attente, en bas à gauche */
+#attente { position: absolute; left: 72px; bottom: 132px; }
+#attente-barre { position: absolute; left: -8px; top: 12px; width: 14px; height: 120px; background: linear-gradient(180deg, var(--or), var(--teal-2)); transform: skewX(-18deg); box-shadow: 0 0 24px rgba(227,168,59,.45); }
+#attente-titre { padding-left: 38px; font-family: var(--titre); font-size: 128px; line-height: .9; text-transform: uppercase; white-space: nowrap; letter-spacing: .005em; background: linear-gradient(180deg, #FFFFFF 0%, var(--brume) 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 6px 24px rgba(0,0,0,.45)); }
+#attente-etat { margin: 14px 0 0 42px; display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 16px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: var(--teal-4); }
+#attente-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--or); box-shadow: 0 0 14px var(--or); }
+
+/* Bandeau des réseaux, en bas */
+#bandeau { position: absolute; left: 0; right: 0; bottom: 0; height: 74px; overflow: hidden; background: linear-gradient(90deg, rgba(6,28,27,.92), rgba(15,61,58,.88) 50%, rgba(6,28,27,.92)); border-top: 2px solid rgba(227,168,59,.55); }
+#bandeau-piste { position: absolute; left: 0; top: 0; height: 74px; display: flex; align-items: center; white-space: nowrap; }
+.item { display: flex; align-items: center; gap: 16px; padding: 0 34px; font-family: var(--titre-2); font-size: 34px; text-transform: uppercase; letter-spacing: .02em; color: var(--blanc); }
+.item b { font-family: var(--mono); font-size: 14px; font-weight: 600; letter-spacing: .22em; color: var(--or); }
+.sep { width: 22px; height: 30px; background: var(--teal-3); transform: skewX(-18deg); opacity: .7; }
+
+/* Notifications de la régie */
+#toasts { position: absolute; left: 750px; top: 112px; width: 420px; }
+.toast { position: absolute; right: 0; width: 420px; height: 86px; display: flex; align-items: center; gap: 18px; padding: 0 24px; border-radius: 16px; background: rgba(8,38,36,.92); border: 1.5px solid rgba(156,207,197,.25); box-shadow: 0 20px 50px rgba(0,0,0,.45); opacity: 0; }
+.toast .ic { flex: none; width: 40px; height: 40px; border-radius: 12px; background: rgba(227,168,59,.16); display: grid; place-items: center; }
+.toast .ic i { width: 12px; height: 12px; border-radius: 50%; background: var(--or); box-shadow: 0 0 12px var(--or); }
+.toast .tx b { display: block; font-family: var(--titre-2); font-size: 30px; text-transform: uppercase; color: var(--blanc); }
+.toast .tx span { display: block; margin-top: 2px; font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--teal-4); }
+
+#clic { position: absolute; left: 0; top: 0; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; border: 2px solid var(--or); opacity: 0; }
+#curseur { position: absolute; left: 0; top: 0; width: 36px; height: 44px; overflow: visible; transform-origin: 3px 2px; opacity: 0; filter: drop-shadow(0 8px 12px rgba(0,0,0,.45)); }
+
+#vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 72% 72% at 50% 50%, transparent 55%, rgba(0,0,0,.42) 100%); }
+#grain { position: absolute; inset: 0; pointer-events: none; opacity: .06; mix-blend-mode: overlay; }

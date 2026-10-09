@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ligue 1+ — Saison 27/28</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="viewport">
+<div id="stage">
+
+  <!-- Faisceaux bleus en diagonale : la signature visuelle de Ligue 1+ -->
+  <canvas id="beams" class="fill" width="1920" height="1080"></canvas>
+
+  <!-- 1. SAISON 27/28 -->
+  <section class="scene" id="s1">
+    <div id="s1-rows"></div>
+    <canvas id="s1-cv" class="fill" width="1920" height="1080"></canvas>
+    <div class="titre" id="s1-saison">La saison</div>
+    <div class="label" id="s1-kick">Ligue 1 McDonald's · Ligue 3 · Ligue 1+</div>
+  </section>
+
+  <!-- 2. 100 % des matchs -->
+  <section class="scene" id="s2">
+    <div class="cam" id="s2-cam">
+      <canvas id="s2-cv" class="fill" width="1920" height="1080"></canvas>
+      <div class="fill" id="s2-shade"></div>
+      <div class="titre" id="s2-pct"><span id="s2-num">0</span><small>%</small></div>
+      <div id="s2-claims">
+        <div class="titre">des matchs</div>
+        <div class="titre">en direct</div>
+        <div class="titre">en intégralité</div>
+        <div class="titre rose">en exclusivité</div>
+      </div>
+      <div class="label" id="s2-sub">Sur une seule plateforme</div>
+      <div class="card-100" id="s2-card">
+        <div class="titre t">100%</div>
+        <div class="badges"><img src="assets/images/ligue1plus/LOGO_LIGUE_1_BADGE.webp" alt=""><img src="assets/images/ligue1plus/LOGO_LIGUE_3_BADGE.webp" alt=""></div>
+        <div class="titre-2 bar">Sur une seule plateforme</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Plus de 25 heures de direct -->
+  <section class="scene" id="s3">
+    <div class="titre" id="s3-title">+ de <span id="s3-h">25</span> heures de direct</div>
+    <div class="titre-2" id="s3-sub">Tout au long du week-end</div>
+    <div id="s3-phones"></div>
+  </section>
+
+  <!-- 4. Les experts, puis les magazines -->
+  <section class="scene" id="s4">
+    <div class="titre" id="s4-title">Les meilleurs experts</div>
+    <div class="titre-2" id="s4-sub">Pour ne rien manquer de la <img src="assets/images/Logo_Ligue1.webp" alt=""></div>
+    <div id="s4-wall"></div>
+    <div class="titre" id="s4-magtitle">Des magazines exclusifs</div>
+    <div class="mag" id="s4-mag1" style="left: 160px"><img src="assets/images/magazines/LOGO_90PLUS1.webp" alt=""><div class="titre-2 cap">Le 90+1 du samedi soir</div></div>
+    <div class="mag" id="s4-mag2" style="left: 1000px"><img src="assets/images/magazines/LOGO_LE_CLUB.webp" alt=""><div class="titre-2 cap">Ligue 1+ Club le dimanche soir <span class="pill">En clair</span></div></div>
+  </section>
+
+  <!-- 5. Les grandes affiches -->
+  <section class="scene" id="s5">
+    <canvas id="s5-cv" class="fill" width="1920" height="1080"></canvas>
+    <div class="titre" id="s5-title">Les grandes affiches</div>
+    <div class="label" id="s5-kick">Tous les chocs de la saison 27/28</div>
+    <div id="s5-affiches"></div>
+    <div id="s5-grid"></div>
+  </section>
+
+  <!-- 6. Sur tous les écrans, chez tous les opérateurs -->
+  <section class="scene" id="s6">
+    <div class="titre" id="s6-title">Sur tous vos écrans</div>
+    <img id="s6-devices" src="assets/images/ligue1plus/PLATFORM_DEVICES.webp" alt="">
+    <div id="s6-icons"><span>TV</span><span>PC</span><span>Console</span><span>Tablette</span><span>Mobile</span></div>
+    <div class="titre" id="s6-optitle">Chez votre opérateur</div>
+    <div id="s6-ops"></div>
+    <div id="s6-band"><div id="s6-track"></div></div>
+  </section>
+
+  <!-- 7. Les offres, l'appel à l'action, le logo -->
+  <section class="scene" id="s7">
+    <div class="cam" id="s7-cam">
+      <div class="titre" id="s7-title">Des offres pour tous</div>
+      <div class="titre-2" id="s7-sub">TV · PC · Console · Tablette · Mobile</div>
+      <div id="s7-passes"></div>
+      <div class="titre" id="s7-des">Dès <span class="rose">11,99€</span> par mois</div>
+      <div id="s7-cta">S'abonner</div>
+    </div>
+    <div class="label" id="s7-fine">Pass -26 ans, sans engagement. Offres en vigueur sur ligue1.com, susceptibles d'évoluer pour la saison 2027-28.</div>
+    <div id="s7-final">
+      <canvas id="s7-cv" class="fill" width="1920" height="1080"></canvas>
+      <div class="titre line1">Saison 27/28 · Abonnez-vous</div>
+      <div class="line2">ligue1plus.fr</div>
+    </div>
+  </section>
+
+  <!-- Calques globaux -->
+  <div id="bug"><img src="assets/images/partnerships/LIGUE1PLUS_ICON_WHITE.webp" alt=""></div>
+  <div id="wipe"></div>
+  <div id="click"></div>
+  <svg id="cursor" viewBox="0 0 36 44"><path d="M3 2 L3 33 L11 25.5 L16.5 38.5 L22 36 L16.6 23.4 L27.5 23.4 Z" fill="#F7F7F6" stroke="#0A0A0A" stroke-width="2.4" stroke-linejoin="round"/></svg>
+  <div id="vignette"></div>
+  <div id="grain"></div>
+
+</div>
+</div>
+
+<script src="js/core.js"></script>
+<script src="js/data.js"></script>
+<script src="js/media.js"></script>
+<script src="js/scenes-a.js"></script>
+<script src="js/scenes-b.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -25,3 +25,7 @@ intro/node_modules/
 # Démo GTA 6 : médias officiels Rockstar, jamais publiés
 gta6/assets/
 gta6/out/
+
+# Promo Ligue 1+ : contenus officiels et rendus, jamais publiés
+ligue1/assets/
+ligue1/out/

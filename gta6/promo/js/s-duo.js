@@ -12,7 +12,7 @@ const D0 = mesure(9); // 16,65
 const CASES = [
   { id: 'lucia_pose', x: 96, y: 96, w: 560, h: 280 },
   { id: 'jetski', x: 680, y: 96, w: 560, h: 280 },
-  { id: 'helico', x: 1264, y: 96, w: 560, h: 280 },
+  { id: 'helico2', x: 1264, y: 96, w: 560, h: 280, suite: true }, // le dernier plan de Leonida, vu de loin
   { id: 'club_bleu', x: 96, y: 400, w: 560, h: 280 },
   { id: null, x: 680, y: 400, w: 560, h: 280 },
   { id: 'jason_volant', x: 1264, y: 400, w: 560, h: 280 },
@@ -79,17 +79,27 @@ export const duo = {
   mosaique(ctx, t) {
     fond(ctx);
     douche(ctx, 960, 0.55);
-    const zp = E.traversee(prog(t, ZOOM_T, 1.3));
-    const c0 = CASES[0];
-    const fx = c0.x + c0.w / 2, fy = c0.y + c0.h / 2, z = zoomExp(zp, 1, 3.6);
     ctx.save();
-    ctx.translate(lerp(fx, 960, zp), lerp(fy, 540, zp));
-    ctx.scale(z, z);
-    ctx.translate(-fx, -fy);
+    if (t < ZOOM_T) {
+      // Raccord : on sort à reculons du dernier plan de Leonida, qui devient une case de la mosaïque.
+      const q = E.sortie(prog(t, D0, 0.9)), c2 = CASES[2];
+      const fx = c2.x + c2.w / 2, fy = c2.y + c2.h / 2, z = zoomExp(q, 4.9, 1);
+      ctx.translate(lerp(960, fx, q), lerp(540, fy, q));
+      ctx.scale(z, z);
+      ctx.translate(-fx, -fy);
+    } else {
+      const zp = E.traversee(prog(t, ZOOM_T, 1.3));
+      const c0 = CASES[0];
+      const fx = c0.x + c0.w / 2, fy = c0.y + c0.h / 2, z = zoomExp(zp, 1, 3.6);
+      ctx.translate(lerp(fx, 960, zp), lerp(fy, 540, zp));
+      ctx.scale(z, z);
+      ctx.translate(-fx, -fy);
+    }
     ORDRE.forEach((k, rang) => {
       const c = CASES[k];
-      const t0 = D0 + 0.1 + rang * 0.06 * 2;
-      const a = ressort(t - t0, 140, 20);
+      // Toutes les cases sont déjà là : la caméra recule et les découvre ; seule la lueur part en cascade.
+      const t0 = D0 - 1 + rang * 0.12;
+      const a = 1;
       if (t < t0) return;
       // Parallaxe : chaque case dérive à sa propre vitesse.
       const dz = 1 + 0.08 * ((k * 37) % 5) / 5;
@@ -98,11 +108,14 @@ export const duo = {
       ctx.save();
       ctx.translate(c.x + c.w / 2 + dx, c.y + c.h / 2);
       ctx.scale(s, s);
-      ctx.globalAlpha = clamp((t - t0) / 0.2);
+      ctx.globalAlpha = 1;
       biais(ctx, -c.w / 2, -c.h / 2, c.w, c.h, 0.18);
       ctx.save();
       ctx.clip();
-      if (c.id) couvrir(ctx, plan(c.id, t - t0, { vitesse: 0.7, boucle: true }), -c.w / 2 - 40, -c.h / 2, c.w + 80, c.h, { zoom: 1.05 });
+      if (c.id) {
+        const im = c.suite ? plan(c.id, t - (D0 - TEMPS), { vitesse: 1, boucle: true }) : plan(c.id, t - D0 + 0.3 * k, { vitesse: 0.7, boucle: true });
+        couvrir(ctx, im, -c.w / 2 - 40, -c.h / 2, c.w + 80, c.h, { zoom: 1.05 });
+      }
       else {
         ctx.fillStyle = '#1D002E'; ctx.fillRect(-c.w / 2 - 60, -c.h / 2, c.w + 120, c.h);
         const g = ctx.createRadialGradient(0, c.h / 2, 0, 0, c.h / 2, c.w * 0.8);
@@ -115,7 +128,7 @@ export const duo = {
       ctx.restore();
     });
     ctx.restore();
-    eclat(ctx, 0.25 * (1 - tw(t, D0, 0.3)));
+    eclat(ctx, 0.35 * (1 - tw(t, D0, 0.25)));
   },
   ui(t) {
     const on = t >= this.debut && t < this.fin;

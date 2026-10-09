@@ -7,6 +7,7 @@ import { duo, visages } from './s-duo.js';
 import { records, editions, collection } from './s-infos.js';
 import { radio, final } from './s-radio.js';
 import { creerHud, majHud } from './hud.js';
+import { camera, transformeCamera, rapide } from './camera.js';
 
 const SCENES = [ouverture, leonida, duo, visages, records, editions, collection, radio, final];
 const CHAPITRES = [3.7, mesure(9), mesure(15), mesure(19), mesure(22), mesure(27), mesure(30), mesure(34)];
@@ -25,17 +26,11 @@ function dessiner(t) {
   s.film(film, t);
   for (const x of SCENES) x.ui(t);
   majHud(hud, t, f);
-  // Mise au point qui glisse et coup de zoom à chaque changement de chapitre.
-  let flou = 0, zoom = 1;
-  for (const c of CHAPITRES) {
-    const d = t - c;
-    if (d > -0.1 && d < 0) flou = Math.max(flou, 16 * (1 + d / 0.1));
-    if (d >= 0 && d < 0.2) flou = Math.max(flou, 16 * (1 - d / 0.2));
-    if (d >= 0 && d < 0.5) zoom = Math.max(zoom, 1 + 0.035 * (1 - E.sortie(d / 0.5)));
-  }
+  // Caméra virtuelle : la même transformation pour le footage et l'habillage (le cadre de régie reste fixe).
+  const c = camera(t), tr = transformeCamera(c), origine = `${c.ox.toFixed(1)}px ${c.oy.toFixed(1)}px`;
   for (const id of ['film', 'ui']) {
-    style($(id), 'filter', flou > 0.3 ? `blur(${flou.toFixed(1)}px)` : 'none');
-    style($(id), 'transform', zoom > 1.0005 ? `scale(${zoom.toFixed(4)})` : 'none');
+    style($(id), 'transformOrigin', origine);
+    style($(id), 'transform', tr);
   }
   fx.clearRect(0, 0, W, H);
   vignette(fx, 0.42);
@@ -80,10 +75,12 @@ function partition() {
   try { window.__eq = await (await fetch('out/eq.json')).json(); } catch { window.__eq = null; }
   const ui = $('ui');
   for (const s of SCENES) s.init(ui);
-  hud = creerHud(ui);
+  hud = creerHud($('cadre'));
   await Promise.all([...document.querySelectorAll('img')].map((im) => im.decode().catch(() => {})));
   window.__render = render;
   window.__sons = partition();
+  // Nombre de sous-images par image : 3 sur les passages rapides (vrai flou de mouvement), 1 ailleurs.
+  window.__sous = (t) => (rapide(t) ? 3 : 1);
   window.__ready = true;
   const q = new URLSearchParams(location.search);
   if (!q.has('render')) {

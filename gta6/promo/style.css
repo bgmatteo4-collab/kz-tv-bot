@@ -22,7 +22,8 @@ html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
 #viewport { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
 #stage { position: relative; flex: none; width: 1920px; height: 1080px; overflow: hidden; background: var(--nuit); color: var(--creme); font-family: var(--titre); -webkit-font-smoothing: antialiased; transform-origin: 50% 50%; }
 #film, #fx { position: absolute; inset: 0; width: 1920px; height: 1080px; }
-#ui { position: absolute; inset: 0; }
+#ui, #cadre { position: absolute; inset: 0; }
+#film, #ui { backface-visibility: hidden; }
 #fx { pointer-events: none; }
 
 .scene { position: absolute; inset: 0; visibility: hidden; }

@@ -5,6 +5,7 @@
 //   node render.js --blur 1              → sans flou de mouvement (4× plus rapide)
 //   node render.js --from 9 --to 15      → seulement un passage
 //   node render.js --workers 2           → nombre de navigateurs en parallèle
+//   node render.js --blur 3 --adaptatif 1 → 3 sous-images seulement sur les passages rapides
 //   node render.js --stills 1.2,5,12.5   → images fixes PNG dans out/stills/
 'use strict';
 
@@ -77,9 +78,16 @@ async function renderRange(url, a, sub, first, last, file, progress) {
   const ff = encoder(file, a, sub);
   const closed = new Promise((ok) => ff.on('close', ok));
   for (let i = first; i < last; i++) {
+    const t = a.from + i / a.fps;
+    // Flou de mouvement adaptatif : la page dit combien de sous-images il faut à cet instant ;
+    // sur les passages calmes, une seule capture est répétée (même moyenne, trois fois moins cher).
+    const n = a.adaptatif ? await r.page.evaluate((x) => (window.__sous ? window.__sous(x) : 1), t) : sub;
+    let buf = null;
     for (let j = 0; j < sub; j++) {
-      await r.at(a.from + (i + (j / sub) * 0.5) / a.fps);
-      const buf = await r.shot();
+      if (n > 1 || j === 0) {
+        await r.at(a.from + (i + (j / sub) * 0.5) / a.fps);
+        buf = await r.shot();
+      }
       if (!ff.stdin.write(buf)) await new Promise((ok) => ff.stdin.once('drain', ok));
     }
     progress();

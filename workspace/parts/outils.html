@@ -1,0 +1,899 @@
+<style>
+/* ===== Kayzx Studio · Outils : idées, stream, marque, références, pied de page ===== */
+#idees, #stream, #marque, #references { overflow-x: clip; }
+.ou-cache-visu { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+:is(#idees, #stream, #marque, #references) :is(.bouton, .ou-seg, .ou-lecture):focus-visible { border-radius: 980px; }
+:is(#idees, #stream, #marque, #references) .rond:focus-visible { border-radius: 50%; }
+.ou-fantome { position: absolute !important; margin: 0 !important; pointer-events: none; list-style: none; z-index: 0; }
+
+/* --- 1. Boîte à idées --- */
+.ou-form { display: flex; gap: 12px; margin-top: 40px; }
+.ou-champs { flex: 1; display: flex; gap: 12px; min-width: 0; }
+.ou-champ { flex: 1 1 0; min-width: 0; height: 52px; padding: 0 18px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg); color: var(--fg);
+  font: 400 17px/1.2 var(--police); letter-spacing: -.022em; transition: border-color .2s ease, box-shadow .2s ease; -webkit-appearance: none; appearance: none; }
+#ou-champ-idee { flex-grow: 1.6; }
+.ou-champ::placeholder { color: var(--fg-2); opacity: 1; }
+.ou-champ:focus-visible { outline: none; }
+.ou-champ:focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent); }
+.ou-champ[aria-invalid="true"] { border-color: var(--orange); }
+.ou-form .bouton { flex: none; height: 52px; padding-inline: 28px; justify-content: center; }
+.ou-form :disabled { opacity: .45; cursor: not-allowed; }
+.ou-form .bouton:disabled { background: var(--accent); transform: none; }
+.ou-aide { margin: 12px 0 0; min-height: 1.45em; font-size: 14px; color: var(--fg-2); }
+.ou-tableau { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 28px; align-items: start; }
+.ou-tableau[hidden] { display: none; }
+.ou-col { min-width: 0; }
+.ou-col-tete { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 6px 12px; }
+.ou-col-tete h3 { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+.ou-point { width: 8px; height: 8px; border-radius: 50%; background: var(--gris); flex: none; }
+.ou-col[data-statut="encours"] .ou-point { background: var(--orange); }
+.ou-col[data-statut="fait"] .ou-point { background: var(--vert); }
+.ou-compte { font-size: 14px; color: var(--fg-2); }
+.ou-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; border-radius: var(--rayon-s); }
+.ou-liste:focus { outline: none; }
+.ou-liste:empty::before { content: "Rien ici pour l’instant."; box-sizing: border-box; display: grid; place-items: center; min-height: 96px; padding: 12px; border-radius: var(--rayon-s);
+  border: 1.5px dashed var(--line); color: var(--fg-2); font-size: 14px; text-align: center; }
+.ou-tableau[aria-busy="true"] .ou-liste:empty::before { content: ""; }
+.ou-idee { position: relative; background: var(--bg); border-radius: 18px; padding: 16px 14px 12px 18px; box-shadow: 0 1px 2px var(--line); }
+.ou-idee:focus { outline: none; }
+.ou-idee:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 18px; }
+.ou-idee-titre { margin: 0; padding-right: 4px; font-size: 17px; font-weight: 600; line-height: 1.3; letter-spacing: -.022em; overflow-wrap: anywhere; }
+.ou-idee-note { margin: 4px 0 0; font-size: 15px; line-height: 1.4; color: var(--fg-2); overflow-wrap: anywhere; white-space: pre-line; }
+.ou-idee-pied { display: flex; align-items: center; gap: 6px; margin-top: 14px; }
+.ou-idee-date { margin-right: auto; font-size: 13px; color: var(--fg-2); white-space: nowrap; }
+.ou-suppr { border: 0; background: none; padding: 6px 8px; border-radius: 8px; font: 400 13px/1.2 var(--police); color: var(--fg-2); cursor: pointer; transition: color .2s ease, transform .1s ease-out; }
+.ou-suppr:hover { color: var(--fg); text-decoration: underline; }
+.ou-suppr:active { transform: scale(.97); }
+.ou-idee .rond { width: 32px; height: 32px; font-size: 18px; flex: none; }
+.ou-idee .rond:disabled { opacity: .3; cursor: default; transform: none; }
+.ou-vide { margin-top: 28px; padding: 48px 28px; border-radius: var(--rayon); background: var(--bg); text-align: center; }
+.ou-vide[hidden] { display: none; }
+.ou-vide-icone { display: block; width: 40px; height: 40px; margin: 0 auto 14px; color: var(--fg-2); }
+.ou-vide h3 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -.02em; text-wrap: balance; }
+.ou-vide p { margin: 6px auto 0; max-width: 30em; color: var(--fg-2); text-wrap: balance; }
+.ou-vide .bouton { margin-top: 20px; }
+.ou-vide .bouton[hidden] { display: none; }
+@media (max-width: 699px) {
+  .ou-form, .ou-champs { flex-direction: column; }
+  .ou-champ { flex: none; }
+  .ou-form .bouton { width: 100%; }
+  .ou-tableau { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .ou-liste:empty::before { min-height: 64px; }
+}
+
+/* --- 2. Stream --- */
+.ou-stream { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 56px; align-items: center; margin-top: 48px; }
+.ou-ecran { margin: 0; }
+.ou-ecran-cadre { padding: 10px; border-radius: 24px; background: var(--bg-3); background: light-dark(var(--fg), var(--bg-3)); box-shadow: var(--ombre); }
+.ou-ecran-dalle { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: var(--bg-2); }
+.ou-ecran-dalle video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ou-ecran-dalle video[hidden] { display: none; }
+.ou-ecran-repli { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--fg-2); font-size: 15px; }
+.ou-ecran-repli[hidden] { display: none; }
+.ou-ecran-repli p { margin: 0; max-width: 22em; }
+.ou-ecran-cou { display: block; width: 18%; height: 38px; margin: 0 auto; background: linear-gradient(var(--bg-3), color-mix(in srgb, var(--bg-3) 88%, var(--fg))); clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%); }
+.ou-ecran-socle { display: block; width: 34%; height: 8px; margin: 0 auto; border-radius: 3px 3px 8px 8px; background: var(--bg-3); box-shadow: 0 8px 18px var(--line); }
+.ou-legende { margin-top: 16px; text-align: center; font-size: 14px; color: var(--fg-2); }
+.ou-lecture { position: absolute; right: 12px; bottom: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px 7px 10px; border-radius: 980px;
+  border: 1px solid var(--line); background: var(--verre); color: var(--fg); font: 500 13px/1 var(--police); letter-spacing: -.01em; cursor: pointer;
+  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); transition: transform .1s ease-out; }
+.ou-lecture:active { transform: scale(.97); }
+.ou-lecture[hidden] { display: none; }
+.ou-lecture svg { width: 12px; height: 12px; }
+.ou-etapes { list-style: none; margin: 0; padding: 0; display: grid; gap: 24px; }
+.ou-etape { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 14px; align-items: start; }
+.ou-num { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--bg-2); font-size: 17px; font-weight: 600; }
+.ou-etape h3 { margin: 6px 0 2px; font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+.ou-etape p { margin: 0; font-size: 17px; color: var(--fg-2); }
+.ou-etape b { color: var(--fg); font-weight: 600; }
+.ou-dl { margin-top: 32px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.ou-dl .bouton[hidden] { display: none; }
+.ou-dl .bouton:disabled { cursor: progress; opacity: .7; }
+.ou-note { margin: 0; font-size: 14px; color: var(--fg-2); }
+@media (max-width: 859px) { .ou-stream { grid-template-columns: minmax(0, 1fr); gap: 40px; } }
+
+/* --- 3. Marque --- */
+.ou-logo { display: flex; align-items: center; justify-content: center; gap: .3em; min-height: clamp(180px, 30vw, 300px); margin-top: 48px; padding: 24px;
+  border-radius: var(--rayon); background: #061C1B; color: #EEF2F1; font: 700 clamp(44px, 9vw, 96px)/1 var(--police); letter-spacing: -.045em; }
+.ou-logo-point { flex: none; width: .24em; height: .24em; border-radius: 50%; background: #E3A83B; }
+.ou-couleurs { list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px 12px; }
+.ou-teinte { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border: 0; border-radius: 18px; background: none;
+  color: var(--fg); font-family: var(--police); cursor: pointer; transition: transform .1s ease-out; -webkit-tap-highlight-color: transparent; }
+.ou-teinte:active { transform: scale(.97); }
+.ou-teinte:focus-visible { border-radius: 18px; }
+.ou-teinte-rond { width: 64px; height: 64px; margin-bottom: 8px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--line), 0 6px 16px var(--line); }
+.ou-teinte-nom { font-size: 14px; font-weight: 600; line-height: 1.25; text-align: center; letter-spacing: -.01em; }
+.ou-teinte-hex { font-size: 12px; color: var(--fg-2); }
+.ou-marque-bas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 48px; }
+.ou-marque-bas .carte { background: var(--bg); }
+.ou-bloc-titre { margin: 0 0 8px; font-size: 21px; font-weight: 600; letter-spacing: -.02em; }
+.ou-polices { margin: 0; }
+.ou-police { padding: 14px 0; border-top: 1px solid var(--line); }
+.ou-police:first-child { border-top: 0; }
+.ou-police dt { font-size: 13px; color: var(--fg-2); }
+.ou-police dd { margin: 0; }
+.ou-police-nom { font-size: 21px; font-weight: 600; letter-spacing: -.02em; line-height: 1.3; }
+.ou-police:nth-child(1) .ou-police-nom { font-weight: 800; letter-spacing: -.035em; }
+.ou-police:nth-child(3) .ou-police-nom { font-family: var(--mono); font-size: 18px; font-weight: 500; letter-spacing: 0; }
+.ou-police-phrase { font-size: 15px; color: var(--fg-2); }
+.ou-regles { list-style: none; margin: 0; padding: 0; }
+.ou-regles li { padding: 14px 0; border-top: 1px solid var(--line); }
+.ou-regles li:first-child { border-top: 0; }
+@media (min-width: 860px) { .ou-couleurs { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+@media (max-width: 759px) { .ou-marque-bas { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 420px) { .ou-teinte-rond { width: 56px; height: 56px; } .ou-couleurs { gap: 20px 6px; } }
+
+/* --- 4. Références --- */
+.ou-barre { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; margin-top: 40px; }
+.ou-segment { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); width: 100%; max-width: 440px; padding: 3px; border-radius: 980px;
+  background: var(--bg-2); touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+.ou-segment-pastille { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / 4); border-radius: 980px;
+  background: var(--bg); background: light-dark(var(--bg), var(--bg-3)); box-shadow: 0 1px 3px var(--line), 0 0 0 .5px var(--line); }
+.ou-seg { position: relative; z-index: 1; min-width: 0; padding: 9px 6px; border: 0; border-radius: 980px; background: none; color: var(--fg);
+  font: 400 14px/1.2 var(--police); letter-spacing: -.01em; white-space: nowrap; cursor: pointer; transition: transform .1s ease-out; -webkit-tap-highlight-color: transparent; }
+.ou-seg[aria-checked="true"] { font-weight: 600; }
+.ou-seg:active { transform: scale(.97); }
+.ou-segment.ou-glisse .ou-seg { cursor: grabbing; }
+.ou-compte-refs { margin: 0; font-size: 14px; color: var(--fg-2); }
+.ou-grille { position: relative; list-style: none; margin: 28px 0 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+.ou-ref-li { min-width: 0; display: flex; }
+.ou-ref-li[hidden] { display: none; }
+.ou-ref { flex: 1; display: flex; flex-direction: column; min-width: 0; padding: 24px 24px 22px; border-radius: var(--rayon-s); background: var(--bg-2); }
+.ou-ref-auteur { margin: 0; font-size: 13px; font-weight: 500; color: var(--fg-2); }
+.ou-ref-titre { margin: 4px 0 0; font-size: 21px; font-weight: 600; line-height: 1.2; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.ou-ref-garde { margin: 8px 0 0; font-size: 15px; line-height: 1.45; color: var(--fg-2); }
+.ou-ref-tags { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 0; padding: 0; }
+.ou-ref-tags .pastille { white-space: normal; background: var(--bg-3); }
+.ou-ref .lien { align-self: flex-start; margin-top: auto; padding-top: 18px; font-size: 15px; }
+@media (min-width: 640px) { .ou-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 980px) { .ou-grille { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* --- 5. Pied de page --- */
+.ou-pied { background: var(--bg-2); border-top: 1px solid var(--line); padding-block: 24px calc(28px + env(safe-area-inset-bottom, 0px)); }
+.ou-pied p { margin: 0; font-size: 12px; line-height: 1.5; color: var(--fg-2); letter-spacing: -.01em; }
+.ou-pied p + p { margin-top: 6px; }
+</style>
+
+<section id="idees" class="section alt" aria-labelledby="ou-titre-idees">
+  <div class="enveloppe">
+    <p class="surtitre">Idées</p>
+    <h2 class="titre-section" id="ou-titre-idees">La boîte à idées.</h2>
+    <p class="sous-titre">Note une idée de motion depuis ton téléphone, fais-la avancer jusqu’à «&nbsp;Fait&nbsp;».</p>
+    <form class="ou-form" id="ou-form-idee" autocomplete="off" novalidate>
+      <div class="ou-champs">
+        <label class="ou-cache-visu" for="ou-champ-idee">Ton idée</label>
+        <input class="ou-champ" id="ou-champ-idee" name="titre" type="text" placeholder="Une idée de motion…" maxlength="140" enterkeyhint="done" aria-describedby="ou-aide-idee">
+        <label class="ou-cache-visu" for="ou-champ-note">Note, facultative</label>
+        <input class="ou-champ" id="ou-champ-note" name="note" type="text" placeholder="Une note (facultatif)" maxlength="400" enterkeyhint="done" aria-describedby="ou-aide-idee">
+      </div>
+      <button class="bouton" id="ou-ajouter" type="submit">Ajouter</button>
+    </form>
+    <p class="ou-aide" id="ou-aide-idee" aria-live="polite"></p>
+
+    <div class="ou-tableau" id="ou-tableau" aria-busy="true">
+      <div class="ou-col" data-statut="explorer">
+        <div class="ou-col-tete"><h3><span class="ou-point" aria-hidden="true"></span>À explorer</h3><span class="ou-compte tab" aria-hidden="true">0</span></div>
+        <ol class="ou-liste" tabindex="-1" aria-label="À explorer"></ol>
+      </div>
+      <div class="ou-col" data-statut="encours">
+        <div class="ou-col-tete"><h3><span class="ou-point" aria-hidden="true"></span>En cours</h3><span class="ou-compte tab" aria-hidden="true">0</span></div>
+        <ol class="ou-liste" tabindex="-1" aria-label="En cours"></ol>
+      </div>
+      <div class="ou-col" data-statut="fait">
+        <div class="ou-col-tete"><h3><span class="ou-point" aria-hidden="true"></span>Fait</h3><span class="ou-compte tab" aria-hidden="true">0</span></div>
+        <ol class="ou-liste" tabindex="-1" aria-label="Fait"></ol>
+      </div>
+    </div>
+
+    <div class="ou-vide" id="ou-vide-idees" hidden>
+      <svg class="ou-vide-icone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1.1 2V16h5v-.2c.1-.8.5-1.5 1.1-2A6 6 0 0 0 12 3z"/></svg>
+      <h3 id="ou-vide-titre"></h3>
+      <p id="ou-vide-texte"></p>
+      <button type="button" class="bouton petit discret" id="ou-reessayer" hidden>Réessayer</button>
+    </div>
+  </div>
+</section>
+
+<section id="stream" class="section" aria-labelledby="ou-titre-stream">
+  <div class="enveloppe">
+    <p class="surtitre">Stream</p>
+    <h2 class="titre-section" id="ou-titre-stream">Prêt pour le live.</h2>
+    <p class="sous-titre">L’écran d’attente tourne pendant que tu t’installes. Trois réglages dans OBS, et il boucle sans qu’on voie la reprise.</p>
+    <div class="ou-stream">
+      <figure class="ou-ecran" id="ou-ecran">
+        <div class="ou-ecran-cadre">
+          <div class="ou-ecran-dalle">
+            <video id="ou-video" muted loop playsinline preload="none" disablepictureinpicture aria-label="Écran d’attente Kayzx TV, boucle de 1 min 30"></video>
+            <div class="ou-ecran-repli" id="ou-ecran-repli" hidden><p>La boucle s’affiche ici quand la page est publiée avec ses vidéos.</p></div>
+            <button type="button" class="ou-lecture" id="ou-lecture" hidden></button>
+          </div>
+        </div>
+        <span class="ou-ecran-cou" aria-hidden="true"></span>
+        <span class="ou-ecran-socle" aria-hidden="true"></span>
+        <figcaption class="ou-legende">Boucle de 1 min 30, sans couture.</figcaption>
+      </figure>
+      <div class="ou-obs">
+        <ol class="ou-etapes">
+          <li class="ou-etape"><span class="ou-num" aria-hidden="true">1</span><div><h3>Ajoute une source média.</h3><p>Dans OBS&nbsp;: <b>Sources</b> → <b>+</b> → <b>Source média</b>.</p></div></li>
+          <li class="ou-etape"><span class="ou-num" aria-hidden="true">2</span><div><h3>Choisis le fichier.</h3><p>Clique sur <b>Parcourir</b> et prends la boucle téléchargée.</p></div></li>
+          <li class="ou-etape"><span class="ou-num" aria-hidden="true">3</span><div><h3>Fais-la boucler.</h3><p>Coche <b>«&nbsp;Lecture en boucle&nbsp;»</b> et <b>«&nbsp;Redémarrer quand la source devient active&nbsp;»</b>.</p></div></li>
+        </ol>
+        <div class="ou-dl">
+          <button type="button" class="bouton" id="ou-telecharger" hidden>Télécharger la boucle (720p)</button>
+          <p class="ou-note">La version 1080p60 t’a été envoyée dans la conversation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="marque" class="section alt" aria-labelledby="ou-titre-marque">
+  <div class="enveloppe">
+    <p class="surtitre">Marque</p>
+    <h2 class="titre-section" id="ou-titre-marque">Kayzx TV, en un coup d’œil.</h2>
+    <p class="sous-titre">Huit couleurs, trois polices, quatre règles. Choisis une couleur pour copier son code.</p>
+    <div class="ou-logo" id="ou-logo" role="img" aria-label="Logotype Kayzx TV : un point doré, puis le nom en gras sur fond encre"><span class="ou-logo-point"></span><span>Kayzx TV</span></div>
+    <ul class="ou-couleurs" id="ou-couleurs" aria-label="Couleurs de la marque"></ul>
+    <div class="ou-marque-bas">
+      <div class="carte" id="ou-bloc-polices"><h3 class="ou-bloc-titre">Polices</h3><dl class="ou-polices" id="ou-polices"></dl></div>
+      <div class="carte" id="ou-bloc-regles"><h3 class="ou-bloc-titre">Règles</h3><ul class="ou-regles" id="ou-regles"></ul></div>
+    </div>
+  </div>
+</section>
+
+<section id="references" class="section" aria-labelledby="ou-titre-refs">
+  <div class="enveloppe">
+    <p class="surtitre">Références</p>
+    <h2 class="titre-section" id="ou-titre-refs">Ce qui t’inspire.</h2>
+    <p class="sous-titre">Les vidéos, outils et galeries que tu as gardés, avec ce qu’on en retient pour tes prochains motions.</p>
+    <div class="ou-barre">
+      <div class="ou-segment" id="ou-segment" role="radiogroup" aria-label="Filtrer les références">
+        <span class="ou-segment-pastille" id="ou-seg-pastille" aria-hidden="true"></span>
+        <button type="button" class="ou-seg" role="radio" aria-checked="true" data-cat="tout">Tout</button>
+        <button type="button" class="ou-seg" role="radio" aria-checked="false" data-cat="video" tabindex="-1">Vidéos</button>
+        <button type="button" class="ou-seg" role="radio" aria-checked="false" data-cat="outil" tabindex="-1">Outils</button>
+        <button type="button" class="ou-seg" role="radio" aria-checked="false" data-cat="galerie" tabindex="-1">Galeries</button>
+      </div>
+      <p class="ou-compte-refs tab" id="ou-compte-refs" aria-live="polite"></p>
+    </div>
+    <ul class="ou-grille" id="ou-grille"></ul>
+  </div>
+</section>
+
+<footer class="ou-pied">
+  <div class="enveloppe">
+    <p>Kayzx Studio · mis à jour le 9 octobre 2026 · fait avec Claude</p>
+    <p>Les vidéos qui utilisent des médias officiels (jeux, ligues) restent hors ligne.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const KS = window.KS;
+  if (!KS) return;
+  const D = window.KS_DONNEES || {};
+  const reduit = !!KS.reduit;
+  const $ = (s, r = document) => r.querySelector(s);
+  const cree = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+  const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
+  const codeDe = (e) => (e && typeof e.code === 'string' ? e.code : 'unavailable');
+  const g = (t) => '« ' + t + ' »';
+
+  // ---------- Mouvement commun : un ressort par axe, transform/opacity uniquement ----------
+  function anim(el) {
+    if (el.__ou) return el.__ou;
+    const s = { tx: 0, ty: 0, sc: 1, op: 1 };
+    const ecrire = () => {
+      const bouge = Math.abs(s.tx) > .05 || Math.abs(s.ty) > .05 || Math.abs(s.sc - 1) > .0005;
+      el.style.transform = bouge ? `translate3d(${s.tx.toFixed(2)}px, ${s.ty.toFixed(2)}px, 0) scale(${s.sc.toFixed(4)})` : '';
+      el.style.opacity = s.op > .999 ? '' : Math.max(0, s.op).toFixed(3);
+    };
+    const r = (k, v0, reponse) => KS.ressort(v0, { reponse, surMaj: (v) => { s[k] = v; ecrire(); } });
+    return (el.__ou = { s, tx: r('tx', 0, .42), ty: r('ty', 0, .42), sc: r('sc', 1, .36), op: r('op', 1, .3) });
+  }
+  // Place un ressort sans toucher à sa vitesse : une animation interrompue repart de l'élan en cours.
+  const placer = (r, v) => { r.valeur = v; if (r.surMaj) r.surMaj(v, r); };
+  const centre = (el) => { const b = el.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; };
+
+  // FLIP : « avant » = centre visuel mesuré avant le changement de mise en page.
+  function glisser(el, avant) {
+    const a = anim(el), apres = centre(el);
+    const dx = avant.x - (apres.x - a.s.tx), dy = avant.y - (apres.y - a.s.ty);
+    if (reduit) { a.tx.fixer(0); a.ty.fixer(0); return; }
+    if (Math.abs(dx) < .5 && Math.abs(dy) < .5 && Math.abs(a.s.tx) < .5 && Math.abs(a.s.ty) < .5) return;
+    placer(a.tx, dx); placer(a.ty, dy);
+    a.tx.cible(0); a.ty.cible(0);
+  }
+  function entrer(el) {
+    const a = anim(el);
+    a.tx.fixer(0); a.ty.fixer(0);
+    if (reduit) { if (el.animate) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200, easing: 'ease-out' }); return; }
+    placer(a.op, Math.min(a.s.op, 0)); placer(a.sc, .96);
+    a.op.cible(1); a.sc.cible(1);
+  }
+  // Sortie : un « fantôme » (copie inerte) fond sur place pendant que la vraie carte quitte le flux.
+  function sortir(el, conteneur, c) {
+    if (!c || !el.isConnected) return;
+    const rc = conteneur.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+    if (!w || !h) return;
+    const f = el.cloneNode(true);
+    f.querySelectorAll('[id]').forEach((n) => n.removeAttribute('id'));
+    f.querySelectorAll('[style]').forEach((n) => n.removeAttribute('style'));
+    ['id', 'style', 'tabindex', 'hidden'].forEach((k) => f.removeAttribute(k));
+    f.classList.add('ou-fantome');
+    f.setAttribute('aria-hidden', 'true');
+    f.inert = true;
+    Object.assign(f.style, { width: w + 'px', height: h + 'px', left: (c.x - rc.left - w / 2).toFixed(2) + 'px', top: (c.y - rc.top - h / 2).toFixed(2) + 'px' });
+    conteneur.appendChild(f);
+    const s0 = el.__ou ? el.__ou.s : null, a = anim(f);
+    if (s0) { placer(a.sc, s0.sc); placer(a.op, s0.op); }
+    const fini = () => f.remove();
+    if (reduit) {
+      const an = f.animate ? f.animate([{ opacity: a.s.op }, { opacity: 0 }], { duration: 160, easing: 'ease-out', fill: 'forwards' }) : null;
+      if (an) an.onfinish = fini; else fini();
+      return;
+    }
+    const maj = a.op.surMaj;
+    a.op.surMaj = (v, r) => { maj(v, r); if (v <= .001) fini(); };
+    a.sc.cible(.94); a.op.cible(0);
+  }
+
+  // =====================================================================
+  // 1. Boîte à idées (db : collection « idees »)
+  // =====================================================================
+  (function idees() {
+    const STATUTS = ['explorer', 'encours', 'fait'];
+    const NOMS = { explorer: 'À explorer', encours: 'En cours', fait: 'Fait' };
+    const MSG_ABSENT = 'Les idées s’enregistrent quand la page est ouverte dans Claude.';
+    const tableau = $('#ou-tableau'), form = $('#ou-form-idee'), champ = $('#ou-champ-idee'), champNote = $('#ou-champ-note');
+    const btnAjout = $('#ou-ajouter'), aide = $('#ou-aide-idee'), vide = $('#ou-vide-idees'), btnReessayer = $('#ou-reessayer');
+    if (!tableau || !form) return;
+    const listes = {}, comptes = {};
+    STATUTS.forEach((s) => {
+      const col = tableau.querySelector(`[data-statut="${s}"]`);
+      listes[s] = col.querySelector('.ou-liste');
+      comptes[s] = col.querySelector('.ou-compte');
+    });
+
+    let coll = null, etat = 'attente', lecture = false, desabo = null, premier = true, aideErreur = '';
+    let serveur = [];
+    const cartes = new Map();      // id → <li>
+    const voulu = new Map();       // id → statut affiché en attendant l'écriture
+    const masques = new Set();     // ids supprimés côté page (en attente ou confirmés)
+    const restaures = new Map();   // id → corps remis par « Annuler », le temps de l'écriture
+    const chaines = new Map();     // id → promesse : une écriture à la fois par document
+
+    const fmtJour = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
+    const fmtAn = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    const dateCourte = (t) => {
+      if (!t) return '';
+      const d = new Date(t);
+      return (d.getFullYear() === new Date().getFullYear() ? fmtJour : fmtAn).format(d);
+    };
+    const normaliser = (id, d) => {
+      d = d || {};
+      const titre = typeof d.titre === 'string' ? d.titre.trim().slice(0, 200) : '';
+      return {
+        id, titre: titre || 'Sans titre',
+        note: typeof d.note === 'string' ? d.note.slice(0, 600) : '',
+        statut: STATUTS.includes(d.statut) ? d.statut : 'explorer',
+        cree: Number.isFinite(d.cree) ? d.cree : 0,
+      };
+    };
+
+    function liste() {
+      const parId = new Map();
+      for (const i of serveur) if (!masques.has(i.id)) parId.set(i.id, i);
+      for (const [id, d] of restaures) if (!masques.has(id) && !parId.has(id)) parId.set(id, normaliser(id, d));
+      return [...parId.values()]
+        .map((i) => (voulu.has(i.id) ? { ...i, statut: voulu.get(i.id) } : i))
+        .sort((a, b) => a.cree - b.cree || (a.id < b.id ? -1 : 1));
+    }
+    const trouver = (id) => liste().find((i) => i.id === id);
+
+    function fabriquer(id) {
+      const li = cree('li', 'ou-idee');
+      li.tabIndex = -1;
+      li.dataset.id = id;
+      const h = cree('p', 'ou-idee-titre'), n = cree('p', 'ou-idee-note'), pied = cree('div', 'ou-idee-pied');
+      const t = cree('time', 'ou-idee-date tab');
+      const sup = cree('button', 'ou-suppr', 'Supprimer'); sup.type = 'button'; sup.dataset.action = 'suppr';
+      const rec = cree('button', 'rond', '‹'); rec.type = 'button'; rec.dataset.action = 'reculer';
+      const ava = cree('button', 'rond', '›'); ava.type = 'button'; ava.dataset.action = 'avancer';
+      pied.append(t, sup, rec, ava);
+      li.append(h, n, pied);
+      li.__ref = { h, n, t, sup, rec, ava };
+      return li;
+    }
+    function remplir(li, i) {
+      const r = li.__ref, k = STATUTS.indexOf(i.statut);
+      if (r.h.textContent !== i.titre) r.h.textContent = i.titre;
+      if (r.n.textContent !== i.note) r.n.textContent = i.note;
+      r.n.hidden = !i.note;
+      r.t.textContent = dateCourte(i.cree);
+      if (i.cree) r.t.dateTime = new Date(i.cree).toISOString();
+      r.rec.disabled = k === 0;
+      r.ava.disabled = k === 2;
+      r.rec.setAttribute('aria-label', k > 0 ? `Remettre « ${i.titre} » dans ${NOMS[STATUTS[k - 1]]}` : 'Déjà dans la première colonne');
+      r.ava.setAttribute('aria-label', k < 2 ? `Passer « ${i.titre} » à ${NOMS[STATUTS[k + 1]]}` : 'Déjà dans Fait');
+      r.sup.setAttribute('aria-label', `Supprimer « ${i.titre} »`);
+      r.sup.hidden = r.rec.hidden = r.ava.hidden = lecture;
+    }
+
+    function majForm() {
+      const off = etat === 'absent' || lecture;
+      champ.disabled = champNote.disabled = btnAjout.disabled = off;
+      aide.textContent = etat === 'absent' ? 'Ajout désactivé ici : ' + MSG_ABSENT.charAt(0).toLowerCase() + MSG_ABSENT.slice(1)
+        : lecture ? 'Lecture seule : tu peux voir les idées, pas en ajouter ni les déplacer.'
+        : aideErreur;
+    }
+    function majVide(n) {
+      let titre = '', texte = '', reessayer = false;
+      if (etat === 'absent') { titre = 'Ta boîte à idées vit dans Claude.'; texte = MSG_ABSENT + ' Ouvre-la depuis claude.ai, sur ton ordi ou ton téléphone.'; }
+      else if (etat === 'erreur') { titre = 'La synchro s’est arrêtée.'; texte = 'Les idées affichées ne se mettent plus à jour.'; reessayer = true; }
+      else if (etat === 'ok' && n === 0) {
+        titre = 'Aucune idée pour l’instant.';
+        texte = lecture ? 'Les idées ajoutées par Kayzx apparaîtront ici.'
+          : `Écris ta première idée au-dessus et appuie sur ${g('Ajouter')}. Elle arrive dans ${g('À explorer')}, puis tu la fais avancer avec ›.`;
+      }
+      const etaitCache = vide.hidden;
+      vide.hidden = !titre;
+      $('#ou-vide-titre').textContent = titre;
+      $('#ou-vide-texte').textContent = texte;
+      btnReessayer.hidden = !reessayer;
+      if (titre && etaitCache && !premier) entrer(vide);
+    }
+
+    function rendre() {
+      const items = etat === 'ok' || etat === 'erreur' ? liste() : [];
+      const montrer = etat === 'attente' || items.length > 0;
+      const visibleAvant = !tableau.hidden;
+      const avant = new Map();
+      if (visibleAvant) for (const [id, li] of cartes) if (li.isConnected) avant.set(id, centre(li));
+      const actif = document.activeElement;
+      const carteActive = actif && actif.closest ? actif.closest('.ou-idee') : null;
+
+      tableau.hidden = !montrer;
+      tableau.setAttribute('aria-busy', String(etat === 'attente'));
+      const parStatut = { explorer: [], encours: [], fait: [] };
+      items.forEach((i) => parStatut[i.statut].push(i));
+      const vus = new Set(), nouveaux = [];
+      for (const s of STATUTS) {
+        const ol = listes[s];
+        parStatut[s].forEach((i, k) => {
+          let li = cartes.get(i.id);
+          if (!li) { li = fabriquer(i.id); cartes.set(i.id, li); nouveaux.push(li); }
+          remplir(li, i);
+          if (ol.children[k] !== li) ol.insertBefore(li, ol.children[k] || null);
+          vus.add(i.id);
+        });
+        comptes[s].textContent = parStatut[s].length;
+      }
+      for (const [id, li] of cartes) {
+        if (vus.has(id)) continue;
+        if (visibleAvant && !tableau.hidden) sortir(li, tableau, avant.get(id));
+        li.remove();
+        cartes.delete(id);
+      }
+      for (const [id, li] of cartes) {
+        if (avant.has(id)) glisser(li, avant.get(id));
+        else if (!premier && nouveaux.includes(li)) entrer(li);
+      }
+      // Le focus suit la carte déplacée ; si sa flèche devient inactive, on passe à l'autre.
+      if (carteActive && carteActive.isConnected && actif.isConnected && (document.activeElement !== actif || actif.disabled)) {
+        if (!actif.disabled && !actif.hidden) actif.focus({ preventScroll: true });
+        else {
+          const ok = (b) => !b.disabled && !b.hidden;
+          const autre = [...carteActive.querySelectorAll('.rond')].find(ok) || [...carteActive.querySelectorAll('button')].find(ok);
+          (autre || carteActive).focus({ preventScroll: true });
+        }
+      }
+      majVide(items.length);
+    }
+
+    // ---------- Écritures ----------
+    async function avecReprise(f) {
+      try { return await f(); }
+      catch (e) {
+        if (codeDe(e) !== 'unavailable') throw e;
+        await attendre(250 + Math.random() * 500);
+        return f();
+      }
+    }
+    function enFile(id, tache) {
+      const p = (chaines.get(id) || Promise.resolve()).catch(() => {}).then(tache);
+      chaines.set(id, p);
+      p.catch(() => {}).then(() => { if (chaines.get(id) === p) chaines.delete(id); });
+      return p;
+    }
+    function passerEnLecture() { if (lecture) return; lecture = true; majForm(); rendre(); }
+    function horsLigne() {
+      if (desabo) { try { desabo(); } catch (_) { /* déjà fermé */ } desabo = null; }
+      coll = null; etat = 'absent'; majForm(); rendre();
+    }
+    function signaler(e, quoi, id) {
+      const c = codeDe(e);
+      if (c === 'quota_exceeded') {
+        KS.toast(quoi === 'ajout' || quoi === 'restaurer' ? 'Boîte pleine : supprime des idées faites pour en ajouter.' : 'Espace plein : supprime quelques idées, puis réessaie.', { duree: 5000 });
+      } else if (c === 'invalid_argument' || c === 'transform_error') {
+        if (quoi === 'statut' && id && !serveur.some((i) => i.id === id)) { KS.toast('Cette idée a été supprimée entre-temps.'); return; }
+        passerEnLecture();
+        KS.toast('Modification refusée : cette page est en lecture seule pour toi.');
+      } else if (c === 'resource_exhausted') {
+        KS.toast('Trop de changements d’un coup. Réessaie dans un instant.');
+      } else if (c === 'revoked' || c === 'not_granted' || c === 'capability_disabled' || c === 'capability_removed') {
+        horsLigne();
+        KS.toast('La boîte à idées n’est plus disponible sur cette page.');
+      } else {
+        KS.toast('Connexion instable : le changement n’est pas passé. Réessaie.');
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const titre = champ.value.trim().replace(/\s+/g, ' ').slice(0, 140);
+      const note = champNote.value.trim().slice(0, 400);
+      if (!titre) {
+        champ.setAttribute('aria-invalid', 'true');
+        aideErreur = 'Écris d’abord ton idée, la note est facultative.';
+        majForm();
+        champ.focus();
+        return;
+      }
+      if (etat === 'absent' || lecture) return;
+      if (!coll) { KS.toast('Un instant, la boîte à idées se connecte…'); return; }
+      const corps = { titre, note, statut: 'explorer', cree: Date.now() };
+      champ.value = ''; champNote.value = '';
+      champ.focus();
+      const ref = coll.doc(); // id fixé avant l'envoi : une reprise ne crée jamais de doublon
+      try { await avecReprise(() => ref.set(corps)); }
+      catch (err) {
+        if (!champ.value) champ.value = titre;
+        if (!champNote.value) champNote.value = note;
+        signaler(err, 'ajout');
+      }
+    });
+    champ.addEventListener('input', () => {
+      if (champ.hasAttribute('aria-invalid')) { champ.removeAttribute('aria-invalid'); aideErreur = ''; majForm(); }
+    });
+
+    function deplacer(id, sens) {
+      const i = trouver(id);
+      if (!i || lecture || !coll) return;
+      const k = STATUTS.indexOf(i.statut) + sens;
+      if (k < 0 || k > 2) return;
+      const cible = STATUTS[k];
+      voulu.set(id, cible);
+      rendre();
+      enFile(id, async () => {
+        if (voulu.get(id) !== cible) return; // un clic plus récent écrira sa propre valeur
+        const s = serveur.find((x) => x.id === id);
+        if (!s) { voulu.delete(id); rendre(); return; }
+        if (s.statut !== cible) await avecReprise(() => coll.doc(id).update({ statut: cible }));
+        if (voulu.get(id) === cible) { voulu.delete(id); rendre(); }
+      }).catch((e) => {
+        if (voulu.get(id) === cible) { voulu.delete(id); rendre(); }
+        signaler(e, 'statut', id);
+      });
+    }
+    function supprimer(id) {
+      const i = trouver(id);
+      if (!i || lecture || !coll) return;
+      const copie = { titre: i.titre, note: i.note, statut: i.statut, cree: i.cree };
+      const li = cartes.get(id);
+      const avaitFocus = li && li.contains(document.activeElement);
+      const voisin = li && (li.nextElementSibling || li.previousElementSibling);
+      masques.add(id);
+      restaures.delete(id);
+      rendre();
+      if (avaitFocus) (voisin && voisin.isConnected ? voisin : listes[i.statut]).focus({ preventScroll: true });
+      KS.toast('Idée supprimée', { action: 'Annuler', surAction: () => restaurer(id, copie), duree: 5000 });
+      enFile(id, () => avecReprise(() => coll.doc(id).delete())).catch((e) => {
+        masques.delete(id);
+        rendre();
+        signaler(e, 'suppr', id);
+      });
+    }
+    function restaurer(id, copie) {
+      if (!coll || lecture) return;
+      masques.delete(id);
+      restaures.set(id, copie);
+      rendre();
+      enFile(id, () => avecReprise(() => coll.doc(id).set(copie))).then(
+        () => { restaures.delete(id); rendre(); },
+        (e) => { restaures.delete(id); rendre(); signaler(e, 'restaurer'); }
+      );
+    }
+    tableau.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-action]');
+      const li = b && b.closest('.ou-idee');
+      if (!li || b.disabled) return;
+      const a = b.dataset.action;
+      if (a === 'suppr') supprimer(li.dataset.id);
+      else deplacer(li.dataset.id, a === 'avancer' ? 1 : -1);
+    });
+
+    // ---------- Lecture : un seul abonnement ----------
+    function abonner() {
+      if (!coll) return;
+      try {
+        desabo = coll.orderBy('cree', 'asc').onSnapshot((snap) => {
+          serveur = snap.docs.map((d) => normaliser(d.id, d.data()));
+          etat = 'ok';
+          majForm();
+          rendre();
+          premier = false;
+        }, (e) => {
+          desabo = null;
+          const c = codeDe(e);
+          if (c === 'revoked' || c === 'not_granted' || c === 'capability_disabled' || c === 'capability_removed') horsLigne();
+          else { etat = 'erreur'; majForm(); rendre(); }
+        });
+      } catch (_) { horsLigne(); }
+    }
+    btnReessayer.addEventListener('click', () => {
+      if (!coll || desabo) return;
+      etat = 'attente';
+      rendre();
+      abonner();
+    });
+
+    majForm();
+    rendre();
+    KS.monte && tableau.querySelectorAll('.ou-col').forEach((c, k) => KS.monte(c, k * 60));
+    (async () => {
+      let db = null;
+      try { db = await (window.claude && window.claude.use ? window.claude.use('db') : null); } catch (_) { db = null; }
+      if (!db) { horsLigne(); return; }
+      try { coll = db.collection('idees'); } catch (_) { horsLigne(); return; }
+      abonner();
+      try {
+        const u = await (window.claude.use ? window.claude.use('user') : null);
+        const peut = u && u.can ? await u.can('data.write') : null;
+        if (peut === false) passerEnLecture();
+      } catch (_) { /* rien dit : on laisse l'écriture décider */ }
+    })();
+  })();
+
+  // =====================================================================
+  // 2. Stream : écran d'attente + OBS + téléchargement
+  // =====================================================================
+  (function stream() {
+    const video = $('#ou-video'), repli = $('#ou-ecran-repli'), btnLecture = $('#ou-lecture'), btnDl = $('#ou-telecharger');
+    if (!video) return;
+    const m = (window.KS_MEDIAS && window.KS_MEDIAS.attente) || {};
+    const url = typeof m.video === 'string' ? m.video : '';
+    const affiche = typeof m.affiche === 'string' ? m.affiche : '';
+    video.muted = true;
+    if (affiche) video.poster = affiche;
+    if (!url && !affiche) { video.hidden = true; repli.hidden = false; }
+    KS.monte && KS.monte($('#ou-ecran'), 0);
+    KS.monte && document.querySelectorAll('#stream .ou-etape').forEach((el, k) => KS.monte(el, 80 + k * 60));
+
+    if (url) {
+      let veut = !reduit, visible = false, charge = false;
+      const ICONES = {
+        pause: '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="9.5" y="2" width="3.5" height="12" rx="1" fill="currentColor"/></svg>',
+        lire: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.6v10.8a.8.8 0 0 0 1.2.7l8.9-5.4a.8.8 0 0 0 0-1.4L5.2 1.9A.8.8 0 0 0 4 2.6z" fill="currentColor"/></svg>',
+      };
+      const etiquette = () => {
+        btnLecture.innerHTML = veut ? ICONES.pause + '<span>Pause</span>' : ICONES.lire + '<span>Lire</span>';
+        btnLecture.setAttribute('aria-label', veut ? 'Mettre la boucle en pause' : 'Lire la boucle');
+      };
+      const maj = () => {
+        if (veut && visible) {
+          if (!charge) { video.src = url; charge = true; }
+          const p = video.play();
+          if (p && p.catch) p.catch((e) => { if (e && e.name === 'NotAllowedError') { veut = false; etiquette(); } });
+        } else if (!video.paused) video.pause();
+        etiquette();
+      };
+      btnLecture.hidden = false;
+      btnLecture.addEventListener('click', () => { veut = !veut; maj(); });
+      if ('IntersectionObserver' in window) new IntersectionObserver((e) => { visible = e[e.length - 1].isIntersecting; maj(); }, { threshold: .25 }).observe(video);
+      else { visible = true; maj(); }
+      etiquette();
+    }
+
+    // Téléchargement : visible seulement si la capacité downloads répond.
+    (async () => {
+      if (!url || !btnDl) return;
+      let dl = null;
+      try { dl = await (window.claude && window.claude.use ? window.claude.use('downloads') : null); } catch (_) { dl = null; }
+      if (!dl || !dl.save) return;
+      btnDl.hidden = false;
+      const libelle = btnDl.textContent;
+      btnDl.addEventListener('click', async () => {
+        if (btnDl.disabled) return;
+        btnDl.disabled = true;
+        btnDl.setAttribute('aria-busy', 'true');
+        btnDl.textContent = 'Préparation…';
+        try {
+          let blob;
+          try {
+            const rep = await fetch(url);
+            if (!rep.ok) throw new Error('http');
+            blob = await rep.blob();
+          } catch (_) { throw { code: 'fetch' }; }
+          const r = await dl.save({ filename: 'kayzx-tv-ecran-attente-720p.mp4', data: blob });
+          if (r && r.status === 'saved') KS.toast('Boucle enregistrée.');
+        } catch (e) {
+          const c = codeDe(e);
+          if (c === 'fetch') KS.toast('Vidéo injoignable pour l’instant. Réessaie dans un instant.');
+          else if (c === 'declined') KS.toast('Téléchargement annulé.');
+          else if (c === 'rate_limited') KS.toast('Une fenêtre de téléchargement est déjà ouverte.');
+          else if (c === 'too_large') KS.toast('Fichier trop lourd pour cet appareil.');
+          else { btnDl.hidden = true; KS.toast('Le téléchargement n’est pas disponible ici.'); }
+        } finally {
+          btnDl.disabled = false;
+          btnDl.removeAttribute('aria-busy');
+          btnDl.textContent = libelle;
+        }
+      });
+    })();
+  })();
+
+  // =====================================================================
+  // 3. Marque
+  // =====================================================================
+  (function marque() {
+    const M = D.marque;
+    if (!M) return;
+    const ul = $('#ou-couleurs');
+    KS.monte && KS.monte($('#ou-logo'), 0);
+    (M.couleurs || []).forEach(([nom, hex], k) => {
+      if (!/^#[0-9a-f]{3,8}$/i.test(hex)) return;
+      const li = cree('li'), b = cree('button', 'ou-teinte');
+      b.type = 'button';
+      b.setAttribute('aria-label', `${nom}, ${hex}. Copier le code`);
+      const rond = cree('span', 'ou-teinte-rond');
+      rond.style.background = hex;
+      rond.setAttribute('aria-hidden', 'true');
+      b.append(rond, cree('span', 'ou-teinte-nom', nom), cree('span', 'ou-teinte-hex mono', hex));
+      li.append(b);
+      ul.append(li);
+      const r = KS.ressort(1, { reponse: .32, surMaj: (v) => { rond.style.transform = Math.abs(v - 1) < .0005 ? '' : `scale(${v.toFixed(4)})`; } });
+      b.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') r.cible(1.12); });
+      b.addEventListener('pointerleave', () => r.cible(1));
+      b.addEventListener('focus', () => { if (b.matches(':focus-visible')) r.cible(1.12); });
+      b.addEventListener('blur', () => r.cible(1));
+      b.addEventListener('click', () => KS.copier(hex, 'Copié ' + hex));
+      KS.monte && KS.monte(li, (k % 4) * 40);
+    });
+    const dl = $('#ou-polices');
+    (M.polices || []).forEach(([role, nom, phrase]) => {
+      const d = cree('div', 'ou-police');
+      d.append(cree('dt', '', role), cree('dd', 'ou-police-nom', nom), cree('dd', 'ou-police-phrase', phrase));
+      dl.append(d);
+    });
+    const regles = $('#ou-regles');
+    (M.regles || []).forEach((t) => regles.append(cree('li', '', t)));
+    KS.monte && KS.monte($('#ou-bloc-polices'), 0);
+    KS.monte && KS.monte($('#ou-bloc-regles'), 80);
+  })();
+
+  // =====================================================================
+  // 4. Références : commande segmentée + grille filtrée
+  // =====================================================================
+  (function references() {
+    const R = Array.isArray(D.references) ? D.references : [];
+    const grille = $('#ou-grille'), seg = $('#ou-segment'), pastille = $('#ou-seg-pastille'), compte = $('#ou-compte-refs');
+    if (!grille || !seg) return;
+    const boutons = [...seg.querySelectorAll('.ou-seg')];
+    const CATS = boutons.map((b) => b.dataset.cat);
+    const LIB = { tout: ['référence', 'références'], video: ['vidéo', 'vidéos'], outil: ['outil', 'outils'], galerie: ['galerie', 'galeries'] };
+    const sur = (u) => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ''; } catch (_) { return ''; } };
+
+    const items = R.map((r) => {
+      const li = cree('li', 'ou-ref-li'), art = cree('article', 'ou-ref');
+      art.append(cree('p', 'ou-ref-auteur', r.auteur || ''), cree('h3', 'ou-ref-titre', r.titre || ''), cree('p', 'ou-ref-garde', r.garde || ''));
+      if (Array.isArray(r.tags) && r.tags.length) {
+        const tags = cree('ul', 'ou-ref-tags');
+        tags.setAttribute('aria-label', 'Techniques');
+        r.tags.forEach((t) => tags.append(cree('li', 'pastille', t)));
+        art.append(tags);
+      }
+      const href = sur(r.lien);
+      if (href) {
+        const a = cree('a', 'lien', 'Ouvrir');
+        a.href = href; a.target = '_blank'; a.rel = 'noopener';
+        a.setAttribute('aria-label', `Ouvrir ${r.titre || 'la référence'} (nouvel onglet)`);
+        art.append(a);
+      }
+      li.append(art);
+      grille.append(li);
+      return { li, art, cat: r.cat };
+    });
+    items.forEach((it, k) => KS.monte && KS.monte(it.art, (k % 3) * 60));
+
+    let filtre = 'tout', bloquerClic = false;
+    const idx = () => Math.max(0, CATS.indexOf(filtre));
+    const rPast = KS.ressort(0, { reponse: .36, surMaj: (v) => { pastille.style.transform = `translateX(${(v * 100).toFixed(3)}%)`; } });
+    rPast.fixer(0);
+
+    function majCompte() {
+      const n = items.filter((it) => !it.li.hidden).length, l = LIB[filtre] || LIB.tout;
+      compte.textContent = `${n} ${n > 1 ? l[1] : l[0]}`;
+    }
+    function filtrer() {
+      const avant = new Map();
+      items.forEach((it) => { if (!it.li.hidden) avant.set(it, centre(it.li)); });
+      items.forEach((it) => {
+        const garder = filtre === 'tout' || it.cat === filtre;
+        if (!garder && !it.li.hidden) { sortir(it.li, grille, avant.get(it)); it.li.hidden = true; }
+        else if (garder && it.li.hidden) it.li.hidden = false;
+      });
+      items.forEach((it) => {
+        if (it.li.hidden) return;
+        if (avant.has(it)) glisser(it.li, avant.get(it)); else entrer(it.li);
+      });
+      majCompte();
+    }
+    function choisir(cat, { vitesse = null, amorti = 1 } = {}) {
+      const change = cat !== filtre;
+      filtre = cat;
+      boutons.forEach((b, k) => {
+        const on = CATS[k] === cat;
+        b.setAttribute('aria-checked', String(on));
+        b.tabIndex = on ? 0 : -1;
+      });
+      rPast.cible(idx(), { vitesse, amorti });
+      if (change) filtrer();
+    }
+    boutons.forEach((b, k) => b.addEventListener('click', () => { if (!bloquerClic) choisir(CATS[k]); }));
+    seg.addEventListener('keydown', (e) => {
+      const pas = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      let i;
+      if (pas !== undefined) i = (idx() + pas + CATS.length) % CATS.length;
+      else if (e.key === 'Home') i = 0;
+      else if (e.key === 'End') i = CATS.length - 1;
+      else return;
+      e.preventDefault();
+      choisir(CATS[i]);
+      boutons[i].focus();
+    });
+
+    // Glisser la pastille (comme sur iOS) : l'élan projeté choisit le segment, rebond seulement si le geste est vif.
+    const elastique = (x) => (1 - 1 / (x * .55 / .4 + 1)) * .4;
+    let geste = null;
+    seg.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      const b = e.target.closest('.ou-seg');
+      if (!b || boutons.indexOf(b) !== idx()) return;
+      geste = { id: e.pointerId, x0: e.clientX, v0: rPast.valeur, w: pastille.offsetWidth || 1, suivi: KS.suiveur(), bouge: false };
+      geste.suivi.ajouter(e.clientX);
+    });
+    seg.addEventListener('pointermove', (e) => {
+      if (!geste || e.pointerId !== geste.id) return;
+      const dx = e.clientX - geste.x0;
+      if (!geste.bouge) {
+        if (Math.abs(dx) < 4) return;
+        geste.bouge = true;
+        try { seg.setPointerCapture(e.pointerId); } catch (_) { /* rien */ }
+        seg.classList.add('ou-glisse');
+      }
+      geste.suivi.ajouter(e.clientX);
+      let v = geste.v0 + dx / geste.w;
+      const max = CATS.length - 1;
+      if (v < 0) v = -elastique(-v); else if (v > max) v = max + elastique(v - max);
+      rPast.fixer(v);
+    });
+    const finGeste = (e) => {
+      if (!geste || e.pointerId !== geste.id) return;
+      const d = geste;
+      geste = null;
+      seg.classList.remove('ou-glisse');
+      if (!d.bouge) return;
+      bloquerClic = true;
+      setTimeout(() => { bloquerClic = false; }, 0);
+      const vx = d.suivi.vitesse().x / d.w; // segments par seconde
+      const i = Math.max(0, Math.min(CATS.length - 1, Math.round(rPast.valeur + KS.projeter(vx, .99))));
+      choisir(CATS[i], { vitesse: vx, amorti: Math.abs(vx) > 1.5 ? .78 : 1 });
+    };
+    seg.addEventListener('pointerup', finGeste);
+    seg.addEventListener('pointercancel', finGeste);
+
+    majCompte();
+  })();
+})();
+</script>

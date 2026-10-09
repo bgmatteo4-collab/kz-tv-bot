@@ -1,0 +1,1095 @@
+<style>
+/* ============ Kayzx Studio · coque produit (barre, lancement, palette, feuilles) ============ */
+html { scroll-padding-top: calc(52px + env(safe-area-inset-top, 0px)); }
+html.cq-verrou { overflow: hidden; scrollbar-gutter: stable; }
+[class^="cq-"], [class*=" cq-"], [class^="cq-"]::before, [class^="cq-"]::after { box-sizing: border-box; }
+.cq-defs { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+.cq-couche[hidden], .cq-pop[hidden], .cq-lancement[hidden] { display: none !important; }
+.cq-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+/* Bouton-icône rond : transparent, retour immédiat à l'appui */
+.cq-ib { appearance: none; border: 0; margin: 0; padding: 0; width: 36px; height: 36px; border-radius: 50%; background: transparent; color: var(--fg);
+  display: inline-grid; place-items: center; cursor: pointer; font: inherit; -webkit-tap-highlight-color: transparent;
+  transition: background-color .2s ease, transform .18s ease-out; }
+.cq-ib:hover { background: color-mix(in srgb, var(--fg) 7%, transparent); }
+.cq-ib:active { transform: scale(.9); transition-duration: .2s, 0s; }
+.cq-ib:focus-visible { border-radius: 50%; outline-offset: 1px; }
+.cq-ib svg { width: 18px; height: 18px; display: block; }
+@media (pointer: coarse) { .cq-ib { width: 40px; height: 40px; } }
+
+/* ---------- Barre de navigation ---------- */
+.cq-barre { position: fixed; top: 0; left: 0; right: 0; z-index: 60; height: calc(48px + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px);
+  background: var(--verre); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
+  --cq-pilule: color-mix(in srgb, var(--fg) 9%, var(--bg-2)); color: var(--fg); font-family: var(--police); }
+.cq-barre::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--line); opacity: 0; transition: opacity .3s ease; }
+.cq-barre.cq-defile::after { opacity: 1; }
+.cq-progres { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); z-index: 1; pointer-events: none; }
+.cq-barre-in { height: 48px; max-width: calc(var(--large, 1024px) + 44px); margin: 0 auto; padding: 0 22px; display: flex; align-items: center; gap: 12px; }
+.cq-marque { flex: none; display: inline-flex; align-items: center; gap: 9px; margin-left: -4px; padding: 4px 8px 4px 4px; border-radius: 12px;
+  color: var(--fg); text-decoration: none; font-size: 16px; font-weight: 600; letter-spacing: -.02em; line-height: 1; white-space: nowrap;
+  -webkit-tap-highlight-color: transparent; transition: opacity .2s ease; }
+.cq-marque:active { opacity: .6; transition-duration: 0s; }
+.cq-marque:focus-visible { border-radius: 12px; }
+.cq-marque-icone { width: 26px; height: 26px; display: block; flex: none; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .18)); }
+.cq-en-lancement .cq-marque-icone, .cq-en-lancement .cq-marque-nom { opacity: 0; }
+.cq-nav { flex: 1; min-width: 0; position: relative; display: flex; justify-content: center; }
+.cq-liens { position: relative; display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
+.cq-liens li { display: block; }
+.cq-lien { position: relative; z-index: 1; display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 980px;
+  color: var(--fg-2); text-decoration: none; font-size: 13px; letter-spacing: -.01em; white-space: nowrap; transition: color .2s ease; }
+.cq-lien:hover, .cq-lien[aria-current="true"] { color: var(--fg); }
+.cq-lien:focus-visible { border-radius: 980px; outline-offset: 0; }
+.cq-pilule { position: absolute; top: 50%; left: 0; height: 28px; margin-top: -14px; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
+.cq-pilule i { position: absolute; top: 0; left: 0; height: 28px; background: var(--cq-pilule); transform-origin: 0 50%; }
+.cq-pilule i:nth-child(1) { width: 14px; border-radius: 14px 0 0 14px; }
+.cq-pilule i:nth-child(2) { width: 100px; }
+.cq-pilule i:nth-child(3) { width: 14px; border-radius: 0 14px 14px 0; }
+.cq-actions { flex: none; display: flex; align-items: center; gap: 2px; margin-left: auto; }
+.cq-btn-apropos { width: auto; padding: 0 12px; border-radius: 980px; font-size: 13px; letter-spacing: -.01em; white-space: nowrap; }
+.cq-btn-apropos svg { display: none; }
+.cq-btn-apropos:focus-visible { border-radius: 980px; }
+.cq-btn-menu { display: none; }
+.cq-btn-theme svg { display: none; }
+.cq-btn-theme[data-cq-theme="auto"] .cq-i-auto, .cq-btn-theme[data-cq-theme="light"] .cq-i-clair, .cq-btn-theme[data-cq-theme="dark"] .cq-i-sombre { display: block; }
+.cq-btn-menu path { transform-box: fill-box; transform-origin: center; }
+@media (max-width: 899.98px) {
+  .cq-nav { display: none; }
+  .cq-btn-menu { display: inline-grid; }
+  .cq-btn-apropos { width: 36px; padding: 0; border-radius: 50%; }
+  .cq-btn-apropos svg { display: block; }
+  .cq-btn-apropos span { display: none; }
+  .cq-btn-apropos:focus-visible { border-radius: 50%; }
+}
+@media (max-width: 899.98px) and (pointer: coarse) { .cq-btn-apropos { width: 40px; } }
+@media (max-width: 599.98px) { .cq-barre-in { padding: 0 12px 0 16px; gap: 8px; } }
+@media (max-width: 349.98px) { .cq-marque-nom { display: none; } }
+
+/* ---------- Menus déroulants (sections, apparence) ---------- */
+.cq-pop { position: fixed; top: 0; left: 0; z-index: 70; padding: 6px; border-radius: 16px; font-family: var(--police); color: var(--fg);
+  background: var(--verre); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid var(--line); box-shadow: var(--ombre); transform-origin: 0 0; }
+.cq-pop-nav { width: min(280px, calc(100vw - 32px)); }
+.cq-pop-theme { width: min(260px, calc(100vw - 32px)); }
+.cq-pop-el { appearance: none; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; margin: 0; padding: 8px 12px; border: 0; border-radius: 11px;
+  background: none; color: var(--fg); text-decoration: none; text-align: left; font: 400 17px/1.2 var(--police); letter-spacing: -.02em; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: background-color .15s ease, transform .18s ease-out; }
+.cq-pop-theme .cq-pop-el { font-size: 15px; min-height: 40px; }
+.cq-pop-el:hover { background: color-mix(in srgb, var(--fg) 7%, transparent); }
+.cq-pop-el:active { transform: scale(.98); transition-duration: .15s, 0s; }
+.cq-pop-el:focus-visible { outline-offset: -2px; border-radius: 11px; }
+.cq-pop-el > svg { width: 20px; height: 20px; flex: none; color: var(--fg-2); }
+.cq-pop-t { flex: 1; min-width: 0; display: grid; }
+.cq-pop-t small { font-size: 12px; color: var(--fg-2); letter-spacing: -.005em; margin-top: 2px; }
+.cq-pop-el .cq-coche { width: 18px; height: 18px; color: var(--accent); opacity: 0; margin-left: auto; }
+.cq-pop-el[aria-current="true"], .cq-pop-el[aria-checked="true"] { font-weight: 600; }
+.cq-pop-el[aria-current="true"] .cq-coche, .cq-pop-el[aria-checked="true"] .cq-coche { opacity: 1; }
+.cq-pop-el[aria-current="true"] > svg:first-child, .cq-pop-el[aria-checked="true"] > svg:first-child { color: var(--accent); }
+
+/* ---------- Couches modales (palette, feuilles) ---------- */
+.cq-couche { position: fixed; inset: 0; z-index: 80; font-family: var(--police); color: var(--fg); }
+.cq-voile { position: absolute; inset: 0; background: var(--scrim); opacity: 0; -webkit-tap-highlight-color: transparent; }
+.cq-touche { appearance: none; border: 0; margin: 0; display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 7px;
+  background: color-mix(in srgb, var(--fg) 7%, transparent); color: var(--fg-2); font: 500 12px/1 var(--police); letter-spacing: 0; white-space: nowrap; }
+button.cq-touche { cursor: pointer; transition: background-color .15s ease, transform .18s ease-out; }
+button.cq-touche:hover { background: color-mix(in srgb, var(--fg) 12%, transparent); color: var(--fg); }
+button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; }
+
+/* Palette */
+.cq-palette { position: absolute; left: 0; right: 0; margin: 0 auto; top: max(calc(env(safe-area-inset-top, 0px) + 60px), 13vh); width: min(640px, calc(100vw - 32px));
+  max-height: calc(100vh - 13vh - 24px); display: flex; flex-direction: column; overflow: hidden; border-radius: 20px;
+  background: color-mix(in srgb, var(--bg-2) 84%, transparent); -webkit-backdrop-filter: blur(40px) saturate(180%); backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0, 0, 0, .22), 0 4px 14px rgba(0, 0, 0, .08); transform-origin: 50% 0; outline: none; }
+.cq-pal-tete { flex: none; display: flex; align-items: center; gap: 10px; height: 58px; padding: 0 12px 0 18px; border-bottom: 1px solid var(--line); }
+.cq-pal-tete > svg { width: 20px; height: 20px; flex: none; color: var(--fg-2); }
+.cq-pal-champ { flex: 1; min-width: 0; height: 100%; margin: 0; padding: 0; border: 0; background: transparent; color: var(--fg); outline: none;
+  font: 400 20px/1.2 var(--police); letter-spacing: -.02em; caret-color: var(--accent); }
+.cq-pal-champ::placeholder { color: var(--fg-2); opacity: .85; }
+.cq-pal-esc .cq-mobile { display: none; }
+.cq-pal-liste { position: relative; flex: 1 1 auto; min-height: 0; max-height: min(440px, 58vh); overflow: auto; overscroll-behavior: contain; padding: 4px 8px 8px; scrollbar-width: thin; }
+.cq-pal-pastille { position: absolute; left: 8px; right: 8px; top: 0; height: 44px; border-radius: 12px; pointer-events: none; opacity: 0;
+  background: color-mix(in srgb, var(--accent) 13%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent); }
+.cq-pal-groupe-titre { padding: 12px 10px 4px; font-size: 12px; font-weight: 600; color: var(--fg-2); letter-spacing: 0; }
+.cq-pal-opt { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; height: 44px; padding: 0 10px; border-radius: 12px; cursor: pointer;
+  font-size: 15px; letter-spacing: -.015em; color: var(--fg); user-select: none; -webkit-user-select: none; transition: transform .18s ease-out; }
+.cq-pal-opt:active { transform: scale(.985); transition-duration: 0s; }
+.cq-ic { position: relative; flex: none; width: 28px; height: 28px; border-radius: 7px; display: grid; place-items: center; overflow: hidden;
+  background: color-mix(in srgb, var(--fg) 7%, transparent); color: var(--fg); }
+.cq-ic svg { width: 16px; height: 16px; }
+.cq-ic.cq-ic-projet i { position: absolute; right: 5px; bottom: 5px; width: 7px; height: 7px; border-radius: 50%; }
+.cq-ic.cq-ic-action { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.cq-t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cq-t mark { background: none; color: inherit; font-weight: 600; }
+.cq-d { flex: none; max-width: 45%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--fg-2); font-size: 13px; }
+.cq-entree { flex: none; width: 18px; text-align: center; color: var(--fg-2); font-size: 13px; opacity: 0; transition: opacity .15s ease; }
+.cq-pal-opt[aria-selected="true"] .cq-entree { opacity: 1; }
+.cq-pal-vide { padding: 32px 16px 28px; text-align: center; color: var(--fg-2); font-size: 15px; }
+.cq-pal-vide strong { display: block; color: var(--fg); font-weight: 600; margin-bottom: 4px; font-size: 17px; }
+.cq-pal-pied { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 10px 18px; border-top: 1px solid var(--line); font-size: 12px; color: var(--fg-2); }
+.cq-pal-pied span { display: inline-flex; align-items: center; gap: 6px; }
+.cq-pal-pied .cq-touche { height: 20px; min-width: 20px; padding: 0 5px; font-size: 11px; }
+@media (pointer: coarse) {
+  .cq-pal-pied, .cq-entree { display: none; }
+  .cq-pal-esc { background: none; color: var(--accent); font-size: 17px; font-weight: 400; padding: 0 4px; height: 36px; }
+  .cq-pal-esc .cq-mobile { display: inline; }
+  .cq-pal-esc .cq-bureau { display: none; }
+}
+
+/* Feuilles (À propos, Raccourcis) */
+.cq-feuille-couche { display: grid; place-items: center; padding: 32px 16px; z-index: 85; }
+.cq-feuille { position: relative; width: min(560px, 100%); max-height: calc(100vh - 64px); display: flex; flex-direction: column; overflow: hidden;
+  border-radius: var(--rayon); background: var(--bg); color: var(--fg); outline: none; transform-origin: 50% 50%;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, .28), 0 6px 20px rgba(0, 0, 0, .08); }
+.cq-feuille-s { width: min(460px, 100%); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cq-feuille { background: var(--bg-2); box-shadow: 0 40px 100px rgba(0, 0, 0, .6), inset 0 0 0 1px var(--line); } }
+:root[data-theme="dark"] .cq-feuille { background: var(--bg-2); box-shadow: 0 40px 100px rgba(0, 0, 0, .6), inset 0 0 0 1px var(--line); }
+.cq-f-corps { flex: 1 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 44px 32px 28px; }
+.cq-fermer { position: absolute; top: 12px; right: 12px; z-index: 2; background: color-mix(in srgb, var(--fg) 7%, transparent); color: var(--fg-2); }
+.cq-fermer:hover { color: var(--fg); }
+.cq-poignee { display: none; }
+.cq-feuille-couche[data-mode="bas"] { place-items: end stretch; padding: 0; }
+.cq-feuille-couche[data-mode="bas"] .cq-feuille { width: 100%; max-height: calc(100vh - 40px); border-radius: var(--rayon) var(--rayon) 0 0; overflow: visible; }
+.cq-feuille-couche[data-mode="bas"] .cq-feuille::after { content: ""; position: absolute; left: 0; right: 0; top: calc(100% - 1px); height: 200px; background: inherit; }
+.cq-feuille-couche[data-mode="bas"] .cq-f-corps { padding: 18px 20px calc(24px + env(safe-area-inset-bottom, 0px)); border-radius: inherit; }
+.cq-feuille-couche[data-mode="bas"] .cq-poignee { display: block; position: absolute; top: 0; left: 0; right: 0; height: 26px; z-index: 1; touch-action: none; cursor: grab; }
+.cq-feuille-couche[data-mode="bas"] .cq-poignee::before { content: ""; position: absolute; left: 50%; top: 8px; width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: color-mix(in srgb, var(--fg) 22%, transparent); }
+.cq-feuille-couche[data-mode="bas"] [data-cq-glisse] { touch-action: none; }
+
+.cq-ap-tete { text-align: center; }
+.cq-ap-icone { display: block; width: 96px; height: 96px; margin: 0 auto 16px; filter: drop-shadow(0 10px 20px rgba(6, 28, 27, .3)); }
+.cq-feuille h2 { margin: 0; font-size: 28px; font-weight: 600; line-height: 1.14; letter-spacing: -.025em; }
+.cq-ap-version { margin: 6px 0 0; font-size: 14px; color: var(--fg-2); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.cq-ap-phrase { margin: 14px auto 0; max-width: 26em; font-size: 17px; line-height: 1.42; text-wrap: balance; }
+.cq-ap-bloc { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
+.cq-ap-bloc h3 { margin: 0 0 12px; font-size: 17px; font-weight: 600; letter-spacing: -.02em; display: flex; align-items: baseline; gap: 8px; }
+.cq-ap-bloc h3 small { font-size: 13px; font-weight: 400; color: var(--fg-2); letter-spacing: -.005em; }
+.cq-notes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 9px 18px; }
+.cq-notes li { display: flex; align-items: flex-start; gap: 9px; font-size: 15px; line-height: 1.35; letter-spacing: -.015em; }
+.cq-notes svg { flex: none; width: 17px; height: 17px; margin-top: 1px; color: var(--accent); }
+.cq-bientot { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.cq-bientot .pastille { color: var(--fg-2); white-space: normal; }
+.cq-ap-pied { margin: 26px 0 0; text-align: center; font-size: 13px; color: var(--fg-2); letter-spacing: -.005em; }
+.cq-ap-pied svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 4px; }
+.cq-rac-sous { margin: 6px 0 0; font-size: 15px; color: var(--fg-2); }
+.cq-rac { margin: 18px 0 0; padding: 0; }
+.cq-rac > div { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 46px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.cq-rac > div:last-child { border-bottom: 0; }
+.cq-rac dt { font-size: 15px; letter-spacing: -.015em; }
+.cq-rac dd { margin: 0; display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--fg-2); flex: none; }
+.cq-rac kbd { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 7px; border-radius: 7px; font: 500 13px/1 var(--police); letter-spacing: 0;
+  color: var(--fg); background: var(--bg-2); box-shadow: inset 0 0 0 1px var(--line), 0 1px 0 var(--line); }
+:root[data-theme="dark"] .cq-rac kbd { background: var(--bg-3); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cq-rac kbd { background: var(--bg-3); } }
+
+/* ---------- Écran de lancement ---------- */
+.cq-lancement { position: fixed; inset: 0; z-index: 100; font-family: var(--police); }
+.cq-l-fond { position: absolute; inset: 0; background: var(--bg); }
+.cq-l-pile { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding-bottom: 4vh; pointer-events: none; }
+.cq-l-boite { width: 112px; height: 112px; transform-origin: 50% 50%; }
+.cq-l-icone { display: block; width: 100%; height: 100%; opacity: 0; transform: scale(.86); filter: drop-shadow(0 12px 26px rgba(6, 28, 27, .28)); }
+.cq-l-nom { color: var(--fg); font-size: 34px; font-weight: 600; letter-spacing: -.02em; line-height: 1.1; white-space: nowrap; transform-origin: 50% 50%; }
+.cq-l-nom span { display: inline-block; opacity: 0; transform: translateY(.28em); animation: cq-lettre .36s cubic-bezier(.2, .8, .2, 1) forwards; }
+@keyframes cq-lettre { to { opacity: 1; transform: none; } }
+
+/* Matières : repli si la transparence est réduite ou non gérée */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .cq-barre, .cq-pop { background: var(--bg); } .cq-palette { background: var(--bg-2); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .cq-barre, .cq-pop { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .cq-palette { background: var(--bg-2); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+/* Mouvement réduit : de simples fondus */
+@media (prefers-reduced-motion: reduce) {
+  .cq-voile, .cq-palette, .cq-feuille, .cq-pop { transition: opacity .2s ease; }
+  .cq-ib, .cq-pop-el, .cq-pal-opt, .cq-marque { transition: none; }
+}
+</style>
+
+<!-- Icône Kayzx Studio : un K dont la jambe est une trajectoire, avec son point de lecture doré -->
+<svg class="cq-defs" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <linearGradient id="cq-g-fond" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#1A5A53"/>
+      <stop offset="0.55" stop-color="#0E3A36"/>
+      <stop offset="1" stop-color="#061C1B"/>
+    </linearGradient>
+    <radialGradient id="cq-g-reflet" cx="0.28" cy="0.06" r="0.85">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".2"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="cq-g-point" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#F7D58A"/>
+      <stop offset="1" stop-color="#E3A83B"/>
+    </radialGradient>
+  </defs>
+  <symbol id="cq-icone" viewBox="0 0 100 100">
+    <path fill="url(#cq-g-fond)" d="M64.8 0c12.321 0 18.482 0 23.188 2.398a22 22 0 0 1 9.614 9.614c2.398 4.706 2.398 10.867 2.398 23.188V64.8c0 12.321 0 18.482-2.398 23.188a22 22 0 0 1-9.614 9.614C83.282 100 77.121 100 64.8 100H35.2c-12.321 0-18.482 0-23.188-2.398a22 22 0 0 1-9.614-9.614C0 83.282 0 77.121 0 64.8V35.2c0-12.321 0-18.482 2.398-23.188a22 22 0 0 1 9.614-9.614C16.718 0 22.879 0 35.2 0Z"/>
+    <path fill="url(#cq-g-reflet)" d="M64.8 0c12.321 0 18.482 0 23.188 2.398a22 22 0 0 1 9.614 9.614c2.398 4.706 2.398 10.867 2.398 23.188V64.8c0 12.321 0 18.482-2.398 23.188a22 22 0 0 1-9.614 9.614C83.282 100 77.121 100 64.8 100H35.2c-12.321 0-18.482 0-23.188-2.398a22 22 0 0 1-9.614-9.614C0 83.282 0 77.121 0 64.8V35.2c0-12.321 0-18.482 2.398-23.188a22 22 0 0 1 9.614-9.614C16.718 0 22.879 0 35.2 0Z"/>
+    <path fill="none" stroke="#ffffff" stroke-opacity=".12" stroke-width="1.2" d="M64.8 0c12.321 0 18.482 0 23.188 2.398a22 22 0 0 1 9.614 9.614c2.398 4.706 2.398 10.867 2.398 23.188V64.8c0 12.321 0 18.482-2.398 23.188a22 22 0 0 1-9.614 9.614C83.282 100 77.121 100 64.8 100H35.2c-12.321 0-18.482 0-23.188-2.398a22 22 0 0 1-9.614-9.614C0 83.282 0 77.121 0 64.8V35.2c0-12.321 0-18.482 2.398-23.188a22 22 0 0 1 9.614-9.614C16.718 0 22.879 0 35.2 0Z"/>
+    <g fill="none" stroke="#EEF2F1" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M33 26V74"/>
+      <path d="M63 26L39 50C46.2 50 50.52 58.64 55.42 65.55"/>
+      <path d="M55.42 65.55C58.68 70.16 62.2 74 67 74" stroke-opacity=".34"/>
+    </g>
+    <circle cx="55.42" cy="65.55" r="11" fill="#E3A83B" opacity=".22"/>
+    <circle cx="55.42" cy="65.55" r="6.4" fill="url(#cq-g-point)"/>
+  </symbol>
+</svg>
+
+<header class="cq-barre" id="cq-barre">
+  <div class="cq-barre-in">
+    <a class="cq-marque" href="#accueil" aria-label="Kayzx Studio, retour à l’accueil">
+      <svg class="cq-marque-icone" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#cq-icone" width="100" height="100"/></svg>
+      <span class="cq-marque-nom" aria-hidden="true">Kayzx Studio</span>
+    </a>
+    <nav class="cq-nav" aria-label="Sections">
+      <span class="cq-pilule" aria-hidden="true"><i></i><i></i><i></i></span>
+      <ul class="cq-liens">
+        <li><a class="cq-lien" href="#projets">Projets</a></li>
+        <li><a class="cq-lien" href="#progression">Progression</a></li>
+        <li><a class="cq-lien" href="#mouvement">Mouvement</a></li>
+        <li><a class="cq-lien" href="#idees">Idées</a></li>
+        <li><a class="cq-lien" href="#stream">Stream</a></li>
+        <li><a class="cq-lien" href="#marque">Marque</a></li>
+        <li><a class="cq-lien" href="#references">Références</a></li>
+      </ul>
+    </nav>
+    <div class="cq-actions">
+      <button type="button" class="cq-ib" id="cq-btn-recherche" aria-label="Rechercher" aria-keyshortcuts="Meta+K Control+K">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="8.6" cy="8.6" r="5.1"/><path d="m12.4 12.4 4.1 4.1"/></svg>
+      </button>
+      <button type="button" class="cq-ib cq-btn-theme" id="cq-btn-theme" aria-haspopup="menu" aria-expanded="false" aria-controls="cq-menu-theme" aria-label="Apparence : Auto" data-cq-theme="auto">
+        <svg class="cq-i-auto" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="M10 3.5a6.5 6.5 0 0 1 0 13Z" fill="currentColor" stroke="none"/></svg>
+        <svg class="cq-i-clair" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="3.4"/><path d="M10 2.5v1.6M10 15.9v1.6M2.5 10h1.6M15.9 10h1.6M4.7 4.7l1.1 1.1M14.2 14.2l1.1 1.1M4.7 15.3l1.1-1.1M14.2 5.8l1.1-1.1"/></svg>
+        <svg class="cq-i-sombre" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M16 12.6A6.6 6.6 0 0 1 7.4 4a6.6 6.6 0 1 0 8.6 8.6Z"/></svg>
+      </button>
+      <button type="button" class="cq-ib cq-btn-apropos" id="cq-btn-apropos" aria-label="À propos de Kayzx Studio">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 9v4.6M10 6.4v.1"/></svg>
+        <span>À propos</span>
+      </button>
+      <button type="button" class="cq-ib cq-btn-menu" id="cq-btn-menu" aria-expanded="false" aria-controls="cq-menu-nav" aria-label="Menu des sections">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path class="cq-l1" d="M4 7.5h12"/><path class="cq-l2" d="M4 12.5h12"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="cq-progres" aria-hidden="true"></div>
+</header>
+
+<nav class="cq-pop cq-pop-nav" id="cq-menu-nav" aria-label="Sections (menu)" hidden>
+  <a class="cq-pop-el" href="#projets"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="14" height="11" rx="2.6"/><path d="M8.6 7.9v4.2l3.5-2.1Z"/></svg><span class="cq-pop-t">Projets</span><svg class="cq-coche" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg></a>
+  <a class="cq-pop-el" href="#progression"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 14.5 4.5-4.5 3 3L17 6.5M13 6.5h4v4"/></svg><span class="cq-pop-t">Progression</span><svg class="cq-coche" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg></a>
+  <a class="cq-pop-el" href="#mouvement"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 16C9.5 16 10.5 4 17 4"/><circle cx="10" cy="10" r="1.6" fill="currentColor" stroke="none"/></svg><span class="cq-pop-t">Mouvement</span><svg class="cq-coche" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg></a>
+  <a class="cq-pop-el" href="#idees"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.6 14.4h4.8M8.2 17h3.6M10 3a5 5 0 0 0-3 9c.6.5 1 1.2 1 2h4c0-.8.4-1.5 1-2a5 5 0 0 0-3-9Z"/></svg><span class="cq-pop-t">Idées</span><svg class="cq-coche" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg></a>
+  <a class="cq-pop-el" href="#stream"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="1.6" fill="currentColor" stroke="none"/><path d="M6.8 13.2a4.5 4.5 0 0 1 0-6.4M13.2 6.8a4.5 4.5 0 0 1 0 6.4M4.4 15.6a8 8 0 0 1 0-11.2M15.6 4.4a8 8 0 0 1 0 11.2"/></svg><span class="cq-pop-t">Stream</span><svg class="cq-coche" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg></a>
+  <a class="cq-pop-el" href="#marque"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M10 3s5 5.2 5 8.6a5 5 0 0 1-10 0C5 8.2 10 3 10 3Z"/></svg><span class="cq-pop-t">Marque</span><svg class="cq-coche" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg></a>
+  <a class="cq-pop-el" href="#references"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h8a1 1 0 0 1 1 1v12l-5-3.2-5 3.2v-12a1 1 0 0 1 1-1Z"/></svg><span class="cq-pop-t">Références</span><svg class="cq-coche" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg></a>
+</nav>
+
+<div class="cq-pop cq-pop-theme" id="cq-menu-theme" role="menu" aria-label="Apparence" hidden>
+  <button type="button" class="cq-pop-el" role="menuitemradio" aria-checked="true" data-cq-choix="auto" tabindex="-1"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10" cy="10" r="6.5"/><path d="M10 3.5a6.5 6.5 0 0 1 0 13Z" fill="currentColor" stroke="none"/></svg><span class="cq-pop-t">Auto<small>Suit le réglage de ton appareil</small></span><svg class="cq-coche" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg></button>
+  <button type="button" class="cq-pop-el" role="menuitemradio" aria-checked="false" data-cq-choix="light" tabindex="-1"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="3.4"/><path d="M10 2.5v1.6M10 15.9v1.6M2.5 10h1.6M15.9 10h1.6M4.7 4.7l1.1 1.1M14.2 14.2l1.1 1.1M4.7 15.3l1.1-1.1M14.2 5.8l1.1-1.1"/></svg><span class="cq-pop-t">Clair</span><svg class="cq-coche" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg></button>
+  <button type="button" class="cq-pop-el" role="menuitemradio" aria-checked="false" data-cq-choix="dark" tabindex="-1"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M16 12.6A6.6 6.6 0 0 1 7.4 4a6.6 6.6 0 1 0 8.6 8.6Z"/></svg><span class="cq-pop-t">Sombre</span><svg class="cq-coche" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg></button>
+</div>
+
+<div class="cq-couche cq-pal-couche" id="cq-palette" hidden>
+  <div class="cq-voile" data-cq-ferme></div>
+  <div class="cq-palette" role="dialog" aria-modal="true" aria-label="Palette de commandes" tabindex="-1">
+    <div class="cq-pal-tete">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="8.6" cy="8.6" r="5.1"/><path d="m12.4 12.4 4.1 4.1"/></svg>
+      <input class="cq-pal-champ" id="cq-pal-champ" type="text" role="combobox" aria-expanded="true" aria-controls="cq-pal-liste" aria-autocomplete="list"
+        aria-label="Rechercher une section, un projet, une référence ou une action" placeholder="Rechercher dans Kayzx Studio"
+        autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go">
+      <button type="button" class="cq-touche cq-pal-esc" data-cq-ferme aria-label="Fermer la palette"><span class="cq-bureau">esc</span><span class="cq-mobile">Annuler</span></button>
+    </div>
+    <div class="cq-pal-liste" id="cq-pal-liste" role="listbox" aria-label="Résultats">
+      <div class="cq-pal-pastille" aria-hidden="true"></div>
+    </div>
+    <div class="cq-pal-pied" aria-hidden="true">
+      <span><kbd class="cq-touche">↑</kbd><kbd class="cq-touche">↓</kbd> naviguer</span>
+      <span><kbd class="cq-touche">↵</kbd> ouvrir</span>
+      <span><kbd class="cq-touche">esc</kbd> fermer</span>
+      <span style="margin-left:auto"><kbd class="cq-touche"><span data-cq-mod>⌘</span>&nbsp;K</kbd> partout</span>
+    </div>
+    <p class="cq-sr" id="cq-pal-annonce" aria-live="polite"></p>
+  </div>
+</div>
+
+<div class="cq-couche cq-feuille-couche" id="cq-apropos" hidden>
+  <div class="cq-voile" data-cq-ferme></div>
+  <div class="cq-feuille" role="dialog" aria-modal="true" aria-labelledby="cq-apropos-titre" tabindex="-1">
+    <div class="cq-poignee" data-cq-glisse aria-hidden="true"></div>
+    <button type="button" class="cq-ib cq-fermer" data-cq-ferme aria-label="Fermer">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 8 8M14 6l-8 8"/></svg>
+    </button>
+    <div class="cq-f-corps">
+      <header class="cq-ap-tete" data-cq-glisse>
+        <svg class="cq-ap-icone" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#cq-icone" width="100" height="100"/></svg>
+        <h2 id="cq-apropos-titre">Kayzx Studio</h2>
+        <p class="cq-ap-version">Version 1.0 · 9 octobre 2026</p>
+        <p class="cq-ap-phrase">L’atelier de Kayzx TV : tes motions, tes références et tes idées.</p>
+      </header>
+      <section class="cq-ap-bloc" aria-labelledby="cq-notes-titre">
+        <h3 id="cq-notes-titre">Notes de version <small>1.0</small></h3>
+        <ul class="cq-notes">
+          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Galerie des projets et fiches</li>
+          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Frise de progression</li>
+          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Vocabulaire du mouvement avec démos</li>
+          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Boîte à idées synchronisée</li>
+          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Boucle d’attente prête pour OBS</li>
+          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Kit de marque</li>
+          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Références filtrables</li>
+          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg><span>Palette de commandes <span data-cq-mod>⌘</span>K</span></li>
+          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Thème clair et sombre</li>
+        </ul>
+      </section>
+      <section class="cq-ap-bloc" aria-labelledby="cq-bientot-titre">
+        <h3 id="cq-bientot-titre">Bientôt <small>les prochains modules</small></h3>
+        <ul class="cq-bientot">
+          <li class="pastille"><i></i>Twitch — scènes et alertes</li>
+          <li class="pastille"><i></i>YouTube — miniatures et chapitres</li>
+          <li class="pastille"><i></i>Shorts et TikTok — formats verticaux</li>
+          <li class="pastille"><i></i>Planning des lives</li>
+        </ul>
+      </section>
+      <p class="cq-ap-pied"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><use href="#cq-icone" width="100" height="100"/></svg>Conçu par Kayzx Studio · fait avec Claude</p>
+    </div>
+  </div>
+</div>
+
+<div class="cq-couche cq-feuille-couche" id="cq-raccourcis" hidden>
+  <div class="cq-voile" data-cq-ferme></div>
+  <div class="cq-feuille cq-feuille-s" role="dialog" aria-modal="true" aria-labelledby="cq-rac-titre" tabindex="-1">
+    <div class="cq-poignee" data-cq-glisse aria-hidden="true"></div>
+    <button type="button" class="cq-ib cq-fermer" data-cq-ferme aria-label="Fermer">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 8 8M14 6l-8 8"/></svg>
+    </button>
+    <div class="cq-f-corps">
+      <div data-cq-glisse>
+        <h2 id="cq-rac-titre">Raccourcis clavier</h2>
+        <p class="cq-rac-sous">Ils marchent partout, sauf quand tu écris dans un champ.</p>
+      </div>
+      <dl class="cq-rac">
+        <div><dt>Ouvrir la palette</dt><dd><kbd data-cq-mod>⌘</kbd><kbd>K</kbd></dd></div>
+        <div><dt>Aller aux projets</dt><dd><kbd>G</kbd>puis<kbd>P</kbd></dd></div>
+        <div><dt>Aller aux idées</dt><dd><kbd>G</kbd>puis<kbd>I</kbd></dd></div>
+        <div><dt>Aller aux références</dt><dd><kbd>G</kbd>puis<kbd>R</kbd></dd></div>
+        <div><dt>Changer de thème</dt><dd><kbd>T</kbd></dd></div>
+        <div><dt>Afficher cette aide</dt><dd><kbd>?</kbd></dd></div>
+        <div><dt>Fermer</dt><dd><kbd>Échap</kbd></dd></div>
+      </dl>
+    </div>
+  </div>
+</div>
+
+<div class="cq-lancement" id="cq-lancement" aria-hidden="true" hidden>
+  <div class="cq-l-fond"></div>
+  <div class="cq-l-pile">
+    <div class="cq-l-boite"><svg class="cq-l-icone" viewBox="0 0 100 100" focusable="false"><use href="#cq-icone" width="100" height="100"/></svg></div>
+    <div class="cq-l-nom">Kayzx Studio</div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const doc = document, html = doc.documentElement;
+  const $ = (s, el = doc) => el.querySelector(s);
+  const $$ = (s, el = doc) => Array.from(el.querySelectorAll(s));
+  const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+  const lire = (type, k) => { try { return window[type].getItem(k); } catch (e) { return null; } };
+  const ecrire = (type, k, v) => { try { window[type].setItem(k, v); } catch (e) { /* stockage bloqué : tant pis */ } };
+  const reduit = (window.KS && typeof window.KS.reduit === 'boolean') ? window.KS.reduit : matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- Thème : appliqué tout de suite, avant le reste ----------
+  const THEMES = ['auto', 'light', 'dark'];
+  const NOM_THEME = { auto: 'Auto', light: 'Clair', dark: 'Sombre' };
+  let theme = lire('localStorage', 'ks-theme');
+  if (!THEMES.includes(theme)) theme = 'auto';
+  const poserTheme = (t) => { if (t === 'auto') html.removeAttribute('data-theme'); else html.setAttribute('data-theme', t); };
+  poserTheme(theme);
+
+  // ---------- Écran de lancement : décidé tout de suite, pour éviter un éclair de page ----------
+  const barre = doc.getElementById('cq-barre');
+  const L = doc.getElementById('cq-lancement');
+  let jouerLancement = false;
+  if (L && barre && !reduit && !doc.hidden && lire('sessionStorage', 'ks-lancement') !== 'vu') {
+    jouerLancement = true;
+    L.hidden = false;
+    barre.classList.add('cq-en-lancement');
+    ecrire('sessionStorage', 'ks-lancement', 'vu');
+  } else if (L) { L.remove(); }
+
+  const MAC = /Mac|iPhone|iPad|iPod/i.test((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '');
+  const MOD = MAC ? '⌘' : 'Ctrl';
+
+  let pret = false;
+  function init() {
+    if (pret) return;
+    const KS = window.KS;
+    if (!KS || !KS.ressort) {
+      if (L && L.isConnected) L.remove();
+      if (barre) barre.classList.remove('cq-en-lancement');
+      return;
+    }
+    pret = true;
+    KS.version = '1.0';
+
+    $$('[data-cq-mod]').forEach((n) => { n.textContent = MOD; });
+    const btnRecherche = $('#cq-btn-recherche'), btnTheme = $('#cq-btn-theme'), btnApropos = $('#cq-btn-apropos'), btnMenu = $('#cq-btn-menu');
+    btnRecherche.title = `Rechercher (${MOD} K)`;
+    btnApropos.title = 'À propos de Kayzx Studio';
+
+    const pile = [];          // couches modales ouvertes (la dernière est au-dessus)
+    let popOuvert = null;     // menu déroulant ouvert
+
+    const el = (tag, attrs, texte) => {
+      const n = doc.createElement(tag);
+      if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+      if (texte != null) n.textContent = texte;
+      return n;
+    };
+    const estChamp = (t) => !!(t && t.closest && (t.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])') || t.isContentEditable));
+    const verrouiller = () => html.classList.toggle('cq-verrou', pile.length > 0);
+
+    // ---------- Aller à une section ----------
+    const SECTIONS = [
+      { id: 'accueil', nom: 'Accueil', mots: 'debut haut page presentation', ic: 'maison' },
+      { id: 'projets', nom: 'Projets', mots: 'galerie motions videos fiches', ic: 'film' },
+      { id: 'progression', nom: 'Progression', mots: 'frise historique etapes chronologie', ic: 'courbe' },
+      { id: 'mouvement', nom: 'Mouvement', mots: 'vocabulaire effets demos animation', ic: 'mouvement' },
+      { id: 'idees', nom: 'Idées', mots: 'boite a idees notes envies', ic: 'ampoule' },
+      { id: 'stream', nom: 'Stream', mots: 'obs boucle attente live twitch', ic: 'stream' },
+      { id: 'marque', nom: 'Marque', mots: 'kit couleurs polices logo identite', ic: 'goutte' },
+      { id: 'references', nom: 'Références', mots: 'liens inspiration galeries', ic: 'signet' },
+    ];
+    let verrouActif = 0;
+    function allerA(id) {
+      const cible = doc.getElementById(id);
+      if (!cible) {
+        if (id === 'accueil') { scrollTo({ top: 0, behavior: reduit ? 'auto' : 'smooth' }); marquerActif(null); return true; }
+        KS.toast('Cette section n’est pas encore là.');
+        return false;
+      }
+      verrouActif = performance.now() + 1100;
+      marquerActif(id === 'accueil' ? null : id);
+      cible.scrollIntoView({ behavior: reduit ? 'auto' : 'smooth', block: 'start' });
+      try { history.replaceState(null, '', '#' + id); } catch (e) { /* page sans historique */ }
+      return true;
+    }
+    ['wheel', 'touchstart'].forEach((t) => addEventListener(t, () => { verrouActif = 0; }, { passive: true }));
+
+    // ---------- Pastille glissante sous la section active ----------
+    const nav = $('.cq-nav', barre);
+    const liens = $$('.cq-lien', barre);
+    const liensMenu = $$('#cq-menu-nav .cq-pop-el');
+    const pilule = $('.cq-pilule', barre);
+    const [pG, pM, pD] = pilule.children;
+    let px = 0, pw = 28, actifId = undefined, piluleVue = false;
+    const dessinerPilule = () => {
+      const w = Math.max(28, pw);
+      pG.style.transform = `translate3d(${px.toFixed(2)}px,0,0)`;
+      pM.style.transform = `translate3d(${(px + 13.5).toFixed(2)}px,0,0) scaleX(${((w - 27) / 100).toFixed(4)})`;
+      pD.style.transform = `translate3d(${(px + w - 14).toFixed(2)}px,0,0)`;
+    };
+    const rX = KS.ressort(0, { reponse: 0.42, surMaj: (v) => { px = v; dessinerPilule(); } });
+    const rW = KS.ressort(28, { reponse: 0.42, surMaj: (v) => { pw = v; dessinerPilule(); } });
+    function placerPilule(instant) {
+      const a = liens.find((l) => l.getAttribute('href') === '#' + actifId);
+      if (!a || !nav.offsetParent) { pilule.style.opacity = '0'; piluleVue = false; return; }
+      const x = a.offsetLeft, w = a.offsetWidth;
+      if (instant || !piluleVue) { rX.fixer(x); rW.fixer(w); }
+      else { rX.cible(x, { amorti: 1, reponse: 0.42 }); rW.cible(w, { amorti: 1, reponse: 0.42 }); }
+      pilule.style.opacity = '1';
+      piluleVue = true;
+    }
+    function marquerActif(id) {
+      if (id === actifId) return;
+      actifId = id;
+      [...liens, ...liensMenu].forEach((a) => {
+        if (id && a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+      });
+      placerPilule(false);
+    }
+    function sectionActive() {
+      const seuil = innerHeight * 0.38;
+      let meilleur = null, haut = -Infinity;
+      for (const s of SECTIONS) {
+        const n = doc.getElementById(s.id);
+        if (!n) continue;
+        const t = n.getBoundingClientRect().top;
+        if (t <= seuil && t > haut) { haut = t; meilleur = s.id; }
+      }
+      // Tout en bas : la dernière section visible l'emporte.
+      if (innerHeight + scrollY >= html.scrollHeight - 2) {
+        let bas = -Infinity;
+        for (const s of SECTIONS) {
+          const n = doc.getElementById(s.id);
+          if (!n) continue;
+          const r = n.getBoundingClientRect();
+          if (r.top < innerHeight && r.top > bas) { bas = r.top; meilleur = s.id; }
+        }
+      }
+      return meilleur === 'accueil' ? null : meilleur;
+    }
+
+    // ---------- Défilement : filet, progression, section active ----------
+    const progres = $('.cq-progres', barre);
+    let rafDef = 0;
+    function majDefilement() {
+      rafDef = 0;
+      const y = scrollY, max = html.scrollHeight - innerHeight;
+      progres.style.transform = `scaleX(${max > 0 ? clamp(y / max).toFixed(4) : 0})`;
+      barre.classList.toggle('cq-defile', y > 2);
+      const id = sectionActive();
+      if (verrouActif && performance.now() < verrouActif) { if (id === actifId) verrouActif = 0; return; }
+      marquerActif(id);
+    }
+    const planifier = () => { if (!rafDef) rafDef = requestAnimationFrame(majDefilement); };
+    addEventListener('scroll', planifier, { passive: true });
+    addEventListener('resize', () => { fermerPop(false); placerPilule(true); planifier(); });
+    if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', planifier);
+    addEventListener('load', () => { placerPilule(true); planifier(); });
+    if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(() => placerPilule(true)).catch(() => {});
+    majDefilement();
+
+    // Liens internes de la coque : défilement doux et pastille immédiate.
+    const surLienInterne = (e) => {
+      const a = e.target.closest('a[href^="#"]');
+      if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button > 0) return;
+      const id = a.getAttribute('href').slice(1);
+      if (!id) return;
+      e.preventDefault();
+      fermerPop(false);
+      allerA(id);
+    };
+    barre.addEventListener('click', surLienInterne);
+    $('#cq-menu-nav').addEventListener('click', surLienInterne);
+
+    // ---------- Menus déroulants (se déplient depuis leur bouton) ----------
+    function fabriquerPop(bouton, panneau, { surDessin = null, menu = false } = {}) {
+      const api = { ouvert: false, bouton, panneau };
+      let tCache = 0;
+      const r = KS.ressort(0, {
+        reponse: 0.34,
+        surMaj: (v, rr) => {
+          if (reduit) { panneau.style.transform = 'none'; panneau.style.opacity = String(clamp(v)); }
+          else {
+            panneau.style.transform = `scale(${(0.5 + 0.5 * v).toFixed(4)})`;
+            panneau.style.opacity = String(clamp(v * 1.8).toFixed(3));
+          }
+          if (surDessin) surDessin(v);
+          if (!api.ouvert && rr && rr.but === 0 && v === 0 && rr.vitesse === 0) {
+            clearTimeout(tCache);
+            tCache = setTimeout(() => { if (!api.ouvert) panneau.hidden = true; }, reduit ? 220 : 0);
+          }
+        },
+      });
+      const items = () => $$('.cq-pop-el', panneau);
+      function placer() {
+        const b = bouton.getBoundingClientRect();
+        const w = panneau.offsetWidth;
+        const haut = b.bottom + 8;
+        const gauche = clamp(b.right - w, 16, Math.max(16, innerWidth - 16 - w));
+        panneau.style.top = haut + 'px';
+        panneau.style.left = gauche + 'px';
+        panneau.style.transformOrigin = `${(b.left + b.width / 2 - gauche).toFixed(1)}px ${(b.top + b.height / 2 - haut).toFixed(1)}px`;
+      }
+      api.ouvrir = (clavier) => {
+        if (api.ouvert) return;
+        if (popOuvert && popOuvert !== api) popOuvert.fermer(false);
+        clearTimeout(tCache);
+        api.ouvert = true;
+        popOuvert = api;
+        panneau.hidden = false;
+        panneau.style.pointerEvents = '';
+        placer();
+        if (r.valeur === 0) { panneau.style.opacity = '0'; void panneau.offsetWidth; }
+        bouton.setAttribute('aria-expanded', 'true');
+        r.cible(1, { amorti: 1, reponse: 0.34 });
+        if (clavier || menu) {
+          const liste = items();
+          const choisi = liste.find((i) => i.getAttribute('aria-checked') === 'true' || i.getAttribute('aria-current') === 'true') || liste[0];
+          if (choisi && (clavier || menu)) choisi.focus({ preventScroll: true });
+        }
+      };
+      api.fermer = (rendre) => {
+        if (!api.ouvert) return;
+        api.ouvert = false;
+        if (popOuvert === api) popOuvert = null;
+        panneau.style.pointerEvents = 'none';
+        bouton.setAttribute('aria-expanded', 'false');
+        r.cible(0, { amorti: 1, reponse: 0.3 });
+        if (rendre) bouton.focus({ preventScroll: true });
+      };
+      bouton.addEventListener('click', (e) => { if (api.ouvert) api.fermer(false); else api.ouvrir(e.detail === 0); });
+      panneau.addEventListener('keydown', (e) => {
+        const liste = items();
+        const i = liste.indexOf(doc.activeElement);
+        let j = -1;
+        if (e.key === 'ArrowDown') j = (i + 1) % liste.length;
+        else if (e.key === 'ArrowUp') j = (i - 1 + liste.length) % liste.length;
+        else if (e.key === 'Home') j = 0;
+        else if (e.key === 'End') j = liste.length - 1;
+        else if (e.key === 'Tab' && menu) { api.fermer(false); return; }
+        if (j >= 0) { e.preventDefault(); liste[j].focus(); }
+      });
+      panneau.addEventListener('focusout', (e) => {
+        const vers = e.relatedTarget;
+        if (api.ouvert && vers && !panneau.contains(vers) && vers !== bouton) api.fermer(false);
+      });
+      return api;
+    }
+    const l1 = $('.cq-l1', btnMenu), l2 = $('.cq-l2', btnMenu);
+    const menuNav = fabriquerPop(btnMenu, $('#cq-menu-nav'), {
+      surDessin: (v) => {
+        const p = clamp(v, 0, 1.2);
+        l1.style.transform = `translateY(${(2.5 * p).toFixed(3)}px) rotate(${(45 * p).toFixed(2)}deg)`;
+        l2.style.transform = `translateY(${(-2.5 * p).toFixed(3)}px) rotate(${(-45 * p).toFixed(2)}deg)`;
+      },
+    });
+    const menuTheme = fabriquerPop(btnTheme, $('#cq-menu-theme'), { menu: true });
+    function fermerPop(rendre) { if (popOuvert) popOuvert.fermer(rendre); }
+    doc.addEventListener('pointerdown', (e) => {
+      if (popOuvert && !popOuvert.panneau.contains(e.target) && !popOuvert.bouton.contains(e.target)) popOuvert.fermer(false);
+    }, true);
+
+    // ---------- Thème ----------
+    function majThemeUI() {
+      btnTheme.dataset.cqTheme = theme;
+      btnTheme.setAttribute('aria-label', `Apparence : ${NOM_THEME[theme]}`);
+      btnTheme.title = `Apparence : ${NOM_THEME[theme]}`;
+      $$('[data-cq-choix]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.cqChoix === theme)));
+    }
+    function choisirTheme(t, annoncer) {
+      if (!THEMES.includes(t)) return;
+      theme = t;
+      ecrire('localStorage', 'ks-theme', t);
+      const faire = () => { poserTheme(t); majThemeUI(); };
+      if (!reduit && doc.startViewTransition && !doc.hidden) { try { doc.startViewTransition(faire); } catch (e) { faire(); } }
+      else faire();
+      if (annoncer) KS.toast(`Thème : ${NOM_THEME[t]}${t === 'auto' ? ' (suit ton appareil)' : ''}`);
+    }
+    const themeSuivant = () => THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+    $('#cq-menu-theme').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-cq-choix]');
+      if (!b) return;
+      choisirTheme(b.dataset.cqChoix, false);
+      menuTheme.fermer(true);
+    });
+    majThemeUI();
+
+    // ---------- Couches modales : palette et feuilles ----------
+    function pieger(e, boite) {
+      const f = $$('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])', boite)
+        .filter((n) => n.getClientRects().length > 0);
+      if (!f.length) { e.preventDefault(); boite.focus(); return; }
+      const premier = f[0], dernier = f[f.length - 1], ici = doc.activeElement;
+      if (e.shiftKey && (ici === premier || ici === boite || !boite.contains(ici))) { e.preventDefault(); dernier.focus(); }
+      else if (!e.shiftKey && (ici === dernier || !boite.contains(ici))) { e.preventDefault(); premier.focus(); }
+    }
+
+    function fabriquerCouche(racine, { boite, appliquer, reponse = 0.42, reponseFerme = 0.34, glisse = false, focusInitial = null, surOuvrir = null }) {
+      const voile = $('.cq-voile', racine);
+      const api = { ouvert: false, origine: null, boite };
+      let mode = 'centre', H = 400, tCache = 0;
+      const r = KS.ressort(0, {
+        reponse,
+        surMaj: (v, rr) => {
+          voile.style.opacity = String(clamp(v).toFixed(3));
+          appliquer(v, mode, H);
+          if (!api.ouvert && rr && rr.but === 0 && v === 0 && rr.vitesse === 0) {
+            clearTimeout(tCache);
+            tCache = setTimeout(() => { if (!api.ouvert) racine.hidden = true; }, reduit ? 220 : 0);
+          }
+        },
+      });
+      api.ouvrir = (origine) => {
+        if (api.ouvert) return;
+        fermerPop(false);
+        clearTimeout(tCache);
+        const ici = doc.activeElement;
+        api.origine = origine || (ici && ici !== doc.body ? ici : null);
+        api.ouvert = true;
+        racine.hidden = false;
+        racine.style.pointerEvents = '';
+        if (glisse) { mode = innerWidth < 600 ? 'bas' : 'centre'; racine.dataset.mode = mode; }
+        H = boite.offsetHeight + 24;
+        if (r.valeur === 0) { voile.style.opacity = '0'; appliquer(0, mode, H); void boite.offsetWidth; }
+        pile.push(api);
+        verrouiller();
+        if (surOuvrir) surOuvrir();
+        r.cible(1, { reponse, amorti: 1 });
+        const f = (focusInitial && focusInitial()) || boite;
+        f.focus({ preventScroll: true });
+      };
+      api.fermer = ({ rendre = true, vitesse = null } = {}) => {
+        if (!api.ouvert) return;
+        api.ouvert = false;
+        racine.style.pointerEvents = 'none';
+        const i = pile.indexOf(api);
+        if (i >= 0) pile.splice(i, 1);
+        verrouiller();
+        const o = { reponse: reponseFerme, amorti: 1 };
+        if (vitesse !== null) o.vitesse = vitesse;
+        r.cible(0, o);
+        const orig = api.origine;
+        if (rendre && orig && orig.isConnected) { try { orig.focus({ preventScroll: true }); } catch (e) { /* rien */ } }
+      };
+      racine.addEventListener('click', (e) => { if (e.target.closest('[data-cq-ferme]')) api.fermer(); });
+
+      // Feuille du bas (téléphone) : on la tire vers le bas pour la fermer, avec élan.
+      if (glisse && !reduit) {
+        const suivi = KS.suiveur();
+        let enCours = false, pid = null, y0 = 0, v0 = 1;
+        racine.addEventListener('pointerdown', (e) => {
+          if (mode !== 'bas' || !api.ouvert || e.button > 0) return;
+          if (!e.target.closest('[data-cq-glisse]') || e.target.closest('button, a, input')) return;
+          enCours = true; pid = e.pointerId; y0 = e.clientY; v0 = r.valeur;
+          suivi.vider(); suivi.ajouter(0, e.clientY);
+          r.fixer(r.valeur);                       // on attrape la feuille là où elle est
+          try { e.target.setPointerCapture(pid); } catch (er) { /* rien */ }
+        });
+        racine.addEventListener('pointermove', (e) => {
+          if (!enCours || e.pointerId !== pid) return;
+          suivi.ajouter(0, e.clientY);
+          let dy = e.clientY - y0 + (1 - v0) * H;
+          if (dy < 0) dy = -Math.pow(-dy, 0.72);  // résistance vers le haut
+          r.fixer(1 - dy / H);
+        });
+        const lacher = (e) => {
+          if (!enCours || e.pointerId !== pid) return;
+          enCours = false;
+          const vy = suivi.vitesse().y;                       // px/s, vers le bas > 0
+          const dy = (1 - r.valeur) * H;
+          const fin = dy + KS.projeter(vy);                   // où le geste s'arrêterait
+          const vitesse = -vy / H;
+          if (fin > H * 0.42 && vy > -200) api.fermer({ vitesse });
+          else r.cible(1, { vitesse, reponse, amorti: Math.abs(vy) > 500 ? 0.8 : 1 });
+        };
+        racine.addEventListener('pointerup', lacher);
+        racine.addEventListener('pointercancel', lacher);
+      }
+      return api;
+    }
+
+    const appliquerFeuille = (boite) => (v, mode, H) => {
+      if (reduit) { boite.style.transform = 'none'; boite.style.opacity = String(clamp(v)); return; }
+      if (mode === 'bas') {
+        boite.style.transform = `translate3d(0,${((1 - v) * H).toFixed(2)}px,0)`;
+        boite.style.opacity = '1';
+      } else {
+        boite.style.transform = `translate3d(0,${((1 - v) * 14).toFixed(2)}px,0) scale(${(0.94 + 0.06 * v).toFixed(4)})`;
+        boite.style.opacity = String(clamp(v * 1.6).toFixed(3));
+      }
+    };
+    const racApropos = $('#cq-apropos'), racRaccourcis = $('#cq-raccourcis'), racPalette = $('#cq-palette');
+    const apropos = fabriquerCouche(racApropos, { boite: $('.cq-feuille', racApropos), appliquer: appliquerFeuille($('.cq-feuille', racApropos)), glisse: true });
+    const raccourcis = fabriquerCouche(racRaccourcis, { boite: $('.cq-feuille', racRaccourcis), appliquer: appliquerFeuille($('.cq-feuille', racRaccourcis)), glisse: true });
+    btnApropos.addEventListener('click', () => apropos.ouvrir(btnApropos));
+
+    // ---------- Palette de commandes ----------
+    const boitePal = $('.cq-palette', racPalette);
+    const champ = $('#cq-pal-champ'), liste = $('#cq-pal-liste'), pastille = $('.cq-pal-pastille', liste), annonce = $('#cq-pal-annonce');
+    const palette = fabriquerCouche(racPalette, {
+      boite: boitePal, reponse: 0.36, reponseFerme: 0.3,
+      appliquer: (v) => {
+        if (reduit) { boitePal.style.transform = 'none'; boitePal.style.opacity = String(clamp(v)); return; }
+        boitePal.style.transform = `translate3d(0,${(-(1 - v) * 10).toFixed(2)}px,0) scale(${(0.96 + 0.04 * v).toFixed(4)})`;
+        boitePal.style.opacity = String(clamp(v * 1.7).toFixed(3));
+      },
+      focusInitial: () => champ,
+      surOuvrir: () => rendre(),
+    });
+    const rP = KS.ressort(0, { reponse: 0.3, surMaj: (v) => { pastille.style.transform = `translate3d(0,${v.toFixed(2)}px,0)`; } });
+
+    const SVG = (d, extra = '') => `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra}>${d}</svg>`;
+    const ICONES = {
+      maison: SVG('<path d="M3.5 9 10 3.5 16.5 9v7a.5.5 0 0 1-.5.5h-4v-4.5H8v4.5H4a.5.5 0 0 1-.5-.5Z"/>'),
+      film: SVG('<rect x="3" y="4.5" width="14" height="11" rx="2.6"/><path d="M8.6 7.9v4.2l3.5-2.1Z"/>'),
+      courbe: SVG('<path d="m3 14.5 4.5-4.5 3 3L17 6.5M13 6.5h4v4"/>'),
+      mouvement: SVG('<path d="M3 16C9.5 16 10.5 4 17 4"/><circle cx="10" cy="10" r="1.6" fill="currentColor" stroke="none"/>'),
+      ampoule: SVG('<path d="M7.6 14.4h4.8M8.2 17h3.6M10 3a5 5 0 0 0-3 9c.6.5 1 1.2 1 2h4c0-.8.4-1.5 1-2a5 5 0 0 0-3-9Z"/>'),
+      stream: SVG('<circle cx="10" cy="10" r="1.6" fill="currentColor" stroke="none"/><path d="M6.8 13.2a4.5 4.5 0 0 1 0-6.4M13.2 6.8a4.5 4.5 0 0 1 0 6.4M4.4 15.6a8 8 0 0 1 0-11.2M15.6 4.4a8 8 0 0 1 0 11.2"/>'),
+      goutte: SVG('<path d="M10 3s5 5.2 5 8.6a5 5 0 0 1-10 0C5 8.2 10 3 10 3Z"/>'),
+      signet: SVG('<path d="M6 3.5h8a1 1 0 0 1 1 1v12l-5-3.2-5 3.2v-12a1 1 0 0 1 1-1Z"/>'),
+      plus: SVG('<path d="M10 4.5v11M4.5 10h11"/>'),
+      theme: SVG('<circle cx="10" cy="10" r="6.5"/><path d="M10 3.5a6.5 6.5 0 0 1 0 13Z" fill="currentColor" stroke="none"/>'),
+      info: SVG('<circle cx="10" cy="10" r="7"/><path d="M10 9v4.6M10 6.4v.1"/>'),
+      clavier: SVG('<rect x="2.5" y="5.5" width="15" height="9" rx="2"/><path d="M5.6 8.6h.1M8.6 8.6h.1M11.6 8.6h.1M14.4 8.6h.1M6.6 11.5h6.8"/>'),
+      video: SVG('<circle cx="10" cy="10" r="7"/><path d="M8.5 7.3v5.4l4.2-2.7Z"/>'),
+      outil: SVG('<path d="M10 3.2l1.6 5.2 5.2 1.6-5.2 1.6-1.6 5.2-1.6-5.2-5.2-1.6 5.2-1.6Z"/>'),
+      galerie: SVG('<rect x="3.5" y="3.5" width="5.5" height="5.5" rx="1.2"/><rect x="11" y="3.5" width="5.5" height="5.5" rx="1.2"/><rect x="3.5" y="11" width="5.5" height="5.5" rx="1.2"/><rect x="11" y="11" width="5.5" height="5.5" rx="1.2"/>'),
+    };
+    const norm = (s) => String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’‘]/g, "'").toLowerCase();
+    const STATUT = { fait: 'Terminé', encours: 'En cours', arrete: 'Arrêté' };
+
+    function nouvelleIdee() {
+      allerA('idees');
+      setTimeout(() => {
+        const c = doc.getElementById('ou-champ-idee');
+        if (c) { try { c.focus({ preventScroll: true }); } catch (e) { c.focus(); } }
+      }, reduit ? 40 : 520);
+    }
+    function ouvrirProjet(id) {
+      allerA('projets');
+      setTimeout(() => {
+        const sel = `[data-projet="${window.CSS && CSS.escape ? CSS.escape(id) : id}"]`;
+        const n = doc.querySelector(sel);
+        if (n) n.click();
+      }, reduit ? 40 : 480);
+    }
+    function ouvrirLien(url) {
+      const a = el('a', { href: url, target: '_blank', rel: 'noopener noreferrer' });
+      a.style.display = 'none';
+      doc.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function elements() {
+      const D = window.KS_DONNEES || {};
+      const sections = SECTIONS.map((s) => ({
+        groupe: 'Sections', titre: s.nom, detail: 'Section', ic: ICONES[s.ic], mots: s.mots,
+        faire: () => allerA(s.id),
+      }));
+      const projets = (D.projets || []).map((p) => ({
+        groupe: 'Projets', titre: p.titre, detail: [STATUT[p.statut] || '', p.date || ''].filter(Boolean).join(' · '),
+        couleurs: p.couleurs || [], mots: [p.resume, (p.techniques || []).join(' '), p.format, p.id].join(' '),
+        faire: () => ouvrirProjet(p.id),
+      }));
+      const refs = (D.references || []).map((r) => ({
+        groupe: 'Références', titre: r.titre, detail: r.auteur, externe: true, ic: ICONES[r.cat === 'video' ? 'video' : r.cat === 'galerie' ? 'galerie' : 'outil'],
+        mots: [r.auteur, r.garde, (r.tags || []).join(' '), r.cat].join(' '),
+        faire: () => (r.lien ? ouvrirLien(r.lien) : allerA('references')),
+      }));
+      const actions = [
+        { groupe: 'Actions', titre: 'Nouvelle idée', detail: 'Boîte à idées', ic: ICONES.plus, action: true, prendFocus: true, mots: 'ajouter noter ecrire idee', faire: nouvelleIdee },
+        { groupe: 'Actions', titre: 'Changer de thème', detail: `Actuel : ${NOM_THEME[theme]}`, ic: ICONES.theme, action: true, mots: 'apparence clair sombre mode nuit jour dark light', faire: () => choisirTheme(themeSuivant(), true) },
+        { groupe: 'Actions', titre: 'À propos de Kayzx Studio', detail: 'Version 1.0', ic: ICONES.info, action: true, prendFocus: true, mots: 'version notes nouveautes bientot', faire: (o) => apropos.ouvrir(o) },
+        { groupe: 'Actions', titre: 'Raccourcis clavier', detail: '?', ic: ICONES.clavier, action: true, prendFocus: true, mots: 'touches aide clavier', faire: (o) => raccourcis.ouvrir(o) },
+      ];
+      return [['Sections', sections], ['Projets', projets], ['Références', refs], ['Actions', actions]];
+    }
+    function score(it, mots) {
+      if (!mots.length) return 1;
+      const t = norm(it.titre), tout = t + ' ' + norm(it.detail) + ' ' + norm(it.mots);
+      let s = 0;
+      for (const m of mots) {
+        if (t.startsWith(m)) s += 5;
+        else if ((' ' + t).includes(' ' + m)) s += 4;
+        else if (t.includes(m)) s += 3;
+        else if ((' ' + tout).includes(' ' + m)) s += 2;
+        else if (tout.includes(m)) s += 1;
+        else return 0;
+      }
+      return s;
+    }
+    function surligner(cible, texte, mots) {
+      const n = norm(texte);
+      let debut = -1, long = 0;
+      for (const m of mots) { const i = n.indexOf(m); if (i >= 0 && m.length > long) { debut = i; long = m.length; } }
+      if (debut < 0 || n.length !== texte.length) { cible.textContent = texte; return; }
+      cible.append(texte.slice(0, debut), el('mark', null, texte.slice(debut, debut + long)), texte.slice(debut + long));
+    }
+
+    let opts = [], actif = -1, tAnnonce = 0;
+    function rendre() {
+      const brut = champ.value.trim();
+      const mots = norm(brut).split(/\s+/).filter(Boolean);
+      liste.replaceChildren(pastille);
+      opts = [];
+      elements().forEach(([nom, items], gi) => {
+        let res = items.map((it) => ({ it, s: score(it, mots) })).filter((x) => x.s > 0);
+        if (mots.length) res.sort((a, b) => b.s - a.s);
+        if (nom === 'Références') res = res.slice(0, mots.length ? 8 : 4);
+        if (!res.length) return;
+        const g = el('div', { role: 'group', 'aria-labelledby': 'cq-pal-g' + gi });
+        g.append(el('div', { class: 'cq-pal-groupe-titre', id: 'cq-pal-g' + gi }, nom));
+        res.forEach(({ it }) => {
+          const i = opts.length;
+          const o = el('div', { class: 'cq-pal-opt', role: 'option', id: 'cq-opt-' + i, 'aria-selected': 'false', 'data-i': String(i) });
+          const ic = el('span', { class: 'cq-ic' + (it.action ? ' cq-ic-action' : '') + (it.couleurs ? ' cq-ic-projet' : ''), 'aria-hidden': 'true' });
+          if (it.couleurs) {
+            const c = it.couleurs;
+            ic.style.background = `linear-gradient(135deg, ${c[1] || c[0] || '#333'}, ${c[0] || '#111'})`;
+            const pt = el('i');
+            pt.style.background = c[2] || '#E3A83B';
+            ic.append(pt);
+          } else ic.innerHTML = it.ic || '';
+          const t = el('span', { class: 'cq-t' });
+          surligner(t, it.titre, mots);
+          o.append(ic, t);
+          if (it.detail) o.append(el('span', { class: 'cq-d' }, it.detail));
+          o.append(el('span', { class: 'cq-entree', 'aria-hidden': 'true' }, it.externe ? '↗' : '↵'));
+          g.append(o);
+          opts.push({ el: o, it });
+        });
+        liste.append(g);
+      });
+      if (!opts.length) {
+        const v = el('div', { class: 'cq-pal-vide' });
+        v.append(el('strong', null, 'Aucun résultat'), `Rien ne correspond à « ${brut} ». Essaie un nom de projet, de section ou d’auteur.`);
+        liste.append(v);
+      }
+      liste.scrollTop = 0;
+      actif = opts.length ? 0 : -1;
+      majActif(false, false);
+      clearTimeout(tAnnonce);
+      tAnnonce = setTimeout(() => {
+        annonce.textContent = opts.length ? `${opts.length} résultat${opts.length > 1 ? 's' : ''}` : 'Aucun résultat';
+      }, 350);
+    }
+    function montrer(o) {
+      const h = o.offsetTop, b = h + o.offsetHeight;
+      const prec = o.previousElementSibling;
+      const titre = prec && prec.classList.contains('cq-pal-groupe-titre') ? prec.offsetHeight : 0;
+      if (h - titre - 4 < liste.scrollTop) liste.scrollTop = Math.max(0, h - titre - 4);
+      else if (b + 6 > liste.scrollTop + liste.clientHeight) liste.scrollTop = b + 6 - liste.clientHeight;
+    }
+    function majActif(glisser, defiler) {
+      opts.forEach((o, i) => o.el.setAttribute('aria-selected', i === actif ? 'true' : 'false'));
+      const o = opts[actif];
+      if (!o) { champ.removeAttribute('aria-activedescendant'); pastille.style.opacity = '0'; return; }
+      champ.setAttribute('aria-activedescendant', o.el.id);
+      pastille.style.opacity = '1';
+      const y = o.el.offsetTop;
+      if (glisser) rP.cible(y, { amorti: 1, reponse: 0.3 }); else rP.fixer(y);
+      if (defiler) montrer(o.el);
+    }
+    function bouger(d) {
+      if (!opts.length) return;
+      actif = (actif + d + opts.length) % opts.length;
+      majActif(true, true);
+    }
+    function executer(i) {
+      const o = opts[i];
+      if (!o) return;
+      const origine = palette.origine;
+      palette.fermer({ rendre: !o.it.prendFocus });
+      o.it.faire(origine);
+    }
+    champ.addEventListener('input', rendre);
+    champ.addEventListener('keydown', (e) => {
+      if (e.isComposing) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); bouger(1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); bouger(-1); }
+      else if (e.key === 'Enter') { e.preventDefault(); executer(actif); }
+    });
+    liste.addEventListener('mousedown', (e) => e.preventDefault());   // le focus reste dans le champ
+    liste.addEventListener('pointermove', (e) => {
+      const o = e.target.closest('.cq-pal-opt');
+      if (!o) return;
+      const i = +o.dataset.i;
+      if (i !== actif) { actif = i; majActif(true, false); }
+    });
+    liste.addEventListener('click', (e) => {
+      const o = e.target.closest('.cq-pal-opt');
+      if (o) executer(+o.dataset.i);
+    });
+
+    function ouvrirPalette(texte) {
+      let origine = null;
+      const haut = pile[pile.length - 1];
+      if (haut === palette) { if (typeof texte === 'string') { champ.value = texte; rendre(); } champ.focus(); return; }
+      if (haut) { origine = haut.origine; haut.fermer({ rendre: false }); }
+      champ.value = typeof texte === 'string' ? texte : '';
+      palette.ouvrir(origine);
+      if (champ.value) champ.select();
+    }
+    btnRecherche.addEventListener('click', () => ouvrirPalette());
+    KS.ouvrirPalette = (texte) => ouvrirPalette(texte);
+
+    // ---------- Raccourcis clavier ----------
+    let gDepuis = 0;
+    doc.addEventListener('keydown', (e) => {
+      const k = e.key, haut = pile[pile.length - 1];
+      if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && (k === 'k' || k === 'K')) {
+        e.preventDefault();
+        if (haut === palette) palette.fermer(); else ouvrirPalette();
+        return;
+      }
+      if (k === 'Escape') {
+        if (haut) { e.preventDefault(); haut.fermer(); }
+        else if (popOuvert) { e.preventDefault(); popOuvert.fermer(true); }
+        return;
+      }
+      if (k === 'Tab' && haut) { pieger(e, haut.boite); return; }
+      if (haut || e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || e.repeat || estChamp(e.target)) return;
+      const kl = k.length === 1 ? k.toLowerCase() : k;
+      if (gDepuis && performance.now() - gDepuis < 1500) {
+        gDepuis = 0;
+        const dest = { p: 'projets', i: 'idees', r: 'references' }[kl];
+        if (dest) { e.preventDefault(); fermerPop(false); allerA(dest); return; }
+      }
+      gDepuis = 0;
+      if (kl === 'g') { gDepuis = performance.now(); return; }
+      if (kl === 't') { e.preventDefault(); choisirTheme(themeSuivant(), true); return; }
+      if (k === '?') { e.preventDefault(); raccourcis.ouvrir(); }
+    });
+
+    // ---------- Écran de lancement ----------
+    if (jouerLancement && L && L.isConnected) lancer();
+    function lancer() {
+      const boite = $('.cq-l-boite', L), icone = $('.cq-l-icone', L), nom = $('.cq-l-nom', L), fond = $('.cq-l-fond', L);
+      const minuteurs = [];
+      let fini = false;
+      const texte = nom.textContent.trim();
+      nom.textContent = '';
+      Array.from(texte).forEach((ch, i) => {
+        const s = el('span', null, ch === ' ' ? ' ' : ch);
+        s.style.animationDelay = (150 + i * 26) + 'ms';
+        nom.appendChild(s);
+      });
+      const rI = KS.ressort(0, { reponse: 0.46, surMaj: (v) => {
+        if (fini) return;
+        icone.style.transform = `scale(${(0.86 + 0.14 * v).toFixed(4)})`;
+        icone.style.opacity = String(clamp(v * 2.2).toFixed(3));
+      } });
+      rI.cible(1);
+
+      const voler = () => {
+        if (fini) return;
+        const ci = $('.cq-marque-icone', barre).getBoundingClientRect();
+        const cn = $('.cq-marque-nom', barre).getBoundingClientRect();
+        const a = boite.getBoundingClientRect(), b = nom.getBoundingClientRect();
+        const cx = (r) => r.left + r.width / 2, cy = (r) => r.top + r.height / 2;
+        const dI = { x: cx(ci) - cx(a), y: cy(ci) - cy(a), s: ci.width / a.width };
+        const nomVu = cn.width > 0 && b.width > 0;
+        const dN = nomVu ? { x: cx(cn) - cx(b), y: cy(cn) - cy(b), s: cn.width / b.width } : { x: dI.x, y: dI.y, s: 0.3 };
+        const rV = KS.ressort(0, { reponse: 0.4, surMaj: (q, r) => {
+          if (fini) return;
+          boite.style.transform = `translate3d(${(dI.x * q).toFixed(2)}px,${(dI.y * q).toFixed(2)}px,0) scale(${(1 + (dI.s - 1) * q).toFixed(4)})`;
+          nom.style.transform = `translate3d(${(dN.x * q).toFixed(2)}px,${(dN.y * q).toFixed(2)}px,0) scale(${(1 + (dN.s - 1) * q).toFixed(4)})`;
+          if (!nomVu) nom.style.opacity = String(clamp(1 - q * 1.5).toFixed(3));
+          fond.style.opacity = String(clamp(1 - q * 1.35).toFixed(3));
+          if (q === 1 && r.vitesse === 0) finir(false);
+        } });
+        rV.cible(1);
+      };
+      const passer = () => finir(true);
+      const types = ['pointerdown', 'keydown', 'wheel', 'touchstart'];
+      function finir(rapide) {
+        if (fini) return;
+        fini = true;
+        minuteurs.forEach(clearTimeout);
+        types.forEach((t) => removeEventListener(t, passer, true));
+        barre.classList.remove('cq-en-lancement');
+        if (rapide) {
+          L.style.transition = 'opacity .18s ease';
+          L.style.opacity = '0';
+          L.style.pointerEvents = 'none';
+          setTimeout(() => L.remove(), 220);
+        } else L.remove();
+      }
+      types.forEach((t) => addEventListener(t, passer, { capture: true, passive: true }));
+      minuteurs.push(setTimeout(voler, 700), setTimeout(() => finir(false), 1360));
+    }
+  }
+
+  if (window.KS && window.KS.ressort) init();
+  else {
+    doc.addEventListener('DOMContentLoaded', init);
+    addEventListener('load', init);
+  }
+})();
+</script>

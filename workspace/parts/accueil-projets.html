@@ -1,0 +1,899 @@
+<style>
+/* ===== Kayzx Studio — accueil, projets, progression (préfixe ap-) ===== */
+.ap-sr { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* --- Héros --- */
+#accueil { position: relative; padding: 120px 0 88px; text-align: center; background: var(--bg); overflow: hidden; overflow: clip; }
+.ap-titre { font-size: clamp(48px, 9vw, 96px); font-weight: 700; letter-spacing: -.035em; line-height: 1.02; margin: 0; text-wrap: balance; }
+.ap-mot { display: inline-block; }
+#accueil .sous-titre { margin: 16px auto 0; max-width: 28em; }
+.ap-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 16px 28px; margin-top: 32px; }
+
+.ap-scene { position: relative; max-width: 820px; margin: 64px auto 0; padding-inline: 22px; perspective: 1600px; perspective-origin: 50% 20%; }
+.ap-scene::before { content: ""; position: absolute; left: 6%; right: 6%; top: 18%; bottom: -14%; pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 16%, transparent), transparent); opacity: .8; }
+.ap-pile { position: relative; width: min(640px, 100%); margin: 0 auto; transform-style: preserve-3d; transform: rotateX(4deg); }
+.ap-souffle { position: relative; transform-style: preserve-3d; animation: ap-souffle 7s ease-in-out infinite alternate; }
+@keyframes ap-souffle { from { transform: translate3d(0, 0, 0) rotateX(0deg); } to { transform: translate3d(0, -10px, 0) rotateX(1.6deg); } }
+.ap-ecran { position: relative; aspect-ratio: 16 / 9; border-radius: var(--rayon-s); overflow: hidden; background: var(--bg-3); box-shadow: var(--ombre); container-type: inline-size; }
+.ap-ecran::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--line); pointer-events: none; }
+.ap-ecran.ap-avant { transform: translateZ(40px); }
+.ap-ecran.ap-g, .ap-ecran.ap-d { position: absolute; inset: 0; }
+.ap-ecran.ap-g { transform: translate3d(-23%, -10%, -140px) rotateY(12deg); }
+.ap-ecran.ap-d { transform: translate3d(23%, -6%, -200px) rotateY(-12deg); }
+.ap-ecran > img, .ap-ecran > video, .ap-media > img, .ap-media > video, .ap-fiche-media > img, .ap-fiche-media > video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.ap-ecran > video, .ap-media > video { opacity: 0; transition: opacity .4s ease; }
+.ap-ecran > video.ap-joue, .ap-media > video.ap-joue { opacity: 1; }
+.ap-etiquette { position: absolute; left: 12px; bottom: 12px; z-index: 1; padding: 5px 11px; border-radius: 980px; font-size: 12px; font-weight: 500; letter-spacing: -.01em; color: var(--fg);
+  background: var(--verre); border: 1px solid var(--line); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); white-space: nowrap; }
+
+.ap-chiffres { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); max-width: 880px; margin: 72px auto 0; padding: 0 22px; }
+.ap-chiffres li { padding: 4px 12px; border-left: 1px solid var(--line); }
+.ap-chiffres li:first-child { border-left: 0; }
+.ap-chiffre-val { display: block; font-size: clamp(28px, 4vw, 40px); font-weight: 600; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ap-chiffre-lib { display: block; margin-top: 6px; font-size: 14px; line-height: 1.3; color: var(--fg-2); }
+
+/* --- Affiche abstraite (projets gardés hors ligne) --- */
+.ap-affiche { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: flex-start; padding: 5cqi 5.5cqi; color: var(--accent-fg); text-align: left; background-color: var(--bg-3); }
+.ap-hors-ligne { display: inline-flex; padding: .45em .95em; border-radius: 980px; font-size: clamp(10px, 2.3cqi, 14px); font-weight: 500; letter-spacing: -.01em;
+  background: color-mix(in srgb, var(--accent-fg) 16%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.ap-affiche-bas { margin-top: auto; display: flex; flex-direction: column; gap: 1.2cqi; max-width: 88%; }
+.ap-affiche-duree { font-size: clamp(22px, 9cqi, 76px); font-weight: 700; letter-spacing: -.045em; line-height: .95; font-variant-numeric: tabular-nums; }
+.ap-affiche-titre { font-size: clamp(13px, 4.4cqi, 32px); font-weight: 600; letter-spacing: -.025em; line-height: 1.1; opacity: .92; }
+
+/* --- Projets --- */
+.ap-barre { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; margin: 40px 0 28px; }
+.ap-segment { --ap-piste: var(--bg-3); --ap-pouce: var(--bg); position: relative; display: inline-grid; grid-template-columns: repeat(3, 1fr); padding: 3px; border-radius: 980px; background: var(--ap-piste); isolation: isolate; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ap-segment { --ap-piste: var(--bg); --ap-pouce: var(--bg-3); } }
+:root[data-theme="dark"] .ap-segment { --ap-piste: var(--bg); --ap-pouce: var(--bg-3); }
+.ap-segment-pouce { position: absolute; z-index: -1; top: 3px; bottom: 3px; left: 3px; width: calc((100% - 6px) / 3); border-radius: 980px; background: var(--ap-pouce);
+  box-shadow: 0 0 0 .5px var(--line), 0 3px 8px var(--line); will-change: transform; }
+.ap-segment button { appearance: none; border: 0; background: none; margin: 0; min-width: 96px; padding: 8px 18px; border-radius: 980px; cursor: pointer;
+  font: 500 14px/1.2 var(--police); letter-spacing: -.01em; color: var(--fg-2); -webkit-tap-highlight-color: transparent; }
+.ap-segment button[aria-pressed="true"] { color: var(--fg); }
+.ap-segment button:focus-visible { outline-offset: -2px; border-radius: 980px; }
+.ap-compte { margin: 0; font-size: 14px; color: var(--fg-2); }
+
+.ap-grille { position: relative; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); gap: 24px; }
+.ap-cellule, .ap-monte { height: 100%; }
+.ap-cellule[hidden] { display: none; }
+.ap-cellule.ap-sort { position: absolute; pointer-events: none; }
+.ap-carte { position: relative; display: flex; flex-direction: column; height: 100%; background: var(--bg); border-radius: var(--rayon); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.ap-carte::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: var(--ombre); opacity: 0; transition: opacity .35s ease; pointer-events: none; }
+@media (hover: hover) { .ap-carte:hover::after { opacity: 1; } }
+.ap-media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--rayon) var(--rayon) 0 0; background: var(--bg-3); container-type: inline-size; }
+.ap-carte-texte { display: flex; flex-direction: column; align-items: flex-start; flex: 1; padding: 20px 24px 24px; }
+.ap-carte-titre { font-size: 21px; font-weight: 600; letter-spacing: -.02em; line-height: 1.19; margin: 12px 0 4px; }
+.ap-meta { margin: 0; font-size: 14px; color: var(--fg-2); }
+.ap-resume { margin: 10px 0 18px; font-size: 15px; line-height: 1.45; color: var(--fg); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.ap-voir { margin-top: auto; font-size: 15px; }
+.ap-voir::before { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: var(--rayon); }
+.ap-voir:focus-visible { outline: none; }
+.ap-voir:focus-visible::before { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* --- Fiche projet (feuille modale) --- */
+.ap-fiche-racine { position: fixed; inset: 0; z-index: 80; }
+.ap-fiche-racine[hidden] { display: none; }
+.ap-fiche-racine.ap-ferme { pointer-events: none; }
+.ap-voile { position: absolute; inset: 0; background: var(--scrim); opacity: 0; }
+.ap-fiche { position: absolute; left: 0; right: 0; top: 40px; margin: 0 auto; width: min(760px, calc(100% - 48px)); max-height: calc(100% - 80px);
+  display: flex; flex-direction: column; background: var(--bg); border-radius: var(--rayon); box-shadow: var(--ombre), 0 0 0 1px var(--line);
+  transform-origin: 0 0; will-change: transform, opacity; outline: none; text-align: left; }
+.ap-reduit .ap-fiche, .ap-reduit .ap-voile { transition: opacity .2s ease; }
+.ap-fiche-tete { position: relative; flex: none; height: 56px; }
+.ap-prise { position: absolute; inset: 0 64px 0 0; touch-action: none; cursor: grab; }
+.ap-prise:active { cursor: grabbing; }
+.ap-poignee { position: absolute; top: 8px; left: calc(50% + 32px); width: 36px; height: 5px; margin-left: -18px; border-radius: 3px; background: color-mix(in srgb, var(--fg) 22%, transparent); }
+.ap-fermer { position: absolute; top: 12px; right: 14px; z-index: 1; }
+.ap-fermer svg { display: block; }
+.ap-fiche-defile { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-radius: 0 0 var(--rayon) var(--rayon); -webkit-overflow-scrolling: touch; }
+.ap-fiche-corps { padding: 0 40px 44px; }
+.ap-fiche-media { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--rayon-s); background: var(--bg-3); container-type: inline-size; }
+.ap-fiche-media > video { object-fit: contain; background: var(--bg-3); }
+.ap-fiche-pastilles { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 14px; }
+.ap-fiche-titre { font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -.03em; line-height: 1.08; margin: 0; text-wrap: balance; }
+.ap-fiche-resume { margin: 12px 0 0; font-size: 19px; line-height: 1.42; color: var(--fg-2); }
+.ap-fiche-chiffres { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 32px 0 0; }
+.ap-fiche-chiffre { display: flex; flex-direction: column-reverse; justify-content: flex-end; margin: 0; padding: 18px 18px 16px; border-radius: var(--rayon-s); background: var(--bg-2); }
+.ap-fiche-chiffre dd { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.ap-fiche-chiffre dt { margin-top: 4px; font-size: 13px; color: var(--fg-2); }
+.ap-fiche-corps h3 { font-size: 21px; font-weight: 600; letter-spacing: -.02em; line-height: 1.2; margin: 40px 0 14px; }
+.ap-tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.ap-appris { margin: 0; padding-left: 1.2em; }
+.ap-appris li { margin: 0 0 8px; padding-left: .2em; }
+.ap-appris li::marker { color: var(--fg-2); }
+.ap-prompt { margin: 0; padding: 18px 20px; border-radius: var(--rayon-s); background: var(--bg-2); color: var(--fg); font: 14px/1.6 var(--mono); letter-spacing: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ap-prompt-actions { display: flex; align-items: center; gap: 16px; margin-top: 14px; }
+.ap-prompt-aide { margin: 0; font-size: 14px; color: var(--fg-2); }
+
+/* --- Progression : frise --- */
+#progression { overflow: hidden; overflow: clip; }
+.ap-frise-vue { margin-top: 48px; padding: 8px max(22px, calc((100% - var(--large)) / 2 + 22px)) 12px; overflow: hidden; touch-action: pan-y; cursor: grab;
+  -webkit-user-select: none; user-select: none; }
+.ap-frise-vue.ap-tire { cursor: grabbing; }
+.ap-frise-vue:focus-visible { outline-offset: -3px; border-radius: var(--rayon); }
+.ap-rail { position: relative; display: flex; gap: 20px; width: max-content; margin: 0; padding: 0; list-style: none; will-change: transform; }
+.ap-rail::before { content: ""; position: absolute; left: 0; right: 0; top: 5px; height: 1px; background: var(--line); }
+.ap-etape { position: relative; display: flex; flex-direction: column; flex: none; width: min(280px, 74vw); padding-top: 30px; }
+.ap-point { position: absolute; top: 0; left: 26px; width: 11px; height: 11px; border-radius: 50%; background: var(--bg); box-shadow: inset 0 0 0 2px var(--fg-2); }
+.ap-etape-carte { flex: 1; padding: 24px; border-radius: var(--rayon); background: var(--bg-2); }
+.ap-quand { margin: 0; color: var(--fg-2); }
+.ap-etape-titre { margin: 10px 0 6px; font-size: 19px; font-weight: 600; letter-spacing: -.02em; line-height: 1.21; }
+.ap-etape-texte { margin: 0; font-size: 15px; line-height: 1.45; color: var(--fg-2); }
+.ap-derniere .ap-point { background: var(--accent); box-shadow: none; }
+.ap-derniere .ap-point::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; background: var(--accent); opacity: 0; animation: ap-pouls 2.6s ease-out infinite; }
+@keyframes ap-pouls { 0% { transform: scale(.5); opacity: .45; } 70%, 100% { transform: scale(1.9); opacity: 0; } }
+.ap-derniere .ap-etape-carte { box-shadow: inset 0 0 0 1.5px var(--accent); }
+.ap-derniere .ap-quand { color: var(--accent); }
+.ap-frise-nav { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.ap-frise-nav .rond[aria-disabled="true"] { opacity: .4; cursor: default; }
+.ap-frise-nav svg { display: block; }
+
+@media (max-width: 699px) {
+  .ap-fiche { top: auto; bottom: 0; width: 100%; max-height: calc(100% - 44px); border-radius: var(--rayon) var(--rayon) 0 0; }
+  .ap-fiche-defile { border-radius: 0; }
+  .ap-fiche-corps { padding: 0 22px calc(36px + env(safe-area-inset-bottom, 0px)); }
+  .ap-fiche-chiffres { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .ap-chiffres { grid-template-columns: repeat(2, 1fr); row-gap: 28px; margin-top: 56px; }
+  .ap-chiffres li:nth-child(3) { border-left: 0; }
+  .ap-scene { margin-top: 48px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ap-souffle, .ap-derniere .ap-point::after { animation: none; }
+  .ap-carte::after, .ap-ecran > video, .ap-media > video { transition: none; }
+}
+</style>
+
+<section id="accueil" aria-labelledby="ap-titre">
+  <div class="enveloppe">
+    <p class="surtitre" id="ap-surtitre">Espace de travail</p>
+    <h1 class="ap-titre" id="ap-titre">Kayzx Studio.</h1>
+    <p class="sous-titre" id="ap-sous">Tes motions, tes références et tes idées. Au même endroit.</p>
+    <div class="ap-actions" id="ap-actions">
+      <a class="bouton" href="#projets">Voir les projets</a>
+      <a class="lien" href="#idees">Ajouter une idée</a>
+    </div>
+  </div>
+  <div class="ap-scene" id="ap-scene" aria-hidden="true">
+    <div class="ap-pile" id="ap-pile"><div class="ap-souffle" id="ap-souffle"></div></div>
+  </div>
+  <ul class="ap-chiffres" id="ap-chiffres" aria-label="Le studio en chiffres"></ul>
+</section>
+
+<section id="projets" class="section alt" aria-labelledby="ap-projets-titre">
+  <div class="enveloppe">
+    <div class="ap-entete" id="ap-projets-entete">
+      <p class="surtitre">Projets</p>
+      <h2 class="titre-section" id="ap-projets-titre">Tout ce qu'on a fait.</h2>
+      <p class="sous-titre">Chaque motion avec sa vidéo, ses chiffres, ce qu'on a appris et le prompt pour le relancer.</p>
+    </div>
+    <div class="ap-barre" id="ap-barre">
+      <div class="ap-segment" id="ap-segment" role="group" aria-label="Filtrer les projets">
+        <span class="ap-segment-pouce" id="ap-pouce" aria-hidden="true"></span>
+        <button type="button" data-filtre="tous" aria-pressed="true">Tous</button>
+        <button type="button" data-filtre="fait" aria-pressed="false">Terminés</button>
+        <button type="button" data-filtre="arrete" aria-pressed="false">Arrêtés</button>
+      </div>
+      <p class="ap-compte" id="ap-compte" aria-live="polite"></p>
+    </div>
+    <div class="ap-grille" id="ap-grille"></div>
+  </div>
+</section>
+
+<section id="progression" class="section" aria-labelledby="ap-prog-titre">
+  <div class="enveloppe">
+    <div class="ap-entete" id="ap-prog-entete">
+      <p class="surtitre">Progression</p>
+      <h2 class="titre-section" id="ap-prog-titre">Deux jours, cinq projets.</h2>
+      <p class="sous-titre">De la première intro à cet espace de travail, étape par étape. Fais glisser la frise.</p>
+    </div>
+  </div>
+  <div class="ap-frise-vue" id="ap-frise-vue" tabindex="0" role="region" aria-roledescription="frise" aria-label="Étapes, de la plus ancienne à la plus récente. Flèches gauche et droite pour avancer.">
+    <ol class="ap-rail" id="ap-rail"></ol>
+  </div>
+  <div class="enveloppe ap-frise-nav">
+    <button type="button" class="rond" id="ap-prec" aria-label="Étape précédente" aria-controls="ap-rail"><svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true"><path d="M8 2 2 8l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <button type="button" class="rond" id="ap-suiv" aria-label="Étape suivante" aria-controls="ap-rail"><svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true"><path d="m2 2 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+</section>
+
+<script>
+(() => {
+  'use strict';
+  const KS = window.KS, D = window.KS_DONNEES;
+  if (!KS || !D) return;
+  const M = window.KS_MEDIAS || {};
+  const reduit = !!KS.reduit;
+  const $ = (s, r = document) => r.querySelector(s);
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  function el(tag, cls, txt) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt != null) e.textContent = txt;
+    return e;
+  }
+  const projets = D.projets || [], frise = D.frise || [], refs = D.references || [];
+  const parId = (id) => projets.find((p) => p.id === id);
+  const milliers = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  function secondes(t) {
+    const s = String(t || '');
+    const m = /(\d+)\s*min(?:\s*(\d+))?/.exec(s);
+    if (m) return (+m[1]) * 60 + (+(m[2] || 0));
+    const x = /(\d+(?:[.,]\d+)?)\s*s(?![a-zà-ÿ])/i.exec(s);
+    return x ? parseFloat(x[1].replace(',', '.')) : 0;
+  }
+  const enMinutes = (t) => { const s = Math.round(t); return `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, '0')}`; };
+
+  /* ---------- Médias ---------- */
+  function afficheAbstraite(p, mention = true) {
+    const c = p.couleurs && p.couleurs.length ? p.couleurs : ['var(--bg-3)'];
+    const [c0, c1 = c0, c2 = c1, c3 = c2] = c;
+    const mix = (x, pc) => `color-mix(in srgb, ${x} ${pc}%, transparent)`;
+    const a = el('div', 'ap-affiche');
+    a.style.background = [
+      `linear-gradient(to top, ${mix(c0, 80)} 0%, transparent 58%)`,
+      `radial-gradient(75% 95% at 10% 6%, ${mix(c1, 95)} 0%, transparent 70%)`,
+      `radial-gradient(80% 100% at 98% 98%, ${mix(c2, 88)} 0%, transparent 66%)`,
+      `radial-gradient(42% 58% at 84% 12%, ${mix(c3, 45)} 0%, transparent 72%)`,
+      c0,
+    ].join(', ');
+    if (mention) a.append(el('span', 'ap-hors-ligne', 'Vidéo gardée hors ligne'));
+    const bas = el('div', 'ap-affiche-bas');
+    bas.append(el('span', 'ap-affiche-duree', p.duree), el('span', 'ap-affiche-titre', p.titre));
+    a.append(bas);
+    return a;
+  }
+  // mode : 'heros' (lecture auto), 'carte' (lecture au survol), 'fiche' (contrôles), 'image' (affiche seule)
+  function remplirMedia(boite, p, mode) {
+    const m = p.media ? M[p.media] : null;
+    if (!m || (!m.affiche && !m.video)) { boite.append(afficheAbstraite(p, true)); return null; }
+    if (m.affiche) {
+      const img = el('img');
+      img.alt = '';
+      img.decoding = 'async';
+      if (mode !== 'heros' && mode !== 'image') img.loading = 'lazy';
+      img.src = m.affiche;
+      boite.append(img);
+    }
+    let v = null;
+    if (m.video && mode === 'fiche') {
+      v = el('video');
+      v.controls = true; v.playsInline = true; v.preload = 'metadata';
+      v.setAttribute('playsinline', '');
+      if (m.affiche) v.poster = m.affiche;
+      v.setAttribute('aria-label', 'Vidéo : ' + p.titre);
+      v.src = m.video;
+      boite.append(v);
+    } else if (m.video && !reduit && (mode === 'heros' || mode === 'carte')) {
+      v = el('video');
+      v.muted = true; v.loop = true; v.playsInline = true;
+      v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
+      v.tabIndex = -1;
+      v.addEventListener('playing', () => v.classList.add('ap-joue'));
+      if (mode === 'heros') {
+        v.autoplay = true; v.preload = 'auto';
+        if (m.affiche) v.poster = m.affiche;
+        v.src = m.video;
+      } else {
+        v.preload = 'none';
+        v.dataset.src = m.video;
+        if (!m.affiche) { v.preload = 'metadata'; v.src = m.video; v.classList.add('ap-joue'); }
+      }
+      boite.append(v);
+    }
+    if (!m.affiche && !v) boite.append(afficheAbstraite(p, false));
+    return v;
+  }
+  function pastilleEtat(p) {
+    const fait = p.statut === 'fait';
+    const s = el('span', 'pastille' + (fait ? ' fait' : ''));
+    s.append(el('i'), document.createTextNode(fait ? 'Terminé' : 'Arrêté'));
+    return s;
+  }
+
+  /* ---------- 1. Héros ---------- */
+  const accueil = $('#accueil'), titre = $('#ap-titre'), scene = $('#ap-scene'), pile = $('#ap-pile'), souffle = $('#ap-souffle');
+  const mots = titre.textContent.trim().split(/\s+/);
+  titre.textContent = '';
+  const motsEl = mots.map((m, i) => {
+    const s = el('span', 'ap-mot', m);
+    if (i) titre.append(document.createTextNode(' '));
+    titre.append(s);
+    return s;
+  });
+
+  function ecran(cls, p, mode, etiquette) {
+    if (!p) return null;
+    const e = el('div', 'ap-ecran ' + cls);
+    const v = remplirMedia(e, p, mode);
+    if (etiquette) e.append(el('span', 'ap-etiquette', etiquette));
+    souffle.append(e);
+    return v;
+  }
+  const pAtt = parId('attente'), pGta = parId('gta'), pIntro = parId('intro');
+  ecran('ap-g', pAtt, 'image', pAtt && `${pAtt.titre} · ${pAtt.duree}`);
+  ecran('ap-d', pGta, 'image', null);
+  const videoHeros = ecran('ap-avant', pIntro, 'heros', pIntro && `${pIntro.titre} · ${pIntro.duree}`);
+  if (videoHeros) { const essai = videoHeros.play(); if (essai && essai.catch) essai.catch(() => {}); }
+
+  // Inclinaison de la pile vers le pointeur
+  const inclX = KS.ressort(0, { reponse: 0.7, surMaj: peindrePile });
+  const inclY = KS.ressort(0, { reponse: 0.7, surMaj: peindrePile });
+  function peindrePile() {
+    pile.style.transform = `rotateX(${(4 + inclX.valeur).toFixed(3)}deg) rotateY(${inclY.valeur.toFixed(3)}deg)`;
+  }
+  if (!reduit) {
+    accueil.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const r = scene.getBoundingClientRect();
+      const nx = clamp((e.clientX - (r.left + r.width / 2)) / (r.width / 2), -1, 1);
+      const ny = clamp((e.clientY - (r.top + r.height / 2)) / Math.max(200, innerHeight / 2), -1, 1);
+      inclY.cible(nx * 9);
+      inclX.cible(-ny * 6);
+    });
+    accueil.addEventListener('pointerleave', () => { inclX.cible(0); inclY.cible(0); });
+  }
+
+  // Chiffres calculés
+  const termines = projets.filter((p) => p.statut === 'fait');
+  const stats = [
+    { v: projets.length, f: (n) => String(Math.round(n)), lib: projets.length > 1 ? 'projets' : 'projet' },
+    { v: termines.reduce((s, p) => s + secondes(p.duree), 0), f: enMinutes, lib: 'de vidéo terminée' },
+    { v: projets.reduce((s, p) => s + (+p.images || 0), 0), f: milliers, lib: 'images finales' },
+    { v: refs.length, f: (n) => String(Math.round(n)), lib: 'références gardées' },
+  ];
+  const listeChiffres = $('#ap-chiffres');
+  const valeursEl = stats.map((s) => {
+    const li = el('li');
+    const val = el('span', 'ap-chiffre-val tab', s.f(s.v));
+    val.setAttribute('aria-hidden', 'true');
+    const lib = el('span', 'ap-chiffre-lib', s.lib);
+    lib.setAttribute('aria-hidden', 'true');
+    li.append(val, lib, el('span', 'ap-sr', `${s.f(s.v)} ${s.lib}`));
+    listeChiffres.append(li);
+    return val;
+  });
+
+  // Arrivée (au chargement uniquement)
+  function arrivee(cible, retard, dy) {
+    if (reduit || !cible) return;
+    const r = KS.ressort(1, { reponse: 0.5, surMaj: (v) => {
+      const actif = v > 0.0005;
+      cible.style.transform = actif ? `translate3d(0, ${(v * dy).toFixed(2)}px, 0)` : '';
+      cible.style.opacity = actif ? String(clamp(1 - v, 0, 1)) : '';
+    } });
+    r.fixer(1);
+    setTimeout(() => r.cible(0), retard);
+  }
+  motsEl.forEach((m, i) => arrivee(m, i * 90, 36));
+  arrivee($('#ap-surtitre'), 0, 14);
+  arrivee($('#ap-sous'), 160, 18);
+  arrivee($('#ap-actions'), 230, 18);
+  arrivee(scene, 280, 48);
+  if (!reduit) {
+    const compte = KS.ressort(0, { reponse: 1.0, surMaj: (v) => stats.forEach((s, i) => { valeursEl[i].textContent = s.f(s.v * clamp(v, 0, 1)); }) });
+    compte.fixer(0);
+    setTimeout(() => compte.cible(1), 200);
+  }
+
+  /* ---------- 2. Projets ---------- */
+  const grille = $('#ap-grille'), compteEl = $('#ap-compte'), pouceEl = $('#ap-pouce');
+  const boutonsFiltre = [...document.querySelectorAll('#ap-segment button')];
+  const filtres = boutonsFiltre.map((b) => b.dataset.filtre);
+  let filtre = 'tous';
+  const correspond = (p, f) => f === 'tous' || p.statut === f;
+  const pouce = KS.ressort(0, { reponse: 0.42, surMaj: (v) => { pouceEl.style.transform = Math.abs(v) > 0.0001 ? `translateX(${(v * 100).toFixed(3)}%)` : ''; } });
+
+  function jouer(c) {
+    if (reduit || !c.video || F.carte === c && F.ouverte) return;
+    if (!c.video.getAttribute('src') && c.video.dataset.src) c.video.src = c.video.dataset.src;
+    const e = c.video.play();
+    if (e && e.catch) e.catch(() => {});
+  }
+  function arreter(c) { if (c.video && !c.video.paused) c.video.pause(); }
+
+  function creerCarte(p) {
+    const cell = el('div', 'ap-cellule');
+    const monte = el('div', 'ap-monte');
+    const art = el('article', 'ap-carte');
+    art.dataset.projet = p.id;
+    const idT = 'ap-ct-' + p.id;
+    art.setAttribute('aria-labelledby', idT);
+    const media = el('div', 'ap-media');
+    const video = remplirMedia(media, p, 'carte');
+    if (video) video.addEventListener('pause', () => video.classList.remove('ap-joue'));
+    const txt = el('div', 'ap-carte-texte');
+    const h = el('h3', 'ap-carte-titre', p.titre);
+    h.id = idT;
+    const voir = el('button', 'lien ap-voir', 'Voir la fiche');
+    voir.type = 'button';
+    voir.setAttribute('aria-haspopup', 'dialog');
+    voir.setAttribute('aria-label', 'Voir la fiche : ' + p.titre);
+    txt.append(pastilleEtat(p), h, el('p', 'ap-meta', [p.date, p.duree, p.format].filter(Boolean).join(' · ')), el('p', 'ap-resume', p.resume), voir);
+    art.append(media, txt);
+    monte.append(art);
+    cell.append(monte);
+    grille.append(cell);
+
+    const c = { p, cell, monte, art, voir, video, sort: false };
+    const peindreCell = () => {
+      const x = c.tx.valeur, y = c.ty.valeur, s = c.es.valeur, o = c.eo.valeur;
+      cell.style.transform = (Math.abs(x) > 0.01 || Math.abs(y) > 0.01 || Math.abs(s - 1) > 0.0001) ? `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${s.toFixed(4)})` : '';
+      cell.style.opacity = o >= 0.9999 ? '' : clamp(o, 0, 1).toFixed(3);
+    };
+    const peindreArt = () => {
+      const rx = c.rx.valeur, ry = c.ry.valeur, s = c.s.valeur;
+      art.style.transform = (Math.abs(rx) > 0.001 || Math.abs(ry) > 0.001 || Math.abs(s - 1) > 0.0001) ? `perspective(1000px) rotateX(${rx.toFixed(3)}deg) rotateY(${ry.toFixed(3)}deg) scale(${s.toFixed(4)})` : '';
+    };
+    c.tx = KS.ressort(0, { reponse: 0.5, surMaj: peindreCell });
+    c.ty = KS.ressort(0, { reponse: 0.5, surMaj: peindreCell });
+    c.es = KS.ressort(1, { reponse: 0.4, surMaj: peindreCell });
+    c.eo = KS.ressort(1, { reponse: 0.3, surMaj: (v, r) => {
+      peindreCell();
+      if (c.sort && r.but === 0 && r.vitesse === 0 && v === 0) cacher(c);
+    } });
+    c.rx = KS.ressort(0, { reponse: 0.5, surMaj: peindreArt });
+    c.ry = KS.ressort(0, { reponse: 0.5, surMaj: peindreArt });
+    c.s = KS.ressort(1, { reponse: 0.3, surMaj: peindreArt });
+    c.peindreCell = peindreCell;
+
+    art.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') jouer(c); });
+    art.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || reduit || F.ouverte) return;
+      const r = art.getBoundingClientRect();
+      const nx = (e.clientX - r.left) / r.width - 0.5, ny = (e.clientY - r.top) / r.height - 0.5;
+      c.ry.cible(nx * 5, { reponse: 0.5 });
+      c.rx.cible(-ny * 5, { reponse: 0.5 });
+    });
+    art.addEventListener('pointerleave', () => {
+      c.rx.cible(0, { reponse: 0.6 }); c.ry.cible(0, { reponse: 0.6 });
+      c.s.cible(1, { reponse: 0.35 });
+      arreter(c);
+    });
+    art.addEventListener('pointerdown', (e) => { if (e.button === 0) c.s.cible(0.97, { reponse: 0.15 }); });
+    const relache = () => c.s.cible(1, { reponse: 0.35 });
+    art.addEventListener('pointerup', relache);
+    art.addEventListener('pointercancel', relache);
+    voir.addEventListener('click', () => ouvrir(c));
+    return c;
+  }
+
+  function cacher(c) {
+    c.sort = false;
+    c.cell.hidden = true;
+    c.cell.classList.remove('ap-sort');
+    c.cell.style.left = c.cell.style.top = c.cell.style.width = c.cell.style.height = '';
+    arreter(c);
+  }
+
+  function majCompte() {
+    const n = cartes.filter((c) => correspond(c.p, filtre)).length;
+    compteEl.textContent = `${n} projet${n > 1 ? 's' : ''}`;
+  }
+
+  function filtrer(f) {
+    if (f === filtre || !filtres.includes(f)) return;
+    filtre = f;
+    boutonsFiltre.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filtre === f)));
+    pouce.cible(filtres.indexOf(f), { reponse: 0.42 });
+    // FLIP : positions affichées avant le changement
+    const avant = new Map();
+    for (const c of cartes) {
+      if (c.cell.hidden) continue;
+      avant.set(c, { x: c.cell.offsetLeft + c.tx.valeur, y: c.cell.offsetTop + c.ty.valeur, w: c.cell.offsetWidth, h: c.cell.offsetHeight });
+    }
+    const sortantes = [];
+    for (const c of cartes) {
+      if (correspond(c.p, f)) {
+        c.sort = false;
+        c.cell.hidden = false;
+        c.cell.inert = false;
+        c.cell.classList.remove('ap-sort');
+        c.cell.style.left = c.cell.style.top = c.cell.style.width = c.cell.style.height = '';
+      } else if (!c.cell.hidden) sortantes.push(c);
+    }
+    for (const c of sortantes) {
+      const a = avant.get(c);
+      c.sort = true;
+      c.cell.inert = true;
+      c.cell.classList.add('ap-sort');
+      Object.assign(c.cell.style, { left: a.x + 'px', top: a.y + 'px', width: a.w + 'px', height: a.h + 'px' });
+      c.tx.fixer(0); c.ty.fixer(0);
+      arreter(c);
+    }
+    // Dernière position : on repart de la valeur affichée
+    for (const c of cartes) {
+      if (c.sort || c.cell.hidden) continue;
+      const a = avant.get(c);
+      if (a) {
+        c.tx.valeur = a.x - c.cell.offsetLeft;
+        c.ty.valeur = a.y - c.cell.offsetTop;
+        c.tx.cible(0, { reponse: 0.5 });
+        c.ty.cible(0, { reponse: 0.5 });
+      } else {
+        c.tx.fixer(0); c.ty.fixer(0);
+        c.es.valeur = 0.92; c.eo.valeur = 0;
+      }
+      c.peindreCell();
+      c.es.cible(1, { reponse: 0.45 });
+      c.eo.cible(1, { reponse: 0.35 });
+    }
+    for (const c of sortantes) {
+      c.es.cible(0.92, { reponse: 0.3 });
+      c.eo.cible(0, { reponse: 0.25 });
+    }
+    majCompte();
+  }
+
+  const cartes = projets.map(creerCarte);
+  majCompte();
+  boutonsFiltre.forEach((b, i) => {
+    b.addEventListener('click', () => filtrer(b.dataset.filtre));
+    b.addEventListener('keydown', (e) => {
+      const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      const n = boutonsFiltre[(i + d + boutonsFiltre.length) % boutonsFiltre.length];
+      n.focus();
+      filtrer(n.dataset.filtre);
+    });
+  });
+
+  /* ---------- Fiche projet ---------- */
+  const racine = el('div', 'ap-fiche-racine' + (reduit ? ' ap-reduit' : ''));
+  racine.hidden = true;
+  racine.innerHTML =
+    '<div class="ap-voile"></div>' +
+    '<div class="ap-fiche" role="dialog" aria-modal="true" aria-labelledby="ap-fiche-titre" tabindex="-1">' +
+      '<div class="ap-fiche-tete"><div class="ap-prise" aria-hidden="true"><span class="ap-poignee"></span></div>' +
+      '<button type="button" class="rond ap-fermer" aria-label="Fermer la fiche"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M1.5 1.5l9 9M10.5 1.5l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>' +
+      '<div class="ap-fiche-defile"><div class="ap-fiche-corps"></div></div>' +
+    '</div>';
+  document.body.appendChild(racine);
+  const voile = $('.ap-voile', racine), feuille = $('.ap-fiche', racine), tete = $('.ap-fiche-tete', racine);
+  const prise = $('.ap-prise', racine), boutonFermer = $('.ap-fermer', racine), defile = $('.ap-fiche-defile', racine), corps = $('.ap-fiche-corps', racine);
+
+  const F = { ouverte: false, carte: null, A: null, B: null, ox: 0, oy: 0, k: 1, page: null, minuteur: 0 };
+  const P = KS.ressort(0, { reponse: 0.45, surMaj: (v, r) => {
+    peindreFiche();
+    if (!F.ouverte && !racine.hidden && r.but === 0 && r.vitesse === 0 && v === 0) {
+      clearTimeout(F.minuteur);
+      if (reduit) F.minuteur = setTimeout(finFermeture, 220); else finFermeture();
+    }
+  } });
+  const T = KS.ressort(0, { reponse: 0.4, surMaj: peindreFiche }); // glisser vers le bas (px)
+
+  function mesurerFeuille() {
+    const t = feuille.style.transform;
+    feuille.style.transform = 'none';
+    const r = feuille.getBoundingClientRect();
+    feuille.style.transform = t;
+    return { left: r.left, top: r.top, width: Math.max(1, r.width), height: Math.max(1, r.height) };
+  }
+  function peindreFiche() {
+    if (racine.hidden || !F.B) return;
+    const p = P.valeur, pc = clamp(p, 0, 1), d = T.valeur, B = F.B;
+    const tirage = clamp(d / Math.max(240, B.height), 0, 1);
+    const f = pc * (1 - tirage);
+    const k = 1 - 0.04 * f;
+    F.k = k;
+    if (F.page) F.page.style.transform = f > 0.0005 ? `scale(${k.toFixed(5)})` : '';
+    voile.style.opacity = f.toFixed(4);
+    if (reduit || !F.A) {
+      feuille.style.transform = Math.abs(d) > 0.01 ? `translate3d(0, ${d.toFixed(2)}px, 0)` : '';
+      feuille.style.opacity = pc.toFixed(3);
+      tete.style.opacity = defile.style.opacity = '';
+      return;
+    }
+    // La carte d'origine suit le recul de la page
+    const A0 = F.A, ox = F.ox, oy = F.oy;
+    const A = { left: ox + (A0.left - ox) * k, top: oy + (A0.top - oy) * k, width: A0.width * k, height: A0.height * k };
+    const left = A.left + (B.left - A.left) * p;
+    const top = A.top + (B.top + d - A.top) * p;
+    const w = A.width + (B.width - A.width) * pc;
+    const h = A.height + (B.height - A.height) * pc;
+    feuille.style.transform = `translate3d(${(left - B.left).toFixed(2)}px, ${(top - B.top).toFixed(2)}px, 0) scale(${(w / B.width).toFixed(5)}, ${(h / B.height).toFixed(5)})`;
+    feuille.style.opacity = clamp(pc / 0.16, 0, 1).toFixed(3);
+    const oc = clamp((pc - 0.3) / 0.5, 0, 1).toFixed(3);
+    tete.style.opacity = oc;
+    defile.style.opacity = oc;
+  }
+
+  function section(titreTxt) { const h = el('h3', null, titreTxt); corps.append(h); return h; }
+  function remplirFiche(p) {
+    corps.textContent = '';
+    const media = el('div', 'ap-fiche-media');
+    remplirMedia(media, p, 'fiche');
+    const past = el('div', 'ap-fiche-pastilles');
+    past.append(pastilleEtat(p));
+    [p.date, p.duree, p.format].filter(Boolean).forEach((t) => past.append(el('span', 'pastille', t)));
+    const h = el('h2', 'ap-fiche-titre', p.titre);
+    h.id = 'ap-fiche-titre';
+    corps.append(media, past, h, el('p', 'ap-fiche-resume', p.resume));
+    if (p.chiffres && p.chiffres.length) {
+      const dl = el('dl', 'ap-fiche-chiffres');
+      p.chiffres.forEach(([v, l]) => {
+        const d = el('div', 'ap-fiche-chiffre');
+        d.append(el('dt', null, l), el('dd', 'tab', v));
+        dl.append(d);
+      });
+      corps.append(dl);
+    }
+    if (p.techniques && p.techniques.length) {
+      section('Techniques');
+      const ul = el('ul', 'ap-tags');
+      p.techniques.forEach((t) => ul.append(el('li', 'pastille', t)));
+      corps.append(ul);
+    }
+    if (p.appris && p.appris.length) {
+      section("Ce qu'on a appris");
+      const ul = el('ul', 'ap-appris');
+      p.appris.forEach((t) => ul.append(el('li', null, t)));
+      corps.append(ul);
+    }
+    if (p.prompt) {
+      section('Relancer avec Claude');
+      const pre = el('p', 'ap-prompt', p.prompt);
+      const actions = el('div', 'ap-prompt-actions');
+      const b = el('button', 'bouton petit', 'Copier le prompt');
+      b.type = 'button';
+      b.addEventListener('click', () => KS.copier(p.prompt, 'Prompt copié'));
+      actions.append(b, el('p', 'ap-prompt-aide', 'Colle-le dans une nouvelle conversation.'));
+      corps.append(pre, actions);
+    }
+  }
+
+  function ouvrir(c) {
+    clearTimeout(F.minuteur);
+    if (!racine.hidden && !F.ouverte && F.carte === c) {
+      // Rouverte pendant la fermeture : on repart de la position affichée
+      F.ouverte = true;
+      racine.classList.remove('ap-ferme');
+      document.addEventListener('keydown', clavier, true);
+      P.cible(1, { reponse: 0.45, amorti: 1 });
+      boutonFermer.focus({ preventScroll: true });
+      return;
+    }
+    if (!racine.hidden) finFermeture();
+    F.carte = c;
+    arreter(c);
+    c.rx.fixer(0); c.ry.fixer(0);
+    remplirFiche(c.p);
+    F.page = document.getElementById('contenu');
+    if (F.page) {
+      const r = F.page.getBoundingClientRect();
+      F.ox = r.left + r.width / 2;
+      F.oy = innerHeight / 2;
+      F.page.style.transformOrigin = `${(r.width / 2).toFixed(1)}px ${(innerHeight / 2 - r.top).toFixed(1)}px`;
+    } else { F.ox = innerWidth / 2; F.oy = innerHeight / 2; }
+    F.k = 1;
+    const ra = c.art.getBoundingClientRect();
+    F.A = { left: ra.left, top: ra.top, width: ra.width, height: ra.height };
+    racine.classList.remove('ap-ferme');
+    racine.hidden = false;
+    defile.scrollTop = 0;
+    F.B = mesurerFeuille();
+    F.ouverte = true;
+    T.fixer(0);
+    P.fixer(0);
+    if (reduit) void getComputedStyle(feuille).opacity; // garantit le fondu CSS
+    P.cible(1, { reponse: 0.45, amorti: 1 });
+    document.addEventListener('keydown', clavier, true);
+    boutonFermer.focus({ preventScroll: true });
+  }
+
+  function fermer(vy = null) {
+    if (!F.ouverte) return;
+    F.ouverte = false;
+    racine.classList.add('ap-ferme');
+    document.removeEventListener('keydown', clavier, true);
+    corps.querySelectorAll('video').forEach((v) => v.pause());
+    const c = F.carte;
+    if (c && !reduit) {
+      // La carte a pu bouger : on la remesure (sans le recul de la page)
+      F.B = mesurerFeuille();
+      const r = c.art.getBoundingClientRect(), k = F.k || 1;
+      F.A = { left: F.ox + (r.left - F.ox) / k, top: F.oy + (r.top - F.oy) / k, width: r.width / k, height: r.height / k };
+    }
+    const opts = { reponse: 0.45, amorti: 1 };
+    if (vy !== null && F.A && F.B && !reduit) {
+      // Le geste continue : vitesse du doigt convertie en vitesse de progression
+      const k = F.k || 1;
+      const topA = F.oy + (F.A.top - F.oy) * k;
+      const dist = (F.B.top + T.valeur) - topA;
+      opts.vitesse = Math.abs(dist) > 30 ? clamp(vy / dist, -8, 8) : -3;
+    }
+    P.cible(0, opts);
+    if (c) c.voir.focus({ preventScroll: true });
+  }
+
+  function finFermeture() {
+    clearTimeout(F.minuteur);
+    F.ouverte = false;
+    racine.hidden = true;
+    racine.classList.remove('ap-ferme');
+    feuille.style.transform = '';
+    feuille.style.opacity = '';
+    voile.style.opacity = '0';
+    if (F.page) { F.page.style.transform = ''; F.page.style.transformOrigin = ''; }
+    T.fixer(0);
+    P.fixer(0);
+    corps.querySelectorAll('video').forEach((v) => { v.pause(); v.removeAttribute('src'); v.load(); });
+    corps.textContent = '';
+  }
+
+  function clavier(e) {
+    if (!F.ouverte) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); fermer(); return; }
+    if (e.key !== 'Tab') return;
+    const f = [...feuille.querySelectorAll('button, [href], video[controls], [tabindex]:not([tabindex="-1"])')].filter((x) => !x.disabled && x.getClientRects().length);
+    if (!f.length) { e.preventDefault(); feuille.focus(); return; }
+    const premier = f[0], dernier = f[f.length - 1], actif = document.activeElement;
+    if (e.shiftKey && (actif === premier || !feuille.contains(actif) || actif === feuille)) { e.preventDefault(); dernier.focus(); }
+    else if (!e.shiftKey && (actif === dernier || !feuille.contains(actif))) { e.preventDefault(); premier.focus(); }
+  }
+
+  boutonFermer.addEventListener('click', () => fermer());
+  voile.addEventListener('click', () => fermer());
+  // La page derrière ne défile pas pendant que la fiche est ouverte
+  const bloquer = (e) => { if (!defile.contains(e.target)) e.preventDefault(); };
+  racine.addEventListener('wheel', bloquer, { passive: false });
+  racine.addEventListener('touchmove', bloquer, { passive: false });
+  addEventListener('resize', () => { if (!racine.hidden) { F.B = mesurerFeuille(); peindreFiche(); } });
+
+  // Glisser vers le bas pour fermer (suivi 1:1 depuis la poignée / le haut)
+  const suiviF = KS.suiveur();
+  let tir = null;
+  prise.addEventListener('pointerdown', (e) => {
+    if (!F.ouverte || e.button !== 0) return;
+    e.preventDefault();
+    try { prise.setPointerCapture(e.pointerId); } catch (_) { /* rien */ }
+    T.fixer(T.valeur);
+    tir = { id: e.pointerId, y0: e.clientY, d0: T.valeur };
+    suiviF.vider();
+    suiviF.ajouter(0, e.clientY);
+  });
+  prise.addEventListener('pointermove', (e) => {
+    if (!tir || e.pointerId !== tir.id) return;
+    const brut = tir.d0 + (e.clientY - tir.y0);
+    T.fixer(brut >= 0 ? brut : -Math.sqrt(-brut) * 3); // résistance vers le haut
+    suiviF.ajouter(0, e.clientY);
+  });
+  const lacherFiche = (e) => {
+    if (!tir || e.pointerId !== tir.id) return;
+    tir = null;
+    const vy = suiviF.vitesse().y;
+    if (T.valeur + KS.projeter(vy) > 160 && F.ouverte) fermer(vy);
+    else T.cible(0, { vitesse: vy, reponse: 0.4, amorti: Math.abs(vy) > 200 || T.valeur > 40 ? 0.78 : 1 });
+  };
+  prise.addEventListener('pointerup', lacherFiche);
+  prise.addEventListener('pointercancel', lacherFiche);
+
+  /* ---------- 3. Progression : frise ---------- */
+  const vue = $('#ap-frise-vue'), rail = $('#ap-rail'), bPrec = $('#ap-prec'), bSuiv = $('#ap-suiv');
+  frise.forEach((e, i) => {
+    const derniere = i === frise.length - 1;
+    const li = el('li', 'ap-etape' + (derniere ? ' ap-derniere' : ''));
+    const point = el('span', 'ap-point');
+    point.setAttribute('aria-hidden', 'true');
+    const carte = el('div', 'ap-etape-carte');
+    carte.append(el('p', 'mono ap-quand', e.quand), el('h3', 'ap-etape-titre', e.titre), el('p', 'ap-etape-texte', e.texte));
+    if (derniere) li.setAttribute('aria-current', 'step');
+    li.append(point, carte);
+    rail.append(li);
+  });
+
+  let crans = [0], maxPos = 0, largeur = 1;
+  const pos = KS.ressort(0, { reponse: 0.5, surMaj: (v) => { rail.style.transform = Math.abs(v) > 0.01 ? `translate3d(${(-v).toFixed(2)}px, 0, 0)` : ''; } });
+  function mesurerFrise() {
+    const cs = getComputedStyle(vue);
+    largeur = Math.max(1, vue.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight));
+    maxPos = Math.max(0, rail.offsetWidth - largeur);
+    crans = [];
+    for (const li of rail.children) {
+      const x = Math.min(li.offsetLeft, maxPos);
+      if (!crans.length || x - crans[crans.length - 1] > 2) crans.push(x);
+    }
+    if (!crans.length) crans = [0];
+    if (maxPos - crans[crans.length - 1] > 2) crans.push(maxPos);
+  }
+  const proche = (x) => { let b = 0; crans.forEach((c, i) => { if (Math.abs(c - x) < Math.abs(crans[b] - x)) b = i; }); return b; };
+  function majNav() {
+    bPrec.setAttribute('aria-disabled', String(pos.but <= 1));
+    bSuiv.setAttribute('aria-disabled', String(pos.but >= maxPos - 1));
+  }
+  function aller(i, opts = {}) {
+    i = clamp(i, 0, crans.length - 1);
+    pos.cible(crans[i], Object.assign({ reponse: 0.5, amorti: 1 }, opts));
+    majNav();
+  }
+  // Élastique au-delà des bords (et son inverse pour reprendre au vol)
+  const elast = (x, L) => (1 - 1 / (x * 0.55 / L + 1)) * L;
+  const elastInv = (y, L) => (L / 0.55) * (y / Math.max(1, L - y));
+  const borne = (x) => x < 0 ? -elast(-x, largeur) : x > maxPos ? maxPos + elast(x - maxPos, largeur) : x;
+  const debride = (v) => v < 0 ? -elastInv(-v, largeur) : v > maxPos ? maxPos + elastInv(v - maxPos, largeur) : v;
+
+  bPrec.addEventListener('click', () => { if (bPrec.getAttribute('aria-disabled') !== 'true') aller(proche(pos.but) - 1); });
+  bSuiv.addEventListener('click', () => { if (bSuiv.getAttribute('aria-disabled') !== 'true') aller(proche(pos.but) + 1); });
+  vue.addEventListener('keydown', (e) => {
+    const i = proche(pos.but);
+    const n = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: crans.length - 1 }[e.key];
+    if (n === undefined) return;
+    e.preventDefault();
+    aller(n);
+  });
+
+  const suiviR = KS.suiveur();
+  let g = null;
+  vue.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    g = { id: e.pointerId, x0: e.clientX, y0: e.clientY, p0: 0, actif: false };
+    pos.fixer(pos.valeur); // attrape au vol : la frise s'arrête sous le doigt
+    suiviR.vider();
+    suiviR.ajouter(e.clientX);
+  });
+  vue.addEventListener('pointermove', (e) => {
+    if (!g || e.pointerId !== g.id) return;
+    if (!g.actif) {
+      const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+      if (Math.abs(dx) > 5 && Math.abs(dx) > Math.abs(dy)) {
+        g.actif = true;
+        g.x0 = e.clientX;
+        g.p0 = debride(pos.valeur);
+        try { vue.setPointerCapture(e.pointerId); } catch (_) { /* rien */ }
+        vue.classList.add('ap-tire');
+      } else if (Math.abs(dy) > 8) { g = null; aller(proche(pos.valeur)); return; }
+      else return;
+    }
+    pos.fixer(borne(g.p0 - (e.clientX - g.x0)));
+    suiviR.ajouter(e.clientX);
+  });
+  const lacherFrise = (e) => {
+    if (!g || e.pointerId !== g.id) return;
+    const actif = g.actif;
+    g = null;
+    vue.classList.remove('ap-tire');
+    if (!actif) { aller(proche(pos.valeur)); return; }
+    const vp = -suiviR.vitesse().x;
+    const vise = clamp(pos.valeur + KS.projeter(vp), 0, maxPos);
+    aller(proche(vise), { vitesse: vp, amorti: Math.abs(vp) > 250 ? 0.8 : 1 });
+  };
+  vue.addEventListener('pointerup', lacherFrise);
+  vue.addEventListener('pointercancel', lacherFrise);
+  vue.addEventListener('dragstart', (e) => e.preventDefault());
+
+  let roueT = 0;
+  vue.addEventListener('wheel', (e) => {
+    const horiz = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    let dx = horiz ? e.deltaX : (e.shiftKey ? e.deltaY : 0);
+    if (!dx) return;
+    e.preventDefault();
+    if (e.deltaMode === 1) dx *= 16; else if (e.deltaMode === 2) dx *= largeur;
+    pos.fixer(clamp(pos.valeur + dx, 0, maxPos));
+    clearTimeout(roueT);
+    roueT = setTimeout(() => aller(proche(pos.valeur)), 140);
+  }, { passive: false });
+
+  function recaler() {
+    const i = proche(pos.but);
+    mesurerFrise();
+    if (g) return;
+    const x = crans[Math.min(i, crans.length - 1)];
+    if (pos.valeur === pos.but) pos.fixer(x); else pos.cible(x);
+    majNav();
+  }
+  mesurerFrise();
+  majNav();
+  if ('ResizeObserver' in window) new ResizeObserver(recaler).observe(vue);
+  else addEventListener('resize', recaler);
+
+  /* ---------- Apparitions sous la ligne de flottaison ---------- */
+  KS.monte($('#ap-projets-entete'), 0);
+  KS.monte($('#ap-barre'), 60);
+  cartes.forEach((c, i) => KS.monte(c.monte, 100 + (i % 3) * 70));
+  KS.monte($('#ap-prog-entete'), 0);
+  KS.monte(vue, 80);
+})();
+</script>

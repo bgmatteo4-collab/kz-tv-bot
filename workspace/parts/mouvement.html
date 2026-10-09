@@ -1,0 +1,782 @@
+<style>
+#mouvement .mv-grille, #mouvement .mv-grille *, #mouvement .mv-grille *::before, #mouvement .mv-grille *::after { box-sizing: border-box; }
+#mouvement .mv-grille { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; margin-top: 48px; }
+@media (min-width: 820px) { #mouvement .mv-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+#mouvement .mv-carte { min-width: 0; }
+@media (max-width: 479px) { #mouvement .mv-carte { padding: 20px; } }
+#mouvement .mv-scene { position: relative; aspect-ratio: 16 / 10; border-radius: var(--rayon-s); background: var(--bg-3); overflow: hidden; container-type: inline-size; isolation: isolate; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+#mouvement .mv-nom { margin: 20px 0 0; font-size: 19px; font-weight: 600; line-height: 1.21; letter-spacing: -.01em; }
+#mouvement .mv-expl { margin: 4px 0 0; font-size: 15px; line-height: 1.4; letter-spacing: -.01em; color: var(--fg-2); }
+#mouvement .mv-action { position: absolute; right: 12px; bottom: 12px; z-index: 3; }
+#mouvement .mv-indice { position: absolute; left: 16px; top: 12px; z-index: 2; margin: 0; font-size: 12px; font-weight: 500; letter-spacing: 0; color: var(--fg-2); pointer-events: none; }
+#mouvement .mv-doigt { display: none; }
+@media (hover: none) { #mouvement .mv-souris { display: none; } #mouvement .mv-doigt { display: inline; } }
+#mouvement .mv-note { position: absolute; left: 16px; bottom: 21px; z-index: 2; margin: 0; font: 400 12px/1 var(--mono); letter-spacing: 0; color: var(--fg-2); pointer-events: none; }
+#mouvement .mv-defile { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
+#mouvement .mv-defile::-webkit-scrollbar { display: none; }
+#mouvement .mv-defile:focus-visible { outline-offset: -2px; border-radius: var(--rayon-s); }
+#mouvement .mv-point { width: 24px; height: 24px; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; display: grid; place-items: center; }
+#mouvement .mv-point::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--fg); opacity: .22; transition: opacity .25s ease, transform .25s ease; }
+#mouvement .mv-point:hover::before { opacity: .45; }
+#mouvement .mv-point[aria-current="true"]::before, #mouvement .mv-point[aria-current="step"]::before { opacity: 1; transform: scale(1.12); }
+
+/* 1. Déclenché */
+#mouvement .mv-trio { position: absolute; inset: 0 0 44px; display: flex; align-items: center; justify-content: center; gap: 3.5%; }
+#mouvement .mv-mini { width: 23%; padding: 1.6%; border-radius: 12px; background: var(--bg); box-shadow: var(--ombre); display: flex; flex-direction: column; gap: 3px; }
+#mouvement .mv-vignette { display: block; aspect-ratio: 16 / 10; border-radius: 7px; background: var(--bg-3); margin-bottom: 4px; }
+#mouvement .mv-mini:nth-child(2) .mv-vignette { background: var(--accent); }
+#mouvement .mv-mini b { font-size: 13px; font-weight: 600; line-height: 1.2; letter-spacing: -.01em; }
+#mouvement .mv-mini i { font: 400 11px/1.2 var(--mono); font-style: normal; letter-spacing: 0; color: var(--fg-2); }
+
+/* 2. Lié */
+#mouvement .mv-lie-zone { position: absolute; inset: 0 0 52px; display: grid; place-items: center; }
+#mouvement .mv-carre { position: relative; width: 22%; aspect-ratio: 1; border-radius: 24%; background: var(--accent); }
+#mouvement .mv-carre::after { content: ""; position: absolute; left: 17%; top: 17%; width: 18%; height: 18%; border-radius: 50%; background: var(--accent-fg); }
+#mouvement .mv-compteur { position: absolute; left: 18px; top: 12px; font-size: 28px; font-weight: 600; line-height: 1.1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+#mouvement .mv-rail { position: absolute; left: 24px; right: 24px; bottom: 14px; height: 32px; touch-action: none; cursor: pointer; }
+#mouvement .mv-rail-fond, #mouvement .mv-rail-plein { position: absolute; left: 0; right: 0; top: 50%; height: 4px; margin-top: -2px; border-radius: 2px; }
+#mouvement .mv-rail-fond { background: var(--bg); }
+#mouvement .mv-rail-plein { background: var(--accent); transform-origin: left center; }
+#mouvement .mv-rail-course { position: absolute; inset: 0; pointer-events: none; }
+#mouvement .mv-poignee { position: absolute; left: -13px; top: 50%; width: 26px; height: 26px; margin-top: -13px; border-radius: 50%; background: var(--accent-fg); box-shadow: 0 0 0 .5px var(--line), var(--ombre); transition: transform .2s ease; }
+#mouvement .mv-poignee.mv-tenu { transform: scale(1.12); }
+
+/* 3. Parallaxe */
+#mouvement .mv-para { touch-action: pan-y; }
+#mouvement .mv-couche { position: absolute; inset: 0; pointer-events: none; }
+#mouvement .mv-forme { position: absolute; display: block; }
+#mouvement .mv-f1 { width: 52%; aspect-ratio: 1; left: -10%; top: -28%; border-radius: 50%; background: var(--bg-2); }
+#mouvement .mv-f2 { width: 34%; aspect-ratio: 1; right: -8%; bottom: -26%; border-radius: 50%; background: var(--bg-2); }
+#mouvement .mv-f3 { width: 40%; aspect-ratio: 16 / 10; left: 12%; top: 25%; border-radius: 14px; background: var(--bg); box-shadow: var(--ombre); }
+#mouvement .mv-f3::before, #mouvement .mv-f3::after { content: ""; position: absolute; left: 10%; height: 7%; border-radius: 4px; background: var(--bg-3); }
+#mouvement .mv-f3::before { bottom: 26%; width: 54%; }
+#mouvement .mv-f3::after { bottom: 13%; width: 34%; }
+#mouvement .mv-f4 { width: 24%; aspect-ratio: 4 / 3; right: 11%; top: 13%; border-radius: 12px; background: var(--bg); opacity: .7; }
+#mouvement .mv-f5 { width: 13%; aspect-ratio: 1; left: 46%; top: 47%; border-radius: 50%; background: var(--accent); box-shadow: var(--ombre); }
+#mouvement .mv-f6 { left: 59%; top: 66%; padding: 6px 12px; border-radius: 980px; background: var(--fg); color: var(--bg); font-size: 12px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; box-shadow: var(--ombre); }
+
+/* 4. Collant */
+#mouvement .mv-groupe { position: relative; }
+#mouvement .mv-entete { position: sticky; top: 0; z-index: 1; margin: 0; padding: 9px 18px; background: var(--bg-2); font-size: 13px; font-weight: 600; letter-spacing: -.01em; box-shadow: 0 1px 0 var(--line); }
+#mouvement .mv-liste { list-style: none; margin: 0; padding: 0; }
+#mouvement .mv-ligne { display: flex; align-items: baseline; gap: 12px; padding: 9px 18px; font-size: 14px; line-height: 1.3; border-bottom: 1px solid var(--line); }
+#mouvement .mv-ligne .mono { flex: none; width: 3.4em; font-size: 12px; color: var(--fg-2); }
+#mouvement .mv-ligne.mv-maintenant .mono { color: var(--accent); }
+
+/* 5. Épinglé */
+#mouvement .mv-piste { position: relative; height: 300%; }
+#mouvement .mv-plan { position: sticky; top: 0; height: 33.3334%; display: grid; place-items: center; padding-bottom: 22px; }
+#mouvement .mv-cadre { position: relative; width: 60%; aspect-ratio: 16 / 9; border-radius: 12px; background: var(--bg); box-shadow: var(--ombre); overflow: hidden; }
+#mouvement .mv-decor { position: absolute; border-radius: 50%; }
+#mouvement .mv-decor-1 { width: 90%; aspect-ratio: 2.4; left: 30%; bottom: -24%; background: var(--bg-2); }
+#mouvement .mv-decor-2 { width: 15%; aspect-ratio: 1; right: 15%; top: 18%; background: var(--bg-3); }
+#mouvement .mv-guide { position: absolute; inset: 9%; border: 1px dashed var(--line); border-radius: 6px; }
+#mouvement .mv-titre-plan { position: absolute; left: 10%; top: 26%; margin: 0; font-size: clamp(16px, 6.4cqw, 26px); font-weight: 700; line-height: 1; letter-spacing: -.03em; }
+#mouvement .mv-sous-plan { position: absolute; left: 10%; top: 48%; margin: 0; font-size: clamp(10px, 2.8cqw, 13px); color: var(--fg-2); }
+#mouvement .mv-direct { position: absolute; right: 7%; top: 9%; padding: 2px 7px; border-radius: 980px; background: var(--accent); color: var(--accent-fg); font-size: clamp(9px, 2.3cqw, 11px); font-weight: 600; letter-spacing: .02em; }
+#mouvement .mv-bandeau { position: absolute; left: 0; right: 0; bottom: 0; height: 22%; display: flex; align-items: center; gap: 6px; padding: 0 10%; background: var(--fg); color: var(--bg); font-size: clamp(9px, 2.5cqw, 12px); font-weight: 500; }
+#mouvement .mv-bandeau::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+#mouvement .mv-etapes { position: absolute; right: 8px; top: 50%; z-index: 2; display: flex; flex-direction: column; transform: translateY(-50%); }
+#mouvement .mv-legende { position: absolute; left: 16px; bottom: 12px; z-index: 2; margin: 0; font-size: 12px; font-weight: 500; color: var(--fg-2); pointer-events: none; }
+
+/* 6. Aimanté */
+#mouvement .mv-aimant { touch-action: pan-y; cursor: grab; }
+#mouvement .mv-aimant.mv-tenu { cursor: grabbing; }
+#mouvement .mv-diapo { position: absolute; left: 0; top: 9%; width: 54%; height: 68%; padding: 5% 6%; border-radius: 16px; background: var(--bg); box-shadow: var(--ombre); display: flex; flex-direction: column; justify-content: space-between; }
+#mouvement .mv-diapo .mono { color: var(--accent); }
+#mouvement .mv-diapo b { font-size: clamp(16px, 5.2cqw, 22px); font-weight: 600; line-height: 1.1; letter-spacing: -.02em; }
+#mouvement .mv-diapo small { display: block; margin-top: 3px; font-size: 12px; color: var(--fg-2); }
+#mouvement .mv-diapo.mv-forte { background: var(--accent); color: var(--accent-fg); }
+#mouvement .mv-diapo.mv-forte .mono, #mouvement .mv-diapo.mv-forte small { color: var(--accent-fg); opacity: .8; }
+#mouvement .mv-puces { position: absolute; left: 0; right: 0; bottom: 4%; z-index: 2; display: flex; justify-content: center; }
+
+/* 7. Horizontal */
+#mouvement .mv-horiz .mv-piste { height: 400%; }
+#mouvement .mv-horiz .mv-plan { height: 25%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 6px; padding: 0; overflow: hidden; }
+#mouvement .mv-bande { display: flex; width: max-content; white-space: nowrap; }
+#mouvement .mv-jeu { display: flex; align-items: center; gap: .55em; padding-right: .55em; font-size: clamp(28px, 9.4cqw, 42px); font-weight: 600; line-height: 1.15; letter-spacing: -.03em; }
+#mouvement .mv-jeu .mv-accent { color: var(--accent); }
+#mouvement .mv-jeu .mv-sep { width: .16em; height: .16em; border-radius: 50%; background: var(--fg-2); opacity: .5; }
+#mouvement .mv-bande-2 .mv-jeu { font-size: clamp(15px, 4.6cqw, 20px); font-weight: 500; letter-spacing: -.01em; color: var(--fg-2); }
+#mouvement .mv-jauge { position: absolute; left: 16px; right: 16px; bottom: 14px; z-index: 2; height: 2px; border-radius: 1px; background: var(--line); overflow: hidden; pointer-events: none; }
+#mouvement .mv-jauge i, #mouvement .mv-lecture i { display: block; height: 100%; background: var(--accent); transform-origin: left center; transform: scaleX(0); }
+
+/* 8. Cascade */
+#mouvement .mv-damier { position: absolute; left: 16px; right: 16px; top: 16px; bottom: 58px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 8px; }
+#mouvement .mv-pion { display: grid; place-items: center; min-width: 0; overflow: hidden; border-radius: 980px; background: var(--bg); font-size: clamp(11px, 3.4cqw, 14px); font-weight: 500; letter-spacing: -.01em; white-space: nowrap; }
+#mouvement .mv-pion.mv-fort { background: var(--accent); color: var(--accent-fg); }
+
+/* 9. Révélation du texte */
+#mouvement .mv-revele { touch-action: pan-y; }
+#mouvement .mv-revele-zone { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 9%; }
+#mouvement .mv-phrase { margin: 0; font-size: clamp(22px, 7.6cqw, 36px); font-weight: 600; line-height: 1.14; letter-spacing: -.025em; color: var(--fg-2); text-wrap: balance; }
+#mouvement .mv-mot { position: relative; display: inline-block; }
+#mouvement .mv-mot-on { position: absolute; left: 0; top: 0; color: var(--fg); opacity: 0; }
+
+/* 10. Barre de progression */
+#mouvement .mv-entete-lecture { position: absolute; left: 0; right: 0; top: 0; z-index: 2; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; background: var(--bg-2); font-size: 12px; font-weight: 600; letter-spacing: -.01em; pointer-events: none; }
+#mouvement .mv-pct { font: 400 12px/1 var(--mono); letter-spacing: 0; color: var(--fg-2); }
+#mouvement .mv-lecture { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--line); }
+#mouvement .mv-article { top: 40px; padding: 18px 22px 64px; -webkit-user-select: text; user-select: text; }
+#mouvement .mv-article .mv-titre-article { margin: 0; color: var(--fg); font-size: 17px; font-weight: 600; line-height: 1.25; letter-spacing: -.015em; }
+#mouvement .mv-article .mv-meta { display: block; margin: 2px 0 12px; font: 400 12px/1.4 var(--mono); letter-spacing: 0; color: var(--fg-2); }
+#mouvement .mv-article p { margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: var(--fg-2); }
+#mouvement .mv-article p strong { color: var(--fg); font-weight: 600; }
+</style>
+
+<section id="mouvement" class="section">
+  <div class="enveloppe">
+    <p class="surtitre">Mouvement</p>
+    <h2 class="titre-section">Le vocabulaire du mouvement.</h2>
+    <p class="sous-titre">Les 10 effets de tes motions. Chaque carte se manipule : glisse, clique, survole.</p>
+
+    <div class="mv-grille">
+
+      <article class="carte mv-carte">
+        <div class="mv-scene mv-declenche">
+          <div class="mv-trio">
+            <div class="mv-mini"><span class="mv-vignette"></span><b>Intro</b><i>0:12</i></div>
+            <div class="mv-mini"><span class="mv-vignette"></span><b>Live</b><i>2:40:00</i></div>
+            <div class="mv-mini"><span class="mv-vignette"></span><b>Outro</b><i>0:20</i></div>
+          </div>
+          <button type="button" class="bouton petit mv-action">Rejouer</button>
+        </div>
+        <h3 class="mv-nom">Déclenché</h3>
+        <p class="mv-expl">Un élément entre une fois, à son moment.</p>
+      </article>
+
+      <article class="carte mv-carte">
+        <div class="mv-scene mv-lie">
+          <output class="mv-compteur" aria-hidden="true">40&#8239;%</output>
+          <div class="mv-lie-zone"><div class="mv-carre"></div></div>
+          <div class="mv-rail" role="slider" tabindex="0" aria-label="Progression de l’animation" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" aria-valuetext="40 %">
+            <span class="mv-rail-fond"></span>
+            <span class="mv-rail-plein"></span>
+            <span class="mv-rail-course"><span class="mv-poignee"></span></span>
+          </div>
+        </div>
+        <h3 class="mv-nom">Lié</h3>
+        <p class="mv-expl">L’animation suit une progression, et repart en arrière.</p>
+      </article>
+
+      <article class="carte mv-carte">
+        <div class="mv-scene mv-para" role="img" aria-label="Trois couches de formes qui suivent le pointeur à des vitesses différentes">
+          <div class="mv-couche"><span class="mv-forme mv-f1"></span><span class="mv-forme mv-f2"></span></div>
+          <div class="mv-couche"><span class="mv-forme mv-f3"></span><span class="mv-forme mv-f4"></span></div>
+          <div class="mv-couche"><span class="mv-forme mv-f5"></span><span class="mv-forme mv-f6">Kayzx TV</span></div>
+          <p class="mv-indice"><span class="mv-souris">Survole la scène</span><span class="mv-doigt">Glisse le doigt sur la scène</span></p>
+        </div>
+        <h3 class="mv-nom">Parallaxe</h3>
+        <p class="mv-expl">Des couches à des vitesses différentes : la profondeur.</p>
+      </article>
+
+      <article class="carte mv-carte">
+        <div class="mv-scene mv-collant">
+          <div class="mv-defile" tabindex="0" aria-label="Programme de la semaine, zone qui défile">
+            <div class="mv-groupe">
+              <p class="mv-entete">Ce soir</p>
+              <ul class="mv-liste">
+                <li class="mv-ligne"><span class="mono">19:45</span>Avant-live, réglages</li>
+                <li class="mv-ligne mv-maintenant"><span class="mono">20:00</span>Intro Leonida</li>
+                <li class="mv-ligne"><span class="mono">20:30</span>Vice City, le plan</li>
+                <li class="mv-ligne"><span class="mono">22:00</span>Questions du chat</li>
+              </ul>
+            </div>
+            <div class="mv-groupe">
+              <p class="mv-entete">Demain</p>
+              <ul class="mv-liste">
+                <li class="mv-ligne"><span class="mono">14:00</span>Montage de l’intro</li>
+                <li class="mv-ligne"><span class="mono">18:00</span>Multiplex Ligue 1+</li>
+                <li class="mv-ligne"><span class="mono">21:00</span>Replay commenté</li>
+              </ul>
+            </div>
+            <div class="mv-groupe">
+              <p class="mv-entete">Samedi</p>
+              <ul class="mv-liste">
+                <li class="mv-ligne"><span class="mono">16:00</span>Tournoi entre viewers</li>
+                <li class="mv-ligne"><span class="mono">20:00</span>Soirée Leonida</li>
+                <li class="mv-ligne"><span class="mono">23:00</span>Fin de soirée au calme</li>
+              </ul>
+            </div>
+            <div class="mv-groupe">
+              <p class="mv-entete">Dimanche</p>
+              <ul class="mv-liste">
+                <li class="mv-ligne"><span class="mono">11:00</span>Bilan de la semaine</li>
+                <li class="mv-ligne"><span class="mono">15:00</span>Studio : nouvelle scène</li>
+                <li class="mv-ligne"><span class="mono">19:00</span>Live détente</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <h3 class="mv-nom">Collant</h3>
+        <p class="mv-expl">Un élément reste fixé pendant que le reste défile.</p>
+      </article>
+
+      <article class="carte mv-carte">
+        <div class="mv-scene mv-epingle">
+          <div class="mv-defile" tabindex="0" aria-label="Plan épinglé, fais défiler pour le remplir">
+            <div class="mv-piste">
+              <div class="mv-plan">
+                <div class="mv-cadre">
+                  <span class="mv-decor mv-decor-1" data-etape="0"></span>
+                  <span class="mv-decor mv-decor-2" data-etape="0"></span>
+                  <span class="mv-guide"></span>
+                  <p class="mv-titre-plan" data-etape="1">Kayzx TV</p>
+                  <p class="mv-sous-plan" data-etape="1">Ce soir, 20:00</p>
+                  <span class="mv-direct" data-etape="2" data-effet="pop">EN DIRECT</span>
+                  <span class="mv-bandeau" data-etape="2" data-effet="bas">Leonida · épisode 4</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mv-etapes" role="group" aria-label="Étapes du plan">
+            <button type="button" class="mv-point" aria-label="Étape 1 : cadre" aria-current="step"></button>
+            <button type="button" class="mv-point" aria-label="Étape 2 : titre" aria-current="false"></button>
+            <button type="button" class="mv-point" aria-label="Étape 3 : habillage" aria-current="false"></button>
+          </div>
+          <p class="mv-indice">Fais défiler dans la scène</p>
+          <p class="mv-legende" aria-live="polite">Étape 1 sur 3 · Cadre</p>
+        </div>
+        <h3 class="mv-nom">Épinglé</h3>
+        <p class="mv-expl">Le plan se fige pendant que la scène se remplit.</p>
+      </article>
+
+      <article class="carte mv-carte">
+        <div class="mv-scene mv-aimant" role="group" tabindex="0" aria-roledescription="carrousel" aria-label="Carrousel de cinq cartes, flèches gauche et droite pour changer">
+          <div class="mv-diapo"><span class="mono">01</span><div><b>Ouverture</b><small>0:00 – 0:12</small></div></div>
+          <div class="mv-diapo"><span class="mono">02</span><div><b>Plateau</b><small>0:12 – 0:40</small></div></div>
+          <div class="mv-diapo mv-forte"><span class="mono">03</span><div><b>Kayzx TV</b><small>Le logo</small></div></div>
+          <div class="mv-diapo"><span class="mono">04</span><div><b>Débrief</b><small>2:10 – 2:35</small></div></div>
+          <div class="mv-diapo"><span class="mono">05</span><div><b>Générique</b><small>2:35 – 2:50</small></div></div>
+          <div class="mv-puces" role="group" aria-label="Choisir une carte">
+            <button type="button" class="mv-point" aria-label="Carte 1"></button>
+            <button type="button" class="mv-point" aria-label="Carte 2"></button>
+            <button type="button" class="mv-point" aria-label="Carte 3"></button>
+            <button type="button" class="mv-point" aria-label="Carte 4"></button>
+            <button type="button" class="mv-point" aria-label="Carte 5"></button>
+          </div>
+        </div>
+        <h3 class="mv-nom">Aimanté</h3>
+        <p class="mv-expl">Le mouvement se pose net sur un élément entier.</p>
+      </article>
+
+      <article class="carte mv-carte">
+        <div class="mv-scene mv-horiz">
+          <div class="mv-defile" tabindex="0" aria-label="Bande de mots : Leonida, Vice City, Kayzx TV, Ligue 1+, Studio, Live. Fais défiler pour la déplacer">
+            <div class="mv-piste">
+              <div class="mv-plan" aria-hidden="true">
+                <div class="mv-bande">
+                  <div class="mv-jeu"><span>Leonida</span><i class="mv-sep"></i><span>Vice City</span><i class="mv-sep"></i><span class="mv-accent">Kayzx TV</span><i class="mv-sep"></i><span>Ligue 1+</span><i class="mv-sep"></i><span>Studio</span><i class="mv-sep"></i><span>Live</span><i class="mv-sep"></i></div>
+                  <div class="mv-jeu"><span>Leonida</span><i class="mv-sep"></i><span>Vice City</span><i class="mv-sep"></i><span class="mv-accent">Kayzx TV</span><i class="mv-sep"></i><span>Ligue 1+</span><i class="mv-sep"></i><span>Studio</span><i class="mv-sep"></i><span>Live</span><i class="mv-sep"></i></div>
+                </div>
+                <div class="mv-bande mv-bande-2">
+                  <div class="mv-jeu"><span>Live</span><i class="mv-sep"></i><span>Studio</span><i class="mv-sep"></i><span>Ligue 1+</span><i class="mv-sep"></i><span>Kayzx TV</span><i class="mv-sep"></i><span>Vice City</span><i class="mv-sep"></i><span>Leonida</span><i class="mv-sep"></i></div>
+                  <div class="mv-jeu"><span>Live</span><i class="mv-sep"></i><span>Studio</span><i class="mv-sep"></i><span>Ligue 1+</span><i class="mv-sep"></i><span>Kayzx TV</span><i class="mv-sep"></i><span>Vice City</span><i class="mv-sep"></i><span>Leonida</span><i class="mv-sep"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="mv-indice">Fais défiler dans la scène</p>
+          <span class="mv-jauge"><i></i></span>
+        </div>
+        <h3 class="mv-nom">Horizontal</h3>
+        <p class="mv-expl">On descend, le contenu part vers la gauche.</p>
+      </article>
+
+      <article class="carte mv-carte">
+        <div class="mv-scene mv-cascade">
+          <div class="mv-damier">
+            <span class="mv-pion mv-fort">Intro</span><span class="mv-pion">Logo</span><span class="mv-pion">Titre</span><span class="mv-pion">Live</span>
+            <span class="mv-pion">Chat</span><span class="mv-pion mv-fort">Pause</span><span class="mv-pion">Clip</span><span class="mv-pion">Replay</span>
+            <span class="mv-pion">Outro</span><span class="mv-pion">Sons</span><span class="mv-pion">Caméra</span><span class="mv-pion mv-fort">Alertes</span>
+          </div>
+          <p class="mv-note">30 ms entre chaque</p>
+          <button type="button" class="bouton petit mv-action">Mélanger</button>
+        </div>
+        <h3 class="mv-nom">Cascade</h3>
+        <p class="mv-expl">Un groupe entre l’un après l’autre.</p>
+      </article>
+
+      <article class="carte mv-carte">
+        <div class="mv-scene mv-revele">
+          <div class="mv-revele-zone">
+            <p class="mv-indice" aria-hidden="true"><span class="mv-souris">Survole la phrase</span><span class="mv-doigt">Glisse le doigt sur la phrase</span></p>
+            <p class="mv-phrase"><span class="mv-mot">Le<span class="mv-mot-on" aria-hidden="true">Le</span></span> <span class="mv-mot">live<span class="mv-mot-on" aria-hidden="true">live</span></span> <span class="mv-mot">commence<span class="mv-mot-on" aria-hidden="true">commence</span></span> <span class="mv-mot">bientôt,<span class="mv-mot-on" aria-hidden="true">bientôt,</span></span> <span class="mv-mot">installe-toi.<span class="mv-mot-on" aria-hidden="true">installe-toi.</span></span></p>
+          </div>
+        </div>
+        <h3 class="mv-nom">Révélation du texte</h3>
+        <p class="mv-expl">Le texte s’allume mot par mot, au rythme de la lecture.</p>
+      </article>
+
+      <article class="carte mv-carte">
+        <div class="mv-scene mv-barre">
+          <div class="mv-entete-lecture" aria-hidden="true"><span>Le journal du studio</span><span class="mv-pct tab">0&#8239;%</span><span class="mv-lecture"><i></i></span></div>
+          <div class="mv-defile mv-article" tabindex="0" aria-label="Article, zone qui défile">
+            <p class="mv-titre-article">Préparer un live en cinq minutes</p>
+            <span class="mv-meta">Kayzx Studio · 2 min de lecture</span>
+            <p>Avant chaque live, le même rituel : couper les notifications, vérifier le son, lancer l’intro. Cinq minutes suffisent si tout est rangé au même endroit.</p>
+            <p><strong>Le son d’abord.</strong> Un micro qui sature se remarque plus qu’une image floue. Dix secondes de test, un œil sur les vumètres, et c’est réglé.</p>
+            <p><strong>Puis la lumière.</strong> Une seule source douce, de face, suffit. Le reste se corrige dans le logiciel de diffusion, pas dans la pièce.</p>
+            <p><strong>Puis la scène.</strong> L’intro tourne pendant que le chat arrive. C’est le moment de saluer les premiers et de poser le programme de la soirée.</p>
+            <p><strong>Enfin, le rythme.</strong> Une pause toutes les heures, un replay découpé le lendemain. La régularité compte plus que la durée.</p>
+            <p><strong>Et après ?</strong> On note ce qui a accroché pendant le live : un moment fort, une question du chat, un raté drôle. C’est la matière du prochain montage.</p>
+            <p>Bon live.</p>
+          </div>
+          <button type="button" class="bouton petit mv-action mv-haut">Haut</button>
+        </div>
+        <h3 class="mv-nom">Barre de progression</h3>
+        <p class="mv-expl">Une ligne grandit pour montrer où on en est.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const demarrer = () => {
+    const KS = window.KS;
+    const racine = document.getElementById('mouvement');
+    if (!KS || !racine || racine.dataset.mvPret) return;
+    racine.dataset.mvPret = '1';
+    const reduit = KS.reduit;
+    const $ = (s, el = racine) => el.querySelector(s);
+    const $$ = (s, el = racine) => Array.from(el.querySelectorAll(s));
+    const borne = (v, a, b) => Math.min(b, Math.max(a, v));
+    const f = (v, n = 2) => v.toFixed(n);
+
+    // Tailles : un seul ResizeObserver pour toutes les scènes.
+    const surTailles = new Map();
+    const ro = 'ResizeObserver' in window ? new ResizeObserver((es) => es.forEach((e) => { const fn = surTailles.get(e.target); fn && fn(); })) : null;
+    const surTaille = (el, fn) => { surTailles.set(el, fn); if (ro) ro.observe(el); else addEventListener('resize', fn); fn(); };
+
+    // Boucles automatiques : une seule horloge, active seulement pour les scènes visibles.
+    const tours = new Set();
+    let tourId = 0, tourT = 0;
+    const tourner = (now) => {
+      const dt = Math.min(0.05, (now - tourT) / 1000);
+      tourT = now;
+      tours.forEach((fn) => fn(dt));
+      tourId = tours.size ? requestAnimationFrame(tourner) : 0;
+    };
+    const veille = new Map();
+    const io = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => {
+      const fn = veille.get(e.target);
+      if (!fn) return;
+      if (e.isIntersecting) {
+        tours.add(fn);
+        if (!tourId) { tourT = performance.now(); tourId = requestAnimationFrame(tourner); }
+      } else tours.delete(fn);
+    })) : null;
+    const boucle = (scene, fn) => { if (reduit || !io) return; veille.set(scene, fn); io.observe(scene); };
+
+    // ---------- 1. Déclenché ----------
+    (() => {
+      const sc = $('.mv-declenche');
+      const minis = $$('.mv-mini', sc);
+      let minuteurs = [];
+      const rs = minis.map((el) => KS.ressort(0, { surMaj: (v) => {
+        el.style.transform = v ? `translate3d(0,${f(v * 26)}px,0) scale(${f(1 - v * 0.04, 4)})` : '';
+        el.style.opacity = v ? f(1 - v, 3) : '';
+      } }));
+      $('.mv-action', sc).addEventListener('click', () => {
+        minuteurs.forEach(clearTimeout);
+        minuteurs = [];
+        if (reduit) {
+          rs.forEach((r) => r.fixer(1));
+          rs.forEach((r, i) => minuteurs.push(setTimeout(() => r.fixer(0), 120 + i * 140)));
+          return;
+        }
+        rs.forEach((r) => r.cible(1, { reponse: 0.22, amorti: 1 }));
+        rs.forEach((r, i) => minuteurs.push(setTimeout(() => r.cible(0, { reponse: 0.55, amorti: 1 }), 230 + i * 90)));
+      });
+    })();
+
+    // ---------- 2. Lié ----------
+    (() => {
+      const sc = $('.mv-lie');
+      const rail = $('.mv-rail', sc), plein = $('.mv-rail-plein', sc), course = $('.mv-rail-course', sc);
+      const poignee = $('.mv-poignee', sc), carre = $('.mv-carre', sc), cpt = $('.mv-compteur', sc);
+      let dernier = -1;
+      const rendre = (p) => {
+        const q = borne(p, 0, 1);
+        plein.style.transform = `scaleX(${f(q, 4)})`;
+        course.style.transform = `translate3d(${f(q * 100, 3)}%,0,0)`;
+        carre.style.transform = `rotate(${f(q * 180)}deg) scale(${f(0.6 + 0.6 * q, 4)})`;
+        const pct = Math.round(q * 100);
+        if (pct !== dernier) {
+          dernier = pct;
+          cpt.textContent = pct + ' %';
+          rail.setAttribute('aria-valuenow', pct);
+          rail.setAttribute('aria-valuetext', pct + ' %');
+        }
+      };
+      const r = KS.ressort(0.4, { surMaj: rendre });
+      rendre(0.4);
+      let prise = null;
+      rail.addEventListener('pointerdown', (e) => {
+        if (e.button > 0) return;
+        const b = rail.getBoundingClientRect();
+        const cx = b.left + borne(r.valeur, 0, 1) * b.width;
+        const surPoignee = Math.abs(e.clientX - cx) <= 20;
+        prise = { id: e.pointerId, decalage: surPoignee ? e.clientX - cx : 0, gauche: b.left, largeur: b.width || 1, rattrape: !surPoignee };
+        rail.setPointerCapture(e.pointerId);
+        rail.focus({ preventScroll: true });
+        poignee.classList.add('mv-tenu');
+        if (surPoignee) r.fixer(r.valeur);
+        else r.cible(borne((e.clientX - b.left) / prise.largeur, 0, 1), { reponse: 0.3, amorti: 1 });
+        e.preventDefault();
+      });
+      rail.addEventListener('pointermove', (e) => {
+        if (!prise || e.pointerId !== prise.id) return;
+        const v = borne((e.clientX - prise.decalage - prise.gauche) / prise.largeur, 0, 1);
+        if (prise.rattrape && Math.abs(r.valeur - r.but) > 0.002) r.cible(v, { reponse: 0.12, amorti: 1 });
+        else { prise.rattrape = false; r.fixer(v); }
+      });
+      const lacher = (e) => {
+        if (!prise || e.pointerId !== prise.id) return;
+        prise = null;
+        poignee.classList.remove('mv-tenu');
+      };
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((t) => rail.addEventListener(t, lacher));
+      rail.addEventListener('keydown', (e) => {
+        const pas = { ArrowRight: 0.05, ArrowUp: 0.05, ArrowLeft: -0.05, ArrowDown: -0.05, PageUp: 0.2, PageDown: -0.2 }[e.key];
+        let v = null;
+        if (pas !== undefined) v = r.but + pas;
+        else if (e.key === 'Home') v = 0;
+        else if (e.key === 'End') v = 1;
+        if (v === null) return;
+        e.preventDefault();
+        r.cible(borne(Math.round(v * 100) / 100, 0, 1), { reponse: 0.3, amorti: 1 });
+      });
+    })();
+
+    // ---------- 3. Parallaxe ----------
+    (() => {
+      const sc = $('.mv-para');
+      const amplitudes = [0.025, 0.06, 0.11], reponses = [0.6, 0.45, 0.35];
+      let W = 0;
+      const couches = $$('.mv-couche', sc).map((el, i) => {
+        const o = { el, amp: amplitudes[i] };
+        const peindre = () => { el.style.transform = `translate3d(${f(o.x.valeur * o.amp * W)}px,${f(o.y.valeur * o.amp * W)}px,0)`; };
+        o.x = KS.ressort(0, { reponse: reponses[i], surMaj: peindre });
+        o.y = KS.ressort(0, { reponse: reponses[i], surMaj: peindre });
+        o.peindre = peindre;
+        return o;
+      });
+      surTaille(sc, () => { W = sc.clientWidth; couches.forEach((o) => o.peindre()); });
+      const viser = (nx, ny) => couches.forEach((o) => { o.x.cible(nx, { amorti: 1 }); o.y.cible(ny, { amorti: 1 }); });
+      let survol = false, phase = 0;
+      sc.addEventListener('pointermove', (e) => {
+        const b = sc.getBoundingClientRect();
+        survol = true;
+        viser(borne((e.clientX - b.left) / b.width * 2 - 1, -1, 1), borne((e.clientY - b.top) / b.height * 2 - 1, -1, 1));
+      });
+      sc.addEventListener('pointerleave', () => { survol = false; if (reduit) viser(0, 0); });
+      boucle(sc, (dt) => {
+        if (survol) return;
+        phase += dt;
+        viser(Math.sin(phase * 0.8) * 0.45, Math.sin(phase * 0.55 + 1.2) * 0.35);
+      });
+    })();
+
+    // ---------- 4. Collant ----------
+    (() => {
+      const sc = $('.mv-collant');
+      const d = $('.mv-defile', sc);
+      let pos = 0, repos = 0, etat = 'defile', attente = 0;
+      const retour = KS.ressort(0, { reponse: 1.1, surMaj: (v) => { d.scrollTop = v; pos = v; } });
+      const toucher = () => {
+        repos = performance.now() + 2600;
+        if (etat === 'retour') { retour.fixer(d.scrollTop); etat = 'defile'; }
+      };
+      ['wheel', 'pointerdown', 'touchstart', 'keydown'].forEach((t) => d.addEventListener(t, toucher, { passive: true }));
+      boucle(sc, (dt) => {
+        if (performance.now() < repos) { pos = d.scrollTop; return; }
+        const max = d.scrollHeight - d.clientHeight;
+        if (max <= 0) return;
+        if (etat === 'defile') {
+          pos = Math.min(max, pos + dt * 16);
+          d.scrollTop = pos;
+          if (pos >= max - 0.5) { etat = 'pause'; attente = 1.6; }
+        } else if (etat === 'pause') {
+          attente -= dt;
+          if (attente <= 0) { etat = 'retour'; retour.fixer(d.scrollTop); retour.cible(0, { amorti: 1 }); }
+        } else if (etat === 'retour') {
+          if (Math.abs(retour.valeur) < 0.5) { retour.fixer(0); etat = 'debut'; attente = 1.2; }
+        } else if (etat === 'debut') {
+          attente -= dt;
+          if (attente <= 0) etat = 'defile';
+        }
+      });
+    })();
+
+    // ---------- 5. Épinglé ----------
+    (() => {
+      const sc = $('.mv-epingle');
+      const d = $('.mv-defile', sc), points = $$('.mv-point', sc), legende = $('.mv-legende', sc);
+      const noms = ['Cadre', 'Titre', 'Habillage'];
+      const peindre = (el, effet, v) => {
+        el.style.opacity = f(v, 3);
+        if (effet === 'bas') el.style.transform = `translate3d(0,${f((1 - v) * 100)}%,0)`;
+        else if (effet === 'pop') el.style.transform = `scale(${f(0.8 + 0.2 * v, 4)})`;
+        else el.style.transform = `translate3d(0,${f((1 - v) * 10)}px,0)`;
+      };
+      const elems = $$('[data-etape]', sc).map((el) => {
+        const effet = el.dataset.effet || 'haut';
+        peindre(el, effet, 0);
+        return { etape: +el.dataset.etape, r: KS.ressort(0, { surMaj: (v) => peindre(el, effet, v) }) };
+      });
+      let etape = -1, minuteurs = [];
+      const aller = (k, immediat = false) => {
+        if (k === etape) return;
+        etape = k;
+        points.forEach((p, i) => p.setAttribute('aria-current', i === k ? 'step' : 'false'));
+        legende.textContent = `Étape ${k + 1} sur 3 · ${noms[k]}`;
+        minuteurs.forEach(clearTimeout);
+        minuteurs = [];
+        let n = 0;
+        elems.forEach((o) => {
+          if (o.etape <= k) {
+            if (immediat) o.r.fixer(1);
+            else if (o.r.but !== 1) minuteurs.push(setTimeout(() => o.r.cible(1, { amorti: 1 }), n++ * 70));
+          } else o.r.cible(0, { amorti: 1 });
+        });
+      };
+      aller(0, true);
+      const surDefile = () => {
+        const max = d.scrollHeight - d.clientHeight;
+        const p = max > 0 ? d.scrollTop / max : 0;
+        aller(Math.min(2, Math.floor(p * 3 + 1e-6)));
+      };
+      d.addEventListener('scroll', surDefile, { passive: true });
+      const rs = KS.ressort(0, { reponse: 0.55, surMaj: (v) => { d.scrollTop = v; } });
+      const couper = () => { if (rs.valeur !== rs.but) rs.fixer(d.scrollTop); };
+      ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach((t) => d.addEventListener(t, couper, { passive: true }));
+      points.forEach((p, i) => p.addEventListener('click', () => {
+        const max = d.scrollHeight - d.clientHeight;
+        rs.fixer(d.scrollTop);
+        rs.cible(max * i / 2, { amorti: 1 });
+      }));
+    })();
+
+    // ---------- 6. Aimanté ----------
+    (() => {
+      const sc = $('.mv-aimant');
+      const diapos = $$('.mv-diapo', sc), puces = $$('.mv-puces .mv-point', sc), n = diapos.length;
+      const ecart = 14;
+      let W = 1, cw = 1, pas = 1, vise = 2, affiche = -1;
+      const rendre = (x) => {
+        const base = (W - cw) / 2;
+        diapos.forEach((el, i) => {
+          const c = i * pas + x, d = Math.min(1, Math.abs(c) / pas);
+          el.style.transform = `translate3d(${f(base + c)}px,0,0) scale(${f(1 - d * 0.08, 4)})`;
+          el.style.opacity = f(1 - d * 0.4, 3);
+        });
+        const a = borne(Math.round(-x / pas), 0, n - 1);
+        if (a !== affiche) {
+          affiche = a;
+          puces.forEach((p, i) => p.setAttribute('aria-current', i === a ? 'true' : 'false'));
+        }
+      };
+      const rx = KS.ressort(0, { surMaj: rendre });
+      surTaille(sc, () => {
+        W = sc.clientWidth; cw = diapos[0].offsetWidth || W * 0.54; pas = cw + ecart;
+        rx.fixer(-vise * pas);
+      });
+      const aller = (i) => { vise = borne(i, 0, n - 1); rx.cible(-vise * pas, { reponse: 0.4, amorti: 1 }); };
+      // Élastique façon iOS au-delà des bords, et son inverse pour reprendre un geste sans saut.
+      const bande = (o) => (1 - 1 / (o * 0.55 / W + 1)) * W;
+      const debande = (y) => (1 / (1 - Math.min(y / W, 0.999)) - 1) * W / 0.55;
+      const mini = () => -(n - 1) * pas;
+      const elastique = (x) => (x > 0 ? bande(x) : x < mini() ? mini() - bande(mini() - x) : x);
+      const brut = (x) => (x > 0 ? debande(x) : x < mini() ? mini() - debande(mini() - x) : x);
+      const suivi = KS.suiveur();
+      let prise = null;
+      sc.addEventListener('pointerdown', (e) => {
+        if (e.button > 0 || e.target.closest('.mv-point')) return;
+        const diapo = e.target.closest('.mv-diapo');
+        rx.fixer(rx.valeur);
+        prise = { id: e.pointerId, x0: e.clientX, base: brut(rx.valeur), bouge: false, diapo };
+        suivi.vider();
+        suivi.ajouter(e.clientX);
+        sc.setPointerCapture(e.pointerId);
+        sc.classList.add('mv-tenu');
+      });
+      sc.addEventListener('pointermove', (e) => {
+        if (!prise || e.pointerId !== prise.id) return;
+        const dx = e.clientX - prise.x0;
+        if (!prise.bouge && Math.abs(dx) > 4) prise.bouge = true;
+        suivi.ajouter(e.clientX);
+        rx.fixer(elastique(prise.base + dx));
+      });
+      const lacher = (e) => {
+        if (!prise || e.pointerId !== prise.id) return;
+        const p = prise;
+        prise = null;
+        sc.classList.remove('mv-tenu');
+        if (!p.bouge) { aller(p.diapo ? diapos.indexOf(p.diapo) : vise); return; }
+        const dehors = rx.valeur > 0 || rx.valeur < mini();
+        const v = e.type === 'pointerup' ? suivi.vitesse().x * (dehors ? 0.3 : 1) : 0;
+        vise = borne(Math.round(-(rx.valeur + KS.projeter(v)) / pas), 0, n - 1);
+        rx.cible(-vise * pas, { vitesse: v, reponse: 0.4, amorti: Math.abs(v) > 300 ? 0.8 : 1 });
+      };
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((t) => sc.addEventListener(t, lacher));
+      puces.forEach((p, i) => p.addEventListener('click', () => aller(i)));
+      sc.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') aller(vise - 1);
+        else if (e.key === 'ArrowRight') aller(vise + 1);
+        else if (e.key === 'Home') aller(0);
+        else if (e.key === 'End') aller(n - 1);
+        else return;
+        e.preventDefault();
+      });
+    })();
+
+    // ---------- 7. Horizontal ----------
+    (() => {
+      const sc = $('.mv-horiz');
+      const d = $('.mv-defile', sc), bandes = $$('.mv-bande', sc), jauge = $('.mv-jauge i', sc);
+      let derive = 0, L = [1, 1];
+      const mod = (a, m) => ((a % m) + m) % m;
+      const rendre = () => {
+        const x = derive + rs.valeur;
+        bandes[0].style.transform = `translate3d(${f(-mod(x, L[0]))}px,0,0)`;
+        bandes[1].style.transform = `translate3d(${f(mod(x * 0.6, L[1]) - L[1])}px,0,0)`;
+      };
+      const rs = KS.ressort(0, { reponse: 0.45, surMaj: rendre });
+      surTaille(sc, () => { L = bandes.map((b) => b.firstElementChild.offsetWidth || 1); rendre(); });
+      d.addEventListener('scroll', () => {
+        const max = d.scrollHeight - d.clientHeight;
+        jauge.style.transform = `scaleX(${f(max > 0 ? borne(d.scrollTop / max, 0, 1) : 0, 4)})`;
+        rs.cible(d.scrollTop * 1.4, { amorti: 1 });
+      }, { passive: true });
+      boucle(sc, (dt) => { derive += dt * 18; rendre(); });
+    })();
+
+    // ---------- 8. Cascade ----------
+    (() => {
+      const sc = $('.mv-cascade');
+      const damier = $('.mv-damier', sc);
+      const pions = $$('.mv-pion', damier).map((el) => {
+        const o = { el };
+        const peindre = () => {
+          const x = o.x.valeur, y = o.y.valeur;
+          el.style.transform = x || y ? `translate3d(${f(x)}px,${f(y)}px,0)` : '';
+        };
+        o.x = KS.ressort(0, { reponse: 0.5, surMaj: peindre });
+        o.y = KS.ressort(0, { reponse: 0.5, surMaj: peindre });
+        return o;
+      });
+      let ordre = pions.slice(), minuteurs = [];
+      $('.mv-action', sc).addEventListener('click', () => {
+        minuteurs.forEach(clearTimeout);
+        minuteurs = [];
+        // First : la position affichée (mise en page + décalage en cours).
+        const avant = new Map(pions.map((o) => [o, [o.el.offsetLeft + o.x.valeur, o.el.offsetTop + o.y.valeur]]));
+        const suite = ordre.slice();
+        for (let i = suite.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [suite[i], suite[j]] = [suite[j], suite[i]]; }
+        ordre = suite;
+        const frag = document.createDocumentFragment();
+        ordre.forEach((o) => frag.appendChild(o.el));
+        damier.appendChild(frag);
+        // Last, Invert, Play.
+        ordre.forEach((o, i) => {
+          const [l, t] = avant.get(o);
+          if (reduit) { o.x.fixer(0); o.y.fixer(0); return; }
+          o.x.fixer(l - o.el.offsetLeft);
+          o.y.fixer(t - o.el.offsetTop);
+          minuteurs.push(setTimeout(() => { o.x.cible(0, { amorti: 1 }); o.y.cible(0, { amorti: 1 }); }, i * 30));
+        });
+      });
+    })();
+
+    // ---------- 9. Révélation du texte ----------
+    (() => {
+      const sc = $('.mv-revele');
+      const mots = $$('.mv-mot', sc), allumes = mots.map((m) => $('.mv-mot-on', m)), N = mots.length;
+      const cache = allumes.map(() => -1);
+      const rendre = (t) => allumes.forEach((el, i) => {
+        const v = Math.round(borne(t - i, 0, 1) * 1000) / 1000;
+        if (v !== cache[i]) { cache[i] = v; el.style.opacity = String(v); }
+      });
+      const rt = KS.ressort(3, { reponse: 0.3, surMaj: rendre });
+      rendre(3);
+      const position = (x, y) => {
+        const rects = mots.map((m) => m.getBoundingClientRect());
+        const centre = (r) => (r.top + r.bottom) / 2;
+        let ligne = centre(rects[0]);
+        rects.forEach((r) => { if (Math.abs(centre(r) - y) < Math.abs(ligne - y)) ligne = centre(r); });
+        let t = null;
+        rects.forEach((r, i) => {
+          if (Math.abs(centre(r) - ligne) > 2) return;
+          if (t === null) t = i;
+          if (x >= r.left) t = i + borne((x - r.left) / r.width, 0, 1);
+        });
+        return t === null ? 0 : t;
+      };
+      let survol = false, phase = 'avance', attente = 0;
+      sc.addEventListener('pointermove', (e) => { survol = true; rt.cible(position(e.clientX, e.clientY), { reponse: 0.3, amorti: 1 }); });
+      sc.addEventListener('pointerleave', () => { survol = false; phase = 'avance'; });
+      boucle(sc, (dt) => {
+        if (survol) return;
+        if (phase === 'avance') {
+          const t = rt.valeur + dt * 3;
+          if (t >= N) { rt.fixer(N); phase = 'tenue'; attente = 1.8; } else rt.fixer(t);
+        } else if (phase === 'tenue') {
+          attente -= dt;
+          if (attente <= 0) { phase = 'retour'; rt.cible(0, { reponse: 0.9, amorti: 1 }); }
+        } else if (phase === 'retour') {
+          if (rt.valeur < 0.02) { rt.fixer(0); phase = 'attente'; attente = 0.6; }
+        } else if (phase === 'attente') {
+          attente -= dt;
+          if (attente <= 0) phase = 'avance';
+        }
+      });
+    })();
+
+    // ---------- 10. Barre de progression ----------
+    (() => {
+      const sc = $('.mv-barre');
+      const d = $('.mv-defile', sc), plein = $('.mv-lecture i', sc), pct = $('.mv-pct', sc), btn = $('.mv-haut', sc);
+      // Le bouton n'apparaît que lorsqu'il y a de quoi remonter.
+      const vu = KS.ressort(1, { surMaj: (v) => {
+        btn.style.opacity = f(v, 3);
+        btn.style.transform = `scale(${f(0.85 + 0.15 * v, 4)})`;
+      } });
+      let montre = true, dernier = -1;
+      const maj = () => {
+        const max = d.scrollHeight - d.clientHeight;
+        const p = max > 0 ? borne(d.scrollTop / max, 0, 1) : 0;
+        plein.style.transform = `scaleX(${f(p, 4)})`;
+        const n = Math.round(p * 100);
+        if (n !== dernier) { dernier = n; pct.textContent = n + '\u202f%'; }
+        const doit = d.scrollTop > 8;
+        if (doit !== montre) {
+          montre = doit;
+          vu.cible(doit ? 1 : 0, { reponse: 0.3, amorti: 1 });
+          btn.style.pointerEvents = doit ? '' : 'none';
+          btn.tabIndex = doit ? 0 : -1;
+        }
+      };
+      d.addEventListener('scroll', maj, { passive: true });
+      // Au repos, l'article est déjà entamé : la barre et le bouton se lisent tout de suite.
+      const second = $$('p:not(.mv-titre-article)', d)[1];
+      if (second) d.scrollTop = second.offsetTop - 14;
+      surTaille(d, maj);
+      const rs = KS.ressort(0, { reponse: 0.6, surMaj: (v) => { d.scrollTop = v; } });
+      const couper = () => { if (rs.valeur !== rs.but) rs.fixer(d.scrollTop); };
+      ['wheel', 'touchstart', 'pointerdown', 'keydown'].forEach((t) => d.addEventListener(t, couper, { passive: true }));
+      btn.addEventListener('click', () => {
+        if (d.scrollTop < 1) return;
+        rs.fixer(d.scrollTop);
+        rs.cible(0, { amorti: 1 });
+      });
+    })();
+
+    $$('.mv-carte').forEach((c, i) => KS.monte(c, i * 60));
+  };
+  if (window.KS) demarrer();
+  else document.addEventListener('DOMContentLoaded', demarrer, { once: true });
+})();
+</script>

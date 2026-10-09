@@ -16,6 +16,7 @@ niveau visé, pas une inspiration lointaine.
 | [Gal Shir — Framer](https://x.com/galshirart/status/1975920588372771249) | Identité animée de Framer | Logo construit sur une grille de construction, extrusion 3D en verre et en métal, verre irisé, lettres qui s'espacent puis se resserrent, nuancier animé, mockups produits (casquette) |
 | [Viktor Oddy — Figma motion](https://x.com/viktoroddy/status/2070831152248901804) | Tutoriel de 13 min : sites animés à 10 k$ dans Figma | Héros plein écran avec photo + titre géant, masques de texte sur image, cartes verticales qui se déploient, trajets animés sur carte, effets (bloom, distorsion, aberration chromatique) |
 | [Viktor Oddy — ressources](https://x.com/viktoroddy/status/2099152986102796467) | Liste de galeries de design | Voir la liste ci-dessous |
+| [Vox — 10 effets de défilement](https://x.com/voxyz_ai/status/2108324058739745228) | Les 10 noms des animations au défilement, avec une démo de chacune | Le vocabulaire commun pour décrire un mouvement (voir « Le vocabulaire du mouvement ») |
 
 ### Les galeries à consulter
 
@@ -36,6 +37,34 @@ niveau visé, pas une inspiration lointaine.
 - **Des interfaces crédibles** plutôt que des formes abstraites : barres de recherche, calendriers, téléphones, tableaux de bord.
 - **Des chiffres qui bougent** : compteurs, grands nombres, jauges.
 - **Le temps de respirer** : les meilleures pièces tiennent un plan assez longtemps pour qu'on le lise.
+
+## Le vocabulaire du mouvement
+
+Les 10 effets de défilement des sites web, traduits pour la vidéo : nos projets avancent
+avec le temps (`render(t)`) et le trajet de la caméra, pas avec la molette. Nommer l'effet
+voulu avec ces mots évite les malentendus.
+
+| Effet | Sur un site | En motion design |
+|---|---|---|
+| Déclenché (*scroll-triggered*) | L'élément joue une fois en entrant dans l'écran | Entrée d'un élément à son moment : fondu, montée, masque |
+| Lié (*scroll-linked*) | L'animation suit le défilement, et repart en arrière si on remonte | L'animation suit une progression (temps, trajet caméra) : jauge, rotation, compteur |
+| Parallaxe | Premier plan et fond à des vitesses différentes | Couches décalées selon le mouvement de caméra (habillage 2D, 3D, fond) : la profondeur |
+| Collant (*sticky*) | Un élément reste fixé pendant que le reste défile | Cadre fixe : rubrique, logo, timecode, bandeau |
+| Épinglé (*pin*) | La section se fige, son contenu change étape par étape, puis elle repart | Plan tenu pendant que la scène se remplit (la régie, la check-list qui se coche) |
+| Aimanté (*scroll snap*) | S'arrête toujours sur un panneau entier | Mouvement qui se pose net sur une composition, avec un léger dépassement |
+| Horizontal | On descend, le contenu part vers la gauche | Travelling latéral, carrousel de cartes, bandeau qui défile |
+| En cascade (*stagger*) | Un groupe de cartes entre l'une après l'autre | Écrans, cartes ou éclats qui arrivent avec un décalage régulier |
+| Révélation du texte | Le paragraphe s'allume mot par mot | Titre ou citation qui s'allume mot par mot, au rythme de la lecture |
+| Barre de progression | Une ligne grandit pour montrer où on en est | Chargement, compte à rebours ; dans une boucle, elle ne doit pas trahir le retour à zéro |
+
+Règles de méthode reprises du même auteur :
+
+- D'abord un tableau scène → effet → pourquoi, en listant aussi les scènes où rien ne colle :
+  on n'ajoute pas un effet pour en avoir un. On valide avant de construire.
+- N'animer que `transform` et `opacity` dans l'habillage HTML : c'est fluide en direct (source
+  navigateur OBS) et rapide à rendre.
+- Écrire d'abord un DESIGN.md (couleurs, tailles de texte, espacements, arrondis) et tout faire
+  suivre : c'est le « système » de la section précédente, mis par écrit.
 
 ## Comment on produit (leçons de l'intro Kayzx TV)
 

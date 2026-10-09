@@ -33,7 +33,7 @@ html.cq-verrou { overflow: hidden; scrollbar-gutter: stable; }
 .cq-marque-icone { width: 26px; height: 26px; display: block; flex: none; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .18)); }
 .cq-en-lancement .cq-marque-icone, .cq-en-lancement .cq-marque-nom { opacity: 0; }
 .cq-nav { flex: 1; min-width: 0; position: relative; display: flex; justify-content: center; }
-.cq-liens { position: relative; display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
+.cq-liens { display: flex; gap: 2px; list-style: none; margin: 0; padding: 0; }
 .cq-liens li { display: block; }
 .cq-lien { position: relative; z-index: 1; display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 980px;
   color: var(--fg-2); text-decoration: none; font-size: 13px; letter-spacing: -.01em; white-space: nowrap; transition: color .2s ease; }
@@ -79,7 +79,7 @@ html.cq-verrou { overflow: hidden; scrollbar-gutter: stable; }
 .cq-pop-el:focus-visible { outline-offset: -2px; border-radius: 11px; }
 .cq-pop-el > svg { width: 20px; height: 20px; flex: none; color: var(--fg-2); }
 .cq-pop-t { flex: 1; min-width: 0; display: grid; }
-.cq-pop-t small { font-size: 12px; color: var(--fg-2); letter-spacing: -.005em; margin-top: 2px; }
+.cq-pop-t small { font-size: 12px; font-weight: 400; color: var(--fg-2); letter-spacing: -.005em; margin-top: 2px; }
 .cq-pop-el .cq-coche { width: 18px; height: 18px; color: var(--accent); opacity: 0; margin-left: auto; }
 .cq-pop-el[aria-current="true"], .cq-pop-el[aria-checked="true"] { font-weight: 600; }
 .cq-pop-el[aria-current="true"] .cq-coche, .cq-pop-el[aria-checked="true"] .cq-coche { opacity: 1; }
@@ -88,7 +88,7 @@ html.cq-verrou { overflow: hidden; scrollbar-gutter: stable; }
 /* ---------- Couches modales (palette, feuilles) ---------- */
 .cq-couche { position: fixed; inset: 0; z-index: 80; font-family: var(--police); color: var(--fg); }
 .cq-voile { position: absolute; inset: 0; background: var(--scrim); opacity: 0; -webkit-tap-highlight-color: transparent; }
-.cq-touche { appearance: none; border: 0; margin: 0; display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 7px;
+.cq-touche { appearance: none; border: 0; margin: 0; display: inline-flex; align-items: center; justify-content: center; gap: 2px; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 7px;
   background: color-mix(in srgb, var(--fg) 7%, transparent); color: var(--fg-2); font: 500 12px/1 var(--police); letter-spacing: 0; white-space: nowrap; }
 button.cq-touche { cursor: pointer; transition: background-color .15s ease, transform .18s ease-out; }
 button.cq-touche:hover { background: color-mix(in srgb, var(--fg) 12%, transparent); color: var(--fg); }
@@ -117,6 +117,7 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
 .cq-ic svg { width: 16px; height: 16px; }
 .cq-ic.cq-ic-projet i { position: absolute; right: 5px; bottom: 5px; width: 7px; height: 7px; border-radius: 50%; }
 .cq-ic.cq-ic-action { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.cq-txt { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 12px; }
 .cq-t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cq-t mark { background: none; color: inherit; font-weight: 600; }
 .cq-d { flex: none; max-width: 45%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--fg-2); font-size: 13px; }
@@ -127,6 +128,15 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
 .cq-pal-pied { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 10px 18px; border-top: 1px solid var(--line); font-size: 12px; color: var(--fg-2); }
 .cq-pal-pied span { display: inline-flex; align-items: center; gap: 6px; }
 .cq-pal-pied .cq-touche { height: 20px; min-width: 20px; padding: 0 5px; font-size: 11px; }
+.cq-pal-partout { margin-left: auto; }
+@media (max-width: 559.98px) {
+  .cq-pal-opt, .cq-pal-pastille { height: 54px; }
+  .cq-txt { flex-direction: column; align-items: stretch; gap: 1px; }
+  .cq-d { max-width: none; font-size: 12px; }
+  .cq-ic { width: 32px; height: 32px; border-radius: 8px; }
+  .cq-pal-tete { padding-left: 16px; }
+  .cq-pal-partout { display: none; }
+}
 @media (pointer: coarse) {
   .cq-pal-pied, .cq-entree { display: none; }
   .cq-pal-esc { background: none; color: var(--accent); font-size: 17px; font-weight: 400; padding: 0 4px; height: 36px; }
@@ -205,7 +215,8 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
 }
 </style>
 
-<!-- Icône Kayzx Studio : un K dont la jambe est une trajectoire, avec son point de lecture doré -->
+<!-- Icône Kayzx Studio : un K dont la jambe est une courbe d'accélération qui finit sur le point de lecture doré -->
+<!-- À placer en tête de <body> : le thème et l'écran de lancement sont posés avant le premier rendu. -->
 <svg class="cq-defs" aria-hidden="true" focusable="false" width="0" height="0">
   <defs>
     <linearGradient id="cq-g-fond" x1="0.2" y1="0" x2="0.8" y2="1">
@@ -226,13 +237,12 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
     <path fill="url(#cq-g-fond)" d="M64.8 0c12.321 0 18.482 0 23.188 2.398a22 22 0 0 1 9.614 9.614c2.398 4.706 2.398 10.867 2.398 23.188V64.8c0 12.321 0 18.482-2.398 23.188a22 22 0 0 1-9.614 9.614C83.282 100 77.121 100 64.8 100H35.2c-12.321 0-18.482 0-23.188-2.398a22 22 0 0 1-9.614-9.614C0 83.282 0 77.121 0 64.8V35.2c0-12.321 0-18.482 2.398-23.188a22 22 0 0 1 9.614-9.614C16.718 0 22.879 0 35.2 0Z"/>
     <path fill="url(#cq-g-reflet)" d="M64.8 0c12.321 0 18.482 0 23.188 2.398a22 22 0 0 1 9.614 9.614c2.398 4.706 2.398 10.867 2.398 23.188V64.8c0 12.321 0 18.482-2.398 23.188a22 22 0 0 1-9.614 9.614C83.282 100 77.121 100 64.8 100H35.2c-12.321 0-18.482 0-23.188-2.398a22 22 0 0 1-9.614-9.614C0 83.282 0 77.121 0 64.8V35.2c0-12.321 0-18.482 2.398-23.188a22 22 0 0 1 9.614-9.614C16.718 0 22.879 0 35.2 0Z"/>
     <path fill="none" stroke="#ffffff" stroke-opacity=".12" stroke-width="1.2" d="M64.8 0c12.321 0 18.482 0 23.188 2.398a22 22 0 0 1 9.614 9.614c2.398 4.706 2.398 10.867 2.398 23.188V64.8c0 12.321 0 18.482-2.398 23.188a22 22 0 0 1-9.614 9.614C83.282 100 77.121 100 64.8 100H35.2c-12.321 0-18.482 0-23.188-2.398a22 22 0 0 1-9.614-9.614C0 83.282 0 77.121 0 64.8V35.2c0-12.321 0-18.482 2.398-23.188a22 22 0 0 1 9.614-9.614C16.718 0 22.879 0 35.2 0Z"/>
-    <g fill="none" stroke="#EEF2F1" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M33 26V74"/>
-      <path d="M63 26L39 50C46.2 50 50.52 58.64 55.42 65.55"/>
-      <path d="M55.42 65.55C58.68 70.16 62.2 74 67 74" stroke-opacity=".34"/>
+    <g fill="none" stroke="#EEF2F1" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M29.5 23.5V73.5"/>
+      <path d="M60.5 23.5 36 48.5C47.5 48.5 51.5 73.5 63.5 73.5"/>
     </g>
-    <circle cx="55.42" cy="65.55" r="11" fill="#E3A83B" opacity=".22"/>
-    <circle cx="55.42" cy="65.55" r="6.4" fill="url(#cq-g-point)"/>
+    <circle cx="67.5" cy="73.5" r="7.6" fill="#0B302D"/>
+    <circle cx="67.5" cy="73.5" r="6" fill="url(#cq-g-point)"/>
   </symbol>
 </svg>
 
@@ -308,7 +318,7 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
       <span><kbd class="cq-touche">↑</kbd><kbd class="cq-touche">↓</kbd> naviguer</span>
       <span><kbd class="cq-touche">↵</kbd> ouvrir</span>
       <span><kbd class="cq-touche">esc</kbd> fermer</span>
-      <span style="margin-left:auto"><kbd class="cq-touche"><span data-cq-mod>⌘</span>&nbsp;K</kbd> partout</span>
+      <span class="cq-pal-partout"><kbd class="cq-touche" data-cq-combo>⌘K</kbd> partout</span>
     </div>
     <p class="cq-sr" id="cq-pal-annonce" aria-live="polite"></p>
   </div>
@@ -338,7 +348,7 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
           <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Boucle d’attente prête pour OBS</li>
           <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Kit de marque</li>
           <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Références filtrables</li>
-          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg><span>Palette de commandes <span data-cq-mod>⌘</span>K</span></li>
+          <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg><span>Palette de commandes <span data-cq-combo>⌘K</span></span></li>
           <li><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4.8 10.4 3.4 3.4 7-7.4"/></svg>Thème clair et sombre</li>
         </ul>
       </section>
@@ -435,6 +445,7 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
     KS.version = '1.0';
 
     $$('[data-cq-mod]').forEach((n) => { n.textContent = MOD; });
+    $$('[data-cq-combo]').forEach((n) => { n.textContent = MAC ? '⌘K' : 'Ctrl K'; });
     const btnRecherche = $('#cq-btn-recherche'), btnTheme = $('#cq-btn-theme'), btnApropos = $('#cq-btn-apropos'), btnMenu = $('#cq-btn-menu');
     btnRecherche.title = `Rechercher (${MOD} K)`;
     btnApropos.title = 'À propos de Kayzx Studio';
@@ -496,7 +507,8 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
     function placerPilule(instant) {
       const a = liens.find((l) => l.getAttribute('href') === '#' + actifId);
       if (!a || !nav.offsetParent) { pilule.style.opacity = '0'; piluleVue = false; return; }
-      const x = a.offsetLeft, w = a.offsetWidth;
+      const ra = a.getBoundingClientRect(), rn = nav.getBoundingClientRect();
+      const x = ra.left - rn.left, w = ra.width;
       if (instant || !piluleVue) { rX.fixer(x); rW.fixer(w); }
       else { rX.cible(x, { amorti: 1, reponse: 0.42 }); rW.cible(w, { amorti: 1, reponse: 0.42 }); }
       pilule.style.opacity = '1';
@@ -546,7 +558,12 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
     }
     const planifier = () => { if (!rafDef) rafDef = requestAnimationFrame(majDefilement); };
     addEventListener('scroll', planifier, { passive: true });
-    addEventListener('resize', () => { fermerPop(false); placerPilule(true); planifier(); });
+    let largeur = innerWidth;
+    addEventListener('resize', () => {
+      if (innerWidth !== largeur) { largeur = innerWidth; fermerPop(false); }   // la barre d'adresse mobile ne ferme rien
+      placerPilule(true);
+      planifier();
+    });
     if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', planifier);
     addEventListener('load', () => { placerPilule(true); planifier(); });
     if (doc.fonts && doc.fonts.ready) doc.fonts.ready.then(() => placerPilule(true)).catch(() => {});
@@ -578,7 +595,7 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
             panneau.style.opacity = String(clamp(v * 1.8).toFixed(3));
           }
           if (surDessin) surDessin(v);
-          if (!api.ouvert && rr && rr.but === 0 && v === 0 && rr.vitesse === 0) {
+          if (!api.ouvert && rr && rr.but === 0 && v < 0.002 && Math.abs(rr.vitesse) < 0.05) {
             clearTimeout(tCache);
             tCache = setTimeout(() => { if (!api.ouvert) panneau.hidden = true; }, reduit ? 220 : 0);
           }
@@ -600,10 +617,11 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
         clearTimeout(tCache);
         api.ouvert = true;
         popOuvert = api;
+        if (r.valeur === 0) panneau.style.opacity = '0';   // état fermé posé avant d'afficher
         panneau.hidden = false;
         panneau.style.pointerEvents = '';
         placer();
-        if (r.valeur === 0) { panneau.style.opacity = '0'; void panneau.offsetWidth; }
+        void panneau.offsetWidth;
         bouton.setAttribute('aria-expanded', 'true');
         r.cible(1, { amorti: 1, reponse: 0.34 });
         if (clavier || menu) {
@@ -697,7 +715,7 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
         surMaj: (v, rr) => {
           voile.style.opacity = String(clamp(v).toFixed(3));
           appliquer(v, mode, H);
-          if (!api.ouvert && rr && rr.but === 0 && v === 0 && rr.vitesse === 0) {
+          if (!api.ouvert && rr && rr.but === 0 && v < 0.002 && Math.abs(rr.vitesse) < 0.05) {
             clearTimeout(tCache);
             tCache = setTimeout(() => { if (!api.ouvert) racine.hidden = true; }, reduit ? 220 : 0);
           }
@@ -710,11 +728,13 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
         const ici = doc.activeElement;
         api.origine = origine || (ici && ici !== doc.body ? ici : null);
         api.ouvert = true;
+        const ferme = r.valeur === 0;
+        if (glisse && ferme) { mode = innerWidth < 600 ? 'bas' : 'centre'; racine.dataset.mode = mode; }
+        if (ferme) { voile.style.opacity = '0'; appliquer(0, mode, H); }   // état fermé posé avant d'afficher
         racine.hidden = false;
         racine.style.pointerEvents = '';
-        if (glisse) { mode = innerWidth < 600 ? 'bas' : 'centre'; racine.dataset.mode = mode; }
         H = boite.offsetHeight + 24;
-        if (r.valeur === 0) { voile.style.opacity = '0'; appliquer(0, mode, H); void boite.offsetWidth; }
+        if (ferme) { appliquer(0, mode, H); void boite.offsetWidth; }
         pile.push(api);
         verrouiller();
         if (surOuvrir) surOuvrir();
@@ -916,10 +936,12 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
             pt.style.background = c[2] || '#E3A83B';
             ic.append(pt);
           } else ic.innerHTML = it.ic || '';
+          const txt = el('span', { class: 'cq-txt' });
           const t = el('span', { class: 'cq-t' });
           surligner(t, it.titre, mots);
-          o.append(ic, t);
-          if (it.detail) o.append(el('span', { class: 'cq-d' }, it.detail));
+          txt.append(t);
+          if (it.detail) txt.append(el('span', { class: 'cq-d' }, it.detail));
+          o.append(ic, txt);
           o.append(el('span', { class: 'cq-entree', 'aria-hidden': 'true' }, it.externe ? '↗' : '↵'));
           g.append(o);
           opts.push({ el: o, it });
@@ -1056,7 +1078,7 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
         const dI = { x: cx(ci) - cx(a), y: cy(ci) - cy(a), s: ci.width / a.width };
         const nomVu = cn.width > 0 && b.width > 0;
         const dN = nomVu ? { x: cx(cn) - cx(b), y: cy(cn) - cy(b), s: cn.width / b.width } : { x: dI.x, y: dI.y, s: 0.3 };
-        const rV = KS.ressort(0, { reponse: 0.4, surMaj: (q, r) => {
+        const rV = KS.ressort(0, { reponse: 0.38, surMaj: (q, r) => {
           if (fini) return;
           boite.style.transform = `translate3d(${(dI.x * q).toFixed(2)}px,${(dI.y * q).toFixed(2)}px,0) scale(${(1 + (dI.s - 1) * q).toFixed(4)})`;
           nom.style.transform = `translate3d(${(dN.x * q).toFixed(2)}px,${(dN.y * q).toFixed(2)}px,0) scale(${(1 + (dN.s - 1) * q).toFixed(4)})`;
@@ -1082,7 +1104,7 @@ button.cq-touche:active { transform: scale(.94); transition-duration: .15s, 0s; 
         } else L.remove();
       }
       types.forEach((t) => addEventListener(t, passer, { capture: true, passive: true }));
-      minuteurs.push(setTimeout(voler, 700), setTimeout(() => finir(false), 1360));
+      minuteurs.push(setTimeout(voler, 660), setTimeout(() => finir(false), 1340));
     }
   }
 

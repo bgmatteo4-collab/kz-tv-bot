@@ -1,0 +1,80 @@
+/* Kayzx Studio — base commune (allure Apple). Toutes les sections s'appuient sur ces jetons.
+   Mise en page : colonne centrée de 1024 px max, sections séparées par de grands blancs,
+   cartes arrondies sur fond gris très clair ; une seule couleur d'action, le bleu. */
+:root {
+  --bg: #ffffff;          /* fond de page */
+  --bg-2: #f5f5f7;        /* cartes, sections alternées */
+  --bg-3: #e8e8ed;        /* fond contrasté dans une carte, scènes de démo */
+  --fg: #1d1d1f;          /* texte principal */
+  --fg-2: #6e6e73;        /* texte secondaire */
+  --line: rgba(0, 0, 0, .1);
+  --accent: #0071e3;      /* le bleu des actions */
+  --accent-2: #0077ed;    /* survol */
+  --accent-fg: #ffffff;
+  --verre: rgba(255, 255, 255, .72);
+  --ombre: 0 12px 40px rgba(0, 0, 0, .08), 0 2px 6px rgba(0, 0, 0, .04);
+  --vert: #248a3d; --orange: #c93400; --gris: #6e6e73;   /* états : fait, en cours, à explorer */
+  --scrim: rgba(0, 0, 0, .32);
+  --police: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  --rayon: 28px; --rayon-s: 18px;
+  --large: 1024px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000000; --bg-2: #161617; --bg-3: #2a2a2d; --fg: #f5f5f7; --fg-2: #a1a1a6; --line: rgba(255, 255, 255, .14);
+    --accent: #2997ff; --accent-2: #47a6ff; --accent-fg: #ffffff; --verre: rgba(22, 22, 23, .72);
+    --ombre: 0 12px 40px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .4);
+    --vert: #30d158; --orange: #ff9f0a; --gris: #a1a1a6; --scrim: rgba(0, 0, 0, .55);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000000; --bg-2: #161617; --bg-3: #2a2a2d; --fg: #f5f5f7; --fg-2: #a1a1a6; --line: rgba(255, 255, 255, .14);
+  --accent: #2997ff; --accent-2: #47a6ff; --accent-fg: #ffffff; --verre: rgba(22, 22, 23, .72);
+  --ombre: 0 12px 40px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .4);
+  --vert: #30d158; --orange: #ff9f0a; --gris: #a1a1a6; --scrim: rgba(0, 0, 0, .55);
+  color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font-family: var(--police); font-size: 17px; line-height: 1.47; letter-spacing: -.022em; -webkit-font-smoothing: antialiased; }
+.enveloppe { max-width: var(--large); margin: 0 auto; padding-inline: 22px; }
+.section { padding-block: 96px; }
+.section.alt { background: var(--bg-2); }
+.titre-section { font-size: clamp(32px, 5vw, 48px); font-weight: 600; line-height: 1.08; letter-spacing: -.025em; margin: 0; text-wrap: balance; }
+.sous-titre { font-size: clamp(19px, 2.2vw, 21px); color: var(--fg-2); line-height: 1.38; margin: 12px 0 0; max-width: 40em; text-wrap: balance; }
+.surtitre { font-size: 17px; font-weight: 600; color: var(--fg-2); letter-spacing: -.01em; margin: 0 0 8px; }
+
+/* Boutons Apple : pilule pleine, pilule discrète, lien avec chevron. Retour immédiat à l'appui. */
+.bouton { display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 980px; padding: 11px 22px; font: 400 17px/1.17 var(--police); letter-spacing: -.022em; background: var(--accent); color: var(--accent-fg); cursor: pointer; text-decoration: none; transition: background-color .2s ease, transform .1s ease-out; }
+.bouton:hover { background: var(--accent-2); }
+.bouton:active { transform: scale(.97); }
+.bouton.discret { background: transparent; color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.bouton.discret:hover { background: var(--accent); color: var(--accent-fg); }
+.bouton.petit { padding: 8px 16px; font-size: 14px; }
+.lien { color: var(--accent); text-decoration: none; font-size: 17px; background: none; border: 0; padding: 0; cursor: pointer; font-family: var(--police); }
+.lien:hover { text-decoration: underline; }
+.lien::after { content: " ›"; }
+.rond { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--bg-3); color: var(--fg); display: inline-grid; place-items: center; cursor: pointer; transition: transform .1s ease-out, background-color .2s; font-size: 18px; line-height: 1; }
+.rond:hover { background: color-mix(in srgb, var(--bg-3) 80%, var(--fg) 20%); }
+.rond:active { transform: scale(.94); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+.carte { background: var(--bg-2); border-radius: var(--rayon); padding: 28px; }
+.pastille { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 980px; background: var(--bg-3); color: var(--fg); font-size: 13px; font-weight: 500; letter-spacing: -.01em; white-space: nowrap; }
+.pastille i { width: 7px; height: 7px; border-radius: 50%; background: var(--gris); }
+.pastille.fait i { background: var(--vert); } .pastille.encours i { background: var(--orange); }
+.mono { font-family: var(--mono); font-size: 13px; letter-spacing: 0; }
+.tab { font-variant-numeric: tabular-nums; }
+
+/* Apparition au défilement : l'élément est toujours visible, il ne fait que glisser en place. */
+[data-monte] { will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bouton, .rond { transition: none; }
+}
+
+/* Toast (créé par KS.toast) */
+.ks-toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 90; display: flex; align-items: center; gap: 16px; max-width: calc(100vw - 32px);
+  padding: 12px 20px; border-radius: 980px; background: var(--verre); color: var(--fg); font-size: 15px; box-shadow: var(--ombre);
+  -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); border: 1px solid var(--line); opacity: 0; transform: translate(-50%, 120px); }

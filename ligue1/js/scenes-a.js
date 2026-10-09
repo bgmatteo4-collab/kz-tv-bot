@@ -92,7 +92,7 @@ async function upS1(t) {
 const CLAIMS_T = [6.4, 7.6, 8.7, 9.8, 99];
 async function upS2(t) {
   let nom, tl, v;
-  if (t < 7.7) { nom = 'celeb'; tl = t - 5.0; v = 0.55; }
+  if (t < 7.7) { nom = 'celeb'; tl = t - 5.0; v = 0.48; }
   else if (t < 9.4) { nom = 'rennes'; tl = t - 7.7; v = 0.55; }
   else { nom = 'tifo'; tl = t - 9.4; v = 0.46; }
   const im = await plan(nom, tl, v);

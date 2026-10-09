@@ -23,7 +23,7 @@ async function charger(src) { const e = image(src); await e.ready; return e.im; 
 // ───────────── Plans (secondes dans la vidéo source, sans texte incrusté)
 const PLANS = {
   action: [0.0, 2.3],   // phase de jeu, plan large
-  celeb: [2.4, 3.9],    // joueur qui célèbre devant la tribune
+  celeb: [2.4, 3.72],   // joueur qui célèbre devant la tribune (le texte d'origine arrive à 3,76 s)
   tifo: [6.0, 7.3],     // stade, fumigènes
   rennes: [9.0, 9.95],  // vestiaire de Rennes en fête
   gardien: [11.4, 13.3],

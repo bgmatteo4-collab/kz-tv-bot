@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="860" viewBox="0 0 1200 860" font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+  <rect width="1200" height="860" fill="#eef1e8"/>
+
+  <!-- Collines lointaines (décor hors zone jouable) -->
+  <path d="M0 0 H1200 V40 C1000 70 800 30 600 55 C400 80 200 35 0 60 Z" fill="#d9e2cc"/>
+  <path d="M0 860 H1200 V815 C1000 790 820 830 600 805 C380 780 200 830 0 805 Z" fill="#d9e2cc"/>
+
+  <!-- Rocade -->
+  <ellipse cx="610" cy="420" rx="480" ry="320" fill="none" stroke="#c9a46a" stroke-width="7" stroke-dasharray="1 0"/>
+
+  <!-- Quartiers -->
+  <g stroke="#ffffff" stroke-width="2">
+    <ellipse cx="225" cy="235" rx="120" ry="80" fill="#9db4d6"/>   <!-- Défense -->
+    <ellipse cx="635" cy="140" rx="165" ry="70" fill="#e3b98c"/>   <!-- Faubourg -->
+    <ellipse cx="960" cy="215" rx="130" ry="75" fill="#cfe0b4"/>   <!-- Pavillonnaire NE -->
+    <ellipse cx="380" cy="445" rx="95" ry="48" fill="#a9d3cf"/>    <!-- Quais -->
+    <ellipse cx="1030" cy="445" rx="125" ry="70" fill="#b8b2a8"/>  <!-- Port / industrie -->
+    <ellipse cx="620" cy="575" rx="120" ry="58" fill="#e6c97a"/>   <!-- Gare -->
+    <ellipse cx="925" cy="655" rx="135" ry="80" fill="#c7b3d9"/>   <!-- Grands ensembles -->
+    <ellipse cx="270" cy="660" rx="150" ry="85" fill="#cfe0b4"/>   <!-- Pavillonnaire SO -->
+  </g>
+
+  <!-- Anneau des Boulevards (zone) -->
+  <path d="M478 395 C490 485 560 500 620 500 C690 500 755 480 770 405 C760 330 700 255 620 250 C540 252 480 320 478 395 Z" fill="#f2a7a0" stroke="#fff" stroke-width="2"/>
+  <!-- Vieille Ville -->
+  <ellipse cx="622" cy="352" rx="88" ry="62" fill="#d98a6c" stroke="#fff" stroke-width="2"/>
+
+  <!-- Fleuve -->
+  <path d="M-10 470 C150 470 260 445 390 425 C455 415 470 330 520 272 C570 205 680 205 725 268 C765 330 760 420 845 452 C950 490 1060 470 1210 460"
+        fill="none" stroke="#6fa8dc" stroke-width="30" stroke-linecap="round"/>
+  <path d="M-10 470 C150 470 260 445 390 425 C455 415 470 330 520 272 C570 205 680 205 725 268 C765 330 760 420 845 452 C950 490 1060 470 1210 460"
+        fill="none" stroke="#9cc5ea" stroke-width="12" stroke-linecap="round" opacity=".6"/>
+
+  <!-- Ponts -->
+  <g stroke="#555" stroke-width="7" stroke-linecap="round">
+    <line x1="505" y1="275" x2="480" y2="262"/>
+    <line x1="620" y1="222" x2="620" y2="196"/>
+    <line x1="738" y1="285" x2="765" y2="276"/>
+    <line x1="760" y1="420" x2="782" y2="440"/>
+    <line x1="430" y1="420" x2="437" y2="448"/>
+    <line x1="300" y1="436" x2="302" y2="464"/>
+    <line x1="900" y1="466" x2="902" y2="494"/>
+  </g>
+
+  <!-- Voies ferrées -->
+  <g fill="none" stroke="#444" stroke-width="4" stroke-dasharray="10 5">
+    <path d="M620 585 C760 600 900 590 1000 570 C1080 555 1150 600 1210 640"/>
+    <path d="M620 585 C480 595 300 590 150 560 C80 545 30 560 -10 575"/>
+  </g>
+
+  <!-- Autoroute vers l'aéroport -->
+  <path d="M1080 330 C1130 300 1170 290 1210 285" fill="none" stroke="#c9a46a" stroke-width="10"/>
+
+  <!-- Tram : anneau des Boulevards + quais -->
+  <g fill="none" stroke="#2e9d57" stroke-width="5">
+    <path d="M488 400 C500 478 565 492 620 492 C688 492 748 474 762 408"/>
+    <path d="M488 400 C440 432 360 455 280 455"/>
+  </g>
+
+  <!-- Métro M1 (Gare ↔ Défense) -->
+  <path d="M620 575 L620 482 L430 445 L230 240" fill="none" stroke="#d93a3a" stroke-width="6" stroke-linejoin="round"/>
+  <!-- Métro M2 (Faubourg ↔ Grands ensembles) -->
+  <path d="M640 135 L640 330 L620 482 L780 560 L920 650" fill="none" stroke="#2f6fd6" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- Stations -->
+  <g fill="#fff" stroke="#222" stroke-width="2.5">
+    <circle cx="620" cy="575" r="7"/><circle cx="430" cy="445" r="7"/><circle cx="230" cy="240" r="7"/>
+    <circle cx="640" cy="135" r="7"/><circle cx="640" cy="330" r="7"/><circle cx="780" cy="560" r="7"/>
+    <circle cx="920" cy="650" r="7"/><circle cx="330" cy="342" r="7"/>
+  </g>
+  <!-- Correspondance Opéra + premier morceau -->
+  <circle cx="620" cy="482" r="11" fill="#fff" stroke="#222" stroke-width="3"/>
+  <circle cx="620" cy="482" r="24" fill="none" stroke="#e8462a" stroke-width="3" stroke-dasharray="5 4"/>
+
+  <!-- Labels quartiers -->
+  <g font-size="15" font-weight="700" fill="#1f2328" text-anchor="middle">
+    <text x="622" y="350">1 · Vieille Ville</text>
+    <text x="622" y="368" font-size="11" font-weight="400">Cathédrale · Mairie · Tribunal · Musée</text>
+    <text x="548" y="428">2 · Les Boulevards</text>
+    <text x="620" y="612">3 · Quartier de la Gare</text>
+    <text x="635" y="112">4 · Faubourg</text>
+    <text x="380" y="472" font-size="13">5 · Quais</text>
+    <text x="225" y="225">6 · Défense locale</text>
+    <text x="925" y="690">7 · Grands ensembles</text>
+    <text x="270" y="700">8 · Pavillonnaire</text>
+    <text x="960" y="220">8 · Pavillonnaire</text>
+    <text x="1030" y="432" font-size="14">9 · Port &amp; industrie</text>
+  </g>
+  <g font-size="12" fill="#1f2328">
+    <line x1="642" y1="488" x2="795" y2="505" stroke="#c2331d" stroke-width="1.5"/>
+    <text x="800" y="503" fill="#c2331d" font-weight="700">★ Premier morceau</text>
+    <text x="800" y="519" font-weight="700">Carrefour Opéra (M1 · M2 · Tram)</text>
+    <text x="1205" y="275" text-anchor="end" font-weight="700">→ Aéroport</text>
+    <text x="1205" y="630" text-anchor="end" font-weight="700">→ Aéroport</text>
+    <text x="1120" y="300" text-anchor="end" fill="#6b5326">autoroute + campagne comprimée</text>
+    <text x="150" y="760" fill="#6b5326">Rocade</text>
+    <text x="40" y="490" fill="#2a5f93" font-style="italic">Le fleuve</text>
+  </g>
+
+  <!-- Légende -->
+  <g transform="translate(20,775)" font-size="12" fill="#1f2328">
+    <rect x="-8" y="-14" width="640" height="74" rx="8" fill="#ffffff" opacity=".85"/>
+    <line x1="0" y1="0" x2="28" y2="0" stroke="#d93a3a" stroke-width="6"/><text x="36" y="4">Métro M1 · Gare ↔ Défense</text>
+    <line x1="0" y1="20" x2="28" y2="20" stroke="#2f6fd6" stroke-width="6"/><text x="36" y="24">Métro M2 · Faubourg ↔ Grands ensembles</text>
+    <line x1="0" y1="40" x2="28" y2="40" stroke="#2e9d57" stroke-width="5"/><text x="36" y="44">Tram · anneau + quais</text>
+    <line x1="350" y1="0" x2="378" y2="0" stroke="#444" stroke-width="4" stroke-dasharray="10 5"/><text x="386" y="4">Train (régional + aéroport)</text>
+    <line x1="350" y1="20" x2="378" y2="20" stroke="#c9a46a" stroke-width="7"/><text x="386" y="24">Rocade / autoroute</text>
+    <line x1="350" y1="40" x2="378" y2="40" stroke="#555" stroke-width="7"/><text x="386" y="44">Ponts</text>
+  </g>
+
+  <!-- Échelle -->
+  <g transform="translate(900,800)" font-size="12" fill="#1f2328">
+    <line x1="0" y1="0" x2="200" y2="0" stroke="#1f2328" stroke-width="3"/>
+    <line x1="0" y1="-6" x2="0" y2="6" stroke="#1f2328" stroke-width="3"/>
+    <line x1="200" y1="-6" x2="200" y2="6" stroke="#1f2328" stroke-width="3"/>
+    <text x="100" y="-10" text-anchor="middle">2 000 studs ≈ 660 m (compressé)</text>
+    <text x="100" y="20" text-anchor="middle">Ville ≈ 12 000 studs ≈ 4 km</text>
+  </g>
+
+  <text x="20" y="28" font-size="20" font-weight="800" fill="#1f2328">Projet Ville — plan directeur, croquis v1</text>
+</svg>

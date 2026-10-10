@@ -1,0 +1,11 @@
+# Secrets (clé Open Cloud, etc.)
+.env
+*.key
+secrets/
+
+# Fichiers générés
+/build/
+*.rbxl.lock
+*.rbxlx.lock
+__pycache__/
+.DS_Store

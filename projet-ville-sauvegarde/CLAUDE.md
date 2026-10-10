@@ -33,7 +33,9 @@ Instructions permanentes pour toute session Claude (et tout agent) qui travaille
 - **L'orchestrateur** (session principale) détient le schéma de données, intègre le travail des agents et est le seul à piloter Studio via MCP (sauf agent QA explicitement désigné).
 - **Les agents spécialisés** travaillent chacun dans une copie isolée (git worktree) sur un module, contre les interfaces définies dans `src/shared/Core`. Ils livrent avec des **tests Lune** qui passent.
 - Un module ne modifie jamais le schéma commun sans passer par l'orchestrateur.
-- Liste des rôles d'agents : `docs/04-architecture.md`, section « Organisation des agents ».
+- Les agents spécialisés sont définis dans **`.claude/agents/`** (terrain-routes, batiments, interieurs, mobilier, usine-assets, interactions, transports, reseaux-techniques, economie-logistique, interfaces, qa). Les utiliser pour le développement, **3 à 5 en parallèle au maximum**, chacun dans sa propre copie isolée (worktree).
+- Les agents servent au **développement**, pas à la recherche documentaire (demande du propriétaire).
+- Rôles détaillés : `docs/04-architecture.md`, section « Organisation des agents ».
 
 ## Outils
 

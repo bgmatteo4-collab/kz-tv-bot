@@ -5,7 +5,7 @@
 
 Lit src/ (base, données), parts/ (coque, sections) et, s'il existe, medias.json
 ({"intro": {"video": url}, "attente": {"video": url}}) ; les affiches sont incluses
-en data URI depuis le dossier des affiches (variable AFFICHES).
+en data URI depuis affiches/ (ou le dossier donné par la variable AFFICHES).
 """
 import base64
 import json
@@ -13,7 +13,7 @@ import os
 import sys
 
 ICI = os.path.dirname(os.path.abspath(__file__))
-AFFICHES = os.environ.get('AFFICHES', '/tmp/claude-0/-home-user-kz-tv-bot/3c82976b-62a2-5d12-bd6b-b8dbbff4a677/scratchpad/workspace')
+AFFICHES = os.environ.get('AFFICHES', os.path.join(ICI, 'affiches'))
 
 
 def lire(*p):

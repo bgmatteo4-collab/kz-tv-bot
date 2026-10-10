@@ -33,3 +33,6 @@ ligue1/out/
 
 # Python
 __pycache__/
+
+# Kayzx Studio : page assemblée (python3 workspace/construire.py)
+workspace/kayzx-studio.html

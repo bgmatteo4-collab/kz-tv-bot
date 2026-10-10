@@ -37,7 +37,7 @@
   color-scheme: dark;
 }
 
-body { background: var(--bg); color: var(--fg); font-family: var(--police); font-size: 17px; line-height: 1.47; letter-spacing: -.022em; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--police); font-size: 17px; line-height: 1.47; letter-spacing: -.022em; -webkit-font-smoothing: antialiased; }
 .enveloppe { max-width: var(--large); margin: 0 auto; padding-inline: 22px; }
 .section { padding-block: 96px; }
 .section.alt { background: var(--bg-2); }

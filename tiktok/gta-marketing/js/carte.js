@@ -18,17 +18,19 @@ export const LIEUX = {
 let D = null;
 export async function chargerCarte() {
   const j = (u) => fetch(u).then((r) => r.json());
-  const [land, pays, etats, routes, zones, lacs, villes] = await Promise.all([
-    j('vendor/data/land-10m.json'), j('vendor/data/countries-50m.json'), j('vendor/data/states-10m.json'),
+  const [land, landLeger, pays, etats, routes, zones, lacs, villes] = await Promise.all([
+    j('vendor/data/land-10m.json'), j('vendor/data/land-50m.json'), j('vendor/data/countries-50m.json'), j('vendor/data/states-10m.json'),
     j('vendor/data/routes.json'), j('vendor/data/villes-zones.json'), j('vendor/data/lacs.json'), j('vendor/data/villes.json'),
   ]);
   D = {
     terre: topojson.feature(land, land.objects.land),
+    terreLegere: topojson.feature(landLeger, landLeger.objects.land),
     frontieres: topojson.mesh(pays, pays.objects.countries, (a, b) => a !== b),
     etats: topojson.mesh(etats, etats.objects.states, (a, b) => a !== b),
     grandesRoutes: { type: 'FeatureCollection', features: routes.features.filter((f) => f.properties.type !== 'Secondary Highway') },
     petitesRoutes: { type: 'FeatureCollection', features: routes.features.filter((f) => f.properties.type === 'Secondary Highway') },
     zones, lacs,
+    grandesZones: { type: 'FeatureCollection', features: zones.features.filter((f) => f.properties.area_sqkm > 250) },
     villes: villes.features.map((f) => ({ nom: f.properties.name, pop: f.properties.pop_max, pays: f.properties.adm0_a3, ll: f.geometry.coordinates })),
     grille: d3.geoGraticule().step([5, 5]).extentMajor([[-180, -80], [180, 80]])(),
   };
@@ -88,16 +90,19 @@ export function dessinerCarte(ctx, cam, { a = 1, lueurZones = 0 } = {}) {
     if (remplir) { ctx.fillStyle = style; ctx.fill(); } else { ctx.strokeStyle = style; ctx.lineWidth = largeur; ctx.stroke(); }
   };
   trace(D.grille, rgba(C.beurre, 0.045), 1);
-  trace(D.terre, C.terre, 0, true);
+  // Niveaux de détail : vue de loin, les côtes au 1:50 M, seulement les grandes agglomérations
+  // et pas de routes (invisibles à cette échelle, mais très chères à tracer) ; de près, tout.
+  const largeur = cam.w / RAD, terre = largeur < 8 ? D.terre : D.terreLegere;
+  trace(terre, C.terre, 0, true);
   trace(D.lacs, C.marine, 0, true);
-  trace(D.zones, rgba(C.beurre, 0.07 + 0.05 * lueurZones), 0, true);
+  trace(largeur < 12 ? D.zones : D.grandesZones, rgba(C.beurre, 0.07 + 0.05 * lueurZones), 0, true);
   if (zoom > 2.2) trace(D.petitesRoutes, rgba(C.beurre, clamp((zoom - 2.2) / 3) * 0.07), 1);
-  trace(D.grandesRoutes, rgba(C.beurre, 0.05 + 0.05 * clamp((zoom - 1) / 4)), 1.1);
+  if (largeur < 22) trace(D.grandesRoutes, rgba(C.beurre, 0.05 + 0.05 * clamp((zoom - 1) / 4)), 1.1);
   trace(D.etats, rgba(C.beurre, 0.13), 1);
   trace(D.frontieres, rgba(C.beurre, 0.26), 1.3);
   // Côtes : une lueur large et douce, puis un trait fin.
-  trace(D.terre, rgba(C.beurre, 0.06), 8);
-  trace(D.terre, rgba(C.beurre, 0.42), 1.5);
+  trace(terre, rgba(C.beurre, 0.06), 8);
+  trace(terre, rgba(C.beurre, 0.42), 1.5);
   ctx.restore();
   // Lumière douce venue d'au-dessus du point visé : donne du relief au plateau.
   const l = ctx.createRadialGradient(W / 2, H * 0.5, 0, W / 2, H * 0.5, 980);

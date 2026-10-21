@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Rockstar transforme Miami en Vice City — TikTok Kayzx</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="ecran">
+    <canvas id="carte" width="1080" height="1920"></canvas>
+    <div id="cartes"></div>
+    <div id="accroche">
+      <div class="panneau haut"><img src="medias/accroche-haut.jpg" alt=""><div class="etalonnage"></div><div class="voile-haut"></div></div>
+      <div class="panneau bas"><img src="medias/accroche-bas.jpg" alt=""><div class="etalonnage"></div></div>
+    </div>
+    <div id="titres"></div>
+    <div id="hud">
+      <div id="dossier"><span class="d-titre">DOSSIER</span><span class="d-sujet">GTA VI</span><span class="d-num">Nº01</span></div>
+      <div id="legende"></div>
+    </div>
+    <canvas id="grain" width="540" height="960"></canvas>
+    <canvas id="fx" width="1080" height="1920"></canvas>
+  </div>
+  <script src="vendor/d3.min.js"></script>
+  <script src="vendor/topojson-client.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

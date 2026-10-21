@@ -36,3 +36,7 @@ __pycache__/
 
 # Kayzx Studio : page assemblée (python3 workspace/construire.py)
 workspace/kayzx-studio.html
+
+# TikTok : photos sous droits, voix générées et rendus (non publiés dans le dépôt public)
+tiktok/*/medias/
+tiktok/*/out/

@@ -1,0 +1,9 @@
+Données de carte
+- data/land-10m.json, data/countries-50m.json : world-atlas 2.0.2 (ISC), d'après Natural Earth.
+- data/states-10m.json : us-atlas (ISC), d'après le recensement américain.
+- data/routes.json, villes-zones.json, lacs.json, villes.json : Natural Earth 10m (domaine public),
+  filtrés sur les États-Unis contigus et l'Europe de l'Ouest, coordonnées arrondies à 4 décimales.
+Bibliothèques : d3 7 (ISC), topojson-client (ISC).
+
+Les photos (medias/) et les rendus (out/) restent hors du dépôt : photos sous droits, voix générées.
+Pour reconstruire medias/, voir medias/SOURCES.txt sur la machine de travail et preparer-medias.py.

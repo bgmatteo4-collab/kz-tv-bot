@@ -229,7 +229,7 @@ function legende(t, cam) {
     a = tw(t, T.cartes + 0.4, 0.4);
   }
   if (L.innerHTML !== html) L.innerHTML = html;
-  style(L, 'top', t < T.recul ? '690px' : '1262px'); // pendant l'accroche : sous le titre, sur le voile
+  style(L, 'top', t < T.recul ? '898px' : '1262px'); // pendant l'accroche : au pied de la photo du haut
   vis(L, a);
 }
 
@@ -273,7 +273,6 @@ function invDoux(p) { let lo = 0, hi = 1; for (let i = 0; i < 40; i++) { const m
 
 async function demarrer() {
   ctx = $('carte').getContext('2d');
-  document.body.classList.add(location.search.includes('typo=b') ? 'typo-b' : 'typo-a');
   construireTitres();
   construireCartes();
   preparerFx();

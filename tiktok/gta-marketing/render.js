@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Rend le TikTok image par image (Chromium headless, 1080 × 1920), puis l'encode avec ffmpeg.
-// La bande-son se fabrique à part (son.py) et se colle avec assembler.sh.
+// La bande-son se fabrique à part (son.py) et se colle avec ./assembler.sh.
 //
 //   node render.js                        → out/video.mp4 (60 i/s, flou de mouvement adaptatif)
 //   node render.js --blur 1               → sans flou de mouvement (3× plus rapide)

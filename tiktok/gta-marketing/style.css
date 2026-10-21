@@ -44,14 +44,11 @@ canvas { display: block; }
 .mot { display: inline-block; overflow: hidden; vertical-align: top; padding: .04em .1em .1em .02em; margin: -.04em -.1em -.1em -.02em; }
 .mot + .mot { margin-left: calc(.25em - .1em); }
 .mot > span { display: inline-block; will-change: transform; }
-/* Version A : le mot clé dans un pavé cerise. */
-.typo-a .ligne { text-shadow: 0 .03em .12em rgba(11, 27, 58, .55); }
-.typo-a .mot.accent { padding: .04em .14em .1em .12em; margin-left: calc(.25em - .12em); }
-.typo-a .mot.accent > span { background: var(--cerise); color: var(--beurre); padding: .03em .1em 0; margin: 0 -.02em; border-radius: .05em; text-shadow: none;
+/* Le mot clé, dans un pavé cerise. */
+.ligne { text-shadow: 0 .03em .12em rgba(11, 27, 58, .55); }
+.mot.accent { padding: .04em .14em .1em .12em; margin-left: calc(.25em - .12em); }
+.mot.accent > span { background: var(--cerise); color: var(--beurre); padding: .03em .1em 0; margin: 0 -.02em; border-radius: .05em; text-shadow: none;
   box-shadow: .05em .05em 0 rgba(11, 27, 58, .55); }
-/* Version B : relief cerise sous tout le texte, mot clé en cerise sur relief beurre. */
-.typo-b .ligne { text-shadow: .012em .012em 0 #C0102A, .024em .024em 0 #B00F27, .036em .036em 0 #A00E24, .048em .048em 0 #8F0C20, .06em .07em .1em rgba(11, 27, 58, .6); }
-.typo-b .mot.accent > span { color: var(--cerise-vif); text-shadow: .012em .012em 0 #E9D99A, .024em .024em 0 #DCCB8C, .036em .036em 0 #CFBE80, .048em .048em 0 #C2B173, .06em .07em .1em rgba(11, 27, 58, .6); }
 
 /* Habillage fixe : l'onglet « Dossier » accroché au bord gauche, comme un intercalaire. */
 #hud { width: 1080px; height: 1920px; pointer-events: none; }
@@ -61,8 +58,10 @@ canvas { display: block; }
 .d-titre { font: 900 40px/1 "Archivo"; font-stretch: 68%; letter-spacing: .1em; color: var(--beurre); }
 .d-sujet { font: 900 40px/1 "Archivo"; font-stretch: 68%; letter-spacing: .06em; color: var(--marine); background: var(--beurre); padding: 12px 8px; border-radius: 10px; }
 .d-num { font: 600 19px/1 "JetBrains Mono"; letter-spacing: .12em; color: rgba(246, 231, 168, .85); }
-#legende { position: absolute; left: 124px; top: 1262px; font: 500 21px/1.5 "JetBrains Mono"; letter-spacing: .1em; color: rgba(246, 231, 168, .82); white-space: pre; }
-#legende small { font-size: 17px; opacity: .6; letter-spacing: .06em; }
+#legende { position: absolute; left: 124px; top: 1262px; font: 500 21px/1.45 "JetBrains Mono"; letter-spacing: .1em; color: var(--beurre); white-space: pre;
+  padding: 12px 18px 11px; border-radius: 14px; background: rgba(11, 27, 58, .72); box-shadow: inset 0 0 0 1px rgba(246, 231, 168, .16), 0 10px 30px rgba(0, 0, 0, .25);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+#legende small { font-size: 16px; opacity: .62; letter-spacing: .06em; }
 
 #grain { width: 1080px; height: 1920px; mix-blend-mode: overlay; opacity: .26; image-rendering: auto; }
 #fx { pointer-events: none; }

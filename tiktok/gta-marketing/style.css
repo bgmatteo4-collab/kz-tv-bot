@@ -29,7 +29,7 @@ canvas { display: block; }
 .voile-haut { position: absolute; left: 0; right: 0; top: 0; height: 78%; background: linear-gradient(180deg, rgba(11, 27, 58, .9) 0%, rgba(11, 27, 58, .82) 42%, rgba(11, 27, 58, .35) 72%, rgba(11, 27, 58, 0) 100%); }
 
 /* Cartes photo qui surgissent de l'épingle. */
-#cartes { width: 1080px; height: 1920px; }
+#cartes { width: 1080px; height: 1920px; z-index: 0; } /* contexte d'empilement : le calque #dessus passe au-dessus des photos */
 .photo { position: absolute; left: 0; top: 0; width: 290px; height: 372px; border-radius: 26px; overflow: hidden; transform-origin: 50% 50%;
   box-shadow: 0 30px 60px rgba(0, 0, 0, .5), 0 0 0 2px rgba(246, 231, 168, .22); background: var(--marine); }
 .photo img { width: 100%; height: 100%; object-fit: cover; filter: contrast(1.05) saturate(.9); }
@@ -58,6 +58,11 @@ canvas { display: block; }
 .d-titre { font: 900 40px/1 "Archivo"; font-stretch: 68%; letter-spacing: .1em; color: var(--beurre); }
 .d-sujet { font: 900 40px/1 "Archivo"; font-stretch: 68%; letter-spacing: .06em; color: var(--marine); background: var(--beurre); padding: 12px 8px; border-radius: 10px; }
 .d-num { font: 600 19px/1 "JetBrains Mono"; letter-spacing: .12em; color: rgba(246, 231, 168, .85); }
+/* Progression des 7 coups : un point par coup, plein quand il est raconté, cerclé quand il est en cours. */
+#dossier .d-etapes { writing-mode: horizontal-tb; transform: none; display: flex; flex-direction: column; gap: 9px; padding-top: 2px; }
+.d-etapes i { display: block; width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(246, 231, 168, .55); transition: none; }
+.d-etapes i.courant { box-shadow: inset 0 0 0 3px var(--beurre); background: rgba(246, 231, 168, .25); }
+.d-etapes i.fait { background: var(--beurre); box-shadow: none; }
 #legende { position: absolute; left: 124px; top: 1262px; font: 500 21px/1.45 "JetBrains Mono"; letter-spacing: .1em; color: var(--beurre); white-space: pre;
   padding: 12px 18px 11px; border-radius: 14px; background: rgba(11, 27, 58, .72); box-shadow: inset 0 0 0 1px rgba(246, 231, 168, .16), 0 10px 30px rgba(0, 0, 0, .25);
   -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
@@ -65,3 +70,7 @@ canvas { display: block; }
 
 #grain { width: 1080px; height: 1920px; mix-blend-mode: overlay; opacity: .26; image-rendering: auto; }
 #fx { pointer-events: none; }
+#dessus { pointer-events: none; }
+.echelle { display: inline-block; height: 9px; border: 2px solid currentColor; border-top: 0; vertical-align: middle; margin-right: 12px; }
+/* Numéro du coup (« 01 ») : en cerise vif, sans pavé, pour ne pas concurrencer le mot clé. */
+.mot.num > span { color: var(--cerise-vif); }

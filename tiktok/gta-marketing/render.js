@@ -5,7 +5,8 @@
 //   node render.js                        → out/video.mp4 (60 i/s, flou de mouvement adaptatif)
 //   node render.js --blur 1               → sans flou de mouvement (3× plus rapide)
 //   node render.js --from 3 --to 7        → seulement un passage
-//   node render.js --stills 1.2,5,9.5     → images fixes PNG dans out/stills/
+//   node render.js --stills 1.2,5,9.5     → images fixes PNG dans out/stills/ (--dossier pour un autre)
+//   node render.js --query seulement=pubs  → ne charge que ce chapitre (plus l'accroche)
 //   node render.js --sons 1               → out/sons.json (la partition des bruitages)
 'use strict';
 
@@ -29,7 +30,7 @@ function args() {
   for (let i = 0; i < v.length; i += 2) {
     const k = v[i].replace(/^--/, ''), x = v[i + 1];
     if (k === 'stills') a.stills = x.split(',').map(Number);
-    else if (k === 'out' || k === 'query') a[k] = x;
+    else if (k === 'out' || k === 'query' || k === 'dossier') a[k] = x;
     else a[k] = Number(x);
   }
   return a;
@@ -110,7 +111,7 @@ async function renderRange(url, a, sub, first, last, file, progress) {
     await r.browser.close();
   } else if (a.stills) {
     const r = await open(url);
-    const dir = path.join(ROOT, 'out', 'stills');
+    const dir = a.dossier ? path.resolve(ROOT, a.dossier) : path.join(ROOT, 'out', 'stills');
     fs.mkdirSync(dir, { recursive: true });
     for (const t of a.stills) {
       await r.at(t);

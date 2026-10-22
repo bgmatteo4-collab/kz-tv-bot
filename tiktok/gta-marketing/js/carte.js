@@ -11,16 +11,29 @@ export const enLonLat = (x, y) => merc.invert([x, y]);
 
 export const LIEUX = {
   losAngeles: [-118.243, 34.052],
-  miami: [-80.187, 25.781],       // Kaseya Center
-  wynwood: [-80.199, 25.801],
+  miami: [-80.187, 25.781],        // Kaseya Center (l'enseigne, le match du Heat)
+  wynwood: [-80.1985, 25.8013],    // bornes de NW 26th St et Wynwood Walls
+  baie: [-80.168, 25.789],         // le ciel au-dessus de la baie (dirigeable)
+  keyBiscayne: [-80.162, 25.693],  // voitures, 15 octobre
+  southBeach: [-80.131, 25.775],   // chaises, parasols, avions-banderoles
+  brooklyn: [-73.9575, 40.7215],   // Wythe Ave et N 11th St
+  hollywood: [-118.326, 34.1016],  // Hollywood Boulevard
+  bagnolet: [2.4166, 48.8624],     // tours Mercuriales, porte de Bagnolet
 };
+
+// Noms de quartiers affichés de près sur Miami (discrets, en capitales espacées).
+export const QUARTIERS = [
+  ['DOWNTOWN', -80.196, 25.772], ['WYNWOOD', -80.207, 25.806], ['MIAMI BEACH', -80.133, 25.808],
+  ['BISCAYNE BAY', -80.172, 25.735], ['KEY BISCAYNE', -80.157, 25.676], ['LITTLE HAVANA', -80.228, 25.766],
+];
 
 let D = null;
 export async function chargerCarte() {
   const j = (u) => fetch(u).then((r) => r.json());
-  const [land, landLeger, pays, etats, routes, zones, lacs, villes] = await Promise.all([
+  const [land, landLeger, pays, etats, routes, zones, lacs, villes, cotesFL, routesFL, eauxMiami] = await Promise.all([
     j('vendor/data/land-10m.json'), j('vendor/data/land-50m.json'), j('vendor/data/countries-50m.json'), j('vendor/data/states-10m.json'),
     j('vendor/data/routes.json'), j('vendor/data/villes-zones.json'), j('vendor/data/lacs.json'), j('vendor/data/villes.json'),
+    j('vendor/data/floride-cotes.json'), j('vendor/data/floride-routes.json'), j('vendor/data/miami-eaux.json'),
   ]);
   D = {
     terre: topojson.feature(land, land.objects.land),
@@ -33,6 +46,10 @@ export async function chargerCarte() {
     grandesZones: { type: 'FeatureCollection', features: zones.features.filter((f) => f.properties.area_sqkm > 250) },
     villes: villes.features.map((f) => ({ nom: f.properties.name, pop: f.properties.pop_max, pays: f.properties.adm0_a3, ll: f.geometry.coordinates })),
     grille: d3.geoGraticule().step([5, 5]).extentMajor([[-180, -80], [180, 80]])(),
+    // Détail de Miami (recensement américain 2023, 1:500 000) : côtes, plans d'eau, grands axes.
+    cotesFL, eauxMiami,
+    autoroutesFL: { type: 'FeatureCollection', features: routesFL.features.filter((f) => f.properties.MTFCC === 'S1100') },
+    axesFL: { type: 'FeatureCollection', features: routesFL.features.filter((f) => f.properties.MTFCC === 'S1200') },
   };
   return D;
 }
@@ -75,7 +92,7 @@ export function projeteur(cam) {
 }
 
 // Fond de carte. a = opacité générale (0 → seulement le fond marine).
-export function dessinerCarte(ctx, cam, { a = 1, lueurZones = 0 } = {}) {
+export function dessinerCarte(ctx, cam, { a = 1, lueurZones = 0, alerte = 0 } = {}) {
   const P = projeteur(cam), chemin = P.chemin(ctx), zoom = 34 / (cam.w / RAD); // 1 = vue États-Unis
   ctx.fillStyle = C.marine;
   ctx.fillRect(0, 0, W, H);
@@ -100,10 +117,35 @@ export function dessinerCarte(ctx, cam, { a = 1, lueurZones = 0 } = {}) {
   if (largeur < 22) trace(D.grandesRoutes, rgba(C.beurre, 0.05 + 0.05 * clamp((zoom - 1) / 4)), 1.1);
   trace(D.etats, rgba(C.beurre, 0.13), 1);
   trace(D.frontieres, rgba(C.beurre, 0.26), 1.3);
+  // De près sur Miami, la couche détaillée prend le relais (fondu entre 3° et 1,5° de large).
+  const detail = clamp((3 - largeur) / 1.5);
+  if (detail > 0) {
+    trace(D.cotesFL, C.terre, 0, true);
+    trace(D.eauxMiami, C.marine, 0, true);
+    if (largeur < 1.6) {
+      const r = clamp((1.6 - largeur) / 0.8);
+      trace(D.axesFL, rgba(C.beurre, 0.09 * r), 1.1);
+      trace(D.autoroutesFL, rgba(C.beurre, 0.08 * r), 5);
+      trace(D.autoroutesFL, rgba(C.beurre, 0.3 * r), 1.8);
+    }
+  }
   // Côtes : une lueur large et douce, puis un trait fin.
+  ctx.globalAlpha = a * (1 - detail);
   trace(terre, rgba(C.beurre, 0.06), 8);
   trace(terre, rgba(C.beurre, 0.42), 1.5);
+  if (detail > 0) {
+    ctx.globalAlpha = a * detail;
+    for (const g of [D.cotesFL, D.eauxMiami]) { trace(g, rgba(C.beurre, 0.06), 8); trace(g, rgba(C.beurre, 0.4), 1.4); }
+  }
   ctx.restore();
+  // Alerte (la mairie proteste) : la carte vire au cerise sombre.
+  if (alerte > 0) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.fillStyle = rgba('#B3203A', 0.55 * alerte);
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
   // Lumière douce venue d'au-dessus du point visé : donne du relief au plateau.
   const l = ctx.createRadialGradient(W / 2, H * 0.5, 0, W / 2, H * 0.5, 980);
   l.addColorStop(0, rgba(C.beurre, 0.07 * a));
@@ -240,4 +282,47 @@ export function etiquetteLieu(ctx, x, y, nom, sous, { e = 1, taille = 70, a = 1 
   const dx = clamp(x, 90 + demi, 930 - demi) - x;
   texte(ctx, nom, x + dx, y - 34 - montee, { taille, poids: 800, police: 'Archivo', etire: 'semi-condensed', espace: lerp(18, 3, clamp(e)), a: a * clamp(e * 1.4), aligne: 'center' });
   if (sous) texte(ctx, sous, x + dx, y - 34 - taille * 0.98 - montee * 0.6, { taille: 23, poids: 500, espace: 3, a: a * clamp(e * 1.4 - 0.25) * 0.8, aligne: 'center' });
+}
+
+// Épingle numérotée (les 7 coups). etat : 0 éteinte, 1 active, 2 faite. e ∈ [0,1] : apparition.
+// marque : le texte dans la pastille (« 1 » … « 7 », ou « ? » tant que le dernier est un mystère).
+export function epingleNumero(ctx, x, y, marque, { etat = 0, e = 1, a = 1, onde = -1, f = 1 } = {}) {
+  if (e <= 0 || a <= 0) return;
+  const r = (etat === 1 ? 30 : 22) * clamp(f, 0.75, 1.3) * (0.4 + 0.6 * e);
+  ctx.save();
+  ctx.globalAlpha = a * clamp(e * 2);
+  if (etat === 1) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
+    g.addColorStop(0, rgba(C.cerise, 0.5)); g.addColorStop(1, rgba(C.cerise, 0));
+    ctx.fillStyle = g; ctx.fillRect(x - r * 4, y - r * 4, r * 8, r * 8);
+  }
+  if (onde >= 0 && onde < 1) {
+    ctx.beginPath(); ctx.arc(x, y, r + onde * 110, 0, Math.PI * 2);
+    ctx.strokeStyle = rgba(C.ceriseVif, (1 - onde) ** 1.6 * 0.9); ctx.lineWidth = 3 * (1 - onde) + 0.5; ctx.stroke();
+  }
+  // Petite ombre portée, puis la pastille : pleine (active, faite) ou cerclée (éteinte).
+  ctx.beginPath(); ctx.arc(x + 3, y + 5, r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = etat === 0 ? rgba(C.marine, 0.92) : etat === 1 ? C.cerise : rgba(C.cerise, 0.85);
+  ctx.fill();
+  ctx.lineWidth = etat === 0 ? 2.5 : 2;
+  ctx.strokeStyle = etat === 0 ? rgba(C.beurre, 0.7) : C.beurre;
+  ctx.stroke();
+  ctx.font = `900 ${Math.round(r * 1.15)}px "Archivo"`;
+  ctx.fontStretch = 'condensed';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = C.beurre;
+  ctx.fillText(marque, x, y + r * 0.05);
+  ctx.restore();
+}
+
+// Noms de quartiers de Miami, visibles de près seulement.
+export function quartiers(ctx, P, cam, { a = 1, zoneTitres = null } = {}) {
+  const largeur = cam.w / RAD, v = clamp((0.7 - largeur) / 0.3) * a;
+  if (v <= 0) return;
+  for (const [nom, lon, lat] of QUARTIERS) {
+    const [x, y, f] = P.ll(lon, lat);
+    if (x < -200 || x > W + 200 || y < -100 || y > H + 100) continue;
+    texte(ctx, nom, x, y, { taille: 20 * clamp(f, 0.8, 1.3), poids: 600, espace: 5, a: 0.42 * v * (zoneTitres ? zoneTitres(y) : 1), aligne: 'center' });
+  }
 }

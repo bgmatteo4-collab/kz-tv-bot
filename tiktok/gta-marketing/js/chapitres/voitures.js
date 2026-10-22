@@ -34,7 +34,7 @@ const LEONIDA = { centre: [0.505, 0.4925], haut: 0.4766, trait: [[0.369, 0.5148]
 // largeur de la colonne des titres (x = 124 → 956) et s'ouvre en hauteur : le deuxième titre
 // tient sur une ligne, la plaque prend la place libérée.
 const VOIE = { x: W / 2, y: 910, w: 744, h: 558 };
-const FOCUS = { y: 855, w: 832, h: 780 };
+const FOCUS = { y: 848, w: 832, h: 762 };   // bas à 1229 : 33 px d'air au-dessus de la légende (1262)
 const ENTREE = W + VOIE.w / 2 + 30;   // centre d'une carte qui entre (juste hors champ, à droite)
 const DERIVE = 30;                     // px/s : le trafic continue d'avancer pendant qu'on regarde
 const FUITE = 1080, DF = 0.32;         // la voiture de devant accélère et sort à gauche
@@ -141,9 +141,11 @@ export default function creer(T) {
       y = lerp(y, FOCUS.y, f); w = lerp(w, FOCUS.w, f); h = lerp(h, FOCUS.h, f);
     }
     // La voiture de devant accélère (le nez se lève) et sort à gauche.
+    // Une fois sortie, elle ne revient plus (pas même avec le retour dans l'épingle).
     const u = prog(t, DEPART[i], DF);
+    if (u >= 1) return null;
     if (u > 0) { x -= FUITE * u * u; r += 1.2 * u; }
-    if (x < -w || x > W + w) return null;
+    if (x + w / 2 < -60 || x - w / 2 > W + 60) return null;
     // Cadrage : la voiture au centre, poussée lente vers l'arrière pendant qu'on la regarde.
     const im = PHOTOS[i], kb = lerp(1.12, 1.05, E.doux(clamp(d / 1.2)));
     const p = { x, y, w, h, r, s, a, z: 10 + i, kb, op: position(im, w, h, im.vise), kx: 0, ky: 0 };
@@ -241,7 +243,7 @@ export default function creer(T) {
     add(t1 - 0.26, 'glisse', 0.42, { hauteur: 1 });
     add(t2 - 0.26, 'glisse', 0.42, { hauteur: 3 });
     add(tP - 0.3, 'glisse', 0.45, { hauteur: 1 });
-    add(tP + DP - 0.01, 'verrou', 0.5);
+    add(tP + DP - 0.01, 'verrou', 0.5, { hauteur: 2 });   // la plaque pile au centre (son au centre)
     add(tL, 'scintille', 0.3);
     add(tU, 'glisse', 0.28, { hauteur: 2 });
     add(tE, 'clic', 0.4);

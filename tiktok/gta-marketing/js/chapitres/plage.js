@@ -1,15 +1,17 @@
 // Coup n° 5 — la plage de South Beach aux couleurs de Vice City, et les avions-banderoles.
 // « Cinq : chaises longues, parasols, et des avions-banderoles pour un club qui n'existe pas. »
 //
-// Idée de mouvement : on lève les yeux, du sable vers le ciel (panoramique vertical), au rythme
-// de l'énumération.
+// Idée de mouvement : on lève les yeux, du sable vers le ciel (panoramique vertical en deux
+// crans, au rythme de l'énumération). Les photos vivent dans une fenêtre, entre la ligne
+// d'horizon (sous les titres) et le sol (la légende) : elles entrent par le haut, sortent par le bas.
 // 1. La caméra se pose sur l'épingle 5 ; sur « chaises », la chaise bleue « Vice city » sort de
 //    l'épingle ; sur « longues », les deux chaises rouges « VI » la rejoignent.
-// 2. « parasols » : on lève les yeux. Tout descend d'un cran ; la rangée de parasols arrive par
-//    le haut, de derrière l'horizon (sous les titres), et les chaises passent au premier plan.
-// 3. « et des avions » : on lève encore les yeux, jusqu'au ciel au-dessus de South Beach
-//    (l'avion « Welcome to Vice City »). Sur « banderoles », la banderole NINE1NINE traverse
-//    l'image de droite à gauche, tirée par son avion ; la caméra la rattrape et l'arrête au centre.
+// 2. « parasols » : premier cran. Les chaises (premier plan, plus rapides) sortent par le bas ;
+//    la rangée de parasols descend de l'horizon et se pose.
+// 3. « et des avions » : deuxième cran, jusqu'au ciel au-dessus de South Beach (l'avion
+//    « Welcome to Vice City »). Sur « banderoles », la banderole NINE1NINE traverse l'image de
+//    droite à gauche, tirée par son avion ; la caméra la rattrape et l'arrête au centre, le ciel
+//    passe au second plan.
 // 4. « pour un club » : gros plan sur NINE1NINE, l'étiquette « CLUB FICTIF DU JEU » se pose
 //    dessous. Tout rentre dans l'épingle, la caméra repart.
 import { W, C, rgba, clamp, lerp, prog, E, ressort, style } from '../outils.js';
@@ -18,26 +20,33 @@ import { EPINGLES, ecranEpingle } from '../epingles.js';
 
 // Les photos. iw, ih : taille du fichier ; vise : point de l'image (fractions) tenu au centre
 // du cadre. Repères mesurés sur les fichiers.
-const BLEUE = { src: 'medias/plage-chaise-bleue.jpg', iw: 1536, ih: 2048, vise: [0.5, 0.44] };     // « Vice city » en rose
+const BLEUE = { src: 'medias/plage-chaise-bleue.jpg', iw: 1536, ih: 2048, vise: [0.58, 0.45] };    // « Vice city » en rose (on écarte le parasol flou à gauche)
 const ROUGES = { src: 'medias/plage-chaises-rouges.jpg', iw: 1536, ih: 2048, vise: [0.5, 0.44] };  // deux chaises « VI » face à la mer
-const PARASOLS = { src: 'medias/plage-parasols.jpg', iw: 2100, ih: 731, vise: [0.6, 0.6] };       // rangée de parasols « VI »
-const CIEL = { src: 'medias/plage-avion-bienvenue.jpg', iw: 972, ih: 1097, vise: [0.53, 0.52] };   // « Welcome to Vice City » au-dessus de South Beach
+// Rangée de parasols « VI ». Le filigrane « @samc… » occupe le coin haut droit (u > 0,81,
+// v < 0,14) : le cadrage garde toujours le haut de l'image au-dessous de v = 0,15.
+const PARASOLS = { src: 'medias/plage-parasols.jpg', iw: 2100, ih: 731, vise: [0.55, 0.575] };
+const CIEL = { src: 'medias/plage-avion-bienvenue.jpg', iw: 972, ih: 1097, vise: [0.53, 0.53] };   // « Welcome to Vice City » au-dessus de South Beach
 // NINE1NINE : centre du mot et sa largeur (fraction de la largeur du fichier), bas de la banderole.
-const NINE = { src: 'medias/plage-avion-nine1nine.jpg', iw: 972, ih: 1097, mot: [0.602, 0.556], large: 0.263, bas: 0.628 };
+const NINE = { src: 'medias/plage-avion-nine1nine.jpg', iw: 972, ih: 1097, mot: [0.602, 0.556], large: 0.262, bas: 0.622 };
 
-// Cadres (centre, taille, rotation) à l'instant où chaque photo est « posée ».
+// Cadres (centre, taille, rotation), sur la colonne des titres (x = 124 → 990).
+const CX = 557;
 const SLOT = {
-  bleue: { x: 330, y: 985, w: 400, h: 533, r: -2.5 },
-  rouges: { x: 752, y: 1008, w: 400, h: 533, r: 2 },
-  parasols: { x: W / 2, y: 900, w: 960, h: 334, r: 0 },
-  ciel: { x: W / 2, y: 930, w: 840, h: 600, r: 0 },
-  passe: { y: 930, w: 760, h: 430 },   // la banderole qui traverse
-  focus: { x: W / 2, y: 930, w: 860, h: 640 },
+  bleue: { x: 329, y: 978, w: 410, h: 546, r: -2.5 },
+  rouges: { x: 785, y: 986, w: 410, h: 546, r: 2 },
+  parasols: { x: CX, y: 900, w: 866, h: 330, r: 0 },
+  ciel: { x: CX, y: 950, w: 866, h: 580, r: 0 },
+  passe: { y: 950, w: 760, h: 430 },   // la banderole qui traverse
+  focus: { x: CX, y: 945, w: 866, h: 600 },
 };
-const D1 = 420, D2 = 640;    // les deux crans du panoramique (px)
-const HZ = 612, FONDU = 90;   // l'horizon : ligne sous les titres d'où les photos descendent
+// La fenêtre : l'horizon (sous les titres) et le sol (le haut de la légende), avec leurs fondus.
+const HZ = 612, FONDU = 90, SOL = 1317, FONDU_SOL = 110;
+// Trajet vertical (px) de chaque plan pendant les deux crans : les chaises, au premier plan,
+// vont plus vite que les parasols ; les parasols et le ciel descendent ensemble au second cran.
+// Départs choisis pour que chaque photo attende juste au-dessus de l'horizon, invisible.
+const PAN = { chaises: [560, 700], parasols: [498, 680], ciel: [0, 680] };
 const KB_PASSE = 2.35;        // la banderole remplit le cadre pendant sa traversée
-const LARGE_MOT = 600;        // largeur de « NINE1NINE » au gros plan (px)
+const LARGE_MOT = 580;        // largeur de « NINE1NINE » au gros plan (px)
 
 const cover = (im, w, h) => Math.max(w / im.iw, h / im.ih);
 // Écart au centre de la carte (px, avant rotation et échelle) du point (u, v) de l'image.
@@ -57,11 +66,13 @@ function viser(im, w, h, kb, u, v, dx = 0, dy = 0) {
   return { kx: (tx / w) * 100, ky: (ty / h) * 100 };
 }
 
-const CSS = `
-.photo.ch-plage-horizon { -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; mask-clip: no-clip; -webkit-mask-origin: border-box; mask-origin: border-box;
-  -webkit-mask-position: -140px -140px; mask-position: -140px -140px; -webkit-mask-size: calc(100% + 280px) calc(100% + 280px); mask-size: calc(100% + 280px) calc(100% + 280px); }
-`;
+// Le masque de la fenêtre est plus grand que la carte (MARGE de chaque côté) pour couvrir son ombre.
 const MARGE = 140;
+const CSS = `
+.photo.ch-plage-fenetre { -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; mask-clip: no-clip; -webkit-mask-origin: border-box; mask-origin: border-box;
+  -webkit-mask-position: -${MARGE}px -${MARGE}px; mask-position: -${MARGE}px -${MARGE}px;
+  -webkit-mask-size: calc(100% + ${2 * MARGE}px) calc(100% + ${2 * MARGE}px); mask-size: calc(100% + ${2 * MARGE}px) calc(100% + ${2 * MARGE}px); }
+`;
 
 export default function creer(T) {
   const c = T.chap.plage, m = (mot, k) => T.mot('c5', mot, k);
@@ -89,27 +100,34 @@ export default function creer(T) {
     const s = document.createElement('style');
     s.textContent = CSS;
     document.head.appendChild(s);
-    const opt = { classe: 'ch-plage-horizon' };
+    const opt = { classe: 'ch-plage-fenetre' };
     cartes = { bleue: carte(BLEUE.src, opt), rouges: carte(ROUGES.src, opt), parasols: carte(PARASOLS.src, opt), ciel: carte(CIEL.src, opt), nine: carte(NINE.src) };
   }
 
-  // Le panoramique vertical : décalage (px vers le bas) de tout ce qui est posé.
-  const bascule = (t) => D1 * E.traversee(prog(t, tP, DP)) + D2 * E.traversee(prog(t, tV, DV));
+  // Le panoramique vertical : progression des deux crans, et décalage (px vers le bas) d'un plan.
+  const crans = (t) => [E.traversee(prog(t, tP, DP)), E.traversee(prog(t, tV, DV))];
+  const descente = (t, [d1, d2]) => { const [b1, b2] = crans(t); return d1 * b1 + d2 * b2; };
 
-  // Masque de l'horizon : la carte n'apparaît que sous la ligne HZ (fondu de FONDU px).
-  function horizon(cc, p) {
-    const s = p.s ?? 1, haut = p.y - (p.h / 2) * s;
-    if (haut >= HZ + FONDU / 2 + 4) { style(cc.el, 'maskImage', 'none'); style(cc.el, 'webkitMaskImage', 'none'); return; }
-    const a0 = MARGE + p.h / 2 + (HZ - FONDU / 2 - p.y) / s, a1 = a0 + FONDU / s;
-    const g = `linear-gradient(180deg, transparent ${a0.toFixed(1)}px, #000 ${a1.toFixed(1)}px)`;
+  // Masque de la fenêtre, calculé sur la position finale de la carte : elle n'apparaît
+  // qu'entre l'horizon et le sol (fondus). Renvoie false si la carte est entièrement dehors.
+  function fenetre(cc, o) {
+    const s = o.s ?? 1, haut = o.y - (o.h / 2) * s, bas = o.y + (o.h / 2) * s;
+    if (bas <= HZ - FONDU / 2 || haut >= SOL + FONDU_SOL / 2) return false;
+    if (haut >= HZ + FONDU / 2 + 2 && bas <= SOL - FONDU_SOL / 2 - 2) {
+      style(cc.el, 'maskImage', 'none'); style(cc.el, 'webkitMaskImage', 'none');
+      return true;
+    }
+    const loc = (Y) => (MARGE + o.h / 2 + (Y - o.y) / s).toFixed(1);
+    const g = `linear-gradient(180deg, transparent ${loc(HZ - FONDU / 2)}px, #000 ${loc(HZ + FONDU / 2)}px, `
+      + `#000 ${loc(SOL - FONDU_SOL / 2)}px, transparent ${loc(SOL + FONDU_SOL / 2)}px)`;
     style(cc.el, 'maskImage', g); style(cc.el, 'webkitMaskImage', g);
+    return true;
   }
 
-  // Pose d'une photo du panoramique : y du cadre + décalage de la bascule.
-  function posee(im, slot, t, y0, kb0 = 1.1) {
-    const vie = E.doux(clamp((t - tC1) / 4));
-    const kb = lerp(kb0, kb0 - 0.05, vie);
-    return { x: slot.x, y: y0 + bascule(t), w: slot.w, h: slot.h, r: slot.r, s: 1, a: 1, z: 2, kb, ...viser(im, slot.w, slot.h, kb, ...im.vise) };
+  // Pose d'une photo du panoramique : cadre + descente, image qui vit (poussée lente).
+  function posee(im, slot, t, y0, kb0) {
+    const kb = lerp(kb0, kb0 - 0.05, E.doux(clamp((t - tC1) / 4)));
+    return { x: slot.x, y: y0, w: slot.w, h: slot.h, r: slot.r, s: 1, a: 1, z: 2, kb, ...viser(im, slot.w, slot.h, kb, ...im.vise) };
   }
 
   // La banderole : traversée de droite à gauche, rattrapée au centre, puis gros plan.
@@ -163,34 +181,31 @@ export default function creer(T) {
     const retour = E.entree(prog(t, tS, 0.4));
     const rentre = (o) => (retour <= 0 ? o
       : { ...o, x: lerp(o.x, pin[0], retour), y: lerp(o.y, pin[1], retour), s: o.s * (1 - 0.9 * retour), a: o.a * (1 - retour * retour) });
-    const B = bascule(t);
+    const poser = (id, o) => { const f = rentre(o); if (fenetre(cartes[id], f)) placer(cartes[id], f); };
 
-    // 1. Les chaises : sortent de l'épingle sur « chaises » et « longues ».
+    // 1. Les chaises : sortent de l'épingle sur « chaises » et « longues », puis descendent
+    //    (premier plan) au premier cran.
     [['bleue', BLEUE, tC1, 2], ['rouges', ROUGES, tC2, 3]].forEach(([id, im, t0, z]) => {
       const e = ressort(t - t0, 180, 20);
       if (e <= 0.001) return;
-      const sl = SLOT[id], p = posee(im, sl, t, sl.y);
+      const sl = SLOT[id], p = posee(im, sl, t, sl.y + descente(t, PAN.chaises), 1.2);
       p.x = lerp(pin[0], p.x, e); p.y = lerp(pin[1], p.y, e); p.s = lerp(0.1, 1, e); p.a = clamp(e * 4); p.r *= e; p.z = z;
-      if (p.y - p.h / 2 > 1500) return;
-      placer(cartes[id], rentre(p));
-      horizon(cartes[id], p);
+      poser(id, p);
     });
 
-    // 2. Les parasols : descendent de l'horizon au premier cran.
-    if (t >= tP) {
-      const p = posee(PARASOLS, SLOT.parasols, t, SLOT.parasols.y - D1, 1.12);
-      p.z = 4; p.a = clamp((t - tP) / 0.12);
-      if (p.y - p.h / 2 < 1500) { placer(cartes.parasols, rentre(p)); horizon(cartes.parasols, p); }
-    }
+    // 2. Les parasols : descendent de l'horizon au premier cran, sortent par le bas au second.
+    if (t >= tP) poser('parasols', { ...posee(PARASOLS, SLOT.parasols, t, SLOT.parasols.y - PAN.parasols[0] + descente(t, PAN.parasols), 1.26), z: 4 });
 
-    // 3. Le ciel au-dessus de South Beach : descend au deuxième cran ; recule quand la banderole passe.
+    // 3. Le ciel au-dessus de South Beach : descend au second cran. Quand la banderole arrive,
+    //    il passe au second plan (recule, s'assombrit), puis s'efface derrière le gros plan.
     if (t >= tV) {
-      const p = posee(CIEL, SLOT.ciel, t, SLOT.ciel.y - D1 - D2, 1.08);
-      const recul = E.doux(prog(t, tF, 0.6));
-      p.z = 5; p.a = clamp((t - tV) / 0.12); p.s = 1 - 0.08 * recul;
-      placer(cartes.ciel, rentre(p));
-      horizon(cartes.ciel, p);
-      style(cartes.ciel.img, 'filter', `contrast(1.05) saturate(.9) brightness(${(1 - 0.35 * recul).toFixed(3)})`);
+      const p = posee(CIEL, SLOT.ciel, t, SLOT.ciel.y - PAN.ciel[1] + descente(t, PAN.ciel), 1.08);
+      const recul = E.doux(prog(t, tB + 0.35, 0.8));
+      p.z = 5; p.s = 1 - 0.06 * recul; p.a = 1 - E.doux(prog(t, tF + 0.15, 0.45));
+      if (p.a > 0.002) {
+        poser('ciel', p);
+        style(cartes.ciel.img, 'filter', `contrast(1.05) saturate(.9) brightness(${(1 - 0.32 * recul).toFixed(3)})`);
+      }
     }
 
     // 4. La banderole NINE1NINE, puis le gros plan et l'étiquette.
@@ -198,11 +213,10 @@ export default function creer(T) {
     if (b) {
       const o = rentre(b);
       placer(cartes.nine, o);
-      const [mx, my] = ecran(NINE, o, ...NINE.mot);
+      const [mx] = ecran(NINE, o, ...NINE.mot);
       const [, by] = ecran(NINE, o, NINE.mot[0], NINE.bas);
-      etiquette(X.dessus, mx, by + 14, ressort(t - tE, 210, 20), 1 - E.sortie(prog(t, tS, 0.22)));
+      etiquette(X.dessus, mx, by + 16, ressort(t - tE, 210, 20), 1 - E.sortie(prog(t, tS, 0.22)));
     }
-    void B;
   }
 
   const voile = (t) => clamp(prog(t, tC1 - 0.2, 0.4)) * (1 - prog(t, tS + 0.1, 0.4));

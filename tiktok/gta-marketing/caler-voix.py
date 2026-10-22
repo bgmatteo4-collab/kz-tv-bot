@@ -5,7 +5,8 @@ La voix est générée phrase par phrase (une ligne de js/partition.js = un fich
 mêmes réglages) et déposée dans medias/voix/<id>.mp3 (p1, c1, c2, …, o2). Ce script coupe le
 silence de début et de fin de chaque fichier, mesure la durée de parole et écrit
 medias/voix.json ; au prochain rendu, partition.js remplace les durées estimées par les vraies
-et tout le film (titres, caméra, photos, bruitages) se recale seul.
+et tout le film (titres, caméra, photos, bruitages) se recale seul. Les phrases de l'accroche
+(a1…a6) gardent leur créneau ; si elles ont un fichier, il remplace la voix d'origine.
 
     python3 caler-voix.py
 """
@@ -30,7 +31,7 @@ def main():
     durees, fichiers = {}, {}
     for i in ids:
         src = next((os.path.join(DOSSIER, f'{i}.{x}') for x in ('mp3', 'wav') if os.path.exists(os.path.join(DOSSIER, f'{i}.{x}'))), None)
-        if not src or i.startswith('a'):
+        if not src:
             continue
         net = os.path.join(DOSSIER, f'{i}-net.wav')
         # Coupe le silence au début et à la fin (−45 dB), garde 30 ms d'air de chaque côté.
@@ -43,7 +44,10 @@ def main():
     manquantes = [i for i in ids if not i.startswith('a') and i not in durees]
     if manquantes:
         print('Lignes sans voix (durée estimée) :', ', '.join(manquantes))
-    json.dump({'durees': durees, 'fichiers': fichiers}, open(SORTIE, 'w'), indent=1)
+    # Instants des mots (generer-voix.py) : les titres sortent sur la voix, pas au prorata des lettres.
+    chemin = os.path.join(DOSSIER, 'mots.json')
+    mots = {i: m for i, m in json.load(open(chemin)).items() if i in durees} if os.path.exists(chemin) else {}
+    json.dump({'durees': durees, 'fichiers': fichiers, 'mots': mots}, open(SORTIE, 'w'), indent=1)
     print(SORTIE)
 
 

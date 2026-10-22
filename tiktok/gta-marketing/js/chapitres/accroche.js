@@ -11,11 +11,13 @@ import { carte, animer } from '../photos.js';
 
 export default function creer(T, K) {
   const SORTIE_CARTES = 10.48;      // les trois photos rentrent dans Miami, la caméra repart
+  const m = T.mot;
+  // Le premier titre est là dès la première image (c'est la vignette) ; les suivants sortent sur la voix.
   const blocs = [
     { sortie: 2.22, lignes: [[['Ce', 0.05], ["n'est", 0.11], ['pas', 0.17]], [['GTA 6.', 0.4, 'accent']]] },
-    { sortie: 3.4, lignes: [[["C'est", 2.43], ['le', 2.52], ['vrai', 2.62]], [['Miami.', 2.95, 'accent']]] },
-    { sortie: 7.28, lignes: [[['De', 4.06], ['Los', 4.2], ['Santos', 4.3]], [['à', 6.36], ['Vice City.', 6.48, 'accent']]] },
-    { sortie: SORTIE_CARTES - 0.1, lignes: [[['Pour', 7.57], ['vendre', 7.7], ['le', 7.86], ['jeu,', 7.95]], [['ils', 9.14], ['la', 9.28], ['construisent', 9.4]], [['en vrai.', 9.9, 'accent']]] },
+    { sortie: 3.4, lignes: [[["C'est", m('a2', "C'est")], ['le', m('a2', 'le')], ['vrai', m('a2', 'vrai')]], [['Miami.', m('a2', 'Miami'), 'accent']]] },
+    { sortie: 7.28, lignes: [[['De', m('a3', 'Après')], ['Los', m('a3', 'Los')], ['Santos', m('a3', 'Santos')]], [['à', m('a4', 'à')], ['Vice City.', m('a4', 'Vice'), 'accent']]] },
+    { sortie: SORTIE_CARTES - 0.1, lignes: [[['Pour', m('a5', 'pour')], ['vendre', m('a5', 'vendre')], ['le', m('a5', 'le')], ['jeu,', m('a5', 'jeu')]], [['ils', m('a6', 'ils')], ['la', m('a6', 'la')], ['construisent', m('a6', 'construisent')]], [['en vrai.', m('a6', 'en vrai'), 'accent']]] },
   ];
 
   const FAN = [ // photos réelles qui surgissent de l'épingle de Miami (crédit : Creapills)
@@ -124,7 +126,7 @@ export default function creer(T, K) {
   ];
 
   function sons(add) {
-    add(0.4, 'clic', 0.35); add(2.95, 'clic', 0.35);
+    add(0.4, 'clic', 0.35); add(T.mot('a2', 'Miami'), 'clic', 0.35);
     add(A.recul - 0.05, 'rembobinage', 0.8, { duree: 1.1 });
     add(A.recul, 'whoosh', 0.4, { duree: 1.25 });
     add(A.recul + 0.48, 'ping', 0.45);
@@ -135,7 +137,7 @@ export default function creer(T, K) {
     add(A.arrivee, 'impact', 0.7);
     add(A.arrivee, 'ping', 0.4);
     for (const f of FAN) add(A.cartes + f.d, 'clic', 0.45);
-    add(9.9, 'scintille', 0.3);
+    add(T.mot('a6', 'en vrai'), 'scintille', 0.3);
     // La boucle : la photo du début revient.
     add(K.boucle.t1 - 0.55, 'ping', 0.4);
     add(K.boucle.t1 - 0.3, 'whoosh', 0.45, { duree: 0.9 });

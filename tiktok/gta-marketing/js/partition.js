@@ -2,9 +2,10 @@
 //
 // Chaque ligne a un texte « dit » (tel qu'envoyé à la synthèse vocale : sigles épelés, nombres
 // en toutes lettres) et, si besoin, un temps de tenue « apres » : l'image continue (un gros
-// plan, un chiffre qui s'arrête) avant que la phrase suivante ou le vol suivant ne commence. Les 6 lignes de l'accroche sont mesurées sur la voix ElevenLabs « Sterling »
-// (medias/voix-accroche.mp3, posée à 0,2 s). Les suivantes viennent de medias/voix.json quand la
-// voix définitive existe (un fichier par ligne, durée mesurée) ; sinon leur durée est estimée
+// plan, un chiffre qui s'arrête) avant que la phrase suivante ou le vol suivant ne commence. Les 6 lignes de l'accroche ont des créneaux fixes, mesurés sur la voix ElevenLabs
+// « Sterling » (medias/voix-accroche.mp3, posée à 0,2 s) puis avancés pour a2 et a6, où la voix
+// Piper « Tom » (generer-voix.py, ajustée à ces créneaux) met plus de temps à dire le mot clé. Les suivantes viennent de medias/voix.json quand la voix existe (un
+// fichier par ligne, durée et instant de chaque mot mesurés) ; sinon leur durée est estimée
 // avec le débit mesuré sur l'accroche (0,067 s par lettre, plus 0,2 s par pause interne).
 // Tout le reste du film (titres, caméra, photos, bruitages) se cale sur ces repères : changer
 // la voix recale le film entier sans rien retoucher à la main.
@@ -12,13 +13,13 @@
 export const VOIX_ACCROCHE = { fichier: 'medias/voix-accroche.mp3', decalage: 0.2 };
 
 export const LIGNES = [
-  // Accroche (mesurée)
+  // Accroche (créneaux fixes : la caméra et les bruitages de l'accroche sont calés dessus)
   { id: 'a1', chap: 'accroche', dit: "Ça, ce n'est pas G.T.A. six.", debut: 0.2, fin: 2.05 },
-  { id: 'a2', chap: 'accroche', dit: "C'est le vrai Miami.", debut: 2.43, fin: 3.52 },
+  { id: 'a2', chap: 'accroche', dit: "C'est le vrai Miami.", debut: 2.25, fin: 3.3 },
   { id: 'a3', chap: 'accroche', dit: 'Après Los Santos,', debut: 4.06, fin: 5.09 },
   { id: 'a4', chap: 'accroche', dit: 'Rockstar nous ramène à Vice City.', debut: 5.3, fin: 7.09 },
   { id: 'a5', chap: 'accroche', dit: 'Et pour vendre le jeu…', debut: 7.57, fin: 8.64 },
-  { id: 'a6', chap: 'accroche', dit: 'ils la construisent en vrai.', debut: 9.14, fin: 10.42 },
+  { id: 'a6', chap: 'accroche', dit: 'ils la construisent en vrai.', debut: 9.0, fin: 10.28 },
   // La suite (estimée tant que la voix définitive n'existe pas)
   { id: 'p1', chap: 'promesse', dit: 'Sept coups de génie. Le dernier est le plus fou.', apres: 0.2 },
   { id: 'c1', chap: 'pubs', dit: 'Un : les pubs des fausses marques du jeu, en pleine rue. Pas de nom, juste Vice City et un QR code.', apres: 0.75 },
@@ -51,7 +52,8 @@ export function estimer(dit) {
 }
 
 // durees : { id: secondes } mesurées sur la voix définitive (medias/voix.json), sinon estimées.
-export function calculer(durees = {}) {
+// mots : { id: [secondes depuis le début de la ligne, une par mot écrit] }, si la voix les donne.
+export function calculer(durees = {}, mots = {}) {
   const L = LIGNES.map((l) => ({ ...l }));
   let t = 0, avant = null;
   for (const l of L) {
@@ -83,13 +85,19 @@ export function calculer(durees = {}) {
     c.suivant = i < CHAPITRES.length - 1 ? chap[CHAPITRES[i + 1]].debut : duree;
   });
 
-  // Instant où un mot est prononcé : au prorata des lettres dans la ligne (k = n-ième occurrence).
+  // Instant où un mot est prononcé (k = n-ième occurrence) : mesuré sur la voix si possible,
+  // sinon au prorata des lettres dans la ligne.
   function mot(id, m, k = 1) {
     const l = parId[id];
     if (!l) throw new Error(`ligne inconnue : ${id}`);
     const bas = l.dit.toLowerCase(), cible = m.toLowerCase();
     let i = -1;
     for (let n = 0; n < k; n++) { i = bas.indexOf(cible, i + 1); if (i < 0) throw new Error(`« ${m} » absent de ${id}`); }
+    const ecrits = [...l.dit.matchAll(/\S+/g)].filter((j) => /[A-Za-zÀ-ÿ0-9]/.test(j[0]));
+    if (mots[id]?.length === ecrits.length) {
+      const w = ecrits.findIndex((j) => j.index + j[0].length > i);
+      return +(l.debut + mots[id][w]).toFixed(3);
+    }
     const total = lettres(l.dit) || 1;
     return +(l.debut + (l.fin - l.debut) * (lettres(l.dit.slice(0, i)) / total)).toFixed(3);
   }

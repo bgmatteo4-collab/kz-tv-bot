@@ -1,18 +1,19 @@
 # TikTok Kayzx — « Rockstar transforme Miami en Vice City »
 
 Première vidéo de la série « Dossier » (Nº01). Format 1080 × 1920, 60 i/s, ≈ 72 s au final.
-Le film entier est monté ; seule l'accroche a sa voix définitive, la suite est calée sur des
-durées estimées en attendant les fichiers décrits dans `VOIX.md`.
+Le film entier est monté et calé sur la voix off (voir `VOIX.md`).
 
 ## Fabrication
 
     python3 preparer-medias.py        # photos de medias/ → panneaux prêts (hors dépôt)
+    python3 generer-voix.py           # voix off Piper « Tom », une phrase par fichier
+    python3 caler-voix.py             # durées et instants des mots → medias/voix.json
     node render.js --stills 1,5,9     # images fixes de contrôle (out/stills/)
     node render.js                    # vidéo muette (out/video.mp4), flou de mouvement adaptatif
     ./assembler.sh                    # bande-son (son.py) + collage → out/tiktok-gta6-marketing.mp4
 
 Playwright vient de `/opt/node-tools/node_modules` (`NODE_PATH`). `medias/` (photos sous droits,
-voix ElevenLabs) et `out/` ne vont pas dans le dépôt public.
+voix, modèle Piper) et `out/` ne vont pas dans le dépôt public.
 
 ## Palette (identité Kayzx)
 
@@ -60,7 +61,9 @@ Rien d'important au-dessus de 240 px, sous 1360 px, ni à droite de 900 px sous 
 
 ## Son
 
-Voix off ElevenLabs (voix « Sterling »), devant. Nappe grave (la / mi) et bruitages synthétisés
+Voix off Piper « Tom » (`fr_FR-tom-medium`, gratuite ; données d'entraînement sous AGPLv3),
+devant. La voix ElevenLabs « Sterling » de la première accroche ne sert plus que de repère :
+créneaux de l'accroche et niveau de la voix. Nappe grave (la / mi) et bruitages synthétisés
 (rembobinage vers Los Santos, épingles, montée pendant le trajet, impact sur « Vice City »),
 compressés par la voix. Sortie à −14 LUFS, crêtes à −1 dBTP. La musique tendance s'ajoute dans
 l'appli TikTok, très bas sous la voix.

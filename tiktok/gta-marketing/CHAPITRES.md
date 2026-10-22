@@ -15,10 +15,10 @@ et en reprendre le niveau de finition, la structure et les conventions.
 - **L'onglet « Dossier »** et ses 7 points de progression, **la légende** (coordonnées en direct
   hors des fenêtres déclarées par les chapitres), **le grain**, **le souffle de chaque vol**.
 - **Le minutage** (`js/partition.js`) : `T.chap.<id>` donne `precedent`, `debut`, `fin`, `tenue`,
-  `suivant` ; `T.mot('c3', 'million')` donne l'instant où un mot est prononcé (au prorata des
-  lettres de la phrase) ; `T.quand('c3', 0.5)` le milieu d'une phrase. **Ne jamais écrire
-  d'instant en dur** : tout se cale sur ces repères, pour que le film se recale seul quand la
-  voix définitive remplacera l'estimation.
+  `suivant` ; `T.mot('c3', 'million')` donne l'instant où un mot est prononcé (mesuré sur la
+  voix, ou au prorata des lettres de la phrase sans elle) ; `T.quand('c3', 0.5)` le milieu
+  d'une phrase. **Ne jamais écrire d'instant en dur** : tout se cale sur ces repères, pour que
+  le film se recale seul quand la voix change (`VOIX.md`).
 
 ## L'interface d'un chapitre
 

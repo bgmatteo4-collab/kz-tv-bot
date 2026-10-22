@@ -1,30 +1,26 @@
-# Voix off — à générer dans ElevenLabs
+# Voix off
 
-Même voix que l'accroche (« Sterling »), mêmes réglages, **une phrase par fichier**, nommé
-exactement comme ci-dessous. Coller le texte tel quel : les sigles et les nombres sont déjà
-écrits comme ils doivent être prononcés.
+Voix **Tom** de Piper (`fr_FR-tom-medium`) : synthèse gratuite et hors ligne, générée ici
+phrase par phrase. Le texte fait foi dans `js/partition.js` (champ `dit`) : changer une phrase
+là, puis relancer les commandes ci-dessous.
 
-| Fichier | Texte |
-|---|---|
-| `p1.mp3` | Sept coups de génie. Le dernier est le plus fou. |
-| `c1.mp3` | Un : les pubs des fausses marques du jeu, en pleine rue. Pas de nom, juste Vice City et un QR code. |
-| `c2.mp3` | Deux : un dirigeable Vice City dans le ciel de Floride. |
-| `c3.mp3` | Trois : cette enseigne, sur le toit de l'arène du Heat, visible depuis les avions. Près d'un million de dollars. |
-| `r1.mp3` | Mais la ville n'est pas ravie : un élu dit qu'on fait passer Miami pour la capitale du meurtre. |
-| `r2.mp3` | Alors, sur l'espace public, jamais le mot G.T.A. |
-| `c4.mp3` | Quatre : les voitures du jeu, en vrai, avec des plaques de Leonida. |
-| `c5.mp3` | Cinq : chaises longues, parasols, et des avions-banderoles pour un club qui n'existe pas. |
-| `c6.mp3` | Six : dix fresques de vrais street-artistes, et le musée offert aux habitants jusqu'en deux mille vingt-huit. |
-| `m1.mp3` | Et ça déborde : New York, Los Angeles… jusqu'aux portes de Paris. |
-| `c7.mp3` | Sept : le dix-huit novembre, le Miami Heat jouera sous le nom de Vice City. La veille de la sortie du jeu. |
-| `o1.mp3` | G.T.A. six sort le dix-neuf novembre. |
-| `o2.mp3` | Et toi, quelle ville Rockstar devrait transformer ensuite ? |
-
-Le texte fait foi dans `js/partition.js` : si une phrase change, la changer là aussi.
-
-## Ensuite
-
-    # déposer les 13 fichiers dans medias/voix/
+    pip install piper-tts onnx
+    python3 generer-voix.py    # medias/voix/<id>.wav + l'instant de chaque mot (mots.json)
     python3 caler-voix.py      # mesure chaque phrase → medias/voix.json
     node render.js             # le film se recale seul (titres, caméra, photos, bruitages)
     ./assembler.sh             # voix + nappe + bruitages → out/tiktok-gta6-marketing.mp4
+
+- **Accroche** (a1…a6) : chaque phrase est accélérée (×0,80 au plus) pour tenir dans son
+  créneau, sur lequel sont calés la caméra et les bruitages de l'accroche.
+- **Le reste** : débit `RYTHME` (×0,92, Tom est un peu lent au naturel) ; le film suit.
+- **Titres** : chaque mot sort à l'instant où Tom le prononce (alignement des phonèmes de
+  Piper), plus au prorata des lettres.
+- **Prononciation** : les noms anglais sont réécrits pour la synthèse seulement (tableau
+  `PRONONCE` de `generer-voix.py` : Vice City, Heat, New York, street-artistes…). Les points de
+  suspension au milieu d'une phrase deviennent une virgule, sinon Piper colle les mots.
+- **Niveau** : chaque phrase est mise au niveau de la voix d'origine de l'accroche, sur lequel
+  le mixage de `son.py` est réglé.
+
+Une autre voix (ElevenLabs, ta propre voix…) passe par le même chemin : déposer
+`medias/voix/<id>.mp3` ou `.wav` (un fichier par phrase), supprimer `medias/voix/mots.json`,
+puis `caler-voix.py`.

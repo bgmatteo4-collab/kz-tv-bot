@@ -97,7 +97,7 @@ function dessiner(t) {
 function partition() {
   const ev = [];
   const add = (t, type, gain = 1, extra = {}) => ev.push({ t: +t.toFixed(3), type, gain, ...extra });
-  add(0, 'voix', 1, { fichier: VOIX_ACCROCHE.fichier, decalage: VOIX_ACCROCHE.decalage });
+  if (!voixFichiers.a1) add(0, 'voix', 1, { fichier: VOIX_ACCROCHE.fichier, decalage: VOIX_ACCROCHE.decalage });
   for (const l of T.lignes) if (voixFichiers[l.id]) add(l.debut, 'voix', 1, { fichier: voixFichiers[l.id] });
   add(0, 'nappe', 0.5, { duree: T.duree });
   // Un souffle pour chaque vol de caméra après l'accroche.
@@ -111,11 +111,11 @@ function partition() {
 async function demarrer() {
   ctx = $('carte').getContext('2d');
   dessus = $('dessus').getContext('2d');
-  // Voix définitive : medias/voix.json = { durees: { id: s }, fichiers: { id: chemin } }.
+  // Voix définitive : medias/voix.json = { durees: { id: s }, fichiers: { id: chemin }, mots: { id: [s] } }.
   let voix = {};
   try { const r = await fetch('medias/voix.json'); if (r.ok) voix = await r.json(); } catch (_) { /* voix estimée */ }
   voixFichiers = voix.fichiers || {};
-  T = calculer(voix.durees || {});
+  T = calculer(voix.durees || {}, voix.mots || {});
   K = creerCamera(T);
   await Promise.all([
     chargerCarte(),

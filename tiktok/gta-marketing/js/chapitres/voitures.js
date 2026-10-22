@@ -93,7 +93,9 @@ export default function creer(T) {
   const tE = tU + 0.16;                   // … et l'étiquette se pose au-dessus
   const tS = c.tenue - 0.05;              // tout rentre dans l'épingle
   const ARRIVEE = [tA, t1, t2, tP];
-  const DEPART = [t1 - 0.1, t2 - 0.1, tP - 0.1, Infinity];   // celle de devant part juste avant
+  // Celle de devant part juste avant : la suivante la talonne (elles se chevauchent un instant),
+  // si bien qu'aucun jour ne s'ouvre entre elles au-dessus de l'épingle (sa lueur passerait entre deux).
+  const DEPART = [t1 - 0.07, t2 - 0.07, tP - 0.07, Infinity];
 
   const blocs = [
     { sortie: m('plaques') - 0.3, lignes: [[['04', m('Quatre'), 'num'], ['Les', m('les voitures')], ['voitures', m('voitures')]], [['du jeu,', m('du jeu')], ['en vrai.', m('en vrai'), 'accent']]] },

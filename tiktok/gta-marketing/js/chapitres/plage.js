@@ -29,22 +29,24 @@ const CIEL = { src: 'medias/plage-avion-bienvenue.jpg', iw: 972, ih: 1097, vise:
 // NINE1NINE : centre du mot et sa largeur (fraction de la largeur du fichier), bas de la banderole.
 const NINE = { src: 'medias/plage-avion-nine1nine.jpg', iw: 972, ih: 1097, mot: [0.602, 0.556], large: 0.262, bas: 0.622 };
 
-// Cadres (centre, taille, rotation), sur la colonne des titres (x = 124 → 990).
+// Cadres (centre, taille, rotation). Les photos larges sont sur la colonne des titres
+// (x = 124 → 990) ; le haut des cadres sous l'horizon, le bas à ~40 px de la légende.
 const CX = 557;
 const SLOT = {
-  bleue: { x: 329, y: 978, w: 410, h: 546, r: -2.5 },
-  rouges: { x: 785, y: 986, w: 410, h: 546, r: 2 },
-  parasols: { x: CX, y: 900, w: 866, h: 330, r: 0 },
-  ciel: { x: CX, y: 950, w: 866, h: 580, r: 0 },
-  passe: { y: 950, w: 760, h: 430 },   // la banderole qui traverse
-  focus: { x: CX, y: 945, w: 866, h: 600 },
+  // Les deux chaises se chevauchent juste au-dessus de l'épingle : elle reste cachée.
+  bleue: { x: 370, y: 962, w: 390, h: 520, r: -2.5 },
+  rouges: { x: 745, y: 970, w: 390, h: 520, r: 2 },
+  parasols: { x: CX, y: 985, w: 866, h: 330, r: 0 },   // couvre l'épingle 5
+  ciel: { x: CX, y: 937, w: 866, h: 556, r: 0 },
+  passe: { y: 937, w: 760, h: 430 },   // la banderole qui traverse
+  focus: { x: CX, y: 925, w: 866, h: 570 },
 };
-// La fenêtre : l'horizon (sous les titres) et le sol (le haut de la légende), avec leurs fondus.
-const HZ = 612, FONDU = 90, SOL = 1317, FONDU_SOL = 110;
+// La fenêtre : l'horizon (sous les titres) et le sol (juste au-dessus de la légende), avec leurs fondus.
+const HZ = 612, FONDU = 90, SOL = 1295, FONDU_SOL = 110;
 // Trajet vertical (px) de chaque plan pendant les deux crans : les chaises, au premier plan,
 // vont plus vite que les parasols ; les parasols et le ciel descendent ensemble au second cran.
 // Départs choisis pour que chaque photo attende juste au-dessus de l'horizon, invisible.
-const PAN = { chaises: [560, 700], parasols: [498, 680], ciel: [0, 680] };
+const PAN = { chaises: [680, 700], parasols: [583, 680], ciel: [0, 680] };
 const KB_PASSE = 2.35;        // la banderole remplit le cadre pendant sa traversée
 const LARGE_MOT = 580;        // largeur de « NINE1NINE » au gros plan (px)
 
@@ -108,20 +110,21 @@ export default function creer(T) {
   const crans = (t) => [E.traversee(prog(t, tP, DP)), E.traversee(prog(t, tV, DV))];
   const descente = (t, [d1, d2]) => { const [b1, b2] = crans(t); return d1 * b1 + d2 * b2; };
 
+  // Une carte est dans la fenêtre si une partie d'elle est entre l'horizon et le sol.
+  const bords = (o) => { const s = o.s ?? 1; return [o.y - (o.h / 2) * s, o.y + (o.h / 2) * s]; };
+  const dedans = (o) => { const [haut, bas] = bords(o); return bas > HZ - FONDU / 2 && haut < SOL + FONDU_SOL / 2; };
   // Masque de la fenêtre, calculé sur la position finale de la carte : elle n'apparaît
-  // qu'entre l'horizon et le sol (fondus). Renvoie false si la carte est entièrement dehors.
+  // qu'entre l'horizon et le sol (fondus).
   function fenetre(cc, o) {
-    const s = o.s ?? 1, haut = o.y - (o.h / 2) * s, bas = o.y + (o.h / 2) * s;
-    if (bas <= HZ - FONDU / 2 || haut >= SOL + FONDU_SOL / 2) return false;
+    const s = o.s ?? 1, [haut, bas] = bords(o);
     if (haut >= HZ + FONDU / 2 + 2 && bas <= SOL - FONDU_SOL / 2 - 2) {
       style(cc.el, 'maskImage', 'none'); style(cc.el, 'webkitMaskImage', 'none');
-      return true;
+      return;
     }
     const loc = (Y) => (MARGE + o.h / 2 + (Y - o.y) / s).toFixed(1);
     const g = `linear-gradient(180deg, transparent ${loc(HZ - FONDU / 2)}px, #000 ${loc(HZ + FONDU / 2)}px, `
       + `#000 ${loc(SOL - FONDU_SOL / 2)}px, transparent ${loc(SOL + FONDU_SOL / 2)}px)`;
     style(cc.el, 'maskImage', g); style(cc.el, 'webkitMaskImage', g);
-    return true;
   }
 
   // Pose d'une photo du panoramique : cadre + descente, image qui vit (poussée lente).
@@ -181,7 +184,8 @@ export default function creer(T) {
     const retour = E.entree(prog(t, tS, 0.4));
     const rentre = (o) => (retour <= 0 ? o
       : { ...o, x: lerp(o.x, pin[0], retour), y: lerp(o.y, pin[1], retour), s: o.s * (1 - 0.9 * retour), a: o.a * (1 - retour * retour) });
-    const poser = (id, o) => { const f = rentre(o); if (fenetre(cartes[id], f)) placer(cartes[id], f); };
+    // Une photo déjà sortie de la fenêtre ne revient pas pour rentrer dans l'épingle.
+    const poser = (id, o) => { if (!dedans(o)) return; const f = rentre(o); fenetre(cartes[id], f); placer(cartes[id], f); };
 
     // 1. Les chaises : sortent de l'épingle sur « chaises » et « longues », puis descendent
     //    (premier plan) au premier cran.

@@ -1,14 +1,15 @@
 # TikTok Kayzx — « Rockstar transforme Miami en Vice City »
 
 Première vidéo de la série « Dossier » (Nº01). Format 1080 × 1920, 60 i/s, ≈ 72 s au final.
-Le test actuel couvre les 11 premières secondes (accroche + carte Los Santos → Vice City).
+Le film entier est monté ; seule l'accroche a sa voix définitive, la suite est calée sur des
+durées estimées en attendant les fichiers décrits dans `VOIX.md`.
 
 ## Fabrication
 
     python3 preparer-medias.py        # photos de medias/ → panneaux prêts (hors dépôt)
     node render.js --stills 1,5,9     # images fixes de contrôle (out/stills/)
     node render.js                    # vidéo muette (out/video.mp4), flou de mouvement adaptatif
-    ./assembler.sh test-11s           # bande-son (son.py) + collage → out/test-11s.mp4
+    ./assembler.sh                    # bande-son (son.py) + collage → out/tiktok-gta6-marketing.mp4
 
 Playwright vient de `/opt/node-tools/node_modules` (`NODE_PATH`). `medias/` (photos sous droits,
 voix ElevenLabs) et `out/` ne vont pas dans le dépôt public.

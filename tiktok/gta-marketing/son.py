@@ -60,8 +60,20 @@ def s_rembobinage(e):
     return S.pan(x * 0.7, np.linspace(0.6, -0.6, n)), 0.5
 
 
+def s_whoosh(e):
+    # Le souffle de l'écran d'attente, mais sûr pour toutes les durées (les deux moitiés
+    # arrondies peuvent faire un échantillon de moins que le tout).
+    d = e.get('duree', 2.4)
+    n = int(d * SR)
+    x = np.concatenate([S.balayage(S.bruit(d / 2), 300, 4500, 'lowpass', 64),
+                        S.balayage(S.bruit(d - d / 2), 4500, 300, 'lowpass', 64)])
+    x = np.pad(x, (0, max(0, n - len(x))))[:n]
+    x = S.filtre(x, 'highpass', 150) * S.cloche(n) ** 2.2
+    return S.pan(x * 0.75, np.linspace(-0.85, 0.85, n)), 0.6
+
+
 SONS = {k[2:]: getattr(S, k) for k in dir(S) if k.startswith('s_')}
-SONS.update({'nappe': s_nappe, 'rembobinage': s_rembobinage})
+SONS.update({'nappe': s_nappe, 'rembobinage': s_rembobinage, 'whoosh': s_whoosh})
 
 
 def main():
@@ -98,7 +110,16 @@ def main():
     wavfile.write(sortie, SR, (mix.T / max(1e-9, np.abs(mix).max()) * 0.8).astype(np.float32))
     # Loudness TikTok : ≈ −14 LUFS, crêtes à −1 dBTP.
     final = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ICI, 'out', 'bande.wav')
-    subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', sortie, '-af', 'loudnorm=I=-14:TP=-1:LRA=9', '-ar', str(SR), final], check=True)
+    # En deux passes : on mesure, puis on corrige d'un gain fixe (linear) — la passe unique,
+    # dynamique, restait sous la cible et laissait passer des crêtes.
+    cible = 'I=-13.4:TP=-2:LRA=11'   # le limiteur qui suit coûte ≈ 0,6 LU
+    mesure = subprocess.run(['ffmpeg', '-hide_banner', '-i', sortie, '-af', f'loudnorm={cible}:print_format=json', '-f', 'null', '-'],
+                            capture_output=True, text=True, check=True).stderr
+    m = json.loads(mesure[mesure.rindex('{'):mesure.rindex('}') + 1])
+    filtre = (f"loudnorm={cible}:linear=true:measured_I={m['input_i']}:measured_TP={m['input_tp']}"
+              f":measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']},"
+              'alimiter=limit=0.76:attack=1:release=60:level=false')
+    subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', sortie, '-af', filtre, '-ar', str(SR), final], check=True)
     os.remove(sortie)
     print(final)
 

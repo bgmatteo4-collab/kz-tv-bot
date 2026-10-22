@@ -122,7 +122,11 @@ export function dessinerCarte(ctx, cam, { a = 1, lueurZones = 0, alerte = 0 } = 
   trace(D.etats, rgba(C.beurre, 0.13), 1);
   trace(D.frontieres, rgba(C.beurre, 0.26), 1.3);
   // De près sur Miami, la couche détaillée prend le relais (fondu entre 3° et 1,5° de large).
-  const detail = clamp((3 - largeur) / 1.5);
+  // Seulement au-dessus de la Floride : ailleurs (New York, Hollywood, Paris, sous 3° de large en
+  // fin de tenue), les plans d'eau de Miami, coupés par d3 hors champ, rempliraient tout l'écran.
+  const [clon, clat] = enLonLat(cam.x, cam.y);
+  const pres = clamp((8 - Math.hypot(clon + 80.5, clat - 26)) / 3);
+  const detail = clamp((3 - largeur) / 1.5) * pres;
   if (detail > 0) {
     trace(D.cotesFL, C.terre, 0, true);
     trace(D.eauxMiami, C.marine, 0, true);

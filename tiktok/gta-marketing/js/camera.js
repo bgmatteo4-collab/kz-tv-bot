@@ -51,27 +51,32 @@ export function creerCamera(T) {
   // le début de la première phrase du chapitre.
   const ordre = ['promesse', 'pubs', 'dirigeable', 'enseigne', 'relance', 'voitures', 'plage', 'fresques'];
   const vueDe = { promesse: VUES.miami, pubs: VUES.pubs, dirigeable: VUES.dirigeable, enseigne: VUES.enseigne2, relance: VUES.relance, voitures: VUES.voitures, plage: VUES.plage, fresques: VUES.fresques };
+  // Chaque vol part de la vue où la tenue précédente s'est arrêtée (dérive comprise) : pas de saut.
+  const zoomDe = (id) => (id === 'relance' ? -0.05 : 0.08);
   const etapes = [];
   let avant = VUES.plongee;
   for (const id of ordre) {
     const c = C[id], t0 = c.precedent + 0.06, t1 = c.debut + (id === 'promesse' ? 0.9 : 0.32);
     etapes.push({ id, t0, t1, de: avant, a: vueDe[id], v: vol(avant, vueDe[id]), finTenue: C[id].suivant });
-    avant = vueDe[id];
+    avant = derive(vueDe[id], 1, { zoom: zoomDe(id) });
   }
 
   // Le monde : New York, Los Angeles, Paris au moment où la voix les nomme.
   const tNY = T.mot('m1', 'New York'), tLA = T.mot('m1', 'Los Angeles'), tPA = T.mot('m1', 'Paris');
   const m = C.monde;
-  const monde = [
-    { t0: m.precedent + 0.06, t1: tNY + 0.15, v: vol(VUES.fresques, VUES.newYork) },
-    { t0: tNY + 0.25, t1: tLA + 0.15, v: vol(VUES.newYork, VUES.hollywood) },
-    { t0: tLA + 0.25, t1: tPA + 0.2, v: vol(VUES.hollywood, VUES.paris) },
-  ];
+  // Dérive des escales : 12 % sur une tenue d'au moins 0,6 s, moins sur les escales éclair
+  // (New York, Los Angeles : 0,1 s), pour ne pas « pomper ».
   const h = C.heat, f = C.fin;
-  const retourMiami = { t0: m.tenue + 0.08, t1: h.debut + 0.32, v: vol(VUES.paris, VUES.heat) };
-  const versFin = { t0: h.tenue + 0.06, t1: f.debut + 0.4, v: vol(VUES.heat, VUES.fin) };
+  const escales = [[m.precedent + 0.06, tNY + 0.15], [tNY + 0.25, tLA + 0.15], [tLA + 0.25, tPA + 0.2]];
+  const finsMonde = [escales[1][0], escales[2][0], m.tenue + 0.08];
+  const zoomMonde = escales.map(([, t1], i) => 0.12 * Math.min(1, (finsMonde[i] - t1) / 0.6));
+  const arrets = [VUES.newYork, VUES.hollywood, VUES.paris];
+  const departs = [avant, ...arrets.slice(0, 2).map((v, i) => derive(v, 1, { zoom: zoomMonde[i] }))];
+  const monde = escales.map(([t0, t1], i) => ({ t0, t1, v: vol(departs[i], arrets[i]), zoom: zoomMonde[i] }));
+  const retourMiami = { t0: m.tenue + 0.08, t1: h.debut + 0.32, v: vol(derive(VUES.paris, 1, { zoom: zoomMonde[2] }), VUES.heat) };
+  const versFin = { t0: h.tenue + 0.06, t1: f.debut + 0.4, v: vol(derive(VUES.heat, 1, { zoom: 0.1 }), VUES.fin) };
   // Boucle : on replonge à la verticale de l'enseigne, la photo du début reprend tout l'écran.
-  const boucle = { t0: T.ligne('o2').fin + 0.1, t1: T.duree - 0.55, v: vol(VUES.fin, VUES.enseigne) };
+  const boucle = { t0: T.ligne('o2').fin + 0.1, t1: T.duree - 0.55, v: vol(derive(VUES.fin, 1, { zoom: -0.04 }), VUES.enseigne) };
 
   function camera(t) {
     // --- Accroche
@@ -89,7 +94,7 @@ export function creerCamera(T) {
       const fin = suivante ? suivante.t0 : monde[0].t0;
       if (t >= e.t0 && t < fin) {
         if (t < e.t1) return e.v(E.traversee(prog(t, e.t0, e.t1 - e.t0)));
-        return derive(e.a, E.doux(prog(t, e.t1, fin - e.t1)), { zoom: e.id === 'relance' ? -0.05 : 0.08 });
+        return derive(e.a, E.doux(prog(t, e.t1, fin - e.t1)), { zoom: zoomDe(e.id) });
       }
     }
     // --- Le monde
@@ -97,8 +102,7 @@ export function creerCamera(T) {
       const e = monde[i], fin = i < monde.length - 1 ? monde[i + 1].t0 : retourMiami.t0;
       if (t >= e.t0 && t < fin) {
         if (t < e.t1) return e.v(E.traversee(prog(t, e.t0, e.t1 - e.t0)));
-        const arrivee = [VUES.newYork, VUES.hollywood, VUES.paris][i];
-        return derive(arrivee, E.doux(prog(t, e.t1, fin - e.t1)), { zoom: 0.12 });
+        return derive(arrets[i], E.doux(prog(t, e.t1, fin - e.t1)), { zoom: e.zoom });
       }
     }
     // --- Retour à Miami pour le dernier coup, puis la fin et la boucle

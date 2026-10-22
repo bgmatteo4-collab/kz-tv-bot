@@ -22,14 +22,14 @@ import { EPINGLES, ecranEpingle } from '../epingles.js';
 const TOUR = { src: 'medias/heat-freedom-tower.jpg', iw: 1080, ih: 1080, de: [0.55, 0.62], vers: [0.76, 0.3] };
 // Affiche : la ligne « NOVEMBER 18, 2026 » (u début, u fin, v de sa ligne de base) et le centre
 // du bandeau (de « A NIGHT IN » au bas du néon).
-const AFF = { src: 'medias/heat-affiche.jpg', iw: 1080, ih: 1080, date: [0.143, 0.394, 0.787], neon: 0.455 };
+const AFF = { src: 'medias/heat-affiche.jpg', iw: 1080, ih: 1080, date: [0.143, 0.394, 0.787], neon: 0.44 };
 
 // Cadres. Le teaser en portrait (la tour est verticale), sous la première ligne de titre.
 const FT = { x: 540, y: 912, w: 560, h: 680, r: -1.2 };
-// L'affiche en grand, sous « VICE CITY. » (bas de bloc ≈ 590) et au-dessus de 1350.
-const FA = { x: 540, y: 985, w: 720, h: 720 };
-// « La veille » : bandeau sur le néon, sous « DE LA SORTIE. » (bas de bloc ≈ 615).
-const FB = { x: 540, y: 798, w: 600, h: 312 };
+// L'affiche en grand, sous « VICE CITY. » (bas de bloc ≈ 590) et au-dessus de la légende (1262).
+const FA = { x: 540, y: 940, w: 640, h: 640 };
+// « La veille » : bandeau sur le néon, sous le titre.
+const FB = { x: 540, y: 794, w: 600, h: 300 };
 // Les feuilles de calendrier (236 × 286), alignées sur les bords du bandeau, posées sur son bas.
 const LF = 236;
 const F18 = { x: FB.x - FB.w / 2 + LF / 2, y: 1078, r: -1.8 }, F19 = { x: FB.x + FB.w / 2 - LF / 2, y: 1078, r: 1.6 };
@@ -48,15 +48,7 @@ function cadrer(im, w, h, kb, u, v) {
   const pos = `${lw - w > 0.5 ? ((100 * ox) / (w - lw)).toFixed(2) : 50}% ${lh - h > 0.5 ? ((100 * oy) / (h - lh)).toFixed(2) : 50}%`;
   return { kx: (100 * tx) / w, ky: (100 * ty) / h, pos, ox, oy, lw, lh };
 }
-// Pose une carte cadrée (object-position compris) ; renvoie ses paramètres, cadrage inclus.
-function poser(c, o, im, u, v) {
-  const k = cadrer(im, o.w, o.h, o.kb, u, v);
-  style(c.img, 'objectPosition', k.pos);
-  const p = { ...o, ...k };
-  placer(c, p);
-  return p;
-}
-// Position à l'écran du point (u, v) de l'image d'une carte posée (p : retour de poser()).
+// Position à l'écran du point (u, v) de l'image d'une carte posée (p : paramètres de placer() plus le cadrage de cadrer()).
 function ecran(p, u, v) {
   const ex = (p.kx / 100) * p.w + p.kb * (p.ox + u * p.lw - p.w / 2), ey = (p.ky / 100) * p.h + p.kb * (p.oy + v * p.lh - p.h / 2);
   const a = ((p.r || 0) * Math.PI) / 180, s = p.s ?? 1;
@@ -96,10 +88,10 @@ export default function creer(T) {
   const tZ = m('jeu') - 0.2;              // gros plan sur la feuille 19
   const tS = c.tenue - 0.05;              // tout rentre dans l'épingle
 
+  // Un seul bloc : « Vice City » et « La veille » se suivent de trop près pour deux titres ;
+  // « la veille de la sortie », ce sont les deux feuilles (MATCH 18 → SORTIE 19) qui l'écrivent.
   const blocs = [
-    { sortie: m('La veille') - 0.12, lignes: [[['07', m('Sept'), 'num'], ['Le Heat', m('Miami Heat')], ['devient', m('jouera')]], [['Vice City.', m('Vice City'), 'accent']]] },
-    // Sans pavé : le cerise de ce moment, c'est la feuille « 19 NOV. » (jamais deux pavés à la fois).
-    { sortie: c.tenue + 0.2, lignes: [[['La veille', m('La veille')]], [['de la', m('de la sortie')], ['sortie.', m('sortie')]]] },
+    { sortie: c.tenue + 0.2, lignes: [[['07', m('Sept'), 'num'], ['Le Heat', m('Miami Heat')], ['devient', m('jouera')]], [['Vice City.', m('Vice City'), 'accent']]] },
   ];
 
   let tour, aff, j18, j19;
@@ -140,11 +132,12 @@ export default function creer(T) {
     if (eT > 0.001 && t < tP + 0.6) {
       const q = E.doux(prog(t, tA, tP + 0.3 - tA));
       const kb = lerp(1.04, 1.2, q);
-      const k = viser(TOUR, FT.w, FT.h, kb, lerp(TOUR.de[0], TOUR.vers[0], q), lerp(TOUR.de[1], TOUR.vers[1], q));
+      const k = cadrer(TOUR, FT.w, FT.h, kb, lerp(TOUR.de[0], TOUR.vers[0], q), lerp(TOUR.de[1], TOUR.vers[1], q));
       pT = {
         x: lerp(pin[0], FT.x, eT), y: lerp(pin[1], FT.y, eT) + 24 * recul, w: FT.w, h: FT.h, r: lerp(0, FT.r, eT),
         s: lerp(0.1, 1, eT) * lerp(1, 0.9, recul), a: clamp(eT * 4) * (1 - prog(t, tP + 0.32, 0.2)), z: 4, kb, ...k,
       };
+      style(tour.img, 'objectPosition', k.pos);
       style(tour.img, 'filter', `contrast(1.08) saturate(.96) brightness(${(1 - 0.5 * recul).toFixed(3)})`);
       placer(tour, pT);
     }
@@ -157,7 +150,8 @@ export default function creer(T) {
       const b = E.traversee(prog(t, tB, DB));
       const vie = E.doux(prog(t, tP, tS - tP));
       const w = lerp(FA.w, FB.w, b), h = lerp(FA.h, FB.h, b), kb = lerp(1.05, 1.0, vie);
-      const k = viser(AFF, w, h, kb, 0.5, lerp(0.5, AFF.neon, b));
+      const k = cadrer(AFF, w, h, kb, 0.5, lerp(0.5, AFF.neon, b));
+      style(aff.img, 'objectPosition', k.pos);
       let o = {
         x: lerp(pin[0], lerp(FA.x, FB.x, b), eA), y: lerp(pin[1], lerp(FA.y, FB.y, b), eA), w, h, r: 0,
         s: lerp(0.1, 1, eA) * lerp(1, 1.015, vie) * lerp(1, 0.97, gp), a: clamp(eA * 4), z: 10, kb, ...k,
@@ -199,7 +193,7 @@ export default function creer(T) {
     } else if (pA) {
       // … puis elle sort de la date de l'affiche et se pose sous le bandeau, à gauche.
       const e = ressort(t - tL, 190, 19);
-      const d = ecran(AFF, pA, (AFF.date[0] + AFF.date[1]) / 2, AFF.date[2] - 0.01);
+      const d = ecran(pA, (AFF.date[0] + AFF.date[1]) / 2, AFF.date[2] - 0.01);
       let o = { x: lerp(d[0], F18.x, e), y: lerp(d[1], F18.y, e), s: lerp(0.2, 1, e), a: clamp(e * 5), r: lerp(0, F18.r, e) };
       o = rentrer(o, pin, retour);
       poserFeuille(j18, { ...o, z: 40, h: clamp(1 - e), lum: 1 - 0.18 * gp });
@@ -209,7 +203,7 @@ export default function creer(T) {
     if (pA && t > tV && t < tB + 0.3) {
       const u = E.sortie(prog(t, tV, 0.2)), f = 1 - prog(t, tL + 0.06, 0.16);
       if (u > 0 && f > 0) {
-        const a = ecran(AFF, pA, AFF.date[0] - 0.005, AFF.date[2] + 0.027), z = ecran(AFF, pA, AFF.date[1] + 0.005, AFF.date[2] + 0.027);
+        const a = ecran(pA, AFF.date[0] - 0.005, AFF.date[2] + 0.027), z = ecran(pA, AFF.date[1] + 0.005, AFF.date[2] + 0.027);
         g.save();
         g.globalAlpha = f;
         g.lineCap = 'round'; g.lineWidth = 6; g.strokeStyle = C.ceriseVif;
@@ -225,6 +219,11 @@ export default function creer(T) {
     if (fl > 0 && af > 0) {
       const x0 = F18.x + LF / 2 + 22, x1 = F19.x - LF / 2 - 22, y = F18.y + 8, xe = lerp(x0, x1, fl);
       g.save();
+      // La flèche court sur une pastille marine (les épingles 3 et 7 sont juste dessous).
+      g.globalAlpha = af * clamp(fl * 4);
+      g.beginPath(); g.roundRect(x0 - 14, y - 44, x1 - x0 + 28, 88, 22);
+      g.fillStyle = rgba(C.marine, 0.94); g.fill();
+      g.lineWidth = 1.5; g.strokeStyle = rgba(C.beurre, 0.16); g.stroke();
       g.globalAlpha = af;
       g.lineCap = 'round'; g.lineJoin = 'round';
       g.strokeStyle = C.beurre; g.lineWidth = 7;

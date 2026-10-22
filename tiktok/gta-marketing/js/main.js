@@ -73,8 +73,9 @@ function dessiner(t) {
   const P = dessinerCarte(ctx, cam, { a: visible ? 1 : 0, lueurZones: tw(t, 7.05, 0.6), alerte });
   dessus.clearRect(0, 0, W, H);
   if (visible) {
-    quartiers(ctx, P, cam, { zoneTitres: horsTitres });
+    // Les noms de quartiers s'effacent sous le voile : ils ne doivent pas traîner entre les photos.
     const voile = Math.max(0, ...chapitres.map((ch) => (ch.voile ? ch.voile(t) : 0)));
+    quartiers(ctx, P, cam, { zoneTitres: horsTitres, a: 1 - 0.8 * voile });
     if (voile > 0) { ctx.fillStyle = rgba(C.marine, 0.6 * voile); ctx.fillRect(0, 0, W, H); }
     dessinerEpingles(ctx, t, T, cam, P, { zoneTitres: horsTitres });
   }

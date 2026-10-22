@@ -2,7 +2,10 @@
 // Rend le TikTok image par image (Chromium headless, 1080 × 1920), puis l'encode avec ffmpeg.
 // La bande-son se fabrique à part (son.py) et se colle avec ./assembler.sh.
 //
-//   node render.js                        → out/video.mp4 (60 i/s, flou de mouvement adaptatif)
+//   node render.js                        → out/video.mp4 (60 i/s, flou de mouvement adaptatif),
+//                                           par segments de 10 s (out/segments-video/) : relancé après
+//                                           une coupure, il reprend au premier segment manquant
+//   node render.js --segments 0           → d'un seul tenant
 //   node render.js --blur 1               → sans flou de mouvement (3× plus rapide)
 //   node render.js --from 3 --to 7        → seulement un passage
 //   node render.js --stills 1.2,5,9.5     → images fixes PNG dans out/stills/ (--dossier pour un autre)
@@ -14,6 +17,7 @@ const http = require('http');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
 const { spawn } = require('child_process');
 const { chromium } = require('playwright');
 
@@ -23,7 +27,7 @@ const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascrip
 
 function args() {
   const a = {
-    fps: 60, blur: 3, adaptatif: 1, from: 0, to: null, workers: Math.max(1, Math.min(3, os.cpus().length - 1)),
+    fps: 60, blur: 3, adaptatif: 1, from: 0, to: null, workers: Math.max(1, Math.min(3, os.cpus().length - 1)), segments: 10,
     out: path.join(ROOT, 'out', 'video.mp4'), stills: null, query: '',
   };
   const v = process.argv.slice(2);
@@ -48,7 +52,9 @@ function serve() {
 
 // Un navigateur prêt à rendre : at(t) dessine l'image, shot() la capture en PNG.
 async function open(url) {
-  const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--ignore-gpu-blocklist', '--disable-background-timer-throttling', '--disable-renderer-backgrounding'] });
+  // Sans GPU : le canvas 2D est dessiné par Skia sur le processeur. Avec le GPU émulé (SwiftShader),
+  // chaque capture coûtait ~3 s à rastériser la carte, contre ~0,35 s ainsi, pour la même image.
+  const browser = await chromium.launch({ args: ['--disable-gpu', '--disable-accelerated-2d-canvas', '--disable-background-timer-throttling', '--disable-renderer-backgrounding'] });
   const page = await browser.newPage({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
   page.on('pageerror', (e) => { console.error('Erreur dans la page :', e.stack || e.message); process.exitCode = 1; });
   page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') console.error('Console :', m.text().slice(0, 400)); });
@@ -98,6 +104,36 @@ async function renderRange(url, a, sub, first, last, file, progress) {
   await r.browser.close();
 }
 
+// Les navigateurs se partagent le morceau en tranches continues, recollées sans réencodage.
+async function rendreMorceau(url, a, sub, first, last, out, progress) {
+  const n = Math.max(1, Math.min(a.workers | 0, last - first));
+  const parts = Array.from({ length: n }, (_, k) => ({
+    first: first + Math.round((k * (last - first)) / n), last: first + Math.round(((k + 1) * (last - first)) / n),
+    file: `${out}.part-${k}.mp4`,
+  }));
+  await Promise.all(parts.map((p) => renderRange(url, a, sub, p.first, p.last, p.file, progress)));
+  await concat(parts.map((p) => p.file), out);
+  parts.forEach((p) => fs.unlinkSync(p.file));
+}
+
+async function concat(files, out) {
+  const list = `${out}.txt`;
+  fs.writeFileSync(list, files.map((f) => `file '${path.resolve(f)}'`).join('\n'));
+  await new Promise((ok, ko) => spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', '-movflags', '+faststart', '-f', 'mp4', out], { stdio: 'inherit' })
+    .on('close', (code) => (code === 0 ? ok() : ko(new Error(`ffmpeg concat : code ${code}`)))));
+  fs.unlinkSync(list);
+}
+
+// Empreinte de tout ce qui change l'image : le code, le style, la voix et les réglages du rendu.
+function signature(a) {
+  const h = crypto.createHash('sha1').update(JSON.stringify([a.fps, a.blur, a.adaptatif, a.from, a.to, a.query, a.segments]));
+  const fichiers = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? fichiers(path.join(d, e.name)) : [path.join(d, e.name)]));
+  for (const f of [...fichiers(path.join(ROOT, 'js')), 'index.html', 'style.css', 'medias/voix.json'].map((f) => path.resolve(ROOT, f)).sort()) {
+    if (fs.existsSync(f)) h.update(f).update(fs.readFileSync(f));
+  }
+  return h.digest('hex');
+}
+
 (async () => {
   const a = args();
   const server = await serve();
@@ -125,28 +161,34 @@ async function renderRange(url, a, sub, first, last, file, progress) {
     if (a.to === null) { const r = await open(url); a.to = await r.page.evaluate(() => window.__duree); await r.browser.close(); }
     const sub = Math.max(1, a.blur | 0);
     const total = Math.round((a.to - a.from) * a.fps);
-    const n = Math.max(1, Math.min(a.workers | 0, total));
     const t0 = Date.now();
+    // Segments [premier, dernier[ en images. Un segment fini est renommé d'un coup : un fichier
+    // présent est complet. La signature (sources, voix, réglages) jette ceux d'un film qui a changé.
+    const pas = a.segments > 0 ? Math.round(a.segments * a.fps) : total;
+    const dossier = path.join(path.dirname(a.out), `segments-${path.basename(a.out, '.mp4')}`);
+    const segs = [];
+    for (let k = 0; k * pas < total; k++) segs.push({ first: k * pas, last: Math.min(total, (k + 1) * pas), file: path.join(dossier, `seg-${String(k).padStart(3, '0')}.mp4`) });
+    const sig = signature(a);
+    if (!fs.existsSync(path.join(dossier, 'signature')) || fs.readFileSync(path.join(dossier, 'signature'), 'utf8') !== sig) fs.rmSync(dossier, { recursive: true, force: true });
+    fs.mkdirSync(dossier, { recursive: true });
+    fs.writeFileSync(path.join(dossier, 'signature'), sig);
+    const restants = segs.filter((g) => !fs.existsSync(g.file));
+    const aFaire = restants.reduce((n, g) => n + g.last - g.first, 0);
+    if (restants.length < segs.length) console.log(`Reprise : ${segs.length - restants.length}/${segs.length} segments déjà rendus`);
     let done = 0;
     const progress = () => {
       done++;
-      if (done % 60 === 0 || done === total) {
+      if (done % 60 === 0 || done === aFaire) {
         const s = (Date.now() - t0) / 1000;
-        console.log(`${done}/${total} images · ${s.toFixed(0)} s écoulées · reste ~${((s / done) * (total - done)).toFixed(0)} s`);
+        console.log(`${done}/${aFaire} images · ${s.toFixed(0)} s écoulées · reste ~${((s / done) * (aFaire - done)).toFixed(0)} s`);
       }
     };
-    // Chaque navigateur rend un morceau continu ; les morceaux sont recollés sans réencodage.
-    const parts = Array.from({ length: n }, (_, k) => ({
-      first: Math.round((k * total) / n), last: Math.round(((k + 1) * total) / n),
-      file: path.join(path.dirname(a.out), `.part-${k}.mp4`),
-    }));
-    await Promise.all(parts.map((p) => renderRange(url, a, sub, p.first, p.last, p.file, progress)));
-    const list = path.join(path.dirname(a.out), '.parts.txt');
-    fs.writeFileSync(list, parts.map((p) => `file '${path.basename(p.file)}'`).join('\n'));
-    await new Promise((ok, ko) => spawn('ffmpeg', ['-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy', '-movflags', '+faststart', a.out], { stdio: 'inherit' })
-      .on('close', (code) => (code === 0 ? ok() : ko(new Error(`ffmpeg concat : code ${code}`)))));
-    parts.forEach((p) => fs.unlinkSync(p.file));
-    fs.unlinkSync(list);
+    for (const g of restants) {
+      await rendreMorceau(url, a, sub, g.first, g.last, g.file + '.tmp.mp4', progress);
+      fs.renameSync(g.file + '.tmp.mp4', g.file);
+    }
+    await concat(segs.map((g) => g.file), a.out);
+    fs.rmSync(dossier, { recursive: true, force: true });
     console.log(`Vidéo : ${a.out} (${((Date.now() - t0) / 1000).toFixed(0)} s)`);
   }
   server.close();

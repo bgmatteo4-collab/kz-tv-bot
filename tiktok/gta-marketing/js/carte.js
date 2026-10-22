@@ -81,8 +81,12 @@ export function projeteur(cam) {
     const f = DIST / (DIST - dy * s);
     return [cam.x + (sx - W / 2) / f / k, cam.y + dy / k];
   };
-  // Zone plane visible (avec marge) pour couper tôt ce qui est hors champ.
-  const coins = [[-80, -60], [W + 80, -60], [-80, H + 60], [W + 80, H + 60]].map(([a, b]) => inverse(a, b));
+  // Zone plane visible (avec marge) pour couper tôt ce qui est hors champ. Au-delà d'environ 57°
+  // d'inclinaison, l'horizon entre dans l'image : la zone s'arrête juste sous lui (sinon
+  // l'inverse passe « derrière » la caméra et la zone de coupe se retourne).
+  const horizon = s > 0 ? PIVOT - (DIST * c) / s : -Infinity;
+  const haut = Math.max(-60, horizon + 40);
+  const coins = [[-80, haut], [W + 80, haut], [-80, H + 60], [W + 80, H + 60]].map(([a, b]) => inverse(a, b));
   const xs = coins.map((p) => p[0]), ys = coins.map((p) => p[1]);
   const coupe = d3.geoMercator().scale(1).translate([0, 0]).precision(0.6 / k)
     .clipExtent([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]]);
@@ -138,14 +142,7 @@ export function dessinerCarte(ctx, cam, { a = 1, lueurZones = 0, alerte = 0 } = 
     for (const g of [D.cotesFL, D.eauxMiami]) { trace(g, rgba(C.beurre, 0.06), 8); trace(g, rgba(C.beurre, 0.4), 1.4); }
   }
   ctx.restore();
-  // Alerte (la mairie proteste) : la carte vire au cerise sombre.
-  if (alerte > 0) {
-    ctx.save();
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.fillStyle = rgba('#B3203A', 0.55 * alerte);
-    ctx.fillRect(0, 0, W, H);
-    ctx.restore();
-  }
+
   // Lumière douce venue d'au-dessus du point visé : donne du relief au plateau.
   const l = ctx.createRadialGradient(W / 2, H * 0.5, 0, W / 2, H * 0.5, 980);
   l.addColorStop(0, rgba(C.beurre, 0.07 * a));
@@ -160,6 +157,16 @@ export function dessinerCarte(ctx, cam, { a = 1, lueurZones = 0, alerte = 0 } = 
     g.addColorStop(1, rgba(C.marine, 0));
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H * 0.55);
+  }
+  // Alerte (la mairie proteste) : la carte vire au cerise sombre. Seule la teinte change
+  // (fondu « hue ») : la luminosité est gardée, terre et mer restent distinctes.
+  if (alerte > 0) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'hue';
+    ctx.globalAlpha = 0.9 * alerte;
+    ctx.fillStyle = C.cerise;
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
   }
   return P;
 }

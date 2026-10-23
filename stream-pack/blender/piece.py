@@ -210,8 +210,16 @@ for x in (0.0, L):   # plinthes
     pass
 boite('plinthe sud', (L / 2, 0.01, 0.05), (L, 0.02, 0.1), M['chene'])
 
-# Baie vitrée : toute la longueur du mur nord, du sol au plafond, montants noirs fins.
-boite('baie vitre', (L / 2, P + 0.02, H / 2), (L, 0.02, H), M['verre'])
+# Baie vitrée : toute la longueur du mur nord, du sol au plafond, 8 travées d'1 m à montants noirs fins.
+# La 4e (x 3 → 4) est un coulissant ouvert, glissé derrière la 5e : c'est par là que le drone entre.
+OUVERT = 3
+for i in range(8):
+    if i != OUVERT:
+        boite(f'baie vitre {i}', (i + 0.5, P + 0.02, H / 2), (1.0, 0.02, H), M['verre'])
+boite('baie vitre coulissant', (OUVERT + 1.5, P - 0.05, H / 2), (0.96, 0.02, H - 0.08), M['verre'])
+for x in (OUVERT + 1.02, OUVERT + 1.98):
+    boite('baie coulissant montant', (x, P - 0.05, H / 2), (0.04, 0.045, H - 0.08), M['noir'])
+boite('baie coulissant poignée', (OUVERT + 1.06, P - 0.085, 1.05), (0.02, 0.02, 0.3), M['noir'], 0.005)
 for i in range(9):
     boite(f'montant {i}', (i * L / 8, P, H / 2), (0.05, 0.08, H), M['noir'])
 for z in (0.02, H - 0.02):
@@ -664,7 +672,7 @@ if os.path.exists(film):
     nt.links.new(tex.outputs['Color'], b.inputs['Emission Color'])
 etats = [(0.0, 0.0)]
 for t0, t1 in TV_ALLUMEE:   # allumage en 0,35 s, extinction en 0,25 s
-    etats += [(t0, 0.0), (t0 + 0.35, 1.3), (t1, 1.3), (t1 + 0.25, 0.0)]
+    etats += [(t0, 0.0), (t0 + 0.35, 1.0), (t1, 1.0), (t1 + 0.25, 0.0)]
 for t, v in etats:
     b.inputs['Emission Strength'].default_value = v
     b.inputs['Emission Strength'].keyframe_insert('default_value', frame=t * FPS)
@@ -754,6 +762,23 @@ def ville():
         boite(f'immeuble {k}', (x, P + dist, BAS + hauteur / 2), (larg, random.uniform(14, 30), hauteur), m)
     boite('sol extérieur', (L / 2, P + 600, BAS - 0.1), (3000, 1300, 0.2), materiau_uni('sol ville', '#23262D', 0.9))
 ville()
+
+# --- Dehors : le balcon (dalle, garde-corps vitré, deux appliques) et la façade de l'immeuble autour de la
+# baie, avec les fenêtres des voisins (même matière que la ville, en partie allumées).
+DALLE = materiau_uni('dalle balcon', '#3B3E42', 0.8, bosse=0.03)
+boite('balcon', (L / 2, P + 0.8, -0.12), (L + 0.4, 1.6, 0.24), DALLE)
+boite('balcon garde-corps', (L / 2, P + 1.55, 0.55), (L + 0.4, 0.015, 1.0), M['verre'])
+boite('balcon main courante', (L / 2, P + 1.55, 1.07), (L + 0.4, 0.05, 0.04), M['noir'], 0.005)
+for x in (-0.15, L + 0.15):
+    boite('balcon poteau', (x, P + 1.55, 0.55), (0.05, 0.05, 1.1), M['noir'])
+FACADE = bpy.data.materials['façades']
+for nom, c, t in (('façade gauche', (-9.0, P + 0.2, -10.0), (18.0, 0.4, 32.0)), ('façade droite', (L + 9.0, P + 0.2, -10.0), (18.0, 0.4, 32.0)),
+                  ('façade haut', (L / 2, P + 0.2, H + 5.0), (L, 0.4, 10.0)), ('façade bas', (L / 2, P + 0.2, -13.0), (L, 0.4, 26.0))):
+    boite(nom, c, t, FACADE)
+APPLIQUE = materiau_uni('applique', '#FFE2B0', emission='#FFC27A', force=8.0)
+for x in (0.3, L - 0.3):
+    boite('applique balcon', (x, P + 0.43, 2.2), (0.08, 0.06, 0.22), M['noir'], 0.004)
+    boite('applique balcon verre', (x, P + 0.465, 2.2), (0.05, 0.01, 0.16), APPLIQUE)
 # Feux rouges clignotants sur les plus hautes tours (balisage aérien).
 BALISE = materiau_uni('balise', '#FF2A1A', emission='#FF2A1A', force=40.0)
 for o in [o for o in scene.objects if o.name.startswith('immeuble')]:
@@ -792,6 +817,8 @@ def lumiere(nom, type_, position, energie, couleur, taille=0.3, rotation=(0, 0, 
 
 # Éclairage de nuit : seulement les lampes de la pièce (2 700 K), plus la lueur froide des écrans.
 lumiere('suspension', 'POINT', (6.05, 2.45, 2.05), 70, '#FFC27A', 0.1)
+for x in (0.3, L - 0.3):   # appliques du balcon : deux cônes doux sur la façade
+    lumiere('applique balcon', 'SPOT', (x, P + 0.5, 2.15), 8, '#FFC27A', 0.03, (180, 0, 0), cone=110)
 lumiere('lampe à poser', 'POINT', (4.55, 1.2, 0.92), 25, '#FFB866', 0.05)
 lumiere('lampadaire', 'POINT', (7.5, 0.48, 1.45), 110, '#FFB866', 0.12)
 for x, y in ((2.2, 1.5), (2.2, 4.5), (3.6, 0.5), (5.6, 0.5), (7.2, 4.6)):   # spots encastrés : des cônes doux
@@ -828,6 +855,7 @@ CAMS = {
     'etag_nord': camera('etag_nord', (1.5, 4.95, 1.45), (0.1, 4.95, 1.45), 30),
     'coin_ne': camera('coin_ne', (7.35, 5.35, 1.75), (2.0, 1.4, 0.9), 20),
     'micro': camera('micro', (1.05, 3.15, 1.2), (0.8, 3.4, 1.2), 45),
+    'dehors': camera('dehors', (3.5, 10.0, 2.2), (3.6, 4.0, 1.3), 24),
     'console': camera('console', (6.95, 1.55, 0.85), (7.75, 1.95, 0.6), 30),
     'setup': camera('setup', (1.55, 3.55, 1.45), (0.35, 2.85, 0.95), 26),
     'affiches': camera('affiches', (4.6, 3.2, 1.6), (4.6, 0.0, 1.55), 30),
@@ -851,6 +879,23 @@ if 'boites' in opt:   # emprise au sol des meubles (contrôle des collisions)
 
 if 'controle' in opt:
     sys.path.insert(0, ICI); import controle; controle.controler(scene); controle.flottants(scene)
+if 'clip' in opt:   # un clip du pack : caméras animées et coupes (blender/<clip>.py)
+    sys.path.insert(0, ICI); import importlib
+    PLANS_CLIP = importlib.import_module(opt['clip']).monter(scene, FPS)
+if 'animatique' in opt:   # prévisualisation rapide des mouvements (Workbench, 480 × 270, 15 i/s), titres des plans incrustés
+    import shutil, subprocess, tempfile
+    scene.render.engine = 'BLENDER_WORKBENCH'
+    scene.display.shading.light, scene.display.shading.color_type = 'STUDIO', 'TEXTURE'
+    scene.render.resolution_x, scene.render.resolution_y, scene.frame_step = 480, 270, 2
+    dossier = tempfile.mkdtemp(); scene.render.filepath = os.path.join(dossier, 'i')
+    scene.render.image_settings.file_format = 'PNG'
+    bpy.ops.render.render(animation=True)
+    police = os.path.join(ICI, '..', 'da', 'Rubik-2.ttf').replace(':', '\\:')
+    titres = ','.join(f"drawtext=fontfile={police}:text='{n}':x=12:y=12:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.5:"
+                      f"enable='between(t,{d},{fin})'" for (n, d), fin in zip(PLANS_CLIP, [p[1] for p in PLANS_CLIP[1:]] + [DUREE]))
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS // 2), '-pattern_type', 'glob', '-i', os.path.join(dossier, 'i*.png'),
+                    '-vf', titres, '-c:v', 'libx264', '-crf', '20', '-pix_fmt', 'yuv420p', os.path.abspath(opt['animatique'])], check=True)
+    shutil.rmtree(dossier); sys.exit(0)
 scene.frame_set(int(opt.get('image', 360)))   # image fixe : à 12 s, la TV est allumée
 if 'rendu' in opt:
     scene.render.filepath = os.path.abspath(opt['rendu'])

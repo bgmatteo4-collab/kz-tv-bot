@@ -4,7 +4,8 @@ import itertools
 import bpy
 from mathutils import Vector
 
-IGNORER = ('sol', 'plafond', 'mur ', 'plinthe', 'baie', 'montant', 'traverse', 'lame', 'immeuble', 'balise', 'tapis', 'sol extérieur')
+IGNORER = ('sol', 'plafond', 'mur ', 'plinthe', 'baie', 'montant', 'traverse', 'lame', 'immeuble', 'balise', 'tapis', 'sol extérieur',
+           'balcon', 'façade', 'applique')
 
 
 def groupes(scene):

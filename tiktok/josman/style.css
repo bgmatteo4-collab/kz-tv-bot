@@ -1,0 +1,80 @@
+/* Dossier Nº02 — Josman. Système : DESIGN.md. On n'anime que transform et opacity. */
+@font-face { font-family: "Archivo"; src: url(fonts/Archivo-wdth.woff2) format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
+@font-face { font-family: "Instrument Serif"; src: url(fonts/InstrumentSerif-italic.woff2) format("woff2"); font-style: italic; }
+@font-face { font-family: "JetBrains Mono"; src: url(fonts/JetBrainsMono-normal.woff2) format("woff2"); font-weight: 100 800; }
+
+:root {
+  --nuit: #07090E; --ardoise: #11151F; --champagne: #EFE3C2; --or: #C9A55C; --brume: #8D96A3; --cerise: #D2122E;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--nuit); }
+#ecran { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--nuit); color: var(--champagne);
+  font-family: "Archivo", sans-serif; -webkit-font-smoothing: antialiased; }
+#ecran > div { position: absolute; }
+
+/* Lumière : une douche venue du haut et un faisceau, comme sur une scène ou dans une vitrine. */
+#douche { inset: 0; background: radial-gradient(70% 46% at 50% 6%, rgba(239, 227, 194, .20), rgba(239, 227, 194, .05) 55%, transparent 80%); }
+#faisceau { left: 0; top: 0; width: 1080px; height: 1500px; clip-path: polygon(41% 0, 59% 0, 86% 100%, 14% 100%);
+  background: linear-gradient(180deg, rgba(239, 227, 194, .16), rgba(239, 227, 194, .03) 75%, transparent); }
+#lampadaire { inset: 0; }
+#lampadaire .cone { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; clip-path: polygon(46% 7%, 54% 7%, 92% 82%, 8% 82%);
+  background: linear-gradient(180deg, rgba(196, 210, 228, .26), rgba(196, 210, 228, .06) 80%, transparent); }
+#lampadaire .flaque { position: absolute; left: 90px; top: 1440px; width: 900px; height: 220px; border-radius: 50%;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(196, 210, 228, .22), transparent 70%); }
+
+/* Objets posés sur un sol brillant : face + reflet atténué. */
+#scene { inset: 0; perspective: 1800px; perspective-origin: 50% 40%; }
+.objet { position: absolute; left: 0; top: 0; transform-origin: 50% 100%; will-change: transform; }
+.objet .face { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: 6px; overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, .6), 0 0 0 1px rgba(239, 227, 194, .10); }
+.objet img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.objet .reflet { position: absolute; left: 0; top: 100%; width: 100%; height: 100%; margin-top: 6px; transform: scaleY(-1); opacity: .16;
+  -webkit-mask-image: linear-gradient(0deg, #000, transparent 38%); mask-image: linear-gradient(0deg, #000, transparent 38%); overflow: hidden; border-radius: 6px; }
+#dpc, #tulum { width: 600px; height: 600px; }
+
+/* Le billet : un vrai billet de concert, avec talon détachable. */
+#billet { width: 780px; height: 300px; display: flex; color: var(--nuit); filter: drop-shadow(0 34px 50px rgba(0, 0, 0, .55)); }
+.b-corps { position: relative; flex: 1; background: var(--champagne); border-radius: 14px 0 0 14px; padding: 30px 34px; overflow: hidden; }
+.b-talon { width: 190px; background: var(--champagne); border-radius: 0 14px 14px 0; border-left: 3px dashed rgba(7, 9, 14, .35);
+  display: flex; flex-direction: column; justify-content: space-between; padding: 26px 22px; }
+.b-surtitre { font: 500 19px/1 "JetBrains Mono"; letter-spacing: .16em; opacity: .7; }
+.b-nom { font-weight: 900; font-stretch: 72%; font-size: 92px; line-height: .9; letter-spacing: -.01em; margin-top: 14px; }
+.b-lieu { font: 600 22px/1.25 "JetBrains Mono"; letter-spacing: .06em; margin-top: 16px; }
+.b-or { position: absolute; right: -40px; top: -40px; width: 170px; height: 170px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #E9D08C, var(--or) 55%, #8C6E2F); opacity: .9; }
+.b-code { height: 120px; background: repeating-linear-gradient(90deg, var(--nuit) 0 3px, transparent 3px 6px, var(--nuit) 6px 7px, transparent 7px 11px, var(--nuit) 11px 15px, transparent 15px 17px); }
+.b-num { font: 600 18px/1.2 "JetBrains Mono"; letter-spacing: .08em; }
+
+#obscur { inset: 0; background: var(--nuit); }
+
+/* Titres : lignes pleines qui montent de leur masque, pas de rebond mot à mot. */
+#titres { left: 96px; top: 300px; width: 860px; }
+.bloc { position: absolute; left: 0; top: 0; width: 860px; }
+.ligne { display: block; overflow: hidden; padding: 4px 0 10px; margin-bottom: -12px; }
+.ligne > span { display: inline-block; will-change: transform; }
+.t-grand { font-weight: 800; font-stretch: 78%; font-size: 112px; line-height: .95; letter-spacing: -.012em; text-transform: uppercase; }
+.t-serif { font-family: "Instrument Serif"; font-style: italic; font-weight: 400; font-size: 132px; line-height: .95; color: var(--or); letter-spacing: -.01em; }
+.t-sur { font: 500 24px/1 "JetBrains Mono"; letter-spacing: .2em; color: var(--brume); text-transform: uppercase; margin-bottom: 22px; }
+
+/* Compteur : chiffres en colonnes qui défilent (odomètre). */
+#compteur { left: 96px; top: 470px; height: 190px; display: flex; align-items: flex-start; font-weight: 800; font-stretch: 72%;
+  font-size: 176px; line-height: 190px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--champagne); }
+.chiffre { position: relative; height: 190px; overflow: hidden; width: .56em; }
+.chiffre > span { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; width: 100%; text-align: center; will-change: transform; }
+.chiffre i { display: block; height: 190px; font-style: normal; }
+.espace { width: .2em; }
+.devise { color: var(--or); margin-left: .12em; }
+
+#etiquettes { inset: 0; }
+.etiquette { position: absolute; font: 500 22px/1.3 "JetBrains Mono"; letter-spacing: .14em; color: var(--brume); text-transform: uppercase; white-space: nowrap; }
+.etiquette b { color: var(--champagne); font-weight: 600; }
+
+/* L'onglet de la série, comme pour le Nº01, ici sur fond nuit. */
+#onglet { left: 0; top: 300px; width: 64px; padding: 26px 0; background: var(--cerise); border-radius: 0 14px 14px 0;
+  display: flex; flex-direction: column; align-items: center; gap: 18px; box-shadow: 8px 10px 30px rgba(0, 0, 0, .35); will-change: transform; }
+#onglet span { writing-mode: vertical-rl; transform: rotate(180deg); color: var(--champagne); white-space: nowrap; }
+.o-titre { font-weight: 800; font-stretch: 80%; font-size: 26px; letter-spacing: .16em; }
+.o-sujet { font-weight: 800; font-stretch: 80%; font-size: 26px; letter-spacing: .08em; background: var(--champagne); color: var(--cerise) !important; padding: 10px 4px; border-radius: 6px; }
+.o-num { font: 600 18px/1 "JetBrains Mono"; letter-spacing: .1em; opacity: .85; }
+
+#vignette { inset: 0; pointer-events: none; background: radial-gradient(120% 80% at 50% 45%, transparent 55%, rgba(0, 0, 0, .55)); }

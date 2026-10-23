@@ -665,8 +665,12 @@ ecran_tv = bpy.context.object; ecran_tv.name = 'dalle TV'; ecran_tv.scale = (y1 
 TELE = bpy.data.materials.new('dalle TV'); nt = TELE.node_tree; b = nt.nodes['Principled BSDF']
 b.inputs['Base Color'].default_value = (0.004, 0.004, 0.005, 1); b.inputs['Roughness'].default_value = 0.1   # OLED éteint : noir brillant
 film = os.path.join(ASSETS, 'tv', 'programme.mp4')
+if not os.path.exists(film):   # sans ffmpeg, le programme reste en images
+    film = os.path.join(ASSETS, 'tv', 'images', '0000.jpg')
 if os.path.exists(film):
     tex = nt.nodes.new('ShaderNodeTexImage'); tex.image = bpy.data.images.load(film)
+    if film.endswith('.jpg'):
+        tex.image.source = 'SEQUENCE'
     tex.image_user.frame_duration, tex.image_user.frame_start = int(DUREE * FPS), 0
     tex.image_user.use_auto_refresh = tex.image_user.use_cyclic = True
     nt.links.new(tex.outputs['Color'], b.inputs['Emission Color'])
@@ -882,6 +886,26 @@ if 'controle' in opt:
 if 'clip' in opt:   # un clip du pack : caméras animées et coupes (blender/<clip>.py)
     sys.path.insert(0, ICI); import importlib
     PLANS_CLIP = importlib.import_module(opt['clip']).monter(scene, FPS)
+if opt.get('gpu') == '1':   # rendu sur carte graphique (PC du client) : OptiX, CUDA, HIP, oneAPI ou Metal
+    prefs = bpy.context.preferences.addons['cycles'].preferences
+    for genre in ('OPTIX', 'CUDA', 'HIP', 'ONEAPI', 'METAL'):
+        try:
+            prefs.compute_device_type = genre
+        except TypeError:
+            continue
+        prefs.refresh_devices()
+        cartes = [d for d in prefs.devices if d.type == genre]
+        if cartes:
+            for d in prefs.devices:
+                d.use = d.type == genre
+            scene.cycles.device = 'GPU'; print('GPU :', genre, [d.name for d in cartes]); break
+if 'film' in opt:   # rendu final, image par image (PNG) ; relancé, il reprend où il s'était arrêté
+    scene.render.use_motion_blur, scene.render.motion_blur_shutter = True, 0.5
+    scene.render.image_settings.file_format = 'PNG'
+    scene.render.filepath = os.path.join(os.path.abspath(opt['film']), 'i')
+    scene.render.use_overwrite, scene.render.use_placeholder = False, True
+    bpy.ops.render.render(animation=True)
+    sys.exit(0)
 if 'animatique' in opt:   # prévisualisation rapide des mouvements (Workbench, 480 × 270, 15 i/s), titres des plans incrustés
     import shutil, subprocess, tempfile
     scene.render.engine = 'BLENDER_WORKBENCH'

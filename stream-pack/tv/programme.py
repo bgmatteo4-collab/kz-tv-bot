@@ -4,6 +4,7 @@ enchaînés en fondus, encodés en MP4 (assets/tv/programme.mp4). Lancé avec Bl
     blender -b -P stream-pack/tv/programme.py -- --essai 1 → planche de repérage des cadrages"""
 import math
 import os
+import shutil
 import subprocess
 import sys
 
@@ -117,7 +118,7 @@ for f in (seules or range(int(DUREE * FPS))):
     ecrire(os.path.join(dossier, f'{f:04d}.jpg'), sum(p * i for p, i in couches) / total)
     if f % 150 == 0:
         print('image', f, flush=True)
-if seules:
+if seules or not shutil.which('ffmpeg'):   # sans ffmpeg (PC Windows) : Blender lit directement les images
     sys.exit(0)
 subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS), '-i', os.path.join(dossier, '%04d.jpg'),
                 '-c:v', 'libx264', '-crf', '15', '-pix_fmt', 'yuv420p', os.path.join(ASSETS, 'tv', 'programme.mp4')], check=True)

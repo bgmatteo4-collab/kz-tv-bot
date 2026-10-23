@@ -350,7 +350,12 @@ tube('tige micro', bout, bout - Vector((0, 0, 0.05)), 0.008, M['noir'])
 placer('micro', (bout.x, bout.y, bout.z - 0.05 - 0.17), 0.19, 'max', rotation_z=0)
 
 # Key light sur son pied, au coin droit, tournée vers le streamer.
-placer('key_light', (0.14, 3.8, BUREAU), 0.6, 'z', rotation_z=-120)
+# Key light sur pied au sol, au bout du bureau (entre le bureau et l'étagère nord), tournée vers le siège.
+for k in range(3):
+    a = math.radians(90 + k * 120)
+    tube('pied key light', (0.35, 4.15, 0.55), (0.35 + 0.22 * math.cos(a), 4.15 + 0.22 * math.sin(a), 0.0), 0.008, M['noir'])
+tube('mât key light', (0.35, 4.15, 0.55), (0.35, 4.15, 0.96), 0.011, M['noir'])
+placer('key_light', (0.35, 4.15, 0.96), 0.6, 'z', rotation_z=-120)
 
 # Le PC (boîtier sobre, façade en lames de noyer) au sol, au bout du bureau.
 boite('PC', (0.33, 1.88, 0.24), (0.45, 0.22, 0.48), M['noir'], 0.008)
@@ -369,30 +374,44 @@ for cote, yc in (('sud', 1.05), ('nord', 4.95)):
         boite(f'LED {cote} {j}', (0.29, yc, z - EP / 2 - 0.004), (0.01, 1.0, 0.006), M['led'])
         for dy in (-0.45, 0.45):   # équerres noires
             boite('équerre', (0.12, yc + dy, z - 0.06), (0.2, 0.012, 0.1), M['noir'])
-# Des livres pour de vrai : rangs debout (hauteurs et épaisseurs variées, alignés sur le bord avant),
-# piles couchées, serre-livres. La couverture est colorée, la tranche des pages crème (un seul matériau :
-# le côté des pages se reconnaît à sa normale, en repère objet).
-def couverture(couleur):
-    m = materiau_uni(f'livre {couleur}', couleur, 0.55, bosse=0.02)
-    nt = m.node_tree; b = nt.nodes['Principled BSDF']
-    n = nt.nodes.new('ShaderNodeTexCoord'); sep = nt.nodes.new('ShaderNodeSeparateXYZ')
-    nt.links.new(n.outputs['Normal'], sep.inputs['Vector'])
-    az = nt.nodes.new('ShaderNodeMath'); az.operation = 'ABSOLUTE'; nt.links.new(sep.outputs['Z'], az.inputs[0])
-    dos = nt.nodes.new('ShaderNodeMath'); dos.operation = 'LESS_THAN'; dos.inputs[1].default_value = -0.5
-    nt.links.new(sep.outputs['X'], dos.inputs[0])
-    pages = nt.nodes.new('ShaderNodeMath'); pages.operation = 'MAXIMUM'
-    nt.links.new(az.outputs['Value'], pages.inputs[0]); nt.links.new(dos.outputs['Value'], pages.inputs[1])
-    seuil = nt.nodes.new('ShaderNodeMath'); seuil.operation = 'GREATER_THAN'; seuil.inputs[1].default_value = 0.5
-    nt.links.new(pages.outputs['Value'], seuil.inputs[0])
-    mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
-    mix.inputs['A'].default_value = hexa(couleur); mix.inputs['B'].default_value = hexa('#E9E1CF')
-    nt.links.new(seuil.outputs['Value'], mix.inputs['Factor']); nt.links.new(mix.outputs['Result'], b.inputs['Base Color'])
-    return m
+# Des livres pour de vrai : couvertures cartonnées (deux plats + dos) qui dépassent de 3 mm autour du bloc
+# de pages crème, un titre doré sur certains dos ; rangs debout (hauteurs et épaisseurs variées, alignés
+# sur le bord avant), piles couchées, serre-livres. Chaque rang est un seul maillage (léger à rendre).
+import bmesh
+from mathutils import Matrix
 
-
-LIVRES = [couverture(c) for c in ('#E6DED0', '#2F4F4C', '#8C3B2E', '#1D2733', '#C9A55C', '#6B7A80', '#D9CBB0',
-                                  '#2B2B2B', '#A86B3C', '#1E5B57', '#F2EFE8', '#55606B', '#B8A27A')]
+COUVERTURES = [materiau_uni(f'couverture {c}', c, 0.6) for c in ('#E6DED0', '#2F4F4C', '#8C3B2E', '#1D2733', '#C9A55C', '#6B7A80',
+                                                                 '#D9CBB0', '#2B2B2B', '#A86B3C', '#1E5B57', '#F2EFE8', '#55606B', '#B8A27A')]
+PAGES = materiau_uni('pages', '#EAE2CF', 0.85)
+I_PAGES, I_TITRE = len(COUVERTURES), len(COUVERTURES) + 1
 AVANT = 0.315   # bord avant des planches (x)
+
+
+def bm_boite(bm, matrice, centre, taille, indice):
+    v = bmesh.ops.create_cube(bm, size=1.0)['verts']
+    bmesh.ops.transform(bm, matrix=matrice @ Matrix.Translation(centre) @ Matrix.Diagonal((*taille, 1.0)), verts=v)
+    for f in {f for x in v for f in x.link_faces}:
+        f.material_index = indice
+
+
+def bm_livre(bm, centre, p, e, h, rotation=Matrix.Identity(4)):
+    """Un livre centré en `centre` : dos vers +x, épaisseur selon y, hauteur selon z (avant rotation)."""
+    m = Matrix.Translation(centre) @ rotation
+    c = random.randrange(len(COUVERTURES)); t = 0.0016
+    bm_boite(bm, m, (-0.0015, 0, 0), (p - 0.005, e - 2 * t - 0.0004, h - 0.006), I_PAGES)   # bloc de pages, en retrait
+    for s in (-1, 1):
+        bm_boite(bm, m, (0, s * (e / 2 - t / 2), 0), (p, t, h), c)                            # plats
+    bm_boite(bm, m, (p / 2 - t / 2, 0, 0), (t, e, h), c)                                      # dos
+    if random.random() < 0.45 and e > 0.02:
+        bm_boite(bm, m, (p / 2 + 0.0003, 0, h * 0.28), (0.001, e * 0.7, 0.014), I_TITRE)      # titre doré
+
+
+def bm_objet(nom, bm):
+    me = bpy.data.meshes.new(nom); bm.to_mesh(me); bm.free()
+    for mat in COUVERTURES + [PAGES, M['or']]:
+        me.materials.append(mat)
+    o = bpy.data.objects.new(nom, me); scene.collection.objects.link(o)
+    return o
 
 
 def livres(y0, y1, z, serre=None):
@@ -400,6 +419,7 @@ def livres(y0, y1, z, serre=None):
     y = y0
     if serre == 'debut':
         boite('serre-livres', (AVANT - 0.08, y + 0.003, z + 0.07), (0.1, 0.006, 0.14), M['noir']); y += 0.008
+    bm = bmesh.new()
     groupe = random.uniform(0.2, 0.27)
     while True:
         if random.random() < 0.25:
@@ -407,8 +427,9 @@ def livres(y0, y1, z, serre=None):
         e, h, p = random.uniform(0.016, 0.042), groupe + random.uniform(-0.015, 0.015), random.uniform(0.14, 0.2)
         if y + e > y1:
             break
-        boite('livre', (AVANT - 0.01 - p / 2, y + e / 2, z + h / 2), (p, e, h), random.choice(LIVRES), 0.002)
-        y += e + 0.0015
+        bm_livre(bm, (AVANT - 0.01 - p / 2, y + e / 2, z + h / 2), p, e, h)
+        y += e + 0.001
+    bm_objet('rang de livres', bm)
     if serre == 'fin':
         boite('serre-livres', (AVANT - 0.08, y + 0.003, z + 0.07), (0.1, 0.006, 0.14), M['noir'])
     return y
@@ -416,12 +437,13 @@ def livres(y0, y1, z, serre=None):
 
 def pile(y, z, n=3):
     """Livres couchés, les plus grands en dessous ; renvoie le dessus de la pile."""
+    bm = bmesh.new()
     for k in range(n):
         e, h, p = random.uniform(0.025, 0.045), 0.27 - 0.025 * k + random.uniform(-0.01, 0.01), 0.19 - 0.012 * k
-        o = boite('livre couché', (0, 0, 0), (p, e, h), random.choice(LIVRES), 0.002)
-        o.rotation_euler = (math.radians(90), 0, math.radians(random.uniform(-4, 4)))
-        o.location = (AVANT - 0.012 - p / 2, y, z + e / 2)
+        rot = Matrix.Rotation(math.radians(random.uniform(-4, 4)), 4, 'Z') @ Matrix.Rotation(math.radians(90), 4, 'X')
+        bm_livre(bm, (AVANT - 0.012 - p / 2, y, z + e / 2), p, e, h, rot)
         z += e
+    bm_objet('pile de livres', bm)
     return z
 
 
@@ -441,7 +463,7 @@ livres(0.53, 0.70, DESSUS[0])
 placer('delorean', (0.18, 0.95, DESSUS[0]), 0.32, 'max', rotation_z=70)
 haut = pile(1.32, DESSUS[0], 4)
 importer_ph('wooden_bowl_01', (0.18, 1.32, haut), echelle=0.5)
-plantule(1.52, DESSUS[0], 0.8)
+plantule(1.55, DESSUS[0], 0.8)
 # Bloc nord (y 4,40 → 5,50) : Rick et Morty, et le gant de l'Infini.
 livres(4.43, 4.62, DESSUS[2])
 placer('pistolet_portail', (0.17, 4.80, DESSUS[2]), 0.28, 'max', rotation_z=110)
@@ -451,12 +473,12 @@ livres(5.28, 5.47, DESSUS[2], serre='debut')
 livres(4.43, 4.75, DESSUS[1], serre='fin')
 placer('plumbus', (0.17, 4.90, DESSUS[1]), 0.24, 'z', rotation_z=90)
 placer('meeseeks', (0.17, 5.13, DESSUS[1]), 0.2, 'max', rotation_z=80)
-importer_ph('brass_vase_01', (0.18, 5.38, DESSUS[1]), echelle=0.6)
+importer_ph('brass_vase_01', (0.18, 5.3, DESSUS[1]), echelle=0.45)
 placer('gant_infini', (0.17, 4.60, DESSUS[0]), 0.3, 'z', rotation_z=90)
 importer_ph('standing_picture_frame_01', (0.2, 4.88, DESSUS[0]), rotation_z=90, echelle=0.8)
-livres(5.05, 5.30, DESSUS[0])
-haut = pile(5.40, DESSUS[0], 3)
-importer_ph('ceramic_vase_03', (0.19, 5.40, haut), echelle=0.5)
+livres(5.05, 5.22, DESSUS[0])
+haut = pile(5.37, DESSUS[0], 3)
+importer_ph('ceramic_vase_03', (0.19, 5.37, haut), echelle=0.5)
 # Au mur, au-dessus du bureau et des étagères.
 placer('convecteur', (0.04, 1.05, 2.38), 0.42, 'z', rotation_z=90)
 placer('bouclier', (0.06, 3.0, 2.25), 0.6, 'max', rotation_z=90)
@@ -489,7 +511,7 @@ def plaque(nom, centre, normale, prise=False):
 plaque('interrupteur', (1.42, 0.005, 1.1), 'y+')
 plaque('prise bureau', (0.005, 2.2, 0.3), 'x+', True)
 plaque('prise bureau 2', (0.005, 3.8, 0.3), 'x+', True)
-plaque('prise TV', (L - 0.005, 4.1, 0.3), 'x-', True)
+plaque('prise TV', (L - 0.005, 4.45, 0.3), 'x-', True)
 plaque('prise lampadaire', (7.0, 0.005, 0.3), 'y+', True)
 
 # --- Les affiches officielles encadrées (mur sud, derrière le canapé).
@@ -512,11 +534,11 @@ for k, (nom, x) in enumerate((('endgame', 3.6), ('retour-vers-le-futur', 4.6), (
 placer('canape', (5.6, 3.0, 0), 2.8, 'max', rotation_z=0, matiere=M['canape'])
 boite('tapis', (6.0, 3.0, 0.006), (3.0, 3.4, 0.012), M['tapis'])
 importer_ph('coffee_table_round_01', (6.05, 2.45, 0), echelle=0.8)
-importer_ph('wooden_bowl_01', (5.92, 2.32, 0.37))
-importer_ph('ceramic_vase_02', (6.22, 2.62, 0.37), echelle=0.6)
-haut = 0.37
+importer_ph('wooden_bowl_01', (5.85, 2.55, 0.39))
+importer_ph('ceramic_vase_02', (6.25, 2.7, 0.39), echelle=0.6)
+haut = 0.39
 for k, c in enumerate(('#1D2733', '#E6DED0')):   # deux beaux livres empilés
-    boite('beau livre', (6.15, 2.25, haut + 0.016), (0.3, 0.24, 0.032), LIVRES[k * 4], 0.003); haut += 0.032
+    boite('beau livre', (6.15, 2.25, haut + 0.016), (0.3, 0.24, 0.032), COUVERTURES[k * 4], 0.003); haut += 0.032
 coussins = importer_ph('throw_pillows_01', (4.62, 2.0, 0.42), rotation_z=90)
 for k, o in enumerate(o for o in coussins.children_recursive if o.type == 'MESH'):   # aux couleurs de la DA
     o.data.materials.clear(); o.data.materials.append(tissu('coussin', ('#1E5B57', '#E0A93B', '#8E979D')[k % 3]))
@@ -531,23 +553,34 @@ bpy.ops.mesh.primitive_cylinder_add(radius=0.17, depth=0.2, location=(4.55, 1.2,
 o = bpy.context.object; o.name = 'abat-jour'; o.data.materials.append(ABAT); bpy.ops.object.shade_smooth()
 importer_ph('mid_century_lounge_chair', (6.3, 0.95, 0), rotation_z=115)
 
-# --- Coin TV (mur est, teal) : grande TV 85", meuble à lames, consoles.
-importer_ph('modern_wooden_cabinet', (L - 0.3, 3.0, 0), rotation_z=90, echelle=1.25)
-placer('tv', (L - 0.06, 3.0, 1.0), 1.9, 'max', rotation_z=-90, sans=('Table',))
-placer('ps5', (L - 0.3, 2.05, 0.62), 0.39, 'z', rotation_z=-90, sans=('Plane', 'Digital'))
-placer('xbox', (L - 0.3, 3.95, 0.62), 0.30, 'z', rotation_z=-90)
-placer('switch', (L - 0.3, 3.55, 0.62), 0.32, 'x', rotation_z=-90)
+# --- Coin TV (mur est, teal) : TV 85" fixée au mur, meuble bas en noyer à façade cannelée de chêne,
+# barre de son et consoles posées dessus (la PS5 et la Xbox aux extrémités, hors de l'écran).
+MX0, MX1, MY0, MY1, MZ = L - 0.45, L - 0.02, 1.7, 4.3, 0.5   # le dessus du meuble est à 50 cm
+for y in (MY0 + 0.08, MY1 - 0.08):
+    for x in (MX0 + 0.06, MX1 - 0.06):
+        tube('pied meuble TV', (x, y, 0), (x, y, 0.14), 0.012, M['noir'])
+boite('meuble TV', ((MX0 + MX1) / 2, (MY0 + MY1) / 2, 0.14 + (MZ - 0.14) / 2), (MX1 - MX0, MY1 - MY0, MZ - 0.14), M['noyer'], 0.004)
+n = 64
+for i in range(n):   # façade cannelée
+    yy = MY0 + 0.03 + (MY1 - MY0 - 0.06) * (i + 0.5) / n
+    tube('cannelure', (MX0 - 0.004, yy, 0.165), (MX0 - 0.004, yy, MZ - 0.025), 0.017, M['chene'])
+placer('tv', (L - 0.06, 3.0, 0.95), 1.9, 'max', rotation_z=-90, sans=('Table',))
+boite('barre de son', (L - 0.2, 3.0, MZ + 0.035), (0.1, 0.9, 0.07), M['noir'], 0.012)
+placer('ps5', (L - 0.24, MY0 + 0.2, MZ), 0.39, 'z', rotation_z=-90, sans=('Plane', 'Digital'))
+placer('xbox', (L - 0.24, MY1 - 0.2, MZ), 0.30, 'z', rotation_z=-90)
+placer('switch', (L - 0.22, 3.75, MZ), 0.32, 'x', rotation_z=-90)
+importer_ph('ceramic_vase_01', (L - 0.3, 2.35, MZ), echelle=0.6)
 
 # --- Plantes, luminaires.
-placer('plante', (7.5, 5.5, 0), 1.25, 'z', rotation_z=30)
-placer('plante', (0.55, 5.7, 0), 0.95, 'z', rotation_z=-20)
+placer('plante', (7.42, 5.42, 0), 1.25, 'z', rotation_z=30)
+placer('plante', (0.58, 5.62, 0), 0.85, 'z', rotation_z=-20)
 importer_ph('potted_plant_02', (2.75, 0.4, 0))
 placer('lampadaire', (7.5, 0.48, 0), 1.6, 'z')
 # Suspensions au-dessus de la table basse (le modèle va de 0,22 à 1,17 m au-dessus de son origine) ;
 # le globe devient lumineux, c'est lui qu'on voit (et qui se reflète dans la baie).
 GLOBE = materiau_uni('globe opalin', '#FFF4E2', 0.3, emission='#FFC27A', force=12.0)
 for y in (2.2, 2.75):
-    lp = importer_ph('modern_ceiling_lamp_01', (6.05, y, H - 1.17 + (0.25 if y > 2.5 else 0)))
+    lp = importer_ph('modern_ceiling_lamp_01', (6.05, y, H - 1.17))
     for o in lp.children_recursive:
         if o.type == 'MESH':
             for i, m in enumerate(o.data.materials):
@@ -636,7 +669,7 @@ def lumiere(nom, type_, position, energie, couleur, taille=0.3, rotation=(0, 0, 
 
 # Éclairage de nuit : seulement les lampes de la pièce (2 700 K), plus la lueur froide des écrans.
 lumiere('suspension', 'POINT', (6.05, 2.2, 2.0), 45, '#FFC27A', 0.1)
-lumiere('suspension 2', 'POINT', (6.05, 2.75, 2.25), 45, '#FFC27A', 0.1)
+lumiere('suspension 2', 'POINT', (6.05, 2.75, 2.0), 45, '#FFC27A', 0.1)
 lumiere('lampe à poser', 'POINT', (4.55, 1.2, 0.92), 25, '#FFB866', 0.05)
 lumiere('lampadaire', 'POINT', (7.5, 0.48, 1.45), 110, '#FFB866', 0.12)
 for x, y in ((2.2, 1.5), (2.2, 4.5), (3.6, 0.5), (5.6, 0.5), (7.2, 4.6)):   # spots encastrés : des cônes doux
@@ -646,7 +679,7 @@ for yc in (1.05, 4.95):   # ruban LED sous chaque planche : la réplique du dess
         d = lumiere('LED étagère', 'AREA', (0.27, yc, z - EP / 2 - 0.01), 7, '#FFC680', 1.0, (0, 0, 90))
         d.shape, d.size_y = 'RECTANGLE', 0.04
 lumiere('écrans', 'AREA', (0.45, 3.0, 1.1), 18, '#8FB8D8', 0.8, (0, -90, 0))
-lumiere('key light', 'AREA', (0.22, 3.78, 1.3), 25, '#FFF1DC', 0.3, (0, -80, -33))
+lumiere('key light', 'AREA', (0.45, 4.05, 1.35), 25, '#FFF1DC', 0.3, (0, -80, -48))
 lumiere('TV (rétroéclairage)', 'AREA', (L - 0.08, 3.0, 1.55), 30, '#E0A93B', 1.6, (0, 90, 0))   # halo doré sur le mur teal
 lumiere('TV (reflet)', 'AREA', (L - 0.2, 3.0, 1.3), 8, '#6E8FB8', 1.5, (0, 90, 0))
 
@@ -687,6 +720,8 @@ if 'boites' in opt:   # emprise au sol des meubles (contrôle des collisions)
         if pts:
             print('BOITE', r.name, *(f'{f(p[i] for p in pts):.2f}' for i in range(3) for f in (min, max)))
 
+if 'controle' in opt:
+    sys.path.insert(0, ICI); import controle; controle.controler(scene); controle.flottants(scene)
 if 'rendu' in opt:
     scene.render.filepath = os.path.abspath(opt['rendu'])
     bpy.ops.render.render(write_still=True)

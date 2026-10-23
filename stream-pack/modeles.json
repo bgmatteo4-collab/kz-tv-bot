@@ -1,0 +1,218 @@
+{
+ "canape": {
+  "uid": "1680cc4638ba4902ada718b8b03f6a4b",
+  "nom": "Large Corner Sectional Sofa",
+  "auteur": "spookyghostboo",
+  "licence": "CC Attribution",
+  "faces": 22180,
+  "chemin": "glbs/000-055/1680cc4638ba4902ada718b8b03f6a4b.glb"
+ },
+ "tv": {
+  "uid": "61a8e82aaadd49859bc56da966826f46",
+  "nom": "TV LG OLED 8K",
+  "auteur": "baneon",
+  "licence": "CC Attribution",
+  "faces": 88,
+  "chemin": "glbs/000-080/61a8e82aaadd49859bc56da966826f46.glb"
+ },
+ "siege_gaming": {
+  "uid": "bcb13eb7ef9e4c3c9499aacff6c79757",
+  "nom": "Gaming Chair [FREE DOWNLOAD]",
+  "auteur": "Karldashian",
+  "licence": "CC Attribution",
+  "faces": 373360,
+  "chemin": "glbs/000-008/bcb13eb7ef9e4c3c9499aacff6c79757.glb"
+ },
+ "bureau": {
+  "uid": "65a7f4b06a5f4954a0d43eb8812dd165",
+  "nom": "Standing Desk",
+  "auteur": "Ryan_Nein",
+  "licence": "CC Attribution",
+  "faces": 13198,
+  "chemin": "glbs/000-032/65a7f4b06a5f4954a0d43eb8812dd165.glb"
+ },
+ "micro": {
+  "uid": "932fa222f4b14538828cac6da5747eec",
+  "nom": "Shure SM7B Microphone | Blender",
+  "auteur": "9843735887marshalmmr",
+  "licence": "CC Attribution",
+  "faces": 9500,
+  "chemin": "glbs/000-133/932fa222f4b14538828cac6da5747eec.glb"
+ },
+ "carte_son": {
+  "uid": "ff1fa96845354c189d6e8df6e4264ae1",
+  "nom": "Audio Interface",
+  "auteur": "vadim92.34",
+  "licence": "CC Attribution",
+  "faces": 93980,
+  "chemin": "glbs/000-155/ff1fa96845354c189d6e8df6e4264ae1.glb"
+ },
+ "stream_deck": {
+  "uid": "4c3e4fb6bd4942d3ac167eb400d44669",
+  "nom": "Elgato stream deck",
+  "auteur": "umkhero",
+  "licence": "CC Attribution",
+  "faces": 3772,
+  "chemin": "glbs/000-032/4c3e4fb6bd4942d3ac167eb400d44669.glb"
+ },
+ "webcam": {
+  "uid": "0523fbf537cd4ea4a41e96b8293312ac",
+  "nom": "Logitech Webcam",
+  "auteur": "qoodrat",
+  "licence": "CC Attribution",
+  "faces": 21286,
+  "chemin": "glbs/000-130/0523fbf537cd4ea4a41e96b8293312ac.glb"
+ },
+ "key_light": {
+  "uid": "5694e03ab0584ab08c9530827cd73b3b",
+  "nom": "Key Light Air",
+  "auteur": "schwabbl1",
+  "licence": "CC Attribution",
+  "faces": 65616,
+  "chemin": "glbs/000-120/5694e03ab0584ab08c9530827cd73b3b.glb"
+ },
+ "casque": {
+  "uid": "db92168ca39541939d0110e64a37f92e",
+  "nom": "Headphones Free Model by Oscar Creative",
+  "auteur": "oscar_creativo",
+  "licence": "CC Attribution",
+  "faces": 58208,
+  "chemin": "glbs/000-047/db92168ca39541939d0110e64a37f92e.glb"
+ },
+ "clavier": {
+  "uid": "1ba4055c33674567b51b783701ed05ce",
+  "nom": "Mechanical keyboard",
+  "auteur": "FelikinRuslan",
+  "licence": "CC Attribution",
+  "faces": 11128,
+  "chemin": "glbs/000-071/1ba4055c33674567b51b783701ed05ce.glb"
+ },
+ "ps5": {
+  "uid": "8d8b7fcfe5bb4278984fea6a386f09d6",
+  "nom": "PlayStation 5",
+  "auteur": "unconid",
+  "licence": "CC Attribution",
+  "faces": 11746,
+  "chemin": "glbs/000-050/8d8b7fcfe5bb4278984fea6a386f09d6.glb"
+ },
+ "xbox": {
+  "uid": "08d4fd565ae64e6bbcda044c9195a639",
+  "nom": "Xbox Series X Free 3D Model",
+  "auteur": "sm_sahil",
+  "licence": "CC Attribution",
+  "faces": 22860,
+  "chemin": "glbs/000-120/08d4fd565ae64e6bbcda044c9195a639.glb"
+ },
+ "switch": {
+  "uid": "78009be398d142abb0b758238c209d01",
+  "nom": "Nintendo Switch",
+  "auteur": "3dvachevsky",
+  "licence": "CC Attribution",
+  "faces": 25928,
+  "chemin": "glbs/000-088/78009be398d142abb0b758238c209d01.glb"
+ },
+ "bouclier": {
+  "uid": "a11d64b3092a403cafec9a651075e6be",
+  "nom": "Captain America Shield",
+  "auteur": "ElliotGriffiths24",
+  "licence": "CC Attribution",
+  "faces": 13364,
+  "chemin": "glbs/000-089/a11d64b3092a403cafec9a651075e6be.glb"
+ },
+ "casque_ironman": {
+  "uid": "901d24c9a1714deeb724c98a8cb4649e",
+  "nom": "Iron-Man Helmet (MK3)",
+  "auteur": "designpill",
+  "licence": "CC Attribution",
+  "faces": 144490,
+  "chemin": "glbs/000-025/901d24c9a1714deeb724c98a8cb4649e.glb"
+ },
+ "mjolnir": {
+  "uid": "ecca1232710f4721b14d64a90bba6557",
+  "nom": "Mjolnir (Thor's hammer)",
+  "auteur": "TheDevilsEye",
+  "licence": "CC Attribution",
+  "faces": 1550,
+  "chemin": "glbs/000-133/ecca1232710f4721b14d64a90bba6557.glb"
+ },
+ "gant_infini": {
+  "uid": "8a0e46e4ee714ae5af5f1c2ee7dc3736",
+  "nom": "Infinity Gauntlet",
+  "auteur": "KevinMar",
+  "licence": "CC Attribution",
+  "faces": 4416,
+  "chemin": "glbs/000-045/8a0e46e4ee714ae5af5f1c2ee7dc3736.glb"
+ },
+ "delorean": {
+  "uid": "a36c5afa1bb24e16a3adfbcf08eb9390",
+  "nom": "Delorean - time machine - low poly",
+  "auteur": "JellyFighter",
+  "licence": "CC Attribution",
+  "faces": 13828,
+  "chemin": "glbs/000-144/a36c5afa1bb24e16a3adfbcf08eb9390.glb"
+ },
+ "convecteur": {
+  "uid": "985876d9d0694c2cbb5a4d5aafa14619",
+  "nom": "Flux Capacitor",
+  "auteur": "marceloguiot",
+  "licence": "CC Attribution",
+  "faces": 70409,
+  "chemin": "glbs/000-031/985876d9d0694c2cbb5a4d5aafa14619.glb"
+ },
+ "hoverboard": {
+  "uid": "b3c46a32438443d099ae64b83027f5a3",
+  "nom": "Hoverboard BTTF - WCG",
+  "auteur": "vanillatography",
+  "licence": "CC Attribution",
+  "faces": 4312,
+  "chemin": "glbs/000-100/b3c46a32438443d099ae64b83027f5a3.glb"
+ },
+ "pistolet_portail": {
+  "uid": "c5f7b4a950de4002b448ac65c6b0207b",
+  "nom": "Portal Gun from The Rick and Morty show",
+  "auteur": "Bob.Ho",
+  "licence": "CC Attribution",
+  "faces": 3698,
+  "chemin": "glbs/000-052/c5f7b4a950de4002b448ac65c6b0207b.glb"
+ },
+ "plumbus": {
+  "uid": "93a6db7f97614fb0af7287de33027532",
+  "nom": "Plumbus",
+  "auteur": "Rifeor",
+  "licence": "CC Attribution",
+  "faces": 510012,
+  "chemin": "glbs/000-033/93a6db7f97614fb0af7287de33027532.glb"
+ },
+ "meeseeks": {
+  "uid": "50358d08b4654ec3918133079940eb46",
+  "nom": "Meeseks Box",
+  "auteur": "andressalazar264",
+  "licence": "CC Attribution",
+  "faces": 6476,
+  "chemin": "glbs/000-132/50358d08b4654ec3918133079940eb46.glb"
+ },
+ "plante": {
+  "uid": "1ab9bf841df04c07b1819be596327629",
+  "nom": "Monstera Deliciosa Potted Mid-Century plant",
+  "auteur": "ChubbyPanda",
+  "licence": "CC Attribution",
+  "faces": 9310,
+  "chemin": "glbs/000-049/1ab9bf841df04c07b1819be596327629.glb"
+ },
+ "lampadaire": {
+  "uid": "1aa6739d774348efa691340e3a12b870",
+  "nom": "Drum shade floor lamp",
+  "auteur": "alpaca.",
+  "licence": "CC Attribution",
+  "faces": 67866,
+  "chemin": "glbs/000-129/1aa6739d774348efa691340e3a12b870.glb"
+ },
+ "suspension": {
+  "uid": "66835907849a498f959ddbc0bb3bdae3",
+  "nom": "Luminária Mantra 6127",
+  "auteur": "edudias",
+  "licence": "CC Attribution",
+  "faces": 43240,
+  "chemin": "glbs/000-144/66835907849a498f959ddbc0bb3bdae3.glb"
+ }
+}

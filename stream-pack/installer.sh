@@ -19,4 +19,5 @@ grep -v '^#' "$ICI/assets.txt" | while read type id res; do
   [ -e "$ICI/assets/$id.ok" ] && continue
   python3 "$ICI/blender/telecharger_asset.py" "$type" "$id" "$res" "$ICI/assets" && touch "$ICI/assets/$id.ok"
 done
+python3 "$ICI/blender/telecharger_modeles.py"
 echo "outillage prêt"

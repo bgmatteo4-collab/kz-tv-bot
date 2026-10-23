@@ -1,0 +1,16 @@
+# type id résolution — Poly Haven, CC0
+textures wood_floor 2k
+textures oak_veneer_01 2k
+textures american_walnut_veneer 2k
+textures rough_linen 2k
+textures grey_plaster 2k
+textures brown_leather 2k
+hdris small_empty_room_3 2k
+models mid_century_lounge_chair 2k
+models modern_wooden_cabinet 2k
+models potted_plant_02 2k
+models potted_plant_04 2k
+models modern_ceiling_lamp_01 2k
+models decorative_book_set_01 2k
+models coffee_table_round_01 2k
+models side_table_01 2k

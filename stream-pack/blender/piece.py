@@ -352,10 +352,21 @@ bout = Vector((0.8, 3.4, BUREAU + 0.5))      # à droite du clavier, devant la b
 boite('pince micro', (pince.x, pince.y, BUREAU + 0.02), (0.05, 0.05, 0.06), M['noir'], 0.004)
 tube('bras micro 1', pince + Vector((0, 0, 0.04)), coude, 0.011, M['noir'])
 tube('bras micro 2', coude, bout, 0.011, M['noir'])
-micro = placer('micro', (bout.x, bout.y, bout.z - 0.05 - 0.17), 0.19, 'max', rotation_z=0)
-bpy.context.view_layer.update()   # la tige descend jusque dans l'étrier du micro : aucun jour entre les deux
-haut_micro = max((o.matrix_world @ Vector(c)).z for o in micro.children_recursive if o.type == 'MESH' for c in o.bound_box)
-tube('tige micro', bout, Vector((bout.x, bout.y, haut_micro - 0.006)), 0.008, M['noir'])
+# Le SM7B est monté tête en bas, comme sur un bras : la base de son étrier en haut, vissée au bout de la tige.
+micro = placer('micro', (bout.x, bout.y, bout.z - 0.3), 0.19, 'max', rotation_z=0, pre=(180, 0, 0))
+bpy.context.view_layer.update()
+sommets = {o: [o.matrix_world @ v.co for v in o.data.vertices] for o in micro.children_recursive if o.type == 'MESH'}
+etrier = max(sommets, key=lambda o: max(p.z for p in sommets[o]))   # la pièce la plus haute : l'étrier
+pts = sommets[etrier]
+zmax = max(p.z for p in pts)
+# Le haut du modèle a deux cylindres côte à côte : la molette (libre) et le tube de l'étrier, le seul qui
+# descend jusqu'à l'arceau. On prend l'axe de ce tube, 5 à 7 cm sous le sommet, pour y visser la tige.
+base = [p for p in pts if zmax - 0.075 < p.z < zmax - 0.05]
+centre_base = sum(base, Vector()) / len(base)
+haut_tube = max(p.z for p in pts if (p.xy - centre_base.xy).length < 0.012)   # sommet du tube (la molette est plus haute)
+attache = Vector((bout.x, bout.y, bout.z - 0.05))                 # 5 cm de tige sous le bras
+micro.location += attache - Vector((centre_base.x, centre_base.y, haut_tube))
+tube('tige micro', bout, attache - Vector((0, 0, 0.004)), 0.009, M['noir'])   # même diamètre que le tube, 4 mm dedans
 
 # Key light sur son pied, au coin droit, tournée vers le streamer.
 # Key light sur pied au sol, au bout du bureau (entre le bureau et l'étagère nord), tournée vers le siège.
@@ -746,7 +757,7 @@ CAMS = {
     'etag_sud': camera('etag_sud', (1.5, 1.05, 1.45), (0.1, 1.05, 1.45), 30),
     'etag_nord': camera('etag_nord', (1.5, 4.95, 1.45), (0.1, 4.95, 1.45), 30),
     'coin_ne': camera('coin_ne', (7.35, 5.35, 1.75), (2.0, 1.4, 0.9), 20),
-    'micro': camera('micro', (1.15, 3.05, 1.2), (0.8, 3.4, 1.15), 35),
+    'micro': camera('micro', (1.05, 3.15, 1.2), (0.8, 3.4, 1.2), 45),
     'console': camera('console', (6.95, 1.55, 0.85), (7.75, 1.95, 0.6), 30),
     'setup': camera('setup', (1.55, 3.55, 1.45), (0.35, 2.85, 0.95), 26),
     'affiches': camera('affiches', (4.6, 3.2, 1.6), (4.6, 0.0, 1.55), 30),

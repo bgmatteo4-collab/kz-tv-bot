@@ -1,0 +1,85 @@
+/* Dossier Nº02 — la carte de GTA VI. Identité de la série (marine, cerise, beurre). */
+@font-face { font-family: "Archivo"; src: url(fonts/Archivo-wdth.woff2) format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; }
+@font-face { font-family: "Instrument Serif"; src: url(fonts/InstrumentSerif-italic.woff2) format("woff2"); font-style: italic; }
+@font-face { font-family: "JetBrains Mono"; src: url(fonts/JetBrainsMono-normal.woff2) format("woff2"); font-weight: 100 800; }
+:root { --marine: #0B1B3A; --nuit: #071226; --beurre: #F6E7A8; --cerise: #D2122E; --cerise-vif: #F23A55; --vert: #3FD28B; --brume: #9DB0CF; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--nuit); }
+#ecran { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--nuit); color: var(--beurre); font-family: "Archivo", sans-serif; -webkit-font-smoothing: antialiased; }
+#ecran > div, #ecran > canvas { position: absolute; }
+
+/* Fond : grille technique, comme une table de cartographe. */
+#grille { inset: 0; background-image: linear-gradient(rgba(157, 176, 207, .07) 1px, transparent 1px), linear-gradient(90deg, rgba(157, 176, 207, .07) 1px, transparent 1px); background-size: 54px 54px; }
+
+/* La carte : un plan posé dans l'espace, la caméra le survole (perspective, inclinaison). */
+#vue { left: 540px; top: 960px; width: 0; height: 0; perspective: 1500px; }
+#monde { position: absolute; left: 0; top: 0; width: 3760px; height: 5120px; transform-origin: 0 0; will-change: transform; }
+#tuiles { position: absolute; inset: 0; transform-style: preserve-3d; }
+.tuile { position: absolute; width: 256px; height: 256px; background-image: url(medias/leonida.jpg); background-size: 3760px 5120px; background-repeat: no-repeat; backface-visibility: hidden; will-change: transform; }
+#gta5 { position: absolute; left: 0; top: 0; width: 2560px; height: 3584px; transform-origin: 50% 50%; will-change: transform; filter: drop-shadow(0 0 30px rgba(242, 58, 85, .5)); }
+#points { position: absolute; left: 0; top: 0; width: 3760px; height: 5120px; }
+#reperes { position: absolute; left: 0; top: 0; }
+.rep { position: absolute; left: 0; top: 0; white-space: nowrap; will-change: transform; }
+.rep-nom { font-weight: 800; font-stretch: 78%; text-transform: uppercase; letter-spacing: .04em; color: var(--beurre);
+  text-shadow: 0 2px 0 var(--nuit), 0 0 18px rgba(7, 18, 38, .9); }
+.rep-sous { font: 600 .32em/1 "JetBrains Mono"; letter-spacing: .18em; color: var(--brume); margin-top: .3em; text-shadow: 0 0 10px var(--nuit); }
+
+#masque { left: 0; top: 0; width: 1080px; height: 1920px; }
+
+/* Cartes de comparaison : jeu / vraie vie, séparées par un volet qui glisse. */
+#cartes { inset: 0; perspective: 1400px; }
+.comp { position: absolute; left: 90px; top: 0; width: 900px; height: 600px; transform-origin: 50% 100%; will-change: transform; }
+.comp-cadre { position: absolute; inset: 0; border-radius: 22px; overflow: hidden; background: var(--marine); box-shadow: 0 40px 90px rgba(0, 0, 0, .6), 0 0 0 2px rgba(246, 231, 168, .25); }
+.comp-cadre img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.comp-reel { position: absolute; inset: 0; will-change: clip-path; }
+.comp-trait { position: absolute; top: 0; bottom: 0; width: 4px; margin-left: -2px; background: var(--beurre); box-shadow: 0 0 24px rgba(246, 231, 168, .8); }
+.comp-trait::after { content: "⟷"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; border-radius: 50%; background: var(--beurre); color: var(--marine);
+  display: grid; place-items: center; font: 800 30px/1 "Archivo"; }
+.comp-etq { position: absolute; top: 22px; font: 700 20px/1 "JetBrains Mono"; letter-spacing: .16em; padding: 10px 14px; border-radius: 8px; background: rgba(7, 18, 38, .78); }
+.comp-etq.jeu { left: 22px; color: var(--beurre); }
+.comp-etq.reel { right: 22px; color: var(--vert); }
+.comp-bas { position: absolute; left: 0; top: 618px; width: 900px; display: flex; justify-content: space-between; gap: 20px; }
+.comp-bas div { font-weight: 800; font-stretch: 80%; font-size: 40px; line-height: 1.05; text-transform: uppercase; }
+.comp-bas div small { display: block; font: 500 19px/1.3 "JetBrains Mono"; letter-spacing: .14em; color: var(--brume); margin-top: 8px; }
+.comp-bas div:last-child { text-align: right; color: var(--vert); }
+
+/* Fuites : vignettes de vidéos floutées, jamais d'image nette. */
+#fuites { inset: 0; }
+.vid { position: absolute; width: 96px; height: 54px; border-radius: 6px; overflow: hidden; background: #1A2A4A; will-change: transform;
+  box-shadow: inset 0 0 0 1px rgba(242, 58, 85, .35); }
+.vid i { position: absolute; inset: -20px; background: radial-gradient(circle at 30% 40%, #6b7fa8, transparent 45%), radial-gradient(circle at 75% 65%, #c0566e, transparent 40%), #24365c; filter: blur(9px); }
+.ruban { position: absolute; left: -60px; width: 1300px; padding: 16px 0; background: var(--cerise); color: var(--beurre); font: 800 34px/1 "Archivo"; font-stretch: 80%;
+  letter-spacing: .3em; white-space: nowrap; text-align: center; transform-origin: 50% 50%; box-shadow: 0 12px 40px rgba(0, 0, 0, .5); }
+
+/* Titres : lignes pleines qui montent de leur masque. */
+#titres { left: 96px; top: 280px; width: 880px; }
+.bloc { position: absolute; left: 0; top: 0; width: 880px; }
+.ligne { display: block; overflow: hidden; padding: 4px 0 10px; margin-bottom: -10px; }
+.ligne > span { display: inline-block; will-change: transform; }
+.t-grand { font-weight: 800; font-stretch: 76%; font-size: 104px; line-height: .95; letter-spacing: -.01em; text-transform: uppercase; text-shadow: 0 4px 30px rgba(7, 18, 38, .8); }
+.t-serif { font-family: "Instrument Serif"; font-style: italic; font-size: 118px; line-height: .95; color: var(--cerise-vif); text-shadow: 0 4px 30px rgba(7, 18, 38, .8); }
+.t-sur { font: 600 24px/1 "JetBrains Mono"; letter-spacing: .2em; color: var(--brume); text-transform: uppercase; margin-bottom: 18px; }
+.t-pave { display: inline-block; background: var(--cerise); color: var(--beurre); padding: 0 .12em; }
+
+/* Grand nombre (compteurs) */
+#grand { left: 96px; top: 600px; font-weight: 800; font-stretch: 72%; font-size: 230px; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--beurre); text-shadow: 0 6px 40px rgba(7, 18, 38, .9); }
+#grand small { display: block; font: 600 26px/1.3 "JetBrains Mono"; letter-spacing: .18em; color: var(--brume); text-transform: uppercase; margin-top: 10px; }
+
+/* Habillage */
+#hud { inset: 0; pointer-events: none; }
+#onglet { position: absolute; left: 0; top: 280px; width: 64px; padding: 26px 0; background: var(--cerise); border-radius: 0 14px 14px 0;
+  display: flex; flex-direction: column; align-items: center; gap: 18px; box-shadow: 8px 10px 30px rgba(0, 0, 0, .35); }
+#onglet span { writing-mode: vertical-rl; transform: rotate(180deg); color: var(--beurre); white-space: nowrap; }
+.o-titre, .o-sujet { font-weight: 800; font-stretch: 80%; font-size: 26px; letter-spacing: .14em; }
+.o-sujet { background: var(--beurre); color: var(--cerise) !important; padding: 10px 4px; border-radius: 6px; }
+.o-num { font: 600 18px/1 "JetBrains Mono"; letter-spacing: .1em; }
+#source { position: absolute; left: 96px; top: 1290px; font: 700 20px/1 "JetBrains Mono"; letter-spacing: .18em; padding: 10px 14px; border-radius: 8px; white-space: nowrap; }
+#source.officiel { background: var(--beurre); color: var(--marine); }
+#source.communaute { background: var(--vert); color: var(--nuit); }
+#source.leak { background: var(--cerise); color: var(--beurre); }
+#coord { position: absolute; left: 96px; top: 1340px; font: 500 19px/1.4 "JetBrains Mono"; letter-spacing: .1em; color: var(--brume); white-space: pre; }
+#credit { position: absolute; left: 96px; top: 1395px; font: 500 15px/1 "JetBrains Mono"; letter-spacing: .12em; color: rgba(157, 176, 207, .7); }
+#vignette { inset: 0; background: radial-gradient(120% 80% at 50% 45%, transparent 55%, rgba(4, 10, 24, .7)); }
+#monde { transform-style: preserve-3d; }
+.rep.flou .rep-nom { color: var(--cerise-vif); }
+.rep.vise .rep-nom { background: var(--cerise); color: var(--beurre); padding: 0 .15em; }

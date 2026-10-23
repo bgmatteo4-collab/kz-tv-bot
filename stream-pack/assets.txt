@@ -24,3 +24,7 @@ models standing_picture_frame_01 1k
 models wooden_bowl_01 1k
 models wicker_basket_01 1k
 models book_encyclopedia_set_01 1k
+# Programme de la TV (paysages en travelling)
+hdris lakeside 8k
+hdris cape_hill 8k
+hdris umhlanga_sunrise 8k

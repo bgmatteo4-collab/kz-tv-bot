@@ -47,6 +47,11 @@ scene.view_settings.view_transform = 'AgX'
 scene.view_settings.look = 'AgX - Medium High Contrast'
 scene.view_settings.exposure = 0.7   # de nuit, on expose pour l'intérieur
 largeur = int(opt.get('largeur', 1280))
+# Ligne de temps commune aux clips : 30 i/s, la boucle d'attente dure 30 s (images 0 à 899, la 900e = la 0e).
+FPS, DUREE = 30, 30.0
+scene.render.fps, scene.frame_start, scene.frame_end = FPS, 0, int(DUREE * FPS) - 1
+TV_ALLUMEE = [(7.0, 27.5)]   # moments où la TV est allumée (s)
+
 scene.render.resolution_x, scene.render.resolution_y = largeur, largeur * 9 // 16
 
 
@@ -255,6 +260,44 @@ def image_ecran(nom, fichier, force=1.0):
     return m
 
 
+def materiau_chat():
+    """Faux chat de live (ecrans/chat.*) : le fil défile message par message derrière le cadre fixe.
+    Le fil contient deux fois la liste : après 30 s, il a avancé d'une liste entière, la boucle est invisible."""
+    import json
+    d = json.load(open(os.path.join(ICI, '..', 'ecrans', 'chat.json')))
+    m = bpy.data.materials.new('écran chat'); nt = m.node_tree
+    b = nt.nodes['Principled BSDF']
+    b.inputs['Base Color'].default_value = (0.005, 0.005, 0.006, 1); b.inputs['Roughness'].default_value = 0.18
+    uv = nt.nodes.new('ShaderNodeTexCoord'); mp = nt.nodes.new('ShaderNodeMapping')
+    fil = nt.nodes.new('ShaderNodeTexImage'); fil.extension = 'EXTEND'
+    fil.image = bpy.data.images.load(os.path.join(ICI, '..', 'ecrans', 'chat-fil.png'))
+    cadre = nt.nodes.new('ShaderNodeTexImage')
+    cadre.image = bpy.data.images.load(os.path.join(ICI, '..', 'ecrans', 'chat-cadre.png'))
+    mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
+    nt.links.new(uv.outputs['UV'], mp.inputs['Vector']); nt.links.new(mp.outputs['Vector'], fil.inputs['Vector'])
+    nt.links.new(uv.outputs['UV'], cadre.inputs['Vector'])
+    nt.links.new(cadre.outputs['Alpha'], mix.inputs['Factor'])
+    nt.links.new(fil.outputs['Color'], mix.inputs['A']); nt.links.new(cadre.outputs['Color'], mix.inputs['B'])
+    nt.links.new(mix.outputs['Result'], b.inputs['Emission Color']); b.inputs['Emission Strength'].default_value = 1.1
+    # Rangée du fil (depuis le haut) visible en haut de la fenêtre de chat : S ; v_image = v * k + 1 - v1 * k - S / Htot.
+    htot, hc, ecran = fil.image.size[1], d['hauteur'], d['ecran']
+    fenetre, v1, k = ecran - d['tete'] - d['pied'], 1 - d['tete'] / ecran, ecran / htot
+    mp.inputs['Scale'].default_value = (1, k, 1)
+    s0 = hc - fenetre
+    loc = lambda S: 1 - v1 * k - S / htot
+    alea = random.Random(11)
+    ecarts = [alea.uniform(0.3, 1.3) for _ in d['messages']]
+    total, cumul, cles = sum(ecarts), 0.0, [(0.0, loc(s0))]
+    for (haut_m, h), e in zip(d['messages'], ecarts):
+        cumul += e
+        t = 0.2 + 29.4 * cumul / total                      # arrivée du message (s)
+        cles += [(t, cles[-1][1]), (t + 0.2, loc(s0 + haut_m + h))]
+    for t, v in cles:
+        mp.inputs['Location'].default_value[1] = v
+        mp.inputs['Location'].keyframe_insert('default_value', index=1, frame=t * FPS)
+    return m
+
+
 def moniteur(nom, centre, theta, larg, haut, image, pied='rect'):
     """Moniteur sur pied posé sur le plateau : dalle face à +x (repère local), tourné de theta degrés."""
     piv = bpy.data.objects.new(nom, None); scene.collection.objects.link(piv)
@@ -289,7 +332,7 @@ a = math.radians(25)
 moniteur('écran droit', (0.27 + EW / 2 * math.sin(a), 3.0 + EW / 2 + 0.012 + EW / 2 * math.cos(a), BAS + EH / 2), -25, EW, EH,
          image_ecran('bureau', 'bureau.png', 1.1), pied='rond')
 moniteur('écran vertical', (0.27 + EH / 2 * math.sin(a), 3.0 - EW / 2 - 0.012 - EH / 2 * math.cos(a), BAS + EW / 2), 25, EH, EW,
-         image_ecran('discord', 'discord.png', 1.1))
+         materiau_chat())
 
 # Sur le plateau : tapis de bureau, clavier, souris, Stream Deck XL, carte son, une petite plante.
 FEUTRE = materiau_uni('tapis de bureau', '#2A2E33', 0.95)
@@ -600,7 +643,32 @@ n = 64
 for i in range(n):   # façade cannelée
     yy = MY0 + 0.03 + (MY1 - MY0 - 0.06) * (i + 0.5) / n
     tube('cannelure', (MX0 - 0.004, yy, 0.165), (MX0 - 0.004, yy, MZ - 0.025), 0.017, M['chene'])
-placer('tv', (L - 0.06, 3.0, 0.95), 1.9, 'max', rotation_z=-90, sans=('Table',))
+tv = placer('tv', (L - 0.06, 3.0, 0.95), 1.9, 'max', rotation_z=-90, sans=('Table',))
+# La dalle d'origine est noyée dans le cadre : une vraie dalle juste devant, qui diffuse le programme
+# (tv/programme.py : paysages en travelling) et s'allume / s'éteint selon TV_ALLUMEE.
+bpy.context.view_layer.update()
+boite_monde = lambda o: [o.matrix_world @ Vector(c) for c in o.bound_box]
+dalle0 = next(o for o in tv.children_recursive if 'TVScreen' in o.name); dalle0.hide_render = True
+pts = boite_monde(dalle0)
+cadre_x = min(p.x for p in boite_monde(next(o for o in tv.children_recursive if 'TVFramework' in o.name)))
+y0, y1 = min(p.y for p in pts), max(p.y for p in pts); z0, z1 = min(p.z for p in pts), max(p.z for p in pts)
+bpy.ops.mesh.primitive_plane_add(size=1, location=(cadre_x - 0.0008, (y0 + y1) / 2, (z0 + z1) / 2), rotation=(math.radians(90), 0, math.radians(-90)))
+ecran_tv = bpy.context.object; ecran_tv.name = 'dalle TV'; ecran_tv.scale = (y1 - y0, z1 - z0, 1)
+TELE = bpy.data.materials.new('dalle TV'); nt = TELE.node_tree; b = nt.nodes['Principled BSDF']
+b.inputs['Base Color'].default_value = (0.004, 0.004, 0.005, 1); b.inputs['Roughness'].default_value = 0.1   # OLED éteint : noir brillant
+film = os.path.join(ASSETS, 'tv', 'programme.mp4')
+if os.path.exists(film):
+    tex = nt.nodes.new('ShaderNodeTexImage'); tex.image = bpy.data.images.load(film)
+    tex.image_user.frame_duration, tex.image_user.frame_start = int(DUREE * FPS), 0
+    tex.image_user.use_auto_refresh = tex.image_user.use_cyclic = True
+    nt.links.new(tex.outputs['Color'], b.inputs['Emission Color'])
+etats = [(0.0, 0.0)]
+for t0, t1 in TV_ALLUMEE:   # allumage en 0,35 s, extinction en 0,25 s
+    etats += [(t0, 0.0), (t0 + 0.35, 1.3), (t1, 1.3), (t1 + 0.25, 0.0)]
+for t, v in etats:
+    b.inputs['Emission Strength'].default_value = v
+    b.inputs['Emission Strength'].keyframe_insert('default_value', frame=t * FPS)
+ecran_tv.data.materials.append(TELE)
 boite('barre de son', (L - 0.2, 3.0, MZ + 0.035), (0.1, 0.9, 0.07), M['noir'], 0.012)
 placer('ps5', (L - 0.24, MY0 + 0.2, MZ), 0.47, 'z', rotation_z=-90, sans=('Plane', 'Digital'))   # 41 cm en vrai : un peu agrandie pour se lire à l'image
 placer('xbox', (L - 0.24, MY1 - 0.2, MZ), 0.35, 'z', rotation_z=-90)   # 30 cm en vrai, idem
@@ -737,7 +805,9 @@ vise_kl = (Vector((1.3, 3.0, 1.2)) - KL_PANNEAU).to_track_quat('-Z', 'Y').to_eul
 lumiere('key light', 'AREA', KL_PANNEAU + (Vector((1.3, 3.0, 1.2)) - KL_PANNEAU).normalized() * 0.03, 25, '#FFF1DC', 0.33,
         [math.degrees(a) for a in vise_kl])
 lumiere('TV (rétroéclairage)', 'AREA', (L - 0.08, 3.0, 1.55), 30, '#E0A93B', 1.6, (0, 90, 0))   # halo doré sur le mur teal
-lumiere('TV (reflet)', 'AREA', (L - 0.2, 3.0, 1.3), 8, '#6E8FB8', 1.5, (0, 90, 0))
+reflet_tv = lumiere('TV (reflet)', 'AREA', (L - 0.2, 3.0, 1.5), 0, '#B8C8DC', 1.8, (0, 90, 0))   # la lueur de l'écran allumé
+for t, v in etats:
+    reflet_tv.energy = v * 14; reflet_tv.keyframe_insert('energy', frame=t * FPS)
 
 
 # ------------------------------------------------------------------ caméras d'aperçu
@@ -781,6 +851,7 @@ if 'boites' in opt:   # emprise au sol des meubles (contrôle des collisions)
 
 if 'controle' in opt:
     sys.path.insert(0, ICI); import controle; controle.controler(scene); controle.flottants(scene)
+scene.frame_set(int(opt.get('image', 360)))   # image fixe : à 12 s, la TV est allumée
 if 'rendu' in opt:
     scene.render.filepath = os.path.abspath(opt['rendu'])
     bpy.ops.render.render(write_still=True)

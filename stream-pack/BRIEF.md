@@ -37,3 +37,13 @@
 - **Typo retenue : Rubik** (proposition B). Titres en Black 900, textes en Regular 400. Elle sert pour tout le pack.
 - **Trois écrans au bureau** (au lieu de deux), dont un **à la verticale**. Ils affichent un contenu légèrement animé :
   OBS sur l'un, une messagerie type Discord sur l'autre, le bureau Windows avec un beau fond d'écran sur le dernier.
+
+## Retours sur le premier rendu (23/10)
+- **Pièce plus grande** : environ 8 × 6 m sous 3 m de plafond, façon loft. Style tenu partout : loft moderne chaleureux,
+  japandi (bois clair, lignes basses et nettes, textiles mats, murs lisses, panneaux de lames de bois).
+- **Grande baie vitrée** du sol au plafond. Dehors, une **ville au coucher du soleil** en couches avec parallaxe : ciel doré,
+  immeubles au loin, nuages qui dérivent, fenêtres qui s'allument. Animée et bouclée sur 30 s.
+- **Lumière de fin d'après-midi dorée** : grande lumière chaude qui entre en biais (honey gold au sol, teal dans les ombres).
+- **TV 85"**, **grand canapé d'angle modulable**, meubles de meilleure qualité : faits main en détail (coutures, coussins,
+  arrondis) ou modèles BlenderKit / Sketchfab fournis par le client.
+- **Rendu final sur le PC du client** (carte graphique) : construction et aperçus ici, puis une commande de rendu Windows.

@@ -5,7 +5,7 @@ Voix : Kayzx (enregistrée plus tard). ~150 mots, ≈ 65 s à débit posé. Chaq
 | # | Temps | Voix off | À l'écran | Effet (et pourquoi) |
 |---|---|---|---|---|
 | 1 | 0–7 s | Le 10 avril, près de 40 000 personnes sont venues voir un seul rappeur, dans la plus grande salle d'Europe. | Live La Défense Arena plein écran, compteur « 39 964 » qui défile | Compteur lié au temps : le chiffre est l'accroche |
-| 2 | 7–11 s | Lui, c'est Josman. Et il y a quinze ans, il rappait seul dans sa chambre, à Vierzon. | Nom en grand ; l'image se resserre jusqu'à un point lumineux | Le point devient le fil conducteur (la frise) |
+| 2 | 7–11 s | Lui, c'est Josman. Et au départ, il rappait seul dans sa chambre, à Vierzon. | Nom en grand ; l'image se resserre jusqu'à un point lumineux | Le point devient le fil conducteur (la frise) |
 | 3 | 11–22 s | José Nzengo, né en 92 dans le Cher. Il produit ses propres instrus, monte à Aubervilliers après le bac, enchaîne les open mics… et gagne End of the Weak en 2013. | Frise horizontale qui démarre : 1992 · 2007 · 2013 | Travelling horizontal, une étiquette par date, tenue 2–3 s |
 | 4 | 22–28 s | En 2016, le clip « Dans le vide » dépasse les 18 millions de vues. | Pochette *Matrix* + compteur de vues | Compteur |
 | 5 | 28–40 s | 2018 : premier album, J.O.$ — disque de platine. Puis deux titres diamant : « J'aime bien » et « Intro ». | Pochettes qui se posent sur la frise, disques de certification | Cascade, puis plan épinglé qui se remplit |

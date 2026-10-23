@@ -35,3 +35,10 @@ Rien ne passe à l'écran sans source. Statut : ✅ sourcé (Wikipédia FR + pre
 
 ## Sources
 Wikipédia FR (Josman), Infoconcert, SeeTickets, MUSICBIZ / Billboard France (Top Albums), LPR, France TV Pro.
+
+## Faits moins connus (pour le script v2)
+- ✅ La Défense Arena, 10/04/2026 : 39 964 billets, 2 759 975 $ de recettes (Pollstar). Jauge « jusqu'à 40 000 ».
+- ✅ Catalogue : plus de 2 milliards de streams (Billboard Canada, 17/03/2026).
+- ✅ 14/03/2026, Place Bell (Laval, région de Montréal) : plus de 90 min presque seul avec un DJ, lumières minimales, presque pas d'Auto-Tune ; New York quelques jours avant ; premier concert à Montréal en 2017 (Billboard Canada).
+- ✅ Interview Clique (avril 2026, propos rapportés par le journaliste) : à son arrivée à Paris il a parfois dormi dehors ; il dit ne pas vraiment avoir de processus créatif ; cite la théorie des 10 000 heures et sa fascination pour les rimes de Francis Cabrel ; relation « je t'aime, moi non plus » avec la célébrité ; garde le même cercle proche ; fier d'être propriétaire ; le succès n'est pas une revanche mais une façon de corriger les inégalités vécues par lui et ses parents ; *DOM PERIGNON CRYING* est son 9e projet, présenté comme la fin d'une étape, sur la tension entre matérialisme et émotions.
+- ✅ Remix de « GO GO GO » de Jorja Smith avec Josman (22/03/2024).

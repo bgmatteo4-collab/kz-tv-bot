@@ -34,3 +34,6 @@
 - **Retours sur la planche de DA** : meubles **très modernes** (lignes nettes, design contemporain), mais toujours dans
   les textures bois validées. Plantes et luminaires validés. Au bureau, un **siège gaming** (pas de chaise de bureau classique).
   La typo Archivo / Instrument Serif est refusée : le client veut une typo **épaisse, pleine et douce**, pour tout le pack.
+- **Typo retenue : Rubik** (proposition B). Titres en Black 900, textes en Regular 400. Elle sert pour tout le pack.
+- **Trois écrans au bureau** (au lieu de deux), dont un **à la verticale**. Ils affichent un contenu légèrement animé :
+  OBS sur l'un, une messagerie type Discord sur l'autre, le bureau Windows avec un beau fond d'écran sur le dernier.

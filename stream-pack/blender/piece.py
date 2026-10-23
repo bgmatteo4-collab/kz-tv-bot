@@ -150,10 +150,11 @@ def importer_ph(ident, position, rotation_z=0.0, echelle=1.0):
     return racine
 
 
-def placer(objet, position, taille, axe='max', rotation_z=0.0, rotation_x=0.0, matiere=None, sans=(), pre=(0, 0, 0)):
+def placer(objet, position, taille, axe='max', rotation_z=0.0, rotation_x=0.0, matiere=None, sans=(), pre=(0, 0, 0), matieres=None):
     """Modèle Objaverse (.glb) : mis à la taille réelle (taille en m sur l'axe donné), posé sur sa base,
     centré sur position, tourné de rotation_z degrés. sans : noms de pièces à retirer (socles, sols).
-    pre : rotation (degrés) appliquée au modèle avant la mesure, pour redresser un modèle penché."""
+    pre : rotation (degrés) appliquée au modèle avant la mesure, pour redresser un modèle penché.
+    matieres : {fragment de nom de matériau: matériau} pour repeindre certaines pièces."""
     avant = set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=os.path.join(OBJ, f'{objet}.glb'))
     nouveaux = [o for o in bpy.data.objects if o not in avant]
@@ -162,7 +163,7 @@ def placer(objet, position, taille, axe='max', rotation_z=0.0, rotation_x=0.0, m
         if o.animation_data:
             pose = o.matrix_basis.copy(); o.animation_data_clear(); o.matrix_basis = pose
     for o in list(nouveaux):
-        if any(s.lower() in o.name.lower() for s in sans):
+        if o.type == 'LIGHT' or any(s.lower() in o.name.lower() for s in sans):   # nos lumières, pas les leurs
             bpy.data.objects.remove(o); nouveaux.remove(o)
     maillages = [o for o in nouveaux if o.type == 'MESH']
     interne = bpy.data.objects.new(objet + ' (redressé)', None); scene.collection.objects.link(interne)
@@ -182,6 +183,11 @@ def placer(objet, position, taille, axe='max', rotation_z=0.0, rotation_x=0.0, m
     for o in nouveaux:
         if matiere and o.type == 'MESH':
             o.data.materials.clear(); o.data.materials.append(matiere)
+        if matieres and o.type == 'MESH':
+            for i, m in enumerate(o.data.materials):
+                for cle, nouveau in matieres.items():
+                    if m and cle.lower() in m.name.lower():
+                        o.data.materials[i] = nouveau; break
     racine.scale = (taille / ref,) * 3
     racine.rotation_euler = (math.radians(rotation_x), 0, math.radians(rotation_z))
     racine.location = position
@@ -346,16 +352,25 @@ bout = Vector((0.8, 3.4, BUREAU + 0.5))      # à droite du clavier, devant la b
 boite('pince micro', (pince.x, pince.y, BUREAU + 0.02), (0.05, 0.05, 0.06), M['noir'], 0.004)
 tube('bras micro 1', pince + Vector((0, 0, 0.04)), coude, 0.011, M['noir'])
 tube('bras micro 2', coude, bout, 0.011, M['noir'])
-tube('tige micro', bout, bout - Vector((0, 0, 0.05)), 0.008, M['noir'])
-placer('micro', (bout.x, bout.y, bout.z - 0.05 - 0.17), 0.19, 'max', rotation_z=0)
+micro = placer('micro', (bout.x, bout.y, bout.z - 0.05 - 0.17), 0.19, 'max', rotation_z=0)
+bpy.context.view_layer.update()   # la tige descend jusque dans l'étrier du micro : aucun jour entre les deux
+haut_micro = max((o.matrix_world @ Vector(c)).z for o in micro.children_recursive if o.type == 'MESH' for c in o.bound_box)
+tube('tige micro', bout, Vector((bout.x, bout.y, haut_micro - 0.006)), 0.008, M['noir'])
 
 # Key light sur son pied, au coin droit, tournée vers le streamer.
 # Key light sur pied au sol, au bout du bureau (entre le bureau et l'étagère nord), tournée vers le siège.
+KX, KY, KZ = 0.35, 4.15, 0.45   # pied de la key light, au sol au bout du bureau
 for k in range(3):
     a = math.radians(90 + k * 120)
-    tube('pied key light', (0.35, 4.15, 0.55), (0.35 + 0.22 * math.cos(a), 4.15 + 0.22 * math.sin(a), 0.0), 0.008, M['noir'])
-tube('mât key light', (0.35, 4.15, 0.55), (0.35, 4.15, 0.96), 0.011, M['noir'])
-placer('key_light', (0.35, 4.15, 0.96), 0.6, 'z', rotation_z=-120)
+    tube('pied key light', (KX, KY, KZ), (KX + 0.25 * math.cos(a), KY + 0.25 * math.sin(a), 0.0), 0.008, M['noir'])
+# Le modèle éclaire vers son -y : tourné de 40°, il vise le visage du streamer (siège en x 1,3, y 3,0).
+kl = placer('key_light', (KX, KY, KZ), 1.07, 'z', rotation_z=40, sans=('Object_24', 'Object_25', 'Object_32'))
+bpy.context.view_layer.update()
+centre_de = lambda o: sum((o.matrix_world @ Vector(c) for c in o.bound_box), Vector()) / 8
+mat_kl = next(o for o in kl.children_recursive if o.name.startswith('Object_22'))   # le mât, posé sur le trépied
+c = centre_de(mat_kl); kl.location.x += KX - c.x; kl.location.y += KY - c.y
+bpy.context.view_layer.update()
+KL_PANNEAU = centre_de(next(o for o in kl.children_recursive if o.name.startswith('Object_5')))
 
 # Le PC (boîtier sobre, façade en lames de noyer) au sol, au bout du bureau.
 boite('PC', (0.33, 1.88, 0.24), (0.45, 0.22, 0.48), M['noir'], 0.008)
@@ -454,7 +469,7 @@ def plantule(y, z, echelle=1.0):
 # Bloc sud (y 0,50 → 1,60) : Avengers et Retour vers le futur. Chaque réplique a de l'air autour d'elle.
 placer('casque_ironman', (0.17, 0.72, DESSUS[2]), 0.28, 'z', rotation_z=90)
 livres(0.92, 1.30, DESSUS[2], serre='fin')
-plantule(1.46, DESSUS[2])
+placer('reacteur_arc', (0.17, 1.44, DESSUS[2]), 0.22, 'z', rotation_z=90)   # réacteur Arc sur socle Avengers
 haut = pile(0.67, DESSUS[1], 3)
 importer_ph('ceramic_vase_01', (0.19, 0.67, haut), echelle=0.55)
 placer('mjolnir', (0.17, 1.03, DESSUS[1]), 0.36, 'max', rotation_z=90, pre=(0, 140.4, 0))
@@ -474,7 +489,12 @@ livres(4.43, 4.75, DESSUS[1], serre='fin')
 placer('plumbus', (0.17, 4.90, DESSUS[1]), 0.24, 'z', rotation_z=90)
 placer('meeseeks', (0.17, 5.13, DESSUS[1]), 0.2, 'max', rotation_z=80)
 importer_ph('brass_vase_01', (0.18, 5.3, DESSUS[1]), echelle=0.45)
-placer('gant_infini', (0.17, 4.60, DESSUS[0]), 0.3, 'z', rotation_z=90)
+OR_GANT = materiau_uni('or du gant', '#D4A53C', 0.28, 1.0)
+PIERRE = lambda n, c: materiau_uni(f'pierre {n}', c, 0.08, emission=c, force=1.5)
+placer('gant_infini2', (0.17, 4.62, DESSUS[0]), 0.3, 'z', rotation_z=90, matieres={
+    'time_stone_plate': OR_GANT, 'time_stone': PIERRE('temps', '#2ECC71'), 'soul': PIERRE('âme', '#FF8C1A'),
+    'mind': PIERRE('esprit', '#FFD21A'), 'reality': PIERRE('réalité', '#E0202A'), 'space': PIERRE('espace', '#2A6BFF'),
+    'power': PIERRE('pouvoir', '#8E2DE2'), 'hand': OR_GANT, 'wrist': OR_GANT, 'thumb': OR_GANT, 'finger': OR_GANT, 'palm': OR_GANT})
 importer_ph('standing_picture_frame_01', (0.2, 4.88, DESSUS[0]), rotation_z=90, echelle=0.8)
 livres(5.05, 5.22, DESSUS[0])
 haut = pile(5.37, DESSUS[0], 3)
@@ -532,6 +552,7 @@ for k, (nom, x) in enumerate((('endgame', 3.6), ('retour-vers-le-futur', 4.6), (
 # Le canapé d'angle regarde la TV : dossier à l'ouest (x 4,3), assise vers l'est, méridienne au nord
 # (vers la baie). La table basse se glisse devant l'assise, au sud de la méridienne (40 cm de passage).
 placer('canape', (5.6, 3.0, 0), 2.8, 'max', rotation_z=0, matiere=M['canape'])
+scene.objects['canape'].scale.z *= 1.25   # modèle très bas : assise et dossier remis à hauteur normale
 boite('tapis', (6.0, 3.0, 0.006), (3.0, 3.4, 0.012), M['tapis'])
 importer_ph('coffee_table_round_01', (6.05, 2.45, 0), echelle=0.8)
 importer_ph('wooden_bowl_01', (5.85, 2.55, 0.39))
@@ -539,7 +560,11 @@ importer_ph('ceramic_vase_02', (6.25, 2.7, 0.39), echelle=0.6)
 haut = 0.39
 for k, c in enumerate(('#1D2733', '#E6DED0')):   # deux beaux livres empilés
     boite('beau livre', (6.15, 2.25, haut + 0.016), (0.3, 0.24, 0.032), COUVERTURES[k * 4], 0.003); haut += 0.032
-coussins = importer_ph('throw_pillows_01', (4.62, 2.0, 0.42), rotation_z=90)
+bpy.context.view_layer.update()
+dg = bpy.context.evaluated_depsgraph_get()
+dossier = scene.ray_cast(dg, Vector((6.5, 2.4, 0.5)), Vector((-1, 0, 0)))[1].x     # face avant du dossier
+assise = scene.ray_cast(dg, Vector((dossier + 0.3, 2.4, 1.5)), Vector((0, 0, -1)))[1].z   # dessus de l'assise
+coussins = importer_ph('throw_pillows_01', (dossier + 0.2, 2.4, assise - 0.015), rotation_z=90)
 for k, o in enumerate(o for o in coussins.children_recursive if o.type == 'MESH'):   # aux couleurs de la DA
     o.data.materials.clear(); o.data.materials.append(tissu('coussin', ('#1E5B57', '#E0A93B', '#8E979D')[k % 3]))
 importer_ph('side_table_01', (4.55, 1.2, 0), rotation_z=90)
@@ -566,8 +591,8 @@ for i in range(n):   # façade cannelée
     tube('cannelure', (MX0 - 0.004, yy, 0.165), (MX0 - 0.004, yy, MZ - 0.025), 0.017, M['chene'])
 placer('tv', (L - 0.06, 3.0, 0.95), 1.9, 'max', rotation_z=-90, sans=('Table',))
 boite('barre de son', (L - 0.2, 3.0, MZ + 0.035), (0.1, 0.9, 0.07), M['noir'], 0.012)
-placer('ps5', (L - 0.24, MY0 + 0.2, MZ), 0.39, 'z', rotation_z=-90, sans=('Plane', 'Digital'))
-placer('xbox', (L - 0.24, MY1 - 0.2, MZ), 0.30, 'z', rotation_z=-90)
+placer('ps5', (L - 0.24, MY0 + 0.2, MZ), 0.47, 'z', rotation_z=-90, sans=('Plane', 'Digital'))   # 41 cm en vrai : un peu agrandie pour se lire à l'image
+placer('xbox', (L - 0.24, MY1 - 0.2, MZ), 0.35, 'z', rotation_z=-90)   # 30 cm en vrai, idem
 placer('switch', (L - 0.22, 3.75, MZ), 0.32, 'x', rotation_z=-90)
 importer_ph('ceramic_vase_01', (L - 0.3, 2.35, MZ), echelle=0.6)
 
@@ -579,7 +604,7 @@ placer('lampadaire', (7.5, 0.48, 0), 1.6, 'z')
 # Suspensions au-dessus de la table basse (le modèle va de 0,22 à 1,17 m au-dessus de son origine) ;
 # le globe devient lumineux, c'est lui qu'on voit (et qui se reflète dans la baie).
 GLOBE = materiau_uni('globe opalin', '#FFF4E2', 0.3, emission='#FFC27A', force=12.0)
-for y in (2.2, 2.75):
+for y in (2.45,):   # une seule suspension, centrée sur la table basse
     lp = importer_ph('modern_ceiling_lamp_01', (6.05, y, H - 1.17))
     for o in lp.children_recursive:
         if o.type == 'MESH':
@@ -603,23 +628,42 @@ def ville():
     brique.inputs['Scale'].default_value = 1.0
     brique.inputs['Brick Width'].default_value = 1.6
     brique.inputs['Row Height'].default_value = 3.2
-    brique.inputs['Mortar Size'].default_value = 0.35
+    brique.inputs['Mortar Size'].default_value = 0.6
     brique.inputs['Color1'].default_value = (1, 1, 1, 1); brique.inputs['Color2'].default_value = (0, 0, 0, 1)
     brique.inputs['Mortar'].default_value = (0, 0, 0, 1)
     brique.offset = 0.0
-    nt.links.new(coord.outputs['Object'], brique.inputs['Vector'])
+    # La texture brique est plane (x, y) : on la déplie sur les façades (largeur = x + y, hauteur = z).
+    sep_v = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(coord.outputs['Object'], sep_v.inputs['Vector'])
+    somme = nt.nodes.new('ShaderNodeMath'); somme.operation = 'ADD'
+    nt.links.new(sep_v.outputs['X'], somme.inputs[0]); nt.links.new(sep_v.outputs['Y'], somme.inputs[1])
+    deplie = nt.nodes.new('ShaderNodeCombineXYZ')
+    nt.links.new(somme.outputs['Value'], deplie.inputs['X']); nt.links.new(sep_v.outputs['Z'], deplie.inputs['Y'])
+    nt.links.new(deplie.outputs['Vector'], brique.inputs['Vector'])
     # La sortie Fac donne une valeur au hasard par brique : on n'allume qu'une fenêtre sur cinq environ.
-    seuil = nt.nodes.new('ShaderNodeMath'); seuil.operation = 'GREATER_THAN'; seuil.inputs[1].default_value = 0.62   # de nuit, une fenêtre sur trois est allumée
+    seuil = nt.nodes.new('ShaderNodeMath'); seuil.operation = 'GREATER_THAN'; seuil.inputs[1].default_value = 0.8   # à cette heure, une fenêtre sur cinq est allumée
     nt.links.new(brique.outputs['Color'], seuil.inputs[0])   # valeur au hasard par fenêtre
+    hors_joint = nt.nodes.new('ShaderNodeMath'); hors_joint.operation = 'SUBTRACT'; hors_joint.inputs[0].default_value = 1.0
+    nt.links.new(brique.outputs['Fac'], hors_joint.inputs[1])   # Fac vaut 1 sur le joint : la vitre, c'est 1 - Fac
     vitre = nt.nodes.new('ShaderNodeMath'); vitre.operation = 'MULTIPLY'
-    nt.links.new(seuil.outputs['Value'], vitre.inputs[0]); nt.links.new(brique.outputs['Fac'], vitre.inputs[1])   # sans le joint
-    vitre2 = nt.nodes.new('ShaderNodeMath'); vitre2.operation = 'MULTIPLY'; vitre2.inputs[1].default_value = 7.0
+    nt.links.new(seuil.outputs['Value'], vitre.inputs[0]); nt.links.new(hors_joint.outputs['Value'], vitre.inputs[1])
+    vitre2 = nt.nodes.new('ShaderNodeMath'); vitre2.operation = 'MULTIPLY'; vitre2.inputs[1].default_value = 4.0
     nt.links.new(vitre.outputs['Value'], vitre2.inputs[0]); vitre = vitre2
+    geo = nt.nodes.new('ShaderNodeNewGeometry'); sep_n = nt.nodes.new('ShaderNodeSeparateXYZ')
+    nt.links.new(geo.outputs['Normal'], sep_n.inputs['Vector'])
+    toit = nt.nodes.new('ShaderNodeMath'); toit.operation = 'LESS_THAN'; toit.inputs[1].default_value = 0.5   # pas de fenêtres sur les toits
+    nt.links.new(sep_n.outputs['Z'], toit.inputs[0])
+    vitre3 = nt.nodes.new('ShaderNodeMath'); vitre3.operation = 'MULTIPLY'
+    nt.links.new(vitre.outputs['Value'], vitre3.inputs[0]); nt.links.new(toit.outputs['Value'], vitre3.inputs[1]); vitre = vitre3
     nt.links.new(vitre.outputs['Value'], b.inputs['Emission Strength'])
     b.inputs['Emission Color'].default_value = hexa('#FFC870')
+    froid = nt.nodes.new('ShaderNodeMath'); froid.operation = 'GREATER_THAN'; froid.inputs[1].default_value = 0.93   # quelques bureaux en blanc froid
+    nt.links.new(brique.outputs['Color'], froid.inputs[0])
+    teinte = nt.nodes.new('ShaderNodeMix'); teinte.data_type = 'RGBA'
+    teinte.inputs['A'].default_value = hexa('#FFC870'); teinte.inputs['B'].default_value = hexa('#DCE6F5')
+    nt.links.new(froid.outputs['Value'], teinte.inputs['Factor']); nt.links.new(teinte.outputs['Result'], b.inputs['Emission Color'])
     b.inputs['Emission Strength'].default_value = 0.0
     melange = nt.nodes.new('ShaderNodeMix'); melange.data_type = 'RGBA'
-    melange.inputs['A'].default_value = hexa('#2A2F3A'); melange.inputs['B'].default_value = hexa('#12151B')
+    melange.inputs['A'].default_value = hexa('#0D1117'); melange.inputs['B'].default_value = hexa('#2A2F38')   # vitres sombres, façade plus claire
     nt.links.new(brique.outputs['Fac'], melange.inputs['Factor'])
     nt.links.new(melange.outputs['Result'], b.inputs['Base Color'])
     BAS = -35.0
@@ -668,8 +712,7 @@ def lumiere(nom, type_, position, energie, couleur, taille=0.3, rotation=(0, 0, 
 
 
 # Éclairage de nuit : seulement les lampes de la pièce (2 700 K), plus la lueur froide des écrans.
-lumiere('suspension', 'POINT', (6.05, 2.2, 2.0), 45, '#FFC27A', 0.1)
-lumiere('suspension 2', 'POINT', (6.05, 2.75, 2.0), 45, '#FFC27A', 0.1)
+lumiere('suspension', 'POINT', (6.05, 2.45, 2.05), 70, '#FFC27A', 0.1)
 lumiere('lampe à poser', 'POINT', (4.55, 1.2, 0.92), 25, '#FFB866', 0.05)
 lumiere('lampadaire', 'POINT', (7.5, 0.48, 1.45), 110, '#FFB866', 0.12)
 for x, y in ((2.2, 1.5), (2.2, 4.5), (3.6, 0.5), (5.6, 0.5), (7.2, 4.6)):   # spots encastrés : des cônes doux
@@ -679,7 +722,9 @@ for yc in (1.05, 4.95):   # ruban LED sous chaque planche : la réplique du dess
         d = lumiere('LED étagère', 'AREA', (0.27, yc, z - EP / 2 - 0.01), 7, '#FFC680', 1.0, (0, 0, 90))
         d.shape, d.size_y = 'RECTANGLE', 0.04
 lumiere('écrans', 'AREA', (0.45, 3.0, 1.1), 18, '#8FB8D8', 0.8, (0, -90, 0))
-lumiere('key light', 'AREA', (0.45, 4.05, 1.35), 25, '#FFF1DC', 0.3, (0, -80, -48))
+vise_kl = (Vector((1.3, 3.0, 1.2)) - KL_PANNEAU).to_track_quat('-Z', 'Y').to_euler()
+lumiere('key light', 'AREA', KL_PANNEAU + (Vector((1.3, 3.0, 1.2)) - KL_PANNEAU).normalized() * 0.03, 25, '#FFF1DC', 0.33,
+        [math.degrees(a) for a in vise_kl])
 lumiere('TV (rétroéclairage)', 'AREA', (L - 0.08, 3.0, 1.55), 30, '#E0A93B', 1.6, (0, 90, 0))   # halo doré sur le mur teal
 lumiere('TV (reflet)', 'AREA', (L - 0.2, 3.0, 1.3), 8, '#6E8FB8', 1.5, (0, 90, 0))
 
@@ -700,6 +745,9 @@ CAMS = {
     'canape': camera('canape', (7.4, 4.9, 1.7), (4.8, 2.4, 0.6), 24),
     'etag_sud': camera('etag_sud', (1.5, 1.05, 1.45), (0.1, 1.05, 1.45), 30),
     'etag_nord': camera('etag_nord', (1.5, 4.95, 1.45), (0.1, 4.95, 1.45), 30),
+    'coin_ne': camera('coin_ne', (7.35, 5.35, 1.75), (2.0, 1.4, 0.9), 20),
+    'micro': camera('micro', (1.15, 3.05, 1.2), (0.8, 3.4, 1.15), 35),
+    'console': camera('console', (6.95, 1.55, 0.85), (7.75, 1.95, 0.6), 30),
     'setup': camera('setup', (1.55, 3.55, 1.45), (0.35, 2.85, 0.95), 26),
     'affiches': camera('affiches', (4.6, 3.2, 1.6), (4.6, 0.0, 1.55), 30),
     'bureau': camera('bureau', (2.6, 3.0, 1.45), (0.2, 3.0, 1.2), 30),

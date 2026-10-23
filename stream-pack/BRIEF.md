@@ -31,3 +31,6 @@
 - **Le salon** : des meubles de designer, beaux et de bonne qualité. Une **grande TV** élégante, à cadre fin.
 - **Les consoles** (PS5, Xbox Series X, Switch) : formes et proportions exactes, sans logos de marque. Rien d'à-peu-près.
 - **Exigence générale** : le rendu doit être réaliste, avec des modèles fidèles.
+- **Retours sur la planche de DA** : meubles **très modernes** (lignes nettes, design contemporain), mais toujours dans
+  les textures bois validées. Plantes et luminaires validés. Au bureau, un **siège gaming** (pas de chaise de bureau classique).
+  La typo Archivo / Instrument Serif est refusée : le client veut une typo **épaisse, pleine et douce**, pour tout le pack.

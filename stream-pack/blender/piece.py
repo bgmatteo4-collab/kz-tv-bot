@@ -56,6 +56,7 @@ def materiau_asset(ident, echelle=1.0):
     with bpy.data.libraries.load(os.path.join(ASSETS, ident, f'{ident}_{TAILLES.get(ident, "2k")}.blend'), link=False) as (src, dst):
         dst.materials = [ident]
     m = dst.materials[0]
+    m.displacement_method = 'BUMP'   # pas de vrai déplacement : il soulevait plateaux et cadres de quelques mm
     for n in m.node_tree.nodes:
         if n.type == 'MAPPING':
             n.inputs['Scale'].default_value = (echelle,) * 3
@@ -142,22 +143,33 @@ def importer_ph(ident, position, rotation_z=0.0, echelle=1.0):
         if o is None or o.type not in {'MESH', 'EMPTY'}:
             continue
         scene.collection.objects.link(o)
+        o.constraints.clear(); o.animation_data_clear()   # portes du meuble TV : rail non importé
         if o.parent is None:
             o.parent = racine
     racine.location, racine.rotation_euler[2], racine.scale = position, math.radians(rotation_z), (echelle,) * 3
     return racine
 
 
-def placer(objet, position, taille, axe='max', rotation_z=0.0, rotation_x=0.0, matiere=None, sans=()):
+def placer(objet, position, taille, axe='max', rotation_z=0.0, rotation_x=0.0, matiere=None, sans=(), pre=(0, 0, 0)):
     """Modèle Objaverse (.glb) : mis à la taille réelle (taille en m sur l'axe donné), posé sur sa base,
-    centré sur position, tourné de rotation_z degrés. sans : noms de pièces à retirer (socles, sols)."""
+    centré sur position, tourné de rotation_z degrés. sans : noms de pièces à retirer (socles, sols).
+    pre : rotation (degrés) appliquée au modèle avant la mesure, pour redresser un modèle penché."""
     avant = set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=os.path.join(OBJ, f'{objet}.glb'))
     nouveaux = [o for o in bpy.data.objects if o not in avant]
+    scene.frame_set(1)
+    for o in nouveaux:   # certains modèles sont animés (pièces du micro) : on fige la pose de la 1re image
+        if o.animation_data:
+            pose = o.matrix_basis.copy(); o.animation_data_clear(); o.matrix_basis = pose
     for o in list(nouveaux):
         if any(s.lower() in o.name.lower() for s in sans):
             bpy.data.objects.remove(o); nouveaux.remove(o)
     maillages = [o for o in nouveaux if o.type == 'MESH']
+    interne = bpy.data.objects.new(objet + ' (redressé)', None); scene.collection.objects.link(interne)
+    interne.rotation_euler = [math.radians(a) for a in pre]
+    for o in nouveaux:
+        if o.parent is None:
+            o.parent = interne
     bpy.context.view_layer.update()
     pts = [o.matrix_world @ Vector(c) for o in maillages for c in o.bound_box]
     mn = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
@@ -165,10 +177,9 @@ def placer(objet, position, taille, axe='max', rotation_z=0.0, rotation_x=0.0, m
     d = mx - mn
     ref = {'max': max(d), 'x': d.x, 'y': d.y, 'z': d.z}[axe]
     racine = bpy.data.objects.new(objet, None); scene.collection.objects.link(racine)
+    interne.parent = racine
+    interne.location = -Vector(((mn.x + mx.x) / 2, (mn.y + mx.y) / 2, mn.z))
     for o in nouveaux:
-        if o.parent is None:
-            o.parent = racine
-            o.location -= Vector(((mn.x + mx.x) / 2, (mn.y + mx.y) / 2, mn.z))
         if matiere and o.type == 'MESH':
             o.data.materials.clear(); o.data.materials.append(matiere)
     racine.scale = (taille / ref,) * 3
@@ -195,71 +206,262 @@ for i in range(9):
 for z in (0.02, H - 0.02):
     boite('traverse', (L / 2, P, z), (L, 0.08, 0.05), M['noir'])
 
-# Mur du bureau (ouest) : panneau de lames de noyer derrière le bureau.
-for i in range(28):
-    boite(f'lame {i}', (0.03, 1.6 + i * 0.1, 1.55), (0.04, 0.05, 2.6), M['noyer'])
-
-# --- Le bureau de stream (contre le mur ouest, le streamer regarde vers l'ouest).
-bx, by = 0.55, 3.0
-placer('bureau', (bx, by, 0), 0.73, 'z', rotation_z=90, sans=('Object_2',))   # plateau d'origine remplacé par du chêne
-boite('plateau chêne', (bx, by, 0.745), (0.8, 1.8, 0.03), M['chene'], 0.004)
+# Mur du bureau (ouest) : mur acoustique en lames de noyer, centré sur le bureau (y 1,75 → 4,25) ;
+# les étagères sont de part et d'autre, à 15 cm des lames.
+for i in range(26):
+    boite(f'lame {i}', (0.03, 1.75 + i * 0.1, 1.55), (0.04, 0.05, 2.6), M['noyer'])
 
 
-def ecran(nom, centre, larg, haut, rot_z, vertical=False):
-    l, h = (haut, larg) if vertical else (larg, haut)
-    cadre = boite(nom, centre, (0.02, l, h), M['noir'], 0.004)
-    dalle = boite(nom + ' dalle', (centre[0] + 0.011, centre[1], centre[2]), (0.002, l - 0.012, h - 0.012),
-                  materiau_uni(nom + ' image', '#0B1416', 0.2, emission='#2E6F6A', force=1.4))
-    pied = boite(nom + ' pied', (centre[0] - 0.05, centre[1], centre[2] - h / 2 - 0.08), (0.04, 0.05, 0.16), M['alu'])
-    for o in (cadre, dalle, pied):
-        o.rotation_euler[2] = math.radians(rot_z)
-    return cadre
+def tube(nom, a, b, r, mat):
+    """Cylindre d'un point à un autre (bras de micro, pieds)."""
+    a, b = Vector(a), Vector(b)
+    bpy.ops.mesh.primitive_cylinder_add(radius=r, depth=(b - a).length, location=(a + b) / 2, vertices=20)
+    o = bpy.context.object; o.name = nom
+    o.rotation_euler = (b - a).to_track_quat('Z', 'Y').to_euler()
+    o.data.materials.append(mat); bpy.ops.object.shade_smooth()
+    return o
 
 
-ecran('écran centre', (0.28, 3.0, 1.06), 0.62, 0.36, 0)
-ecran('écran gauche', (0.33, 3.68, 1.06), 0.62, 0.36, -18)
-ecran('écran vertical', (0.33, 2.36, 1.17), 0.62, 0.36, 18, vertical=True)
-placer('clavier', (0.75, 3.0, 0.76), 0.44, 'x', rotation_z=90)
-placer('stream_deck', (0.68, 2.6, 0.76), 0.18, 'x', rotation_z=90)
-placer('carte_son', (0.55, 3.55, 0.76), 0.18, 'x', rotation_z=90)
-placer('micro', (0.7, 3.32, 1.02), 0.19, 'max', rotation_z=200)
-placer('webcam', (0.28, 3.0, 1.26), 0.10, 'x', rotation_z=90)
-placer('key_light', (0.35, 3.95, 0.76), 0.55, 'z', rotation_z=60)
-placer('casque', (0.6, 2.25, 0.76), 0.2, 'max', rotation_z=90)
-placer('siege_gaming', (1.35, 3.0, 0), 1.3, 'z', rotation_z=-90)
+# --- Le bureau de stream, contre le mur acoustique : le streamer regarde vers l'ouest (-x).
+# Plateau chêne 1,80 × 0,80 (x 0,05 → 0,85, y 2,10 → 3,90), dessus à 76,5 cm, piètement noir en T.
+DX0, DX1, DY0, DY1 = 0.05, 0.85, 2.1, 3.9
+BUREAU = 0.765
+boite('plateau chêne', ((DX0 + DX1) / 2, 3.0, BUREAU - 0.015), (DX1 - DX0, DY1 - DY0, 0.03), M['chene'], 0.004)
+for y in (DY0 + 0.12, DY1 - 0.12):
+    boite('pied bureau', (0.45, y, (BUREAU - 0.03) / 2), (0.07, 0.07, BUREAU - 0.03), M['noir'], 0.004)
+    boite('patin bureau', (0.45, y, 0.015), (0.7, 0.07, 0.03), M['noir'], 0.004)
+    boite('traverse bureau', (0.45, y, BUREAU - 0.05), (0.66, 0.05, 0.04), M['noir'])
+boite('poutre bureau', (0.3, 3.0, BUREAU - 0.06), (0.05, DY1 - DY0 - 0.3, 0.05), M['noir'])
+
+
+def image_ecran(nom, fichier, force=1.0):
+    """Écran allumé : l'image (ecrans/*.png) en émission, sous une dalle un peu brillante."""
+    m = bpy.data.materials.new('écran ' + nom); nt = m.node_tree
+    b = nt.nodes['Principled BSDF']
+    b.inputs['Base Color'].default_value = (0.005, 0.005, 0.006, 1); b.inputs['Roughness'].default_value = 0.18
+    chemin = os.path.join(ICI, '..', 'ecrans', fichier)
+    if os.path.exists(chemin):
+        tex = nt.nodes.new('ShaderNodeTexImage'); tex.image = bpy.data.images.load(chemin)
+        nt.links.new(tex.outputs['Color'], b.inputs['Emission Color'])
+    else:
+        b.inputs['Emission Color'].default_value = hexa('#2E6F6A')
+    b.inputs['Emission Strength'].default_value = force
+    return m
+
+
+def moniteur(nom, centre, theta, larg, haut, image, pied='rect'):
+    """Moniteur sur pied posé sur le plateau : dalle face à +x (repère local), tourné de theta degrés."""
+    piv = bpy.data.objects.new(nom, None); scene.collection.objects.link(piv)
+    zb = BUREAU - centre[2]   # le plateau, en repère local
+    morceaux = [
+        boite(nom + ' cadre', (0, 0, 0), (0.02, larg, haut), M['noir'], 0.003),
+        boite(nom + ' dos', (-0.03, 0, -0.01), (0.045, larg * 0.55, haut * 0.55), M['noir'], 0.012),
+        boite(nom + ' bras', (-0.075, 0, (zb + 0.0) / 2), (0.025, 0.07, -zb), M['alu' if pied != 'rond' else 'noir'], 0.006),
+    ]
+    if pied == 'rect':     # socle plat rectangulaire
+        morceaux.append(boite(nom + ' socle', (-0.04, 0, zb + 0.005), (0.2, 0.24, 0.01), M['alu'], 0.004))
+    elif pied == 'v':      # pied en V, deux branches fines
+        for sgn in (-1, 1):
+            br = boite(nom + ' branche', (-0.02, sgn * 0.09, zb + 0.006), (0.24, 0.025, 0.012), M['alu'], 0.004)
+            br.rotation_euler[2] = math.radians(sgn * 35); morceaux.append(br)
+    else:                  # disque noir
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.11, depth=0.012, location=(-0.075, 0, zb + 0.006), vertices=48)
+        o = bpy.context.object; o.data.materials.append(M['noir']); bpy.ops.object.shade_smooth(); morceaux.append(o)
+    bpy.ops.mesh.primitive_plane_add(size=1, location=(0.0105, 0, 0), rotation=(math.radians(90), 0, math.radians(90)))
+    d = bpy.context.object; d.name = nom + ' dalle'; d.scale = (larg - 0.012, haut - 0.012, 1); d.data.materials.append(image)
+    for o in morceaux + [d]:
+        o.parent = piv
+    piv.location, piv.rotation_euler[2] = centre, math.radians(theta)
+    return piv
+
+
+# Trois écrans de 27" (0,60 × 0,34) : centre (OBS), à droite incliné (bureau Windows), à gauche vertical
+# (Discord). Bas des dalles à 15 cm du plateau ; les écrans latéraux se referment de 25° vers le streamer.
+EW, EH, BAS = 0.60, 0.34, BUREAU + 0.15
+moniteur('écran centre', (0.27, 3.0, BAS + EH / 2), 0, EW, EH, image_ecran('obs', 'obs.png', 1.2), pied='v')
+a = math.radians(25)
+moniteur('écran droit', (0.27 + EW / 2 * math.sin(a), 3.0 + EW / 2 + 0.012 + EW / 2 * math.cos(a), BAS + EH / 2), -25, EW, EH,
+         image_ecran('bureau', 'bureau.png', 1.1), pied='rond')
+moniteur('écran vertical', (0.27 + EH / 2 * math.sin(a), 3.0 - EW / 2 - 0.012 - EH / 2 * math.cos(a), BAS + EW / 2), 25, EH, EW,
+         image_ecran('discord', 'discord.png', 1.1))
+
+# Sur le plateau : tapis de bureau, clavier, souris, Stream Deck XL, carte son, une petite plante.
+FEUTRE = materiau_uni('tapis de bureau', '#2A2E33', 0.95)
+boite('tapis de bureau', (0.63, 3.05, BUREAU + 0.002), (0.34, 0.95, 0.004), FEUTRE)
+placer('clavier', (0.62, 2.96, BUREAU + 0.004), 0.36, 'max', rotation_z=90, sans=('wire', 'usb'))
+
+
+def souris(x, y, z):
+    """Souris ergonomique : coque bombée plus haute à l'arrière, fente entre les boutons, molette."""
+    import bmesh
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=1, segments=32, ring_count=16, location=(x, y, z))
+    o = bpy.context.object; o.name = 'souris'
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    for v in bm.verts:
+        v.co.z = max(v.co.z, -0.15)                        # dessous à plat
+        arriere = (v.co.x + 1) / 2                         # +x : la paume (côté streamer)
+        v.co.z *= 0.55 + 0.45 * arriere
+        v.co.y *= 0.85 + 0.15 * arriere
+        v.co.z += 0.15
+    bm.to_mesh(o.data); bm.free()
+    o.scale = (0.063, 0.034, 0.03); o.data.materials.append(materiau_uni('souris', '#1E2023', 0.38))
+    bpy.ops.object.shade_smooth()
+    boite('souris fente', (x - 0.03, y, z + 0.0235), (0.04, 0.0015, 0.004), M['noir'])
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.0055, depth=0.006, location=(x - 0.032, y, z + 0.0235), rotation=(math.radians(90), 0, 0))
+    bpy.context.object.data.materials.append(M['or']); bpy.ops.object.shade_smooth()
+
+
+souris(0.64, 3.36, BUREAU + 0.004)
+placer('stream_deck', (0.68, 2.45, BUREAU), 0.18, 'max', rotation_z=90)
+placer('carte_son', (0.66, 3.73, BUREAU), 0.18, 'max', rotation_z=0)
+importer_ph('potted_plant_04', (0.14, 2.2, BUREAU), echelle=0.9)
+
+# Casque suspendu à un crochet sous le plateau, sur le côté droit du bureau.
+boite('crochet casque', (0.66, DY1 + 0.012, BUREAU - 0.06), (0.03, 0.025, 0.05), M['noir'], 0.003)
+placer('casque', (0.66, DY1 + 0.04, BUREAU - 0.07 - 0.2), 0.2, 'max', rotation_z=0)
+
+# La caméra du live (hybride sur mini-trépied) posée sur le bureau, à gauche, visée sur le siège.
+CX, CY, CZ = 0.46, 2.27, BUREAU + 0.29
+vise = math.atan2(3.0 - CY, 1.4 - CX)
+for k in range(3):   # trépied
+    ang = vise + math.radians(180 + (k - 1) * 120)
+    tube('trépied', (CX, CY, CZ - 0.12), (CX + 0.12 * math.cos(ang), CY + 0.12 * math.sin(ang), BUREAU), 0.006, M['noir'])
+tube('colonne', (CX, CY, CZ - 0.12), (CX, CY, CZ - 0.045), 0.009, M['noir'])
+cam = bpy.data.objects.new('caméra du live', None); scene.collection.objects.link(cam)
+corps = [boite('boîtier', (0, 0, 0), (0.07, 0.115, 0.066), M['noir'], 0.006),
+         boite('poignée', (0.012, -0.045, -0.002), (0.045, 0.028, 0.064), materiau_uni('grip', '#2A2B2E', 0.8), 0.006),
+         boite('écran caméra', (-0.037, 0.005, 0.002), (0.004, 0.07, 0.048), image_ecran('cam', 'obs.png', 0.6))]
+for r, l, x0 in ((0.033, 0.03, 0.05), (0.03, 0.035, 0.083), (0.031, 0.004, 0.102)):
+    bpy.ops.mesh.primitive_cylinder_add(radius=r, depth=l, location=(x0, 0.008, 0), rotation=(0, math.radians(90), 0), vertices=40)
+    o = bpy.context.object; o.data.materials.append(M['noir'] if x0 < 0.1 else materiau_uni('lentille', '#05070A', 0.05)); bpy.ops.object.shade_smooth(); corps.append(o)
+for o in corps:
+    o.parent = cam
+cam.location, cam.rotation_euler = (CX, CY, CZ), (0, math.radians(-4), vise)
+boite('témoin REC', (CX + 0.03, CY - 0.03 * math.tan(vise), CZ + 0.034), (0.006, 0.006, 0.003), materiau_uni('REC', '#FF3B30', emission='#FF3B30', force=8.0))
+
+# Micro sur bras articulé : pince à l'arrière du plateau, deux segments, le SM7B devant la bouche.
+pince = Vector((0.1, 3.62, BUREAU))
+coude = Vector((0.16, 3.55, BUREAU + 0.6))     # le bras passe au-dessus de l'écran droit
+bout = Vector((0.8, 3.4, BUREAU + 0.5))      # à droite du clavier, devant la bouche
+boite('pince micro', (pince.x, pince.y, BUREAU + 0.02), (0.05, 0.05, 0.06), M['noir'], 0.004)
+tube('bras micro 1', pince + Vector((0, 0, 0.04)), coude, 0.011, M['noir'])
+tube('bras micro 2', coude, bout, 0.011, M['noir'])
+tube('tige micro', bout, bout - Vector((0, 0, 0.05)), 0.008, M['noir'])
+placer('micro', (bout.x, bout.y, bout.z - 0.05 - 0.17), 0.19, 'max', rotation_z=0)
+
+# Key light sur son pied, au coin droit, tournée vers le streamer.
+placer('key_light', (0.14, 3.8, BUREAU), 0.6, 'z', rotation_z=-120)
+
+# Le PC (boîtier sobre, façade en lames de noyer) au sol, au bout du bureau.
+boite('PC', (0.33, 1.88, 0.24), (0.45, 0.22, 0.48), M['noir'], 0.008)
+for i in range(9):
+    boite('PC lame', (0.558, 1.79 + i * 0.022, 0.24), (0.014, 0.014, 0.44), M['noyer'])
+placer('siege_gaming', (1.4, 3.0, 0), 1.3, 'z', rotation_z=-90)
 
 # --- Étagères des répliques (noyer, LED dessous) de part et d'autre du bureau. Chaque objet est posé
 # sur le dessus de sa planche (DESSUS[niveau]) ; répliques et déco alternent pour que rien ne fasse vide.
 NIVEAUX = (1.0, 1.45, 1.9)
 EP = 0.035
 DESSUS = [z + EP / 2 for z in NIVEAUX]
-for cote, yc in (('sud', 1.35), ('nord', 5.15)):
+for cote, yc in (('sud', 1.05), ('nord', 4.95)):
     for j, z in enumerate(NIVEAUX):
         boite(f'étagère {cote} {j}', (0.17, yc, z), (0.32, 1.1, EP), M['noyer'], 0.004)
         boite(f'LED {cote} {j}', (0.29, yc, z - EP / 2 - 0.004), (0.01, 1.0, 0.006), M['led'])
         for dy in (-0.45, 0.45):   # équerres noires
             boite('équerre', (0.12, yc + dy, z - 0.06), (0.2, 0.012, 0.1), M['noir'])
-# Bloc sud : Avengers et Retour vers le futur.
-placer('casque_ironman', (0.17, 1.05, DESSUS[2]), 0.28, 'z', rotation_z=90)
-importer_ph('decorative_book_set_01', (0.15, 1.6, DESSUS[2]), rotation_z=90, echelle=0.45)
-placer('mjolnir', (0.17, 1.1, DESSUS[1]), 0.4, 'max', rotation_z=90)
-importer_ph('ceramic_vase_01', (0.17, 1.68, DESSUS[1]), echelle=0.8)
-placer('delorean', (0.17, 1.15, DESSUS[0]), 0.24, 'max', rotation_z=60)
-importer_ph('ceramic_vase_02', (0.17, 1.65, DESSUS[0]), echelle=0.55)
-# Bloc nord : Rick et Morty, et le gant de l'Infini.
-placer('pistolet_portail', (0.17, 4.9, DESSUS[2]), 0.28, 'max', rotation_z=110)
-importer_ph('book_encyclopedia_set_01', (0.15, 5.42, DESSUS[2]), rotation_z=90, echelle=0.7)
-placer('plumbus', (0.17, 4.85, DESSUS[1]), 0.24, 'z', rotation_z=90)
-placer('meeseeks', (0.17, 5.18, DESSUS[1]), 0.18, 'max', rotation_z=80)
-importer_ph('brass_vase_01', (0.17, 5.5, DESSUS[1]), echelle=0.7)
-placer('gant_infini', (0.17, 4.88, DESSUS[0]), 0.32, 'z', rotation_z=90)
-importer_ph('standing_picture_frame_01', (0.17, 5.25, DESSUS[0]), rotation_z=90)
-importer_ph('ceramic_vase_03', (0.17, 5.55, DESSUS[0]), echelle=0.8)
+# Des livres pour de vrai : rangs debout (hauteurs et épaisseurs variées, alignés sur le bord avant),
+# piles couchées, serre-livres. La couverture est colorée, la tranche des pages crème (un seul matériau :
+# le côté des pages se reconnaît à sa normale, en repère objet).
+def couverture(couleur):
+    m = materiau_uni(f'livre {couleur}', couleur, 0.55, bosse=0.02)
+    nt = m.node_tree; b = nt.nodes['Principled BSDF']
+    n = nt.nodes.new('ShaderNodeTexCoord'); sep = nt.nodes.new('ShaderNodeSeparateXYZ')
+    nt.links.new(n.outputs['Normal'], sep.inputs['Vector'])
+    az = nt.nodes.new('ShaderNodeMath'); az.operation = 'ABSOLUTE'; nt.links.new(sep.outputs['Z'], az.inputs[0])
+    dos = nt.nodes.new('ShaderNodeMath'); dos.operation = 'LESS_THAN'; dos.inputs[1].default_value = -0.5
+    nt.links.new(sep.outputs['X'], dos.inputs[0])
+    pages = nt.nodes.new('ShaderNodeMath'); pages.operation = 'MAXIMUM'
+    nt.links.new(az.outputs['Value'], pages.inputs[0]); nt.links.new(dos.outputs['Value'], pages.inputs[1])
+    seuil = nt.nodes.new('ShaderNodeMath'); seuil.operation = 'GREATER_THAN'; seuil.inputs[1].default_value = 0.5
+    nt.links.new(pages.outputs['Value'], seuil.inputs[0])
+    mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
+    mix.inputs['A'].default_value = hexa(couleur); mix.inputs['B'].default_value = hexa('#E9E1CF')
+    nt.links.new(seuil.outputs['Value'], mix.inputs['Factor']); nt.links.new(mix.outputs['Result'], b.inputs['Base Color'])
+    return m
+
+
+LIVRES = [couverture(c) for c in ('#E6DED0', '#2F4F4C', '#8C3B2E', '#1D2733', '#C9A55C', '#6B7A80', '#D9CBB0',
+                                  '#2B2B2B', '#A86B3C', '#1E5B57', '#F2EFE8', '#55606B', '#B8A27A')]
+AVANT = 0.315   # bord avant des planches (x)
+
+
+def livres(y0, y1, z, serre=None):
+    """Rang de livres debout de y0 à y1, dos vers la pièce. serre : 'debut'/'fin' pour un serre-livres."""
+    y = y0
+    if serre == 'debut':
+        boite('serre-livres', (AVANT - 0.08, y + 0.003, z + 0.07), (0.1, 0.006, 0.14), M['noir']); y += 0.008
+    groupe = random.uniform(0.2, 0.27)
+    while True:
+        if random.random() < 0.25:
+            groupe = random.uniform(0.18, 0.29)   # nouvelle série, nouvelle hauteur
+        e, h, p = random.uniform(0.016, 0.042), groupe + random.uniform(-0.015, 0.015), random.uniform(0.14, 0.2)
+        if y + e > y1:
+            break
+        boite('livre', (AVANT - 0.01 - p / 2, y + e / 2, z + h / 2), (p, e, h), random.choice(LIVRES), 0.002)
+        y += e + 0.0015
+    if serre == 'fin':
+        boite('serre-livres', (AVANT - 0.08, y + 0.003, z + 0.07), (0.1, 0.006, 0.14), M['noir'])
+    return y
+
+
+def pile(y, z, n=3):
+    """Livres couchés, les plus grands en dessous ; renvoie le dessus de la pile."""
+    for k in range(n):
+        e, h, p = random.uniform(0.025, 0.045), 0.27 - 0.025 * k + random.uniform(-0.01, 0.01), 0.19 - 0.012 * k
+        o = boite('livre couché', (0, 0, 0), (p, e, h), random.choice(LIVRES), 0.002)
+        o.rotation_euler = (math.radians(90), 0, math.radians(random.uniform(-4, 4)))
+        o.location = (AVANT - 0.012 - p / 2, y, z + e / 2)
+        z += e
+    return z
+
+
+def plantule(y, z, echelle=1.0):
+    importer_ph('potted_plant_04', (AVANT - 0.12, y, z), rotation_z=random.uniform(0, 360), echelle=echelle)
+
+
+# Bloc sud (y 0,50 → 1,60) : Avengers et Retour vers le futur. Chaque réplique a de l'air autour d'elle.
+placer('casque_ironman', (0.17, 0.72, DESSUS[2]), 0.28, 'z', rotation_z=90)
+livres(0.92, 1.30, DESSUS[2], serre='fin')
+plantule(1.46, DESSUS[2])
+haut = pile(0.67, DESSUS[1], 3)
+importer_ph('ceramic_vase_01', (0.19, 0.67, haut), echelle=0.55)
+placer('mjolnir', (0.17, 1.03, DESSUS[1]), 0.36, 'max', rotation_z=90, pre=(0, 140.4, 0))
+livres(1.22, 1.58, DESSUS[1], serre='debut')
+livres(0.53, 0.70, DESSUS[0])
+placer('delorean', (0.18, 0.95, DESSUS[0]), 0.32, 'max', rotation_z=70)
+haut = pile(1.32, DESSUS[0], 4)
+importer_ph('wooden_bowl_01', (0.18, 1.32, haut), echelle=0.5)
+plantule(1.52, DESSUS[0], 0.8)
+# Bloc nord (y 4,40 → 5,50) : Rick et Morty, et le gant de l'Infini.
+livres(4.43, 4.62, DESSUS[2])
+placer('pistolet_portail', (0.17, 4.80, DESSUS[2]), 0.28, 'max', rotation_z=110)
+haut = pile(5.10, DESSUS[2], 2)
+plantule(5.10, haut, 0.9)
+livres(5.28, 5.47, DESSUS[2], serre='debut')
+livres(4.43, 4.75, DESSUS[1], serre='fin')
+placer('plumbus', (0.17, 4.90, DESSUS[1]), 0.24, 'z', rotation_z=90)
+placer('meeseeks', (0.17, 5.13, DESSUS[1]), 0.2, 'max', rotation_z=80)
+importer_ph('brass_vase_01', (0.18, 5.38, DESSUS[1]), echelle=0.6)
+placer('gant_infini', (0.17, 4.60, DESSUS[0]), 0.3, 'z', rotation_z=90)
+importer_ph('standing_picture_frame_01', (0.2, 4.88, DESSUS[0]), rotation_z=90, echelle=0.8)
+livres(5.05, 5.30, DESSUS[0])
+haut = pile(5.40, DESSUS[0], 3)
+importer_ph('ceramic_vase_03', (0.19, 5.40, haut), echelle=0.5)
 # Au mur, au-dessus du bureau et des étagères.
-placer('convecteur', (0.04, 1.35, 2.38), 0.42, 'z', rotation_z=90)
+placer('convecteur', (0.04, 1.05, 2.38), 0.42, 'z', rotation_z=90)
 placer('bouclier', (0.06, 3.0, 2.25), 0.6, 'max', rotation_z=90)
-placer('hoverboard', (0.06, 5.15, 2.4), 0.75, 'max', rotation_z=0, rotation_x=90)
-importer_ph('wicker_basket_01', (0.3, 1.35, 0))
+placer('hoverboard', (0.03, 4.95, 2.42), 0.75, 'max', rotation_z=90, rotation_x=90)
+importer_ph('wicker_basket_01', (0.3, 1.05, 0))
 
 # --- Porte (mur sud, x 0,3 → 1,2), interrupteur à côté, prises près de chaque appareil.
 boite('porte', (0.75, 0.025, 1.05), (0.9, 0.04, 2.1), M['noyer'], 0.004)
@@ -292,25 +494,42 @@ plaque('prise lampadaire', (7.0, 0.005, 0.3), 'y+', True)
 
 # --- Les affiches officielles encadrées (mur sud, derrière le canapé).
 for k, (nom, x) in enumerate((('endgame', 3.6), ('retour-vers-le-futur', 4.6), ('rick-et-morty', 5.6))):
-    boite(f'cadre {nom}', (x, 0.03, 1.65), (0.66, 0.035, 0.96), M['chene'], 0.003)
-    img = bpy.data.materials.new(f'affiche {nom}'); img.use_nodes = True
-    nt = img.node_tree; b = nt.nodes['Principled BSDF']; b.inputs['Roughness'].default_value = 0.25
+    zc, LA, HA, B = 1.65, 0.6, 0.9, 0.03   # affiche 60 × 90, baguette de 3 cm qui dépasse de 1,5 cm
+    boite(f'fond {nom}', (x, 0.015, zc), (LA + 2 * B, 0.02, HA + 2 * B), M['noir'])
+    for dx, dz, w, h in ((-(LA + B) / 2, 0, B, HA + 2 * B), ((LA + B) / 2, 0, B, HA + 2 * B), (0, (HA + B) / 2, LA, B), (0, -(HA + B) / 2, LA, B)):
+        boite(f'cadre {nom}', (x + dx, 0.025, zc + dz), (w, 0.04, h), M['chene'], 0.002)
+    img = bpy.data.materials.new(f'affiche {nom}'); nt = img.node_tree
+    b = nt.nodes['Principled BSDF']; b.inputs['Roughness'].default_value = 0.12   # sous verre
     tex = nt.nodes.new('ShaderNodeTexImage')
     tex.image = bpy.data.images.load(os.path.join(ASSETS, 'affiches', f'{nom}.jpg'))
     nt.links.new(tex.outputs['Color'], b.inputs['Base Color'])
-    bpy.ops.mesh.primitive_plane_add(size=1, location=(x, 0.05, 1.65), rotation=(math.radians(90), 0, 0))
-    a = bpy.context.object; a.name = f'affiche {nom}'; a.scale = (0.6, 0.9, 1); a.data.materials.append(img)
+    bpy.ops.mesh.primitive_plane_add(size=1, location=(x, 0.0275, zc), rotation=(math.radians(90), 0, math.radians(180)))
+    a = bpy.context.object; a.name = f'affiche {nom}'; a.scale = (LA, HA, 1); a.data.materials.append(img)
 
 # --- Le salon : canapé d'angle face à la TV, tapis teal, table basse, fauteuil.
-placer('canape', (5.2, 2.9, 0), 3.4, 'max', rotation_z=-90, matiere=M['canape'])
-boite('tapis', (6.0, 3.0, 0.006), (3.2, 3.6, 0.012), M['tapis'])
-importer_ph('coffee_table_round_01', (6.2, 3.0, 0), echelle=0.8)
-importer_ph('wooden_bowl_01', (6.05, 2.85, 0.37))
-importer_ph('ceramic_vase_02', (6.35, 3.15, 0.37), echelle=0.6)
-coussins = importer_ph('throw_pillows_01', (4.6, 2.2, 0.45), rotation_z=90)
+# Le canapé d'angle regarde la TV : dossier à l'ouest (x 4,3), assise vers l'est, méridienne au nord
+# (vers la baie). La table basse se glisse devant l'assise, au sud de la méridienne (40 cm de passage).
+placer('canape', (5.6, 3.0, 0), 2.8, 'max', rotation_z=0, matiere=M['canape'])
+boite('tapis', (6.0, 3.0, 0.006), (3.0, 3.4, 0.012), M['tapis'])
+importer_ph('coffee_table_round_01', (6.05, 2.45, 0), echelle=0.8)
+importer_ph('wooden_bowl_01', (5.92, 2.32, 0.37))
+importer_ph('ceramic_vase_02', (6.22, 2.62, 0.37), echelle=0.6)
+haut = 0.37
+for k, c in enumerate(('#1D2733', '#E6DED0')):   # deux beaux livres empilés
+    boite('beau livre', (6.15, 2.25, haut + 0.016), (0.3, 0.24, 0.032), LIVRES[k * 4], 0.003); haut += 0.032
+coussins = importer_ph('throw_pillows_01', (4.62, 2.0, 0.42), rotation_z=90)
 for k, o in enumerate(o for o in coussins.children_recursive if o.type == 'MESH'):   # aux couleurs de la DA
     o.data.materials.clear(); o.data.materials.append(tissu('coussin', ('#1E5B57', '#E0A93B', '#8E979D')[k % 3]))
-importer_ph('mid_century_lounge_chair', (6.7, 5.0, 0), rotation_z=-140)
+importer_ph('side_table_01', (4.55, 1.2, 0), rotation_z=90)
+# Lampe à poser sur le bout de canapé : pied en céramique, abat-jour en lin qui laisse passer la lumière.
+CERAM = materiau_uni('céramique', '#E3DCCD', 0.3)
+bpy.ops.mesh.primitive_uv_sphere_add(radius=1, location=(4.55, 1.2, 0.55 + 0.11)); o = bpy.context.object
+o.name = 'lampe pied'; o.scale = (0.1, 0.1, 0.11); o.data.materials.append(CERAM); bpy.ops.object.shade_smooth()
+tube('lampe tige', (4.55, 1.2, 0.76), (4.55, 1.2, 0.9), 0.006, M['or'])
+ABAT = materiau_uni('abat-jour', '#EFE6D6', 0.9, emission='#FFC27A', force=2.5)
+bpy.ops.mesh.primitive_cylinder_add(radius=0.17, depth=0.2, location=(4.55, 1.2, 0.93), vertices=48, end_fill_type='NOTHING')
+o = bpy.context.object; o.name = 'abat-jour'; o.data.materials.append(ABAT); bpy.ops.object.shade_smooth()
+importer_ph('mid_century_lounge_chair', (6.3, 0.95, 0), rotation_z=115)
 
 # --- Coin TV (mur est, teal) : grande TV 85", meuble à lames, consoles.
 importer_ph('modern_wooden_cabinet', (L - 0.3, 3.0, 0), rotation_z=90, echelle=1.25)
@@ -321,11 +540,19 @@ placer('switch', (L - 0.3, 3.55, 0.62), 0.32, 'x', rotation_z=-90)
 
 # --- Plantes, luminaires.
 placer('plante', (7.5, 5.5, 0), 1.25, 'z', rotation_z=30)
-placer('plante', (0.45, 5.6, 0), 1.1, 'z', rotation_z=-20)
-importer_ph('potted_plant_02', (4.0, 0.4, 0))
-placer('lampadaire', (7.4, 0.6, 0), 1.6, 'z')
-for y in (2.6, 3.4):
-    importer_ph('modern_ceiling_lamp_01', (6.2, y, H))
+placer('plante', (0.55, 5.7, 0), 0.95, 'z', rotation_z=-20)
+importer_ph('potted_plant_02', (2.75, 0.4, 0))
+placer('lampadaire', (7.5, 0.48, 0), 1.6, 'z')
+# Suspensions au-dessus de la table basse (le modèle va de 0,22 à 1,17 m au-dessus de son origine) ;
+# le globe devient lumineux, c'est lui qu'on voit (et qui se reflète dans la baie).
+GLOBE = materiau_uni('globe opalin', '#FFF4E2', 0.3, emission='#FFC27A', force=12.0)
+for y in (2.2, 2.75):
+    lp = importer_ph('modern_ceiling_lamp_01', (6.05, y, H - 1.17 + (0.25 if y > 2.5 else 0)))
+    for o in lp.children_recursive:
+        if o.type == 'MESH':
+            for i, m in enumerate(o.data.materials):
+                if m and 'globe' in m.name:
+                    o.data.materials[i] = GLOBE
 
 
 # ------------------------------------------------------------------ la ville au couchant (derrière la baie)
@@ -404,17 +631,24 @@ def lumiere(nom, type_, position, energie, couleur, taille=0.3, rotation=(0, 0, 
     o = bpy.data.objects.new(nom, d); o.location = position
     o.visible_camera = o.visible_glossy = False   # la lumière éclaire, sans apparaître à l'image
     o.rotation_euler = [math.radians(a) for a in rotation]; scene.collection.objects.link(o)
+    return d
 
 
 # Éclairage de nuit : seulement les lampes de la pièce (2 700 K), plus la lueur froide des écrans.
-lumiere('suspension', 'POINT', (6.2, 2.6, 2.25), 55, '#FFC27A', 0.08)
-lumiere('suspension 2', 'POINT', (6.2, 3.4, 2.25), 55, '#FFC27A', 0.08)
-lumiere('lampadaire', 'POINT', (7.4, 0.6, 1.45), 120, '#FFB866', 0.12)
-for x, y in ((2.2, 1.5), (2.2, 4.5), (4.4, 1.2), (4.4, 4.8), (7.2, 1.5), (7.2, 4.5)):   # spots encastrés, doux
-    lumiere('spot', 'SPOT', (x, y, H - 0.02), 45, '#FFD29A', 0.05, (0, 0, 0), cone=70)
+lumiere('suspension', 'POINT', (6.05, 2.2, 2.0), 45, '#FFC27A', 0.1)
+lumiere('suspension 2', 'POINT', (6.05, 2.75, 2.25), 45, '#FFC27A', 0.1)
+lumiere('lampe à poser', 'POINT', (4.55, 1.2, 0.92), 25, '#FFB866', 0.05)
+lumiere('lampadaire', 'POINT', (7.5, 0.48, 1.45), 110, '#FFB866', 0.12)
+for x, y in ((2.2, 1.5), (2.2, 4.5), (3.6, 0.5), (5.6, 0.5), (7.2, 4.6)):   # spots encastrés : des cônes doux
+    lumiere('spot', 'SPOT', (x, y, H - 0.02), 40, '#FFD29A', 0.05, (0, 0, 0), cone=60)
+for yc in (1.05, 4.95):   # ruban LED sous chaque planche : la réplique du dessous est mise en valeur
+    for z in NIVEAUX:
+        d = lumiere('LED étagère', 'AREA', (0.27, yc, z - EP / 2 - 0.01), 7, '#FFC680', 1.0, (0, 0, 90))
+        d.shape, d.size_y = 'RECTANGLE', 0.04
 lumiere('écrans', 'AREA', (0.45, 3.0, 1.1), 18, '#8FB8D8', 0.8, (0, -90, 0))
-lumiere('key light', 'AREA', (0.45, 3.95, 1.35), 25, '#FFF1DC', 0.3, (0, -70, 25))
-lumiere('TV (reflet)', 'AREA', (L - 0.2, 3.0, 1.3), 10, '#6E8FB8', 1.5, (0, 90, 0))
+lumiere('key light', 'AREA', (0.22, 3.78, 1.3), 25, '#FFF1DC', 0.3, (0, -80, -33))
+lumiere('TV (rétroéclairage)', 'AREA', (L - 0.08, 3.0, 1.55), 30, '#E0A93B', 1.6, (0, 90, 0))   # halo doré sur le mur teal
+lumiere('TV (reflet)', 'AREA', (L - 0.2, 3.0, 1.3), 8, '#6E8FB8', 1.5, (0, 90, 0))
 
 
 # ------------------------------------------------------------------ caméras d'aperçu
@@ -429,12 +663,29 @@ def camera(nom, position, cible, focale=24):
 
 CAMS = {
     'porte': camera('porte', (1.2, 0.5, 1.6), (5.0, 4.4, 1.0), 22),
-    'salon': camera('salon', (3.2, 1.0, 1.4), (L, 3.6, 1.0), 26),
+    'salon': camera('salon', (3.4, 3.0, 1.6), (L, 3.0, 1.0), 24),
+    'canape': camera('canape', (7.4, 4.9, 1.7), (4.8, 2.4, 0.6), 24),
+    'etag_sud': camera('etag_sud', (1.5, 1.05, 1.45), (0.1, 1.05, 1.45), 30),
+    'etag_nord': camera('etag_nord', (1.5, 4.95, 1.45), (0.1, 4.95, 1.45), 30),
+    'setup': camera('setup', (1.55, 3.55, 1.45), (0.35, 2.85, 0.95), 26),
+    'affiches': camera('affiches', (4.6, 3.2, 1.6), (4.6, 0.0, 1.55), 30),
     'bureau': camera('bureau', (2.6, 3.0, 1.45), (0.2, 3.0, 1.2), 30),
     'baie': camera('baie', (6.5, 1.2, 1.5), (3.0, 6.0, 1.3), 24),
     'etageres': camera('etageres', (1.6, 3.3, 1.55), (0.15, 1.35, 1.4), 32),
 }
+cd = camera('dessus', (L / 2, P / 2, 12), (L / 2, P / 2, 0)); cd.data.type = 'ORTHO'; cd.data.ortho_scale = L + 0.4
+CAMS['dessus'] = cd
 scene.camera = CAMS[opt.get('cam', 'porte')]
+if opt.get('cam') == 'dessus':   # vue de plan : sans plafond ni suspensions
+    for o in scene.objects:
+        if o.name.startswith('plafond') or 'ceiling' in o.name.lower() or (o.parent and 'ceiling' in o.parent.name.lower()):
+            o.hide_render = True
+if 'boites' in opt:   # emprise au sol des meubles (contrôle des collisions)
+    bpy.context.view_layer.update()
+    for r in [o for o in scene.objects if o.type == 'EMPTY' and o.parent is None]:
+        pts = [m.matrix_world @ Vector(c) for m in r.children_recursive if m.type == 'MESH' for c in m.bound_box]
+        if pts:
+            print('BOITE', r.name, *(f'{f(p[i] for p in pts):.2f}' for i in range(3) for f in (min, max)))
 
 if 'rendu' in opt:
     scene.render.filepath = os.path.abspath(opt['rendu'])

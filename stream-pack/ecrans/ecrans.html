@@ -1,0 +1,95 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
+@font-face{font-family:Rubik;font-weight:500;src:url(../da/Rubik-2.ttf)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:#000;font-family:Rubik,sans-serif}
+.ecran{position:relative;overflow:hidden;margin:0 0 20px}
+/* ---------- OBS (sans logo) ---------- */
+#obs{width:1600px;height:900px;background:#1f2024;color:#d7d9de;font-size:15px;display:grid;grid-template-rows:30px 1fr 250px 26px}
+#obs .menu{background:#18191c;display:flex;gap:22px;padding:6px 14px;color:#aeb2b9}
+#obs .apercu{display:flex;justify-content:center;align-items:center;background:#111215;padding:14px}
+#obs .scene{width:860px;height:484px;background:radial-gradient(circle at 30% 30%,#2b7a73,#123c39 70%);position:relative;border:2px solid #E0A93B;border-radius:2px;overflow:hidden}
+#obs .scene .t{position:absolute;left:60px;top:150px;font-weight:900;font-size:110px;color:#F4EFE6;letter-spacing:-2px;line-height:.9}
+#obs .scene .t b{color:#E0A93B}
+#obs .scene .s{position:absolute;left:64px;top:360px;font-size:26px;letter-spacing:6px;color:#C9CFD3}
+#obs .scene .cam{position:absolute;right:30px;bottom:30px;width:250px;height:150px;border-radius:14px;background:linear-gradient(160deg,#3c4148,#1d2024);border:3px solid #E0A93B}
+#obs .scene .grain{position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px)}
+#obs .docks{display:grid;grid-template-columns:1fr 1.2fr 1.6fr 1fr 1.1fr;gap:6px;padding:6px;background:#1a1b1e}
+.dock{background:#25262b;border-radius:4px;padding:8px 10px;overflow:hidden}.dock h4{font-weight:500;color:#9ea3ab;font-size:13px;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px}
+.dock li{list-style:none;padding:5px 8px;border-radius:3px}.dock li.on{background:#1E5B57;color:#fff}
+.vu{height:9px;border-radius:2px;margin:6px 0 14px;background:linear-gradient(90deg,#3fae6a 0 60%,#d9c64a 60% 80%,#c9503f 80%);position:relative}
+.vu i{position:absolute;top:0;bottom:0;right:0;background:#2e3036}
+.btn{background:#33353b;border-radius:4px;padding:8px;margin-bottom:6px;text-align:center}.btn.rouge{background:#8c2f2a;color:#fff}
+#obs .etat{background:#18191c;color:#8e939a;display:flex;justify-content:flex-end;gap:28px;padding:4px 16px;font-size:13px}
+#obs .etat .live{color:#ff5a4f}
+/* ---------- Bureau ---------- */
+#bureau{width:1600px;height:900px;background:#0d1d24}
+#bureau svg{position:absolute;inset:0}
+#bureau .barre{position:absolute;left:0;right:0;bottom:0;height:56px;background:rgba(18,22,26,.82);display:flex;justify-content:center;gap:10px;align-items:center}
+#bureau .barre i{width:36px;height:36px;border-radius:8px;display:block}
+#bureau .heure{position:absolute;right:22px;bottom:9px;color:#e8e8e8;font-size:15px;text-align:right;line-height:1.3}
+#bureau .widget{position:absolute;left:40px;top:40px;width:330px;padding:18px;border-radius:14px;background:rgba(14,20,24,.55);color:#eee;backdrop-filter:blur(8px)}
+#bureau .widget b{font-weight:900;font-size:56px;display:block;letter-spacing:-1px}
+#bureau .lecteur{position:absolute;left:40px;top:200px;width:330px;padding:14px;border-radius:14px;background:rgba(14,20,24,.55);color:#ddd;display:flex;gap:12px;align-items:center}
+#bureau .lecteur i{width:58px;height:58px;border-radius:8px;background:linear-gradient(135deg,#E0A93B,#1E5B57)}
+/* ---------- Discord-like ---------- */
+#discord{width:900px;height:1600px;background:#313338;color:#dbdee1;display:grid;grid-template-columns:72px 220px 1fr;font-size:23px}
+#discord .rail{background:#1e1f22;padding-top:12px;display:flex;flex-direction:column;align-items:center;gap:10px}
+#discord .rail i{width:48px;height:48px;border-radius:50%;display:block}
+#discord .salons{background:#2b2d31;padding:16px 10px;color:#949ba4}
+#discord .salons h3{color:#f2f3f5;font-size:20px;margin-bottom:18px}
+#discord .salons p{padding:6px 8px;border-radius:4px;margin-bottom:2px}#discord .salons p.on{background:#404249;color:#fff}
+#discord .chat{padding:14px 16px;display:flex;flex-direction:column;justify-content:flex-end;gap:20px}
+#discord .msg{display:grid;grid-template-columns:44px 1fr;gap:12px}
+#discord .msg i{width:44px;height:44px;border-radius:50%}
+#discord .msg b{font-weight:500}#discord .msg small{color:#949ba4;font-size:14px;margin-left:6px}
+#discord .msg p{margin-top:3px;line-height:1.35}
+#discord .saisie{background:#383a40;border-radius:8px;padding:14px;color:#6d6f78;margin-top:6px}
+</style></head><body>
+
+<div id="obs" class="ecran">
+ <div class="menu"><span>Fichier</span><span>Édition</span><span>Affichage</span><span>Docks</span><span>Profil</span><span>Collection de scènes</span><span>Outils</span><span>Aide</span></div>
+ <div class="apercu"><div class="scene"><div class="t">KAYZX<br><b>TV</b></div><div class="s">LE LIVE COMMENCE</div><div class="cam"></div><div class="grain"></div></div></div>
+ <div class="docks">
+  <div class="dock"><h4>Scènes</h4><ul><li class="on">Démarrage</li><li>Just Chatting</li><li>Jeu</li><li>Pause</li><li>Fin du live</li></ul></div>
+  <div class="dock"><h4>Sources</h4><ul><li>Caméra</li><li>Capture du jeu</li><li>Alertes</li><li>Grain film</li><li>Boucle 30 s</li></ul></div>
+  <div class="dock"><h4>Mixeur audio</h4>Micro<div class="vu"><i style="width:38%"></i></div>Bureau<div class="vu"><i style="width:55%"></i></div>Musique<div class="vu"><i style="width:70%"></i></div></div>
+  <div class="dock"><h4>Transitions</h4><div class="btn">Stinger 3D</div>Durée 800 ms</div>
+  <div class="dock"><h4>Commandes</h4><div class="btn rouge">Arrêter le streaming</div><div class="btn">Démarrer l’enregistrement</div><div class="btn">Mode studio</div></div>
+ </div>
+ <div class="etat"><span class="live">● EN DIRECT 01:24:37</span><span>REC 00:00:00</span><span>CPU 6,2 %</span><span>60,00 / 60,00 i/s</span></div>
+</div>
+
+<div id="bureau" class="ecran">
+ <svg viewBox="0 0 1600 900" preserveAspectRatio="none"><defs>
+  <linearGradient id="ciel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1a2a"/><stop offset=".55" stop-color="#1E5B57"/><stop offset="1" stop-color="#E0A93B"/></linearGradient></defs>
+  <rect width="1600" height="900" fill="url(#ciel)"/>
+  <circle cx="1080" cy="520" r="120" fill="#F2C97A" opacity=".9"/>
+  <path d="M0 600 L220 470 L420 560 L640 420 L880 560 L1080 470 L1300 560 L1600 440 L1600 900 L0 900Z" fill="#17443f"/>
+  <path d="M0 700 L260 590 L520 680 L760 580 L1020 690 L1260 610 L1600 690 L1600 900 L0 900Z" fill="#0f2f2c"/>
+  <path d="M0 800 L300 720 L600 790 L900 730 L1200 800 L1600 740 L1600 900 L0 900Z" fill="#081a19"/>
+ </svg>
+ <div class="widget">Vendredi 23 octobre<b>23:47</b>Nuageux · 11°</div>
+ <div class="lecteur"><i></i><div><b>Lo-fi pour streamer</b><br><small>Playlist du live</small></div></div>
+ <div class="barre"><i style="background:#3d7fe0"></i><i style="background:#E0A93B"></i><i style="background:#1E5B57"></i><i style="background:#C9CFD3"></i><i style="background:#5865f2"></i><i style="background:#d34b3e"></i><i style="background:#8a5cf6"></i></div>
+ <div class="heure">23:47<br>23/10/2026</div>
+</div>
+
+<div id="discord" class="ecran">
+ <div class="rail"><i style="background:#1E5B57"></i><i style="background:#E0A93B"></i><i style="background:#4a4f58"></i><i style="background:#6b4fa0"></i><i style="background:#2f6fb0"></i></div>
+ <div class="salons"><h3>Kayzx TV</h3><p># annonces</p><p class="on"># général</p><p># clips</p><p># setup</p><p># cinéma-séries</p><p>🔊 Live vocal</p><p>🔊 Détente</p></div>
+ <div class="chat">
+  <div class="msg"><i style="background:#c9cfd3"></i><div><b style="color:#e3e6e8">Tom</b><small>23:30</small><p>gg pour hier soir, la remontée de fou</p></div></div>
+  <div class="msg"><i style="background:#E0A93B"></i><div><b style="color:#E0A93B">Nyx</b><small>23:32</small><p>quelqu'un a le clip du 1v3 ?</p></div></div>
+  <div class="msg"><i style="background:#2f6fb0"></i><div><b style="color:#8cbcf2">Jade</b><small>23:33</small><p>posté dans #clips 👀</p></div></div>
+  <div class="msg"><i style="background:#3fae9a"></i><div><b style="color:#7fd6c4">Marlo</b><small>23:36</small><p>ce soir c'est soirée Endgame en vocal ?</p></div></div>
+  <div class="msg"><i style="background:#1E5B57"></i><div><b style="color:#5fb3ab">Kayzx</b><small>23:38</small><p>après le live, promis 🍿</p></div></div>
+  <div class="msg"><i style="background:#E0A93B"></i><div><b style="color:#E0A93B">Nyx</b><small>23:41</small><p>le nouveau pack de stream est trop propre 🔥</p></div></div>
+  <div class="msg"><i style="background:#3fae9a"></i><div><b style="color:#7fd6c4">Marlo</b><small>23:42</small><p>la DeLorean sur l'étagère mdr</p></div></div>
+  <div class="msg"><i style="background:#8a5cf6"></i><div><b style="color:#b79cff">Sacha</b><small>23:43</small><p>t'as pris quel micro finalement ?</p></div></div>
+  <div class="msg"><i style="background:#1E5B57"></i><div><b style="color:#5fb3ab">Kayzx</b><small>23:44</small><p>SM7B + bras, ça change la vie</p></div></div>
+  <div class="msg"><i style="background:#d34b3e"></i><div><b style="color:#ff8a7f">Ilan</b><small>23:45</small><p>on lance la partie après le live ?</p></div></div>
+  <div class="msg"><i style="background:#2f6fb0"></i><div><b style="color:#8cbcf2">Jade</b><small>23:46</small><p>wubba lubba dub dub 🛸</p></div></div>
+  <div class="saisie">Envoyer un message dans #général</div>
+ </div>
+</div>
+</body></html>

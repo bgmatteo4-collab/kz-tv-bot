@@ -1,14 +1,14 @@
 #!/bin/sh
 # Remet en place tout l'outillage 3D du pack dans une nouvelle session (rien de tout ça n'est dans le dépôt) :
-# Blender 4.2 LTS en ligne de commande, et les assets Poly Haven (CC0) listés dans assets.txt.
+# Blender 5.1 en ligne de commande, et les assets Poly Haven (CC0) listés dans assets.txt.
 #   sh stream-pack/installer.sh
 set -e
 ICI=$(cd "$(dirname "$0")" && pwd)
 OUTILS=/home/user/outils
-VERSION=4.2.23
+VERSION=5.1.2
 if [ ! -x "$OUTILS/blender/blender" ]; then
   mkdir -p "$OUTILS" && cd "$OUTILS"
-  curl -sSL -o blender.tar.xz "https://download.blender.org/release/Blender4.2/blender-$VERSION-linux-x64.tar.xz"
+  curl -sSL -o blender.tar.xz "https://download.blender.org/release/Blender5.1/blender-$VERSION-linux-x64.tar.xz"
   tar -xf blender.tar.xz && rm blender.tar.xz && mv "blender-$VERSION-linux-x64" blender
 fi
 "$OUTILS/blender/blender" --version | head -1

@@ -885,6 +885,9 @@ if 'clip' in opt:   # un clip du pack : caméras animées et coupes (blender/<cl
 if 'animatique' in opt:   # prévisualisation rapide des mouvements (Workbench, 480 × 270, 15 i/s), titres des plans incrustés
     import shutil, subprocess, tempfile
     scene.render.engine = 'BLENDER_WORKBENCH'
+    for o in scene.objects:   # Workbench ne sait pas rendre le verre : on le retire de l'aperçu
+        if o.type == 'MESH' and any(m and m.name.startswith('verre') for m in o.data.materials):
+            o.hide_render = True
     scene.display.shading.light, scene.display.shading.color_type = 'STUDIO', 'TEXTURE'
     scene.render.resolution_x, scene.render.resolution_y, scene.frame_step = 480, 270, 2
     dossier = tempfile.mkdtemp(); scene.render.filepath = os.path.join(dossier, 'i')

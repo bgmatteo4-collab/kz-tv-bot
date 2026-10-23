@@ -88,7 +88,7 @@ function reperes() {
   };
 }
 
-let R, F, blocs, E_dpc, E_tulum, E_billet;
+let R, F, blocs, E_dpc, E_tulum, E_billet, E_echecs, E_dpc2;
 
 function preparer() {
   R = reperes();
@@ -106,6 +106,21 @@ function preparer() {
   E_dpc = etiquette('<b>DOM PERIGNON CRYING</b> · ALBUM · 31.10.2025');
   E_tulum = etiquette('<b>TULUM, MÉXICO</b> · SINGLE · 2023');
   E_billet = etiquette('SOURCE · <b>POLLSTAR</b> · RECETTES DE BILLETTERIE');
+  E_echecs = etiquette('<b>2015</b> · MIXTAPE');
+  E_dpc2 = etiquette('<b>2025</b> · ALBUM');
+  const m = T.mot, L = (id) => T.ligne(id);
+  // Fin du film : chaque bloc sort 0,5 s avant l'entrée du suivant.
+  const fin = [
+    { lignes: [['Jusque dans ses titres', L('d1').debut, 'sur'], ['En 2015 :', m('d1', 'deux mille')], ['Échecs positifs.', m('d1', 'échecs'), 'serif']] },
+    { lignes: [['Aujourd’hui', L('d2').debut, 'sur'], ['Dom Perignon', m('d2', 'dom')], ['Crying.', m('d2', 'crying'), 'serif']] },
+    { lignes: [['Propriétaire.', m('d3', 'propriétaire')]] },
+    { lignes: [['Pas une revanche.', m('e1', 'revanche')], ['Réparer ce qu’ont', m('e1', 'réparer'), 'serif'], ['vécu ses parents.', m('e1', 'parents'), 'serif']] },
+    { lignes: [['Du champagne…', m('e2', 'champagne')], ['qui pleure.', m('e2', 'pleure'), 'serif']] },
+    { lignes: [['Version complète', L('f1').debut], ['sur YouTube ?', m('f1', 'youtube'), 'serif'], ['Dis-le en commentaire', m('f1', 'commentaire'), 'sur']] },
+  ];
+  fin.forEach((b, i) => { b.sortie = i < fin.length - 1 ? fin[i + 1].lignes[0][1] - 0.5 : T.duree + 1; });
+  fin[2].sortie = m('d3', 'dix avril') - 0.2;
+  for (const b of fin) blocs.push(creerBloc(b));
 }
 
 // Clignotement de néon qui meurt, reproductible (aucun hasard).
@@ -168,6 +183,7 @@ function dessiner(t) {
 
   for (const b of blocs) dessinerBloc(b, t);
   F.dessiner(t);
+  dessinerFin(t);
   // Les streams : le compteur se pose au-dessus de toute la frise.
   const sa = tw(t, F.dezoom.t0 + 0.2, 0.8);
   vis($('streams'), sa);
@@ -181,6 +197,45 @@ function dessiner(t) {
   style($('onglet'), 'transform', `translate3d(${(-80 * (1 - ressort(t - 0.25, 170, 20))).toFixed(1)}px,0,0)`);
 }
 
+// Parties 4 à 6 : le train de vie (avant / maintenant, la salle), la nuance (le champagne qui
+// pleure), puis l'appel à la version longue. On réutilise les objets de l'accroche.
+function dessinerFin(t) {
+  const L = (id) => T.ligne(id), m = T.mot;
+  const d1 = L('d1').debut, d2 = L('d2').debut, salle = m('d3', 'dix avril') - 0.3, e1 = L('e1').debut, e2 = L('e2').debut, f1 = L('f1').debut;
+  if (t < d1 - 0.8) return;
+  const sortieFrise = 1 - prog(t, d1 - 0.8, 0.6);
+  vis($('frise'), sortieFrise); vis($('streams'), Math.min(+$('streams').style.opacity || 0, sortieFrise));
+  // Lumière : pleine sur le luxe, basse sur la nuance, le faisceau revient sur le champagne qui pleure.
+  const plein = tw(t, d1 - 0.6, 0.9) * (1 - 0.55 * tw(t, e1 - 0.4, 0.8)) + 0.55 * tw(t, e2 - 0.3, 0.8);
+  vis($('douche'), Math.max(0.6 * sortieFrise, plein));
+  vis($('faisceau'), tw(t, e2 - 0.3, 0.8) * (1 - tw(t, f1 - 0.2, 0.8)));
+  vis($('obscur'), 0.9 * (1 - tw(t, d1 - 0.6, 0.9)) + 0.5 * tw(t, e1 - 0.4, 0.8) * (1 - tw(t, e2 - 0.3, 0.8)));
+
+  // Avant / maintenant : Échecs positifs à gauche, DOM PERIGNON CRYING à droite, puis ils s'écartent pour la salle.
+  const ea = tw(t, d1 + 0.4, 0.9), da = tw(t, d2 - 0.2, 0.9), ecart = E.traversee(prog(t, salle - 0.2, 0.9));
+  const nuance = E.traversee(prog(t, e2 - 0.4, 1.1));       // DPC revient seul au centre
+  poser($('echecs'), { x: lerp(300, -260, ecart), y: 1300 + 90 * (1 - ea), w: 600, h: 600, ry: 14, s: 0.72, z: 0, a: ea * (1 - prog(t, e1 - 0.5, 0.5)) });
+  if (t > d2 - 0.4) poser($('dpc'), {
+    x: lerp(lerp(780, 1340, ecart), 540, nuance), y: 1300 + 90 * (1 - da), w: 600, h: 600, ry: lerp(-14, 0, nuance), z: 0,
+    s: lerp(0.72, 1.05, nuance) + 0.03 * E.doux(prog(t, e2, 4)), a: da * Math.max(1 - prog(t, salle, 0.5), nuance) * (1 - prog(t, f1 - 0.2, 0.6)),
+  });
+  vis(E_echecs, ea * (1 - ecart)); style(E_echecs, 'transform', 'translate3d(150px,1370px,0)');
+  vis(E_dpc2, da * (1 - ecart)); style(E_dpc2, 'transform', 'translate3d(650px,1370px,0)');
+  // La larme : une goutte de lumière glisse sur la pochette quand la voix dit « pleure ».
+  const larme = prog(t, m('e2', 'pleure') - 0.1, 1.6);
+  vis($('larme'), larme > 0 && larme < 1 ? Math.sin(Math.PI * larme) : 0);
+  style($('larme'), 'transform', `translate3d(0,${(80 + 380 * E.doux(larme)).toFixed(1)}px,0)`);
+
+  // La salle : le billet du début revient, et le nombre de personnes se compte.
+  const sa = tw(t, salle, 0.8) * (1 - prog(t, e1 - 0.5, 0.5));
+  vis($('salle'), sa);
+  if (sa > 0) $('salle-n').textContent = Math.round(39964 * E.sortie(prog(t, salle + 0.1, 1.8))).toLocaleString('fr-FR').replace(/\s/g, ' ');
+  if (t > salle - 0.2) {
+    const b = ressort(t - salle - 0.1, 120, 17);
+    poser($('billet'), { x: 540, y: lerp(2400, 1330, b), w: 780, h: 300, rz: lerp(-16, -4, b), s: 1, z: 0, a: 1 - prog(t, e1 - 0.5, 0.5) });
+  }
+}
+
 async function demarrer() {
   let voix = {};
   try { const r = await fetch('medias/voix.json'); if (r.ok) voix = await r.json(); } catch (_) { /* voix estimée */ }
@@ -191,7 +246,9 @@ async function demarrer() {
   ]);
   preparer();
   window.__render = (t) => { dessiner(t); return document.fonts.ready.then(() => true); };
-  window.__sous = (t) => ((t > R.B && t < R.B + 1) || (t > R.C && t < R.C + 1.3) || F.stops.some((s, i) => i && t > s.quand - s.duree - 0.05 && t < s.quand) || (t > F.dezoom.t0 && t < F.dezoom.t0 + F.dezoom.d) ? 3 : 1);
+  const L = (id) => T.ligne(id);
+  const vite = [[T.mot('d3', 'dix avril') - 0.5, 1.2], [L('e2').debut - 0.4, 1.1]];
+  window.__sous = (t) => (vite.some(([a, d]) => t > a && t < a + d) || (t > R.B && t < R.B + 1) || (t > R.C && t < R.C + 1.3) || F.stops.some((s, i) => i && t > s.quand - s.duree - 0.05 && t < s.quand) || (t > F.dezoom.t0 && t < F.dezoom.t0 + F.dezoom.d) ? 3 : 1);
   window.__duree = T.duree;
   window.__sons = [];
   window.__ready = true;

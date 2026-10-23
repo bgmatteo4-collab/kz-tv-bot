@@ -18,6 +18,15 @@ export const LIGNES = [
   { id: 'c3', dit: 'Deux titres diamant.' },
   { id: 'c4', dit: 'Un Accor Arena complet.' },
   { id: 'c5', dit: 'Et plus de deux milliards de streams.' },
+  // Le train de vie.
+  { id: 'd1', dit: "Et ça se voit jusque dans ses titres. En deux mille quinze, sa mixtape s'appelait Échecs positifs.", avant: 0.7 },
+  { id: 'd2', dit: "Aujourd'hui : DOM PERIGNON CRYING." },
+  { id: 'd3', dit: "Il est devenu propriétaire. Et le dix avril, trente-neuf mille neuf cent soixante-quatre personnes sont venues le voir, dans la plus grande salle d'Europe." },
+  // La nuance.
+  { id: 'e1', dit: "Mais il refuse d'appeler ça une revanche : pour lui, c'est réparer les inégalités qu'ont vécues ses parents.", avant: 0.6 },
+  { id: 'e2', dit: 'Même son album le dit : du champagne… qui pleure.' },
+  // Fin.
+  { id: 'f1', dit: 'Tu veux la version complète, avec tout son parcours ? Dis-le en commentaire, je la fais sur YouTube.', avant: 0.8 },
 ];
 
 const DEBUT = 0.45, PAUSE = 0.3, QUEUE = 1.4;

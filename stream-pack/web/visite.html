@@ -1,0 +1,268 @@
+<title>Studio Kayzx TV</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;900&display=swap">
+<style>
+/* Visionneuse plein écran : la pièce occupe tout, une barre de points de vue en bas, l'aide en haut. */
+:root {
+  --nuit: #0b1018; --verre: rgba(14, 20, 28, .72); --trait: rgba(201, 207, 211, .16);
+  --brume: #C9CFD3; --teal: #1E5B57; --miel: #E0A93B; --texte: #EEF0F1;
+  --titre: 'Rubik', 'Segoe UI', system-ui, sans-serif; color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--nuit); color: var(--texte); font-family: var(--titre); overflow: hidden; }
+canvas { display: block; touch-action: none; }
+[hidden] { display: none !important; }
+#scene { position: fixed; inset: 0; }
+.haut { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 14px); left: max(16px, env(safe-area-inset-left, 0px));
+  right: max(16px, env(safe-area-inset-right, 0px)); display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; pointer-events: none; }
+.marque { font-weight: 900; font-size: 20px; letter-spacing: -.3px; line-height: 1; }
+.marque b { color: var(--miel); font-weight: 900; }
+.marque small { display: block; font-weight: 400; font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--brume); opacity: .8; margin-top: 6px; }
+.aide { background: var(--verre); border: 1px solid var(--trait); border-radius: 10px; padding: 10px 12px; font-size: 13px; line-height: 1.5;
+  color: var(--brume); max-width: 330px; backdrop-filter: blur(6px); pointer-events: auto; }
+.aide kbd { font-family: var(--titre); font-weight: 500; color: var(--texte); background: rgba(255,255,255,.08); border-radius: 4px; padding: 0 5px; }
+.bas { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 14px) max(16px, env(safe-area-inset-left, 0px));
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; background: linear-gradient(transparent, rgba(5, 8, 12, .75)); }
+.bas button { font: 500 14px var(--titre); color: var(--texte); background: var(--verre); border: 1px solid var(--trait); border-radius: 999px;
+  padding: 8px 14px; cursor: pointer; backdrop-filter: blur(6px); }
+.bas button:hover { border-color: var(--miel); }
+.bas button:focus-visible { outline: 2px solid var(--miel); outline-offset: 2px; }
+.bas button.actif { background: var(--teal); border-color: var(--teal); }
+.bas button.marche { background: var(--miel); color: #1a1408; border-color: var(--miel); font-weight: 900; }
+#chargement { position: fixed; inset: 0; display: grid; place-items: center; background: var(--nuit); z-index: 5; }
+#chargement div { width: min(320px, 80vw); text-align: center; font-size: 14px; color: var(--brume); }
+#chargement i { display: block; height: 4px; border-radius: 4px; background: rgba(255,255,255,.1); margin-top: 14px; overflow: hidden; }
+#chargement i::after { content: ""; display: block; height: 100%; width: var(--p, 0%); background: var(--miel); transition: width .2s; }
+#viseur { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: var(--texte); opacity: .7; }
+@media (max-width: 640px) { .aide { display: none; } .bas button { padding: 7px 11px; font-size: 13px; } }
+</style>
+
+<div id="scene"></div>
+<div id="viseur" hidden></div>
+<div class="haut">
+  <div class="marque">KAYZX <b>TV</b><small>Visite du studio · nuit</small></div>
+  <div class="aide" id="aide">Glisse pour tourner autour, molette ou pincement pour zoomer. <b>Marcher</b> : clique sur le bouton doré puis
+    <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd> (ou <kbd>W</kbd><kbd>A</kbd>) et la souris, <kbd>Maj</kbd> pour courir, <kbd>Échap</kbd> pour sortir.</div>
+</div>
+<div class="bas" id="vues"></div>
+<div id="chargement"><div>Chargement de la pièce…<i id="barre"></i></div></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+
+// Repère Blender (x, y, z vers le haut) → three.js (x, z, -y).
+const B = (x, y, z) => new THREE.Vector3(x, z, -y);
+const L = 8, P = 6, H = 3;
+
+const hote = document.getElementById('scene');
+const rendu = new THREE.WebGLRenderer({ antialias: true });
+rendu.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+rendu.setSize(innerWidth, innerHeight);
+rendu.toneMapping = THREE.ACESFilmicToneMapping;
+rendu.toneMappingExposure = 0.8;
+hote.appendChild(rendu.domElement);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x161b2c, 120, 950);
+const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.03, 2500);
+
+// Ciel de nuit : dégradé (halo chaud de la ville à l'horizon, bleu profond en haut).
+{
+  const c = document.createElement('canvas'); c.width = 4; c.height = 512;
+  const g = c.getContext('2d'), d = g.createLinearGradient(0, 0, 0, 512);
+  d.addColorStop(0, '#02050c'); d.addColorStop(0.38, '#0a1630'); d.addColorStop(0.5, '#3a2f45'); d.addColorStop(1, '#151820');
+  g.fillStyle = d; g.fillRect(0, 0, 4, 512);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const ciel = new THREE.Mesh(new THREE.SphereGeometry(1800, 32, 16), new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide, fog: false, depthWrite: false }));
+  scene.add(ciel);
+}
+
+// Reflets d'intérieur doux sur les matières (bois verni, métal, verre).
+const pmrem = new THREE.PMREMGenerator(rendu);
+scene.environment = pmrem.fromScene(new RoomEnvironment(rendu), 0.04).texture;
+
+// --- La ville en contrebas : immeubles aux fenêtres allumées au hasard, balises rouges sur les tours.
+function hasard(graine) { return () => (graine = (graine * 16807) % 2147483647) / 2147483647; }
+{
+  const r = hasard(7);
+  const fen = document.createElement('canvas'); fen.width = 256; fen.height = 512;
+  const g = fen.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, 256, 512);
+  for (let y = 0; y < 32; y++) for (let x = 0; x < 16; x++) {
+    if (r() < 0.3) { const k = 0.55 + r() * 0.45; g.fillStyle = `rgba(255,${Math.round(190 + 20 * r())},${Math.round(110 * k)},${k})`; g.fillRect(x * 16 + 3, y * 16 + 4, 10, 9); }
+  }
+  const tex = new THREE.CanvasTexture(fen); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.colorSpace = THREE.SRGBColorSpace;
+  const geos = [], balises = [];
+  for (let k = 0; k < 220; k++) {
+    const dist = 70 + r() * 830, x = L / 2 + (r() * 2.2 - 1.1) * dist;
+    const h = 12 + r() * 33 + (r() < 0.12 ? 40 + r() * 70 : 0), w = 14 + r() * 20, p = 14 + r() * 16;
+    const b = new THREE.BoxGeometry(w, h, p);
+    const uv = b.attributes.uv;
+    for (let i = 0; i < uv.count; i++) {   // une fenêtre tous les ~3,5 m
+      const face = Math.floor(i / 4), large = face < 2 ? p : w;
+      uv.setXY(i, uv.getX(i) * large / 56, uv.getY(i) * h / 112 + (k % 7) * 0.13);
+    }
+    b.translate(x, -35 + h / 2, -(P + dist));
+    geos.push(b);
+    if (h > 70) balises.push(B(x, P + dist, -35 + h + 0.6));
+  }
+  const ville = new THREE.Mesh(mergeGeometries(geos), new THREE.MeshStandardMaterial({ color: 0x1b2029, roughness: 0.8, emissive: 0xffc870, emissiveMap: tex, emissiveIntensity: 2.2 }));
+  scene.add(ville);
+  const sol = new THREE.Mesh(new THREE.PlaneGeometry(3000, 1400), new THREE.MeshStandardMaterial({ color: 0x15171c, roughness: 1 }));
+  sol.rotation.x = -Math.PI / 2; sol.position.set(L / 2, -35.1, -(P + 600)); scene.add(sol);
+  const rouge = new THREE.MeshBasicMaterial({ color: 0xff2a1a });
+  for (const p of balises) { const m = new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 6), rouge); m.position.copy(p); scene.add(m); }
+}
+
+// --- Les lumières de la pièce (mêmes positions que la scène Blender), toutes chaudes, plus la lueur des écrans.
+function ponctuelle(couleur, force, pos, portee = 0) {
+  const l = new THREE.PointLight(couleur, force, portee, 2); l.position.copy(pos); scene.add(l); return l;
+}
+scene.add(new THREE.HemisphereLight(0x22324d, 0x2a1d12, 0.35));
+ponctuelle(0xffc27a, 5, B(6.05, 2.2, 2.0));
+ponctuelle(0xffc27a, 5, B(6.05, 2.75, 2.25));
+ponctuelle(0xffb866, 9, B(7.5, 0.48, 1.45));
+ponctuelle(0xffb866, 2.5, B(4.55, 1.2, 0.92));
+ponctuelle(0x8fb8d8, 1.6, B(0.55, 3.0, 1.1), 4);
+ponctuelle(0xfff1dc, 1.4, B(0.3, 3.75, 1.3), 4);
+ponctuelle(0xe0a93b, 2.2, B(7.85, 3.0, 1.55), 3);
+for (const yc of [1.05, 4.95]) for (const z of [1.0, 1.45, 1.9]) ponctuelle(0xffc680, 0.35, B(0.25, yc, z - 0.06), 0.9);
+for (const [x, y] of [[2.2, 1.5], [2.2, 4.5], [3.6, 0.5], [5.6, 0.5], [7.2, 4.6]]) {
+  const s = new THREE.SpotLight(0xffd29a, 6, 0, 0.62, 0.6, 2); s.position.copy(B(x, y, H - 0.02));
+  s.target.position.copy(B(x, y, 0)); scene.add(s, s.target);
+}
+
+// --- La baie vitrée : un vrai miroir très léger, la pièce s'y reflète par-dessus la ville.
+const baie = new Reflector(new THREE.PlaneGeometry(L, H), {
+  textureWidth: Math.round(innerWidth * 0.6), textureHeight: Math.round(innerHeight * 0.6), color: 0xffffff, clipBias: 0.003 });
+baie.material.transparent = true;
+baie.material.fragmentShader = baie.material.fragmentShader.replace('gl_FragColor = vec4( blendOverlay( base.rgb, color ), 1.0 );', 'gl_FragColor = vec4( base.rgb, 0.16 );');
+baie.position.copy(B(L / 2, P - 0.005, H / 2));
+scene.add(baie);
+
+// --- Rendu : un léger halo autour des sources (globes, rubans LED, écrans).
+const compo = new EffectComposer(rendu);
+compo.addPass(new RenderPass(scene, camera));
+const halo = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight), 0.45, 0.5, 0.86);
+compo.addPass(halo);
+compo.addPass(new OutputPass());
+
+// --- Chargement de la pièce (exportée de Blender, en deux morceaux).
+const barre = document.getElementById('barre');
+async function charger() {
+  const morceaux = ['piece-1.wasm', 'piece-2.wasm'], parts = [];   // octets bruts du .glb (extension servie telle quelle)
+  let recu = 0; const total = 19212904;
+  for (const f of morceaux) {
+    const rep = await fetch(f); if (!rep.ok) throw new Error(f);
+    const lecteur = rep.body.getReader();
+    for (;;) { const { done, value } = await lecteur.read(); if (done) break; parts.push(value); recu += value.length; barre.style.setProperty('--p', Math.min(100, recu / total * 100) + '%'); }
+  }
+  const tout = new Uint8Array(recu); let o = 0; for (const p of parts) { tout.set(p, o); o += p.length; }
+  return tout.buffer;
+}
+const plafond = [];
+charger().then((buf) => new GLTFLoader().parse(buf, '', (gltf) => {
+  gltf.scene.traverse((o) => {
+    if (!o.isMesh) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    for (const m of mats) {
+      if (m.envMapIntensity !== undefined) m.envMapIntensity = 0.35;
+      if (/^verre/.test(m.name)) o.visible = false;          // remplacée par le miroir léger
+    }
+    if (/^plafond|ceiling/i.test(o.name) || /ceiling/i.test(o.parent?.name || '')) plafond.push(o);
+  });
+  scene.add(gltf.scene);
+  document.getElementById('chargement').hidden = true;
+}, (e) => { document.querySelector('#chargement div').textContent = 'La pièce n’a pas pu être lue : ' + e.message; }))
+  .catch((e) => { document.querySelector('#chargement div').textContent = 'Le fichier de la pièce n’a pas pu être téléchargé (' + e.message + '). Recharge la page.'; });
+
+// --- Déplacements : orbite (par défaut, et sur téléphone) ou marche à la première personne.
+const orbite = new OrbitControls(camera, rendu.domElement);
+orbite.enableDamping = true; orbite.maxDistance = 14; orbite.zoomSpeed = 0.8;
+const marche = new PointerLockControls(camera, document.body);
+const touches = {};
+addEventListener('keydown', (e) => { touches[e.code] = true; });
+addEventListener('keyup', (e) => { touches[e.code] = false; });
+
+const VUES = {
+  'Entrée': [[1.2, 0.5, 1.6], [5.0, 4.4, 1.0]],
+  'Setup': [[1.55, 3.55, 1.45], [0.35, 2.85, 0.95]],
+  'Bureau de face': [[2.6, 3.0, 1.45], [0.2, 3.0, 1.2]],
+  'Étagères sud': [[1.5, 1.05, 1.45], [0.1, 1.05, 1.45]],
+  'Étagères nord': [[1.5, 4.95, 1.45], [0.1, 4.95, 1.45]],
+  'Salon': [[3.4, 3.0, 1.6], [8, 3.0, 1.0]],
+  'Canapé': [[7.4, 4.9, 1.7], [4.8, 2.4, 0.6]],
+  'Affiches': [[4.6, 3.2, 1.6], [4.6, 0.0, 1.55]],
+  'Baie vitrée': [[6.5, 1.2, 1.5], [3.0, 6.0, 1.3]],
+  'Plan': [[4.0, 3.0, 11], [4.0, 3.001, 0]],
+};
+const vues = document.getElementById('vues');
+let anim = null;
+function allerA(nom) {
+  const [p, c] = VUES[nom];
+  anim = { de: camera.position.clone(), a: B(...p), ciDe: orbite.target.clone(), ciA: B(...c), debut: performance.now() };
+  for (const o of plafond) o.visible = nom !== 'Plan';
+  for (const b of vues.querySelectorAll('button')) b.classList.toggle('actif', b.textContent === nom);
+}
+for (const nom of Object.keys(VUES)) {
+  const b = document.createElement('button'); b.type = 'button'; b.textContent = nom; b.onclick = () => allerA(nom); vues.appendChild(b);
+}
+const bMarche = document.createElement('button'); bMarche.type = 'button'; bMarche.className = 'marche'; bMarche.textContent = 'Marcher';
+bMarche.onclick = () => { try { marche.lock(); } catch (e) { /* verrouillage refusé : on reste en orbite */ } };
+if (matchMedia('(pointer: fine)').matches) vues.prepend(bMarche);
+marche.addEventListener('lock', () => {
+  orbite.enabled = false; anim = null; document.getElementById('viseur').hidden = false;
+  camera.position.y = 1.62; for (const o of plafond) o.visible = true;
+});
+marche.addEventListener('unlock', () => {
+  orbite.enabled = true; document.getElementById('viseur').hidden = true;
+  const d = new THREE.Vector3(); camera.getWorldDirection(d); orbite.target.copy(camera.position).addScaledVector(d, 1.5);
+});
+camera.position.copy(B(1.2, 0.5, 1.6)); orbite.target.copy(B(5.0, 4.4, 1.0));
+allerA('Entrée'); anim = null; orbite.update();
+
+const horloge = new THREE.Clock();
+const doux = (t) => t * t * (3 - 2 * t);
+function boucle() {
+  const dt = Math.min(horloge.getDelta(), 0.05);
+  if (marche.isLocked) {
+    const v = (touches.ShiftLeft || touches.ShiftRight ? 3.2 : 1.5) * dt;
+    const av = (touches.KeyW || touches.KeyZ || touches.ArrowUp ? 1 : 0) - (touches.KeyS || touches.ArrowDown ? 1 : 0);
+    const co = (touches.KeyD || touches.ArrowRight ? 1 : 0) - (touches.KeyA || touches.KeyQ || touches.ArrowLeft ? 1 : 0);
+    marche.moveForward(av * v); marche.moveRight(co * v);
+    camera.position.x = THREE.MathUtils.clamp(camera.position.x, 0.3, L - 0.3);   // on reste dans la pièce
+    camera.position.z = THREE.MathUtils.clamp(camera.position.z, -P + 0.3, -0.3);
+  } else {
+    if (anim) {
+      const t = Math.min(1, (performance.now() - anim.debut) / 1100), k = doux(t);
+      camera.position.lerpVectors(anim.de, anim.a, k); orbite.target.lerpVectors(anim.ciDe, anim.ciA, k);
+      if (t >= 1) anim = null;
+    }
+    orbite.update();
+  }
+  compo.render();
+  requestAnimationFrame(boucle);
+}
+boucle();
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  rendu.setSize(innerWidth, innerHeight); compo.setSize(innerWidth, innerHeight);
+});
+</script>

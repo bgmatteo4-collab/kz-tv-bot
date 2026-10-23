@@ -692,3 +692,26 @@ if 'rendu' in opt:
     bpy.ops.render.render(write_still=True)
 if 'sauver' in opt:
     bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(opt['sauver']))
+if 'web' in opt:   # visite 3D dans le navigateur (glTF) : sans la ville ni les lumières, recréées côté page
+    for o in list(scene.objects):
+        if o.type in {'LIGHT', 'CAMERA'} or o.name.startswith(('immeuble', 'balise', 'sol extérieur')):
+            bpy.data.objects.remove(o)
+    for m in bpy.data.materials:   # couleurs calculées (livres) : le glTF ne garde que la couleur de couverture
+        b = m.node_tree and next((n for n in m.node_tree.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+        if b and b.inputs['Base Color'].links and b.inputs['Base Color'].links[0].from_node.type == 'MIX':
+            mix = b.inputs['Base Color'].links[0].from_node
+            b.inputs['Base Color'].default_value = mix.inputs['A'].default_value
+            m.node_tree.links.remove(b.inputs['Base Color'].links[0])
+    plafond_tri = int(opt.get('triangles', 6000))   # par objet : la page doit rester légère
+    for o in scene.objects:
+        if o.type == 'MESH':
+            n = sum(len(p.vertices) - 2 for p in o.data.polygons)
+            if n > plafond_tri:
+                d = o.modifiers.new('allègement', 'DECIMATE'); d.ratio = max(0.02, plafond_tri / n)
+    cote = int(opt.get('texture', 512))
+    for im in bpy.data.images:
+        if im.size[0] > cote or im.size[1] > cote:
+            k = cote / max(im.size); im.scale(max(1, int(im.size[0] * k)), max(1, int(im.size[1] * k)))
+    bpy.ops.export_scene.gltf(filepath=os.path.abspath(opt['web']), export_format='GLB', export_apply=True,
+                              export_image_format='JPEG', export_jpeg_quality=80, export_lights=False, export_cameras=False,
+                              export_tangents=False, export_vertex_color='NONE')

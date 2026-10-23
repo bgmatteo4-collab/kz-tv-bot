@@ -4,21 +4,21 @@
 
 export const LIGNES = [
   { id: 's1', dit: "Il reste moins d'un mois avant GTA 6. Et pourtant, des fans ont déjà reconstruit toute la carte." },
-  { id: 's2', dit: "Voilà ce qu'on sait vraiment.", avant: 0.25 },
-  { id: 's3', dit: "Rockstar l'a confirmé : Leonida, c'est deux fois la carte de GTA 5. La plus grande qu'ils aient jamais faite.", avant: 0.6, apres: 1.2 },
-  { id: 's4', dit: 'Six régions : Vice City, les Leonida Keys, Grassrivers, Port Gellhorn, Ambrosia, et le mont Kalaga.', avant: 0.5, apres: 0.8 },
-  { id: 's5', dit: 'Vice City, c\'est Miami. Et les fans ont retrouvé les vrais bâtiments, un par un.', avant: 0.6 },
-  { id: 's6', dit: "L'Ocean View Hotel ? C'est le Clevelander, sur Ocean Drive.", avant: 0.4, apres: 1.3 },
-  { id: 's7', dit: 'La Palaestra Tower ? La Carnival Tower de Miami.', avant: 0.5, apres: 1.1 },
-  { id: 's7b', dit: 'Le club The Vault ? Le Club Space, à Downtown.', avant: 0.4, apres: 1.1 },
-  { id: 's8', dit: 'Et sous l\'eau des Keys, une station copiée sur Aquarius, la seule base de recherche sous-marine encore en service au monde.', avant: 0.5, apres: 1.3 },
-  { id: 's9', dit: "Au total, plus de trois mille trois cents lieux repérés, image par image.", avant: 0.6, apres: 1.2 },
-  { id: 's10', dit: 'Et puis, il y a les fuites. En 2022, plus de quatre-vingt-dix vidéos de développement volées.', avant: 0.6, apres: 0.8 },
-  { id: 's11', dit: 'Et cet été, une carte de travail jamais confirmée, avec des comtés comme Vice-Dale : le Miami-Dade du jeu.', avant: 0.4, apres: 1.0 },
+  { id: 's2', dit: "Voilà ce qu'on sait vraiment.", avant: 0.25, apres: 0.7 },
+  { id: 's3', dit: "Rockstar l'a confirmé : Leonida, c'est deux fois la carte de GTA 5. La plus grande qu'ils aient jamais faite.", avant: 0.6, apres: 2.5 },
+  { id: 's4', dit: 'Six régions : Vice City, les Leonida Keys, Grassrivers, Port Gellhorn, Ambrosia, et le mont Kalaga.', avant: 0.5, apres: 2.2 },
+  { id: 's5', dit: 'Vice City, c\'est Miami. Et les fans ont retrouvé les vrais bâtiments, un par un.', avant: 0.6, apres: 1.6 },
+  { id: 's6', dit: "L'Ocean View Hotel ? C'est le Clevelander, sur Ocean Drive.", avant: 0.4, apres: 3.0 },
+  { id: 's7', dit: 'La Palaestra Tower ? La Carnival Tower de Miami.', avant: 0.5, apres: 2.6 },
+  { id: 's7b', dit: 'Le club The Vault ? Le Club Space, à Downtown.', avant: 0.4, apres: 2.6 },
+  { id: 's8', dit: 'Et sous l\'eau des Keys, une station copiée sur Aquarius, la seule base de recherche sous-marine encore en service au monde.', avant: 0.5, apres: 3.0 },
+  { id: 's9', dit: "Au total, plus de trois mille trois cents lieux repérés, image par image.", avant: 0.6, apres: 2.6 },
+  { id: 's10', dit: 'Et puis, il y a les fuites. En 2022, plus de quatre-vingt-dix vidéos de développement volées.', avant: 0.6, apres: 2.2 },
+  { id: 's11', dit: 'Et cet été, une carte de travail jamais confirmée, avec des comtés comme Vice-Dale : le Miami-Dade du jeu.', avant: 0.4, apres: 2.4 },
   { id: 's12', dit: 'La vraie réponse, ce sera le 19 novembre. Et toi, tu vas où en premier ?', avant: 0.6 },
 ];
 
-const DEBUT = 0.35, PAUSE = 0.3, QUEUE = 1.6;
+const DEBUT = 0.35, PAUSE = 0.3, QUEUE = 2.6;
 const lettres = (s) => (s.match(/[A-Za-zÀ-ÿ0-9]/g) || []).length;
 export const estimer = (dit) => 0.062 * lettres(dit) + 0.2 * (dit.match(/[,:;…?]/g) || []).length;
 

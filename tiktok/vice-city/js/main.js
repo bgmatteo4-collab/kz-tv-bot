@@ -3,10 +3,11 @@
 // Tout se cale sur la voix (partition.js) : aucun instant en dur.
 import { clamp, lerp, prog, tw, E, ressort, style, vis, el, $, hash } from './outils.js';
 import { calculer } from './partition.js';
+import { creerOutro } from './outro.js';
 
 const params = new URLSearchParams(location.search);
 const MAP_W = 3760, MAP_H = 5120, PERSP = 1500;
-let T, P = [], R = {}, ctxP, ctxM;
+let T, P = [], R = {}, ctxP, ctxM, O;
 
 // Coordonnées du jeu (gtadb) → pixels de notre carte (zoom 3, tuiles à partir de 5).
 const versCarte = (x, y) => [(x + 16384) / 4 - 1280, (16384 - y) / 4 - 1280];
@@ -176,7 +177,7 @@ function preparer(lm) {
     { lignes: [['Carte de travail', m('s11', 'carte')], ['jamais confirmée.', m('s11', 'jamais'), 'serif']] },
     { lignes: [['Rendez-vous le', m('s12', 'vraie')], ['19.11.2026', m('s12', 'dix-neuf'), 'serif'], ['Et toi, tu vas où en premier ?', m('s12', 'toi'), 'sur']] },
   ];
-  B.forEach((b, i) => { b.sortie = i < B.length - 1 ? B[i + 1].lignes[0][1] - 0.5 : T.duree + 1; });
+  B.forEach((b, i) => { b.sortie = i < B.length - 1 ? B[i + 1].lignes[0][1] - 0.5 : L('s12').fin + 0.3; });
   B[5].sortie = L('s8').debut - 0.4;
   blocs = B.map(creerBloc);
 
@@ -238,6 +239,8 @@ function dessiner(t) {
   dessinerMasque(t, c);
   dessinerComps(t, c);
   dessinerFuites(t);
+  // L'outro passe par-dessus tout ; la pastille et les coordonnées s'effacent.
+  const ao = O.dessiner(t);
 
   for (const b of blocs) dessinerBloc(b, t);
   // Compteur des lieux (passage « image par image »).
@@ -254,7 +257,7 @@ function dessiner(t) {
   style($('onglet'), 'transform', `translate3d(${(-80 * (1 - ressort(t - 0.2, 170, 20))).toFixed(1)}px,0,0)`);
   // Pendant les comparaisons, la pastille et les coordonnées s'effacent (place aux légendes).
   const enComp = Math.max(...comps.map((k) => tw(t, k.quand, 0.4) * (1 - prog(t, k.fin, 0.4))));
-  vis($('source'), 1 - enComp); vis($('coord'), 1 - enComp); vis($('credit'), 1 - enComp * 0.6);
+  vis($('source'), (1 - enComp) * (1 - ao)); vis($('coord'), (1 - enComp) * (1 - ao)); vis($('credit'), (1 - enComp * 0.6) * (1 - ao));
 }
 
 function dessinerPoints(t, c) {
@@ -365,13 +368,14 @@ async function demarrer() {
   ctxP = $('points').getContext('2d');
   ctxM = $('masque').getContext('2d');
   preparer(lm);
+  O = creerOutro(T);
   await Promise.all([
     document.fonts.load('800 100px "Archivo"'), document.fonts.load('italic 120px "Instrument Serif"'), document.fonts.load('500 22px "JetBrains Mono"'),
     ...[...document.images].map((i) => i.decode().catch(() => {})),
     new Promise((ok) => { const i = new Image(); i.onload = ok; i.onerror = ok; i.src = 'medias/leonida.jpg'; }),
   ]);
   window.__render = (t) => { dessiner(t); return document.fonts.ready.then(() => true); };
-  window.__sous = (t) => (mouvements.some((mv) => t > mv.t && t < mv.t + mv.d) || (t > R.assemblage && t < R.assemblage + 4.4) ? 3 : 1);
+  window.__sous = (t) => (mouvements.some((mv) => t > mv.t && t < mv.t + mv.d) || (t > R.assemblage && t < R.assemblage + 4.4) || O.enMouvement(t) ? 3 : 1);
   window.__duree = T.duree;
   window.__sons = Object.entries(voix.fichiers || {}).map(([id, f]) => ({ t: T.ligne(id).debut, type: 'voix', gain: 1, fichier: f.fichier, decalage: f.decalage }));
   window.__ready = true;

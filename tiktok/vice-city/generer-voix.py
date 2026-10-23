@@ -33,8 +33,12 @@ async def main():
     src = open(os.path.join(ICI, 'js', 'partition.js'), encoding='utf-8').read()
     lignes = re.findall(r"""\{ id: '(s\d+b?)', dit: ("[^"]*"|'(?:[^'\\]|\\.)*')""", src)
     os.makedirs(os.path.join(ICI, 'medias', 'voix'), exist_ok=True)
-    sortie = {'durees': {}, 'mots': {}, 'fichiers': {}}
+    # Les phrases déjà générées sont gardées telles quelles (le début du film ne bouge pas).
+    chemin = os.path.join(ICI, 'medias', 'voix.json')
+    sortie = json.load(open(chemin)) if os.path.exists(chemin) else {'durees': {}, 'mots': {}, 'fichiers': {}}
     for i, d in lignes:
+        if i in sortie['durees']:
+            continue
         mots, duree = await une(i, d[1:-1].replace("\\'", "'"))
         debut = mots[0][1] if mots else 0
         # Les fichiers commencent par ~0,1 s de silence : on recale tout sur le premier mot.

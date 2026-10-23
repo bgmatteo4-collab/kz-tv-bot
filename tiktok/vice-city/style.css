@@ -83,3 +83,132 @@ html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--
 #monde { transform-style: preserve-3d; }
 .rep.flou .rep-nom { color: var(--cerise-vif); }
 .rep.vise .rep-nom { background: var(--cerise); color: var(--beurre); padding: 0 .15em; }
+
+/* ------------------------------------------------------------ outro */
+#outro { inset: 0; }
+#outro > * { position: absolute; }
+#o-fond { inset: 0; background: radial-gradient(90% 60% at 50% 45%, #13264D, #050C1A 75%); }
+#o-scene { inset: 0; perspective: 1700px; perspective-origin: 50% 45%; }
+#jaq { left: 250px; top: 560px; width: 580px; height: 735px; border-radius: 14px; overflow: hidden; transform-origin: 50% 50%; will-change: transform;
+  box-shadow: 0 60px 120px rgba(0, 0, 0, .7), 0 0 0 2px rgba(246, 231, 168, .25), 0 0 80px rgba(242, 58, 85, .25); }
+#jaq img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+.jaq-lum { position: absolute; top: -10%; left: 0; width: 45%; height: 120%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent); mix-blend-mode: soft-light; }
+#o-date { left: 96px; top: 300px; display: flex; font-weight: 800; font-stretch: 72%; font-size: 170px; line-height: 1; letter-spacing: -.01em; color: var(--beurre); }
+.o-c { display: inline-block; overflow: hidden; padding-bottom: 6px; }
+.o-c i { display: inline-block; font-style: normal; will-change: transform; }
+.o-c.point i { color: var(--cerise-vif); }
+#o-plateformes { left: 96px; top: 490px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; width: 880px; }
+.pl { display: inline-block; font: 800 34px/1 "Archivo"; font-stretch: 85%; letter-spacing: .06em; padding: 12px 20px; border-radius: 12px; color: var(--beurre); }
+.pl.ps { background: #0B5BD3; }
+.pl.xb { background: #107C10; }
+.pl.pc { font: 600 18px/1 "JetBrains Mono"; letter-spacing: .14em; color: var(--brume); padding: 0 6px; }
+
+/* Le portable */
+#pc { left: 90px; top: 640px; width: 900px; height: 620px; transform-origin: 50% 70%; will-change: transform; }
+#pc-pivot { position: absolute; inset: 0; transform-style: preserve-3d; }
+#pc-ecran { position: absolute; left: 0; top: 0; width: 900px; height: 570px; transform-origin: 50% 100%; transform-style: preserve-3d; }
+.pc-face, .pc-dos { position: absolute; inset: 0; border-radius: 22px 22px 6px 6px; backface-visibility: hidden; }
+.pc-face { background: #0d0f14; padding: 18px; box-shadow: inset 0 0 0 2px #2a2f3a; }
+.pc-dos { transform: rotateY(180deg); background: linear-gradient(160deg, #c9ced8, #8a919e); box-shadow: inset 0 0 0 2px #6b7280; }
+.pc-dos::after { content: "K"; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: "Instrument Serif"; font-style: italic; font-size: 90px; color: rgba(255, 255, 255, .6); }
+.pc-dalle { position: relative; width: 100%; height: 100%; border-radius: 8px; overflow: hidden; background: #0f0f0f; }
+.pc-noir { position: absolute; inset: 0; background: #000; }
+.pc-reflet { position: absolute; inset: 0; background: linear-gradient(125deg, rgba(255, 255, 255, .10), transparent 40%); pointer-events: none; }
+.pc-socle { position: absolute; left: -30px; top: 570px; width: 960px; height: 600px; transform-origin: 50% 0; transform: rotateX(90deg);
+  background: linear-gradient(180deg, #b9bfca, #8d94a1); border-radius: 6px 6px 26px 26px; box-shadow: inset 0 0 0 2px #6b7280; }
+.pc-clavier { position: absolute; left: 70px; top: 60px; width: 820px; height: 300px; border-radius: 10px; background:
+  repeating-linear-gradient(90deg, transparent 0 4px, #2b2f38 4px 52px, transparent 52px 56px), #1c1f26; opacity: .9;
+  -webkit-mask: repeating-linear-gradient(180deg, #000 0 52px, transparent 52px 60px); mask: repeating-linear-gradient(180deg, #000 0 52px, transparent 52px 60px); }
+.pc-pave { position: absolute; left: 330px; top: 390px; width: 300px; height: 170px; border-radius: 14px; background: rgba(0, 0, 0, .12); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, .15); }
+
+/* La page YouTube (thème sombre) */
+.yt { position: absolute; inset: 0; color: #f1f1f1; font-family: "Archivo", sans-serif; }
+.yt-barre { height: 46px; display: flex; align-items: center; gap: 120px; padding: 0 18px; }
+.yt-logo { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 20px; letter-spacing: -.02em; }
+.yt-logo i { display: inline-block; width: 30px; height: 21px; border-radius: 6px; background: #FF0033; position: relative; }
+.yt-logo i::after { content: ""; position: absolute; left: 12px; top: 6px; border-left: 9px solid #fff; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.yt-recherche { width: 360px; height: 30px; border-radius: 16px; border: 1px solid #303030; font-size: 14px; color: #888; padding: 7px 16px; }
+.yt-banniere { margin: 0 18px; height: 110px; border-radius: 12px; background: url(medias/chaine/banniere.jpg) center/cover; }
+.yt-tete { display: flex; gap: 20px; align-items: center; padding: 16px 18px 6px; }
+.yt-avatar { width: 108px; height: 108px; border-radius: 50%; object-fit: cover; background: #fff; }
+.yt-infos b { display: block; font-weight: 800; font-size: 34px; letter-spacing: -.01em; }
+.yt-infos > span { display: block; font-size: 15px; color: #aaa; margin-top: 4px; }
+.yt-infos em { font-style: normal; color: #f1f1f1; }
+#yt-bouton { position: relative; display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 9px 18px; border-radius: 20px; background: #f1f1f1; color: #0f0f0f;
+  font-weight: 700; font-size: 16px; overflow: visible; }
+#yt-bouton .b-cloche { display: none; transform-origin: 50% 10%; }
+#yt-bouton.fait { background: #272727; color: #f1f1f1; }
+#yt-bouton.fait .b-cloche { display: inline-flex; }
+#yt-onde { position: absolute; left: 50%; top: 50%; width: 90px; height: 90px; border-radius: 50%; border: 3px solid #f1f1f1; }
+.yt-onglets { display: flex; gap: 26px; padding: 8px 18px 0; font-size: 15px; color: #aaa; border-bottom: 1px solid #303030; }
+.yt-onglets span { padding-bottom: 8px; }
+.yt-onglets .actif { color: #f1f1f1; border-bottom: 2px solid #f1f1f1; }
+.yt-grille { display: flex; gap: 14px; padding: 14px 18px; }
+.yt-video { width: 270px; }
+.yt-video img { width: 270px; height: 152px; object-fit: cover; border-radius: 10px; display: block; }
+.yt-video b { display: block; font-size: 15px; margin-top: 8px; }
+.yt-video span { font-size: 12px; color: #aaa; }
+
+#o-titre { left: 96px; top: 280px; width: 880px; }
+#o-titre > * { will-change: transform; }
+#curseur { left: 0; top: 0; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .5)); will-change: transform; }
+
+/* ------------------------------------------------------------ outro */
+#outro { inset: 0; }
+#outro > * { position: absolute; }
+#o-fond { inset: 0; background: radial-gradient(90% 60% at 50% 45%, #13264D, #050C1A 75%); }
+#o-scene { inset: 0; perspective: 1700px; perspective-origin: 50% 45%; }
+#jaq { left: 250px; top: 600px; width: 580px; height: 735px; border-radius: 14px; overflow: hidden; transform-origin: 50% 50%; will-change: transform;
+  box-shadow: 0 60px 120px rgba(0, 0, 0, .7), 0 0 0 2px rgba(246, 231, 168, .25), 0 0 80px rgba(242, 58, 85, .25); }
+#jaq img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+.jaq-lum { position: absolute; top: -10%; left: 0; width: 45%; height: 120%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent); mix-blend-mode: soft-light; }
+#o-date { left: 96px; top: 290px; display: flex; font-weight: 800; font-stretch: 72%; font-size: 170px; line-height: 1; letter-spacing: -.01em; color: var(--beurre); }
+.o-c { display: inline-block; overflow: hidden; padding-bottom: 6px; }
+.o-c i { display: inline-block; font-style: normal; will-change: transform; }
+.o-c.point i { color: var(--cerise-vif); }
+#o-plateformes { left: 96px; top: 485px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; width: 880px; }
+.pl { display: inline-block; font: 800 34px/1 "Archivo"; font-stretch: 85%; letter-spacing: .06em; padding: 12px 20px; border-radius: 12px; color: var(--beurre); }
+.pl.ps { background: #0B5BD3; } .pl.xb { background: #107C10; }
+.pl.pc { font: 600 18px/1 "JetBrains Mono"; letter-spacing: .14em; color: var(--brume); padding: 0 6px; }
+#pc { left: 90px; top: 660px; width: 900px; height: 620px; transform-origin: 50% 70%; will-change: transform; }
+#pc-pivot { position: absolute; inset: 0; transform-style: preserve-3d; }
+#pc-ecran { position: absolute; left: 0; top: 0; width: 900px; height: 570px; transform-origin: 50% 100%; transform-style: preserve-3d; }
+.pc-face, .pc-dos { position: absolute; inset: 0; border-radius: 22px 22px 6px 6px; backface-visibility: hidden; }
+.pc-face { background: #0d0f14; padding: 18px; box-shadow: inset 0 0 0 2px #2a2f3a; }
+.pc-dos { transform: rotateY(180deg); background: linear-gradient(160deg, #c9ced8, #8a919e); box-shadow: inset 0 0 0 2px #6b7280; }
+.pc-dalle { position: relative; width: 100%; height: 100%; border-radius: 8px; overflow: hidden; background: #0f0f0f; }
+.pc-noir { position: absolute; inset: 0; background: #000; }
+.pc-reflet { position: absolute; inset: 0; background: linear-gradient(125deg, rgba(255, 255, 255, .10), transparent 40%); }
+.pc-socle { position: absolute; left: -30px; top: 570px; width: 960px; height: 600px; transform-origin: 50% 0; transform: rotateX(90deg);
+  background: linear-gradient(180deg, #b9bfca, #8d94a1); border-radius: 6px 6px 26px 26px; box-shadow: inset 0 0 0 2px #6b7280; }
+.pc-clavier { position: absolute; left: 70px; top: 60px; width: 820px; height: 300px; border-radius: 10px; background: repeating-linear-gradient(90deg, #1c1f26 0 4px, #2b2f38 4px 52px, #1c1f26 52px 56px); }
+.pc-pave { position: absolute; left: 330px; top: 390px; width: 300px; height: 170px; border-radius: 14px; background: rgba(0, 0, 0, .12); }
+.yt { position: absolute; inset: 0; color: #f1f1f1; font-family: "Archivo", sans-serif; }
+.yt-barre { height: 46px; display: flex; align-items: center; gap: 120px; padding: 0 18px; }
+.yt-logo { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 20px; }
+.yt-logo i { display: inline-block; width: 30px; height: 21px; border-radius: 6px; background: #FF0033; position: relative; }
+.yt-logo i::after { content: ""; position: absolute; left: 12px; top: 6px; border-left: 9px solid #fff; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.yt-recherche { width: 360px; height: 30px; border-radius: 16px; border: 1px solid #303030; font-size: 14px; color: #888; padding: 7px 16px; }
+.yt-banniere { margin: 0 18px; height: 110px; border-radius: 12px; background: url(medias/chaine/banniere.jpg) center/cover; }
+.yt-tete { display: flex; gap: 20px; align-items: center; padding: 14px 18px 4px; }
+.yt-avatar { width: 108px; height: 108px; border-radius: 50%; object-fit: cover; background: #fff; }
+.yt-infos b { display: block; font-weight: 800; font-size: 34px; }
+.yt-infos > span { display: block; font-size: 15px; color: #aaa; margin-top: 4px; }
+.yt-infos em { font-style: normal; color: #f1f1f1; }
+#yt-bouton { position: relative; display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 9px 18px; border-radius: 20px; background: #f1f1f1; color: #0f0f0f; font-weight: 700; font-size: 16px; }
+#yt-bouton .b-cloche { display: none; transform-origin: 50% 10%; }
+#yt-bouton.fait { background: #272727; color: #f1f1f1; }
+#yt-bouton.fait .b-cloche { display: inline-flex; }
+#yt-onde { position: absolute; left: 50%; top: 50%; width: 90px; height: 90px; border-radius: 50%; border: 3px solid #f1f1f1; }
+.yt-onglets { display: flex; gap: 26px; padding: 8px 18px 0; font-size: 15px; color: #aaa; border-bottom: 1px solid #303030; }
+.yt-onglets span { padding-bottom: 8px; }
+.yt-onglets .actif { color: #f1f1f1; border-bottom: 2px solid #f1f1f1; }
+.yt-grille { display: flex; gap: 14px; padding: 12px 18px; }
+.yt-video { width: 270px; }
+.yt-video img { width: 270px; height: 152px; object-fit: cover; border-radius: 10px; display: block; }
+.yt-video b { display: block; font-size: 15px; margin-top: 8px; }
+.yt-video span { font-size: 12px; color: #aaa; }
+#o-titre { left: 96px; top: 280px; width: 880px; }
+#curseur { left: 0; top: 0; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .5)); }
+#jaq, #pc { position: absolute; }
+#jaq { left: 0 !important; top: 0 !important; }

@@ -16,6 +16,9 @@ export const LIGNES = [
   { id: 's10', dit: 'Et puis, il y a les fuites. En 2022, plus de quatre-vingt-dix vidéos de développement volées.', avant: 0.6, apres: 2.2 },
   { id: 's11', dit: 'Et cet été, une carte de travail jamais confirmée, avec des comtés comme Vice-Dale : le Miami-Dade du jeu.', avant: 0.4, apres: 2.4 },
   { id: 's12', dit: 'La vraie réponse, ce sera le 19 novembre. Et toi, tu vas où en premier ?', avant: 0.6 },
+  // Outro : la jaquette, puis la chaîne YouTube sur un portable.
+  { id: 's13', dit: 'GTA 6, le 19 novembre, sur PlayStation 5 et Xbox Series.', avant: 1.4, apres: 1.6 },
+  { id: 's14', dit: 'Et pour ne rater aucun dossier, abonne-toi à la chaîne YouTube.', avant: 0.5, apres: 2.2 },
 ];
 
 const DEBUT = 0.35, PAUSE = 0.3, QUEUE = 2.6;

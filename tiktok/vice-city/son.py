@@ -12,8 +12,11 @@
   balaie (panoramique qui suit le trait), bulles, compteur, grondement et grésillement des
   fuites, montée et impact final. Petite réverbération commune.
 Sortie : out/bande.wav, −14 LUFS intégrés, crêtes sous −1 dBTP.
+    python3 son.py --sans-musique   # voix + bruitages seulement → out/bande-sans-musique.wav
 """
-import json, os, subprocess, wave
+import sys
+SANS_MUSIQUE = '--sans-musique' in sys.argv
+import json, os, subprocess, sys, wave
 import numpy as np
 from scipy.signal import butter, sosfilt, fftconvolve
 
@@ -91,7 +94,7 @@ niveau = rms(voix[:, voix.any(axis=0)]) * 10 ** (-9 / 20) / rms(mus)
 auto = (1 - 0.6 * env) * (1 - 0.25 * w_fuite)
 auto *= np.clip(t / 0.25, 0, 1) * np.clip((R['duree'] - t) / 2.6, 0, 1) ** 1.5      # fondus
 auto *= 1 - 0.85 * rampe(R['impact'] - 0.22, R['impact'] + 0.02, 0.06)               # silence d'un souffle avant l'impact
-musique *= niveau * auto
+musique *= niveau * auto * (0 if SANS_MUSIQUE else 1)
 
 # ------------------------------------------------------------------ bruitages
 fx = np.zeros((2, N))
@@ -187,6 +190,21 @@ poser(fx, souffle(1.2, 0.6, -0.6), R['comtes'][0] - 0.2, G * 0.3)
 poser(fx, pop(160), R['viceDale'], G * 0.6)
 poser(fx, montee(R['impact'] - R['montee']), R['montee'], G * 0.55)
 poser(fx, impact(), R['impact'], G * 1.1)
+# Outro : la jaquette, la date, les plateformes, le portable, le clic, la cloche.
+O = R['outro']
+poser(fx, souffle(1.1, 0.7, -0.2), O['jaq'], G * 0.4)
+poser(fx, pop(90), O['jaq'] + 0.55, G * 0.8)
+for i in range(8):
+    poser(fx, tic(2400 + 120 * i, 0.012), O['chiffres'] + [0, 1, 3, 4, 6, 7, 8, 9][i] * 0.06 + 0.15, G * 0.3)
+poser(fx, pop(200), O['ps'], G * 0.5, -0.3); poser(fx, pop(240), O['xbox'], G * 0.5, 0.3)
+poser(fx, souffle(0.9, 0.3, -0.9), O['bascule'], G * 0.4)
+poser(fx, souffle(1.0, 0, 0), O['ouvre'], G * 0.25); poser(fx, pop(110), O['ouvre'] + 1.0, G * 0.6)
+n = int(0.5 * SR); tt = temps(n)
+poser(fx, np.sin(2 * np.pi * np.cumsum(300 + 600 * tt / tt[-1]) / SR) * np.exp(-tt * 5) * 0.4, O['allume'] - 0.1, G * 0.5)
+poser(fx, souffle(1.0, 0.8, 0.1), O['clic'] - 1.15, G * 0.15)
+poser(fx, tic(3200, 0.006, 0.8), O['clic'] - 0.06, G * 0.7); poser(fx, tic(2600, 0.006, 0.8), O['clic'] + 0.08, G * 0.5)
+n = int(1.2 * SR); tt = temps(n)
+poser(fx, (np.sin(2 * np.pi * 1320 * tt) + 0.4 * np.sin(2 * np.pi * 2640 * tt)) * np.exp(-tt * 4) * 0.35, O['clic'] + 0.18, G * 0.6)
 
 # Réverbération commune des bruitages (courte, sombre) ; la voix reste sèche.
 n = int(0.7 * SR); ir = rng.standard_normal((2, n)) * np.exp(-temps(n) * 7)
@@ -195,6 +213,7 @@ fx = fx + np.stack([fftconvolve(fx[i], ir[i])[:N] for i in range(2)])
 fx *= 1 - 0.35 * env                                                # les bruitages s'écartent aussi de la voix
 
 mix = voix + musique + fx
+SORTIE = 'bande-sans-musique.wav' if SANS_MUSIQUE else 'bande.wav'
 brut = os.path.join(ICI, 'out', 'bande-brute.wav')
 os.makedirs(os.path.dirname(brut), exist_ok=True)
 with wave.open(brut, 'wb') as f:
@@ -203,5 +222,5 @@ with wave.open(brut, 'wb') as f:
 # Loudness en deux passes : mesure, gain fixe, limiteur (crêtes sous −1 dBTP).
 m = subprocess.run(['ffmpeg', '-hide_banner', '-i', brut, '-af', 'loudnorm=I=-14:TP=-1:LRA=11:print_format=json', '-f', 'null', '-'], capture_output=True, text=True).stderr
 gain = -14 - float(json.loads(m[m.rindex('{'):])['input_i'])
-subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', brut, '-af', f'volume={gain:.2f}dB,alimiter=limit=0.84:level=false', os.path.join(ICI, 'out', 'bande.wav')], check=True)
-print('out/bande.wav', f'décalage musique {decalage:.2f} s')
+subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', brut, '-af', f'volume={gain:.2f}dB,alimiter=limit=0.84:level=false', os.path.join(ICI, 'out', SORTIE)], check=True)
+print('out/' + SORTIE)

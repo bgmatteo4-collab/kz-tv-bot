@@ -59,4 +59,6 @@ console.log(JSON.stringify({
   comtes: [0, 1, 2, 3, 4].map((i) => m('s11', 'comtés') + i * 0.18),
   viceDale: m('s11', 'miami-dade'),
   impact: m('s12', 'dix-neuf'), montee: L('s12') - 1.6,
+  outro: (() => { const o = { jaq: L('s13') - 0.9, chiffres: m('s13', 'dix-neuf') - 0.1, ps: m('s13', 'playstation'), xbox: m('s13', 'xbox'),
+    bascule: L('s14') - 0.7, ouvre: L('s14') - 0.35, clic: m('s14', 'abonne') + 0.15 }; o.allume = o.ouvre + 1.0; return o; })(),
 }));

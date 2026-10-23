@@ -23,3 +23,11 @@
 - Puis la 3D : Blender (rendu Cycles) installé dans l'environnement, matières et mobilier Poly Haven (CC0),
   et répliques modélisées. Les rendus sont longs (plusieurs heures par minute de vidéo) : la production se fait
   scène par scène, sur plusieurs sessions.
+
+## Précisions du client (plan v1 validé)
+- **Le setup de stream** : un vrai setup, sans surcharge. Deux écrans, un micro XLR sur bras articulé, une carte son
+  (interface audio 2 entrées, molettes et vumètres), un **Stream Deck** (modélisé, 15 touches à écrans), une webcam sur
+  l'écran, une lampe de studio (key light), un casque sur son support, un clavier, une souris et un tapis de bureau.
+- **Le salon** : des meubles de designer, beaux et de bonne qualité. Une **grande TV** élégante, à cadre fin.
+- **Les consoles** (PS5, Xbox Series X, Switch) : formes et proportions exactes, sans logos de marque. Rien d'à-peu-près.
+- **Exigence générale** : le rendu doit être réaliste, avec des modèles fidèles.

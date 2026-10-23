@@ -4,7 +4,8 @@
     blender -b -P stream-pack/blender/piece.py -- --sauver stream-pack/rendus/studio.blend
 
 Repère : x de 0 (mur ouest, bureau) à 8 m (mur est, TV) ; y de 0 (mur sud, porte et affiches) à 6 m
-(mur nord : baie vitrée sur toute la longueur, la ville au couchant derrière) ; plafond à 3 m.
+(mur nord : baie vitrée sur toute la longueur, la ville de nuit derrière) ; plafond à 3 m. Version 3 : nuit,
+porte, interrupteurs et prises, étagères remplies, affiches, déco (retours du client dans BRIEF.md).
 Palette (planche DA) : forest teal #1E5B57, honey gold #E0A93B, mist gray #C9CFD3, chêne, noyer.
 """
 import math
@@ -18,6 +19,7 @@ from mathutils import Vector
 ICI = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(ICI, '..', 'assets')
 OBJ = os.path.join(ASSETS, 'objaverse')
+TAILLES = {l.split()[1]: l.split()[2] for l in open(os.path.join(ICI, '..', 'assets.txt')) if l.strip() and not l.startswith('#')}
 L, P, H = 8.0, 6.0, 3.0
 
 args = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
@@ -43,6 +45,7 @@ scene.cycles.max_bounces = 6
 scene.cycles.caustics_reflective = scene.cycles.caustics_refractive = False
 scene.view_settings.view_transform = 'AgX'
 scene.view_settings.look = 'AgX - Medium High Contrast'
+scene.view_settings.exposure = 0.7   # de nuit, on expose pour l'intérieur
 largeur = int(opt.get('largeur', 1280))
 scene.render.resolution_x, scene.render.resolution_y = largeur, largeur * 9 // 16
 
@@ -50,7 +53,7 @@ scene.render.resolution_x, scene.render.resolution_y = largeur, largeur * 9 // 1
 # ------------------------------------------------------------------ matières
 
 def materiau_asset(ident, echelle=1.0):
-    with bpy.data.libraries.load(os.path.join(ASSETS, ident, f'{ident}_2k.blend'), link=False) as (src, dst):
+    with bpy.data.libraries.load(os.path.join(ASSETS, ident, f'{ident}_{TAILLES.get(ident, "2k")}.blend'), link=False) as (src, dst):
         dst.materials = [ident]
     m = dst.materials[0]
     for n in m.node_tree.nodes:
@@ -132,7 +135,7 @@ def boite(nom, centre, taille, mat, biseau=0.0):
 
 def importer_ph(ident, position, rotation_z=0.0, echelle=1.0):
     """Modèle Poly Haven (.blend)."""
-    with bpy.data.libraries.load(os.path.join(ASSETS, ident, f'{ident}_2k.blend'), link=False) as (src, dst):
+    with bpy.data.libraries.load(os.path.join(ASSETS, ident, f'{ident}_{TAILLES.get(ident, "2k")}.blend'), link=False) as (src, dst):
         dst.objects = list(src.objects)
     racine = bpy.data.objects.new(ident, None); scene.collection.objects.link(racine)
     for o in dst.objects:
@@ -198,7 +201,7 @@ for i in range(28):
 
 # --- Le bureau de stream (contre le mur ouest, le streamer regarde vers l'ouest).
 bx, by = 0.55, 3.0
-placer('bureau', (bx, by, 0), 1.8, 'x', rotation_z=90, sans=())
+placer('bureau', (bx, by, 0), 0.73, 'z', rotation_z=90, sans=('Object_2',))   # plateau d'origine remplacé par du chêne
 boite('plateau chêne', (bx, by, 0.745), (0.8, 1.8, 0.03), M['chene'], 0.004)
 
 
@@ -225,32 +228,94 @@ placer('key_light', (0.35, 3.95, 0.76), 0.55, 'z', rotation_z=60)
 placer('casque', (0.6, 2.25, 0.76), 0.2, 'max', rotation_z=90)
 placer('siege_gaming', (1.35, 3.0, 0), 1.3, 'z', rotation_z=-90)
 
-# --- Étagères des répliques (noyer, LED dessous) de part et d'autre du bureau.
-for cote, y0 in (('sud', 0.8), ('nord', 4.6)):
-    for j, z in enumerate((1.0, 1.45, 1.9)):
-        boite(f'étagère {cote} {j}', (0.17, y0 + 0.5, z), (0.32, 1.1, 0.035), M['noyer'], 0.004)
-        boite(f'LED {cote} {j}', (0.29, y0 + 0.5, z - 0.022), (0.01, 1.0, 0.006), M['led'])
-placer('casque_ironman', (0.17, 1.1, 1.92), 0.28, 'z', rotation_z=90)
-placer('mjolnir', (0.17, 1.5, 1.47), 0.42, 'max', rotation_z=90)
-placer('delorean', (0.17, 1.3, 1.02), 0.24, 'max', rotation_z=60)
-placer('pistolet_portail', (0.17, 4.85, 1.92), 0.28, 'max', rotation_z=110)
-placer('meeseeks', (0.17, 5.35, 1.92), 0.2, 'max', rotation_z=80)
-placer('plumbus', (0.17, 5.0, 1.47), 0.25, 'z', rotation_z=90)
-placer('gant_infini', (0.17, 4.85, 1.02), 0.35, 'z', rotation_z=90)
-placer('convecteur', (0.04, 1.3, 2.35), 0.42, 'z', rotation_z=90)
-placer('bouclier', (0.06, 3.0, 2.2), 0.6, 'max', rotation_z=90)
-placer('hoverboard', (0.06, 5.2, 2.45), 0.75, 'max', rotation_z=0, rotation_x=90)
+# --- Étagères des répliques (noyer, LED dessous) de part et d'autre du bureau. Chaque objet est posé
+# sur le dessus de sa planche (DESSUS[niveau]) ; répliques et déco alternent pour que rien ne fasse vide.
+NIVEAUX = (1.0, 1.45, 1.9)
+EP = 0.035
+DESSUS = [z + EP / 2 for z in NIVEAUX]
+for cote, yc in (('sud', 1.35), ('nord', 5.15)):
+    for j, z in enumerate(NIVEAUX):
+        boite(f'étagère {cote} {j}', (0.17, yc, z), (0.32, 1.1, EP), M['noyer'], 0.004)
+        boite(f'LED {cote} {j}', (0.29, yc, z - EP / 2 - 0.004), (0.01, 1.0, 0.006), M['led'])
+        for dy in (-0.45, 0.45):   # équerres noires
+            boite('équerre', (0.12, yc + dy, z - 0.06), (0.2, 0.012, 0.1), M['noir'])
+# Bloc sud : Avengers et Retour vers le futur.
+placer('casque_ironman', (0.17, 1.05, DESSUS[2]), 0.28, 'z', rotation_z=90)
+importer_ph('decorative_book_set_01', (0.15, 1.6, DESSUS[2]), rotation_z=90, echelle=0.45)
+placer('mjolnir', (0.17, 1.1, DESSUS[1]), 0.4, 'max', rotation_z=90)
+importer_ph('ceramic_vase_01', (0.17, 1.68, DESSUS[1]), echelle=0.8)
+placer('delorean', (0.17, 1.15, DESSUS[0]), 0.24, 'max', rotation_z=60)
+importer_ph('ceramic_vase_02', (0.17, 1.65, DESSUS[0]), echelle=0.55)
+# Bloc nord : Rick et Morty, et le gant de l'Infini.
+placer('pistolet_portail', (0.17, 4.9, DESSUS[2]), 0.28, 'max', rotation_z=110)
+importer_ph('book_encyclopedia_set_01', (0.15, 5.42, DESSUS[2]), rotation_z=90, echelle=0.7)
+placer('plumbus', (0.17, 4.85, DESSUS[1]), 0.24, 'z', rotation_z=90)
+placer('meeseeks', (0.17, 5.18, DESSUS[1]), 0.18, 'max', rotation_z=80)
+importer_ph('brass_vase_01', (0.17, 5.5, DESSUS[1]), echelle=0.7)
+placer('gant_infini', (0.17, 4.88, DESSUS[0]), 0.32, 'z', rotation_z=90)
+importer_ph('standing_picture_frame_01', (0.17, 5.25, DESSUS[0]), rotation_z=90)
+importer_ph('ceramic_vase_03', (0.17, 5.55, DESSUS[0]), echelle=0.8)
+# Au mur, au-dessus du bureau et des étagères.
+placer('convecteur', (0.04, 1.35, 2.38), 0.42, 'z', rotation_z=90)
+placer('bouclier', (0.06, 3.0, 2.25), 0.6, 'max', rotation_z=90)
+placer('hoverboard', (0.06, 5.15, 2.4), 0.75, 'max', rotation_z=0, rotation_x=90)
+importer_ph('wicker_basket_01', (0.3, 1.35, 0))
+
+# --- Porte (mur sud, x 0,3 → 1,2), interrupteur à côté, prises près de chaque appareil.
+boite('porte', (0.75, 0.025, 1.05), (0.9, 0.04, 2.1), M['noyer'], 0.004)
+for x in (0.28, 1.22):
+    boite('chambranle', (x, 0.03, 1.07), (0.05, 0.06, 2.14), M['chene'])
+boite('chambranle haut', (0.75, 0.03, 2.15), (0.99, 0.06, 0.05), M['chene'])
+boite('poignée', (1.08, 0.07, 1.0), (0.13, 0.02, 0.02), M['noir'], 0.005)
+BLANC = materiau_uni('plastique blanc', '#EDEEEC', 0.35)
+
+
+def plaque(nom, centre, normale, prise=False):
+    """Interrupteur ou prise : plaque blanche de 8,6 cm, posée à plat sur le mur."""
+    ep = (0.008, 0.086, 0.086) if normale in ('x+', 'x-') else (0.086, 0.008, 0.086)
+    boite(nom, centre, ep, BLANC, 0.003)
+    d = {'x+': (0.006, 0, 0), 'x-': (-0.006, 0, 0), 'y+': (0, 0.006, 0), 'y-': (0, -0.006, 0)}[normale]
+    c = Vector(centre) + Vector(d)
+    if prise:
+        for k in (-0.011, 0.011):
+            o = (Vector((0, k, 0)) if normale[0] == 'x' else Vector((k, 0, 0)))
+            boite(nom + ' trou', c + o, (0.006, 0.006, 0.006), M['noir'])
+    else:
+        boite(nom + ' bascule', c, tuple(v * 0.6 for v in ep), BLANC, 0.002)
+
+
+plaque('interrupteur', (1.42, 0.005, 1.1), 'y+')
+plaque('prise bureau', (0.005, 2.2, 0.3), 'x+', True)
+plaque('prise bureau 2', (0.005, 3.8, 0.3), 'x+', True)
+plaque('prise TV', (L - 0.005, 4.1, 0.3), 'x-', True)
+plaque('prise lampadaire', (7.0, 0.005, 0.3), 'y+', True)
+
+# --- Les affiches officielles encadrées (mur sud, derrière le canapé).
+for k, (nom, x) in enumerate((('endgame', 3.6), ('retour-vers-le-futur', 4.6), ('rick-et-morty', 5.6))):
+    boite(f'cadre {nom}', (x, 0.03, 1.65), (0.66, 0.035, 0.96), M['chene'], 0.003)
+    img = bpy.data.materials.new(f'affiche {nom}'); img.use_nodes = True
+    nt = img.node_tree; b = nt.nodes['Principled BSDF']; b.inputs['Roughness'].default_value = 0.25
+    tex = nt.nodes.new('ShaderNodeTexImage')
+    tex.image = bpy.data.images.load(os.path.join(ASSETS, 'affiches', f'{nom}.jpg'))
+    nt.links.new(tex.outputs['Color'], b.inputs['Base Color'])
+    bpy.ops.mesh.primitive_plane_add(size=1, location=(x, 0.05, 1.65), rotation=(math.radians(90), 0, 0))
+    a = bpy.context.object; a.name = f'affiche {nom}'; a.scale = (0.6, 0.9, 1); a.data.materials.append(img)
 
 # --- Le salon : canapé d'angle face à la TV, tapis teal, table basse, fauteuil.
 placer('canape', (5.2, 2.9, 0), 3.4, 'max', rotation_z=-90, matiere=M['canape'])
 boite('tapis', (6.0, 3.0, 0.006), (3.2, 3.6, 0.012), M['tapis'])
-importer_ph('coffee_table_round_01', (6.2, 3.0, 0))
+importer_ph('coffee_table_round_01', (6.2, 3.0, 0), echelle=0.8)
+importer_ph('wooden_bowl_01', (6.05, 2.85, 0.37))
+importer_ph('ceramic_vase_02', (6.35, 3.15, 0.37), echelle=0.6)
+coussins = importer_ph('throw_pillows_01', (4.6, 2.2, 0.45), rotation_z=90)
+for k, o in enumerate(o for o in coussins.children_recursive if o.type == 'MESH'):   # aux couleurs de la DA
+    o.data.materials.clear(); o.data.materials.append(tissu('coussin', ('#1E5B57', '#E0A93B', '#8E979D')[k % 3]))
 importer_ph('mid_century_lounge_chair', (6.7, 5.0, 0), rotation_z=-140)
 
 # --- Coin TV (mur est, teal) : grande TV 85", meuble à lames, consoles.
 importer_ph('modern_wooden_cabinet', (L - 0.3, 3.0, 0), rotation_z=90, echelle=1.25)
-placer('tv', (L - 0.06, 3.0, 0.9), 1.9, 'max', rotation_z=-90, sans=('stand', 'base'))
-placer('ps5', (L - 0.3, 2.05, 0.62), 0.39, 'z', rotation_z=-90, sans=('plane', 'floor', 'ground'))
+placer('tv', (L - 0.06, 3.0, 1.0), 1.9, 'max', rotation_z=-90, sans=('Table',))
+placer('ps5', (L - 0.3, 2.05, 0.62), 0.39, 'z', rotation_z=-90, sans=('Plane', 'Digital'))
 placer('xbox', (L - 0.3, 3.95, 0.62), 0.30, 'z', rotation_z=-90)
 placer('switch', (L - 0.3, 3.55, 0.62), 0.32, 'x', rotation_z=-90)
 
@@ -259,71 +324,97 @@ placer('plante', (7.5, 5.5, 0), 1.25, 'z', rotation_z=30)
 placer('plante', (0.45, 5.6, 0), 1.1, 'z', rotation_z=-20)
 importer_ph('potted_plant_02', (4.0, 0.4, 0))
 placer('lampadaire', (7.4, 0.6, 0), 1.6, 'z')
-placer('suspension', (6.2, 3.0, H - 1.0), 1.2, 'x', rotation_z=90)
+for y in (2.6, 3.4):
+    importer_ph('modern_ceiling_lamp_01', (6.2, y, H))
 
 
 # ------------------------------------------------------------------ la ville au couchant (derrière la baie)
 
 def ville():
-    """Immeubles en plans successifs (de 15 m à 400 m), fenêtres éclairées par un bruit de Voronoï."""
+    """Le loft est en hauteur (~35 m) : la ville s'étend en contrebas jusqu'à l'horizon, en plans successifs.
+    Fenêtres en grille (texture brique : une brique = une fenêtre d'étage), allumées au hasard (~22 %)."""
     m = bpy.data.materials.new('façades')
     m.use_nodes = True
     nt = m.node_tree
     b = nt.nodes['Principled BSDF']
-    b.inputs['Base Color'].default_value = hexa('#3A3F4A')
-    b.inputs['Roughness'].default_value = 0.7
+    b.inputs['Roughness'].default_value = 0.6
     coord = nt.nodes.new('ShaderNodeTexCoord')
-    vor = nt.nodes.new('ShaderNodeTexVoronoi'); vor.feature = 'F1'; vor.inputs['Scale'].default_value = 1.3
-    rampe = nt.nodes.new('ShaderNodeValToRGB'); rampe.color_ramp.elements[0].position = 0.82
-    rampe.color_ramp.elements[0].color = (0, 0, 0, 1); rampe.color_ramp.elements[1].position = 0.83
-    rampe.color_ramp.elements[1].color = hexa('#F2C97A')
-    nt.links.new(coord.outputs['Object'], vor.inputs['Vector'])
-    nt.links.new(vor.outputs['Color'], rampe.inputs['Fac'])
-    nt.links.new(rampe.outputs['Color'], b.inputs['Emission Color'])
-    b.inputs['Emission Strength'].default_value = 2.0
-    for k in range(140):
-        dist = random.uniform(18, 420)
-        x = random.uniform(-dist * 0.9, dist * 0.9) + L / 2
-        hauteur = random.uniform(8, 30) * (1 + dist / 260)
-        larg = random.uniform(8, 22)
-        o = boite(f'immeuble {k}', (x, P + dist, hauteur / 2 - 6), (larg, random.uniform(8, 20), hauteur), m)
-    sol = boite('sol extérieur', (L / 2, P + 300, -6.1), (1400, 600, 0.2), materiau_uni('sol ville', '#2A2E36', 0.9))
-
-
+    brique = nt.nodes.new('ShaderNodeTexBrick')
+    brique.inputs['Scale'].default_value = 1.0
+    brique.inputs['Brick Width'].default_value = 1.6
+    brique.inputs['Row Height'].default_value = 3.2
+    brique.inputs['Mortar Size'].default_value = 0.35
+    brique.inputs['Color1'].default_value = (1, 1, 1, 1); brique.inputs['Color2'].default_value = (0, 0, 0, 1)
+    brique.inputs['Mortar'].default_value = (0, 0, 0, 1)
+    brique.offset = 0.0
+    nt.links.new(coord.outputs['Object'], brique.inputs['Vector'])
+    # La sortie Fac donne une valeur au hasard par brique : on n'allume qu'une fenêtre sur cinq environ.
+    seuil = nt.nodes.new('ShaderNodeMath'); seuil.operation = 'GREATER_THAN'; seuil.inputs[1].default_value = 0.62   # de nuit, une fenêtre sur trois est allumée
+    nt.links.new(brique.outputs['Color'], seuil.inputs[0])   # valeur au hasard par fenêtre
+    vitre = nt.nodes.new('ShaderNodeMath'); vitre.operation = 'MULTIPLY'
+    nt.links.new(seuil.outputs['Value'], vitre.inputs[0]); nt.links.new(brique.outputs['Fac'], vitre.inputs[1])   # sans le joint
+    vitre2 = nt.nodes.new('ShaderNodeMath'); vitre2.operation = 'MULTIPLY'; vitre2.inputs[1].default_value = 7.0
+    nt.links.new(vitre.outputs['Value'], vitre2.inputs[0]); vitre = vitre2
+    nt.links.new(vitre.outputs['Value'], b.inputs['Emission Strength'])
+    b.inputs['Emission Color'].default_value = hexa('#FFC870')
+    b.inputs['Emission Strength'].default_value = 0.0
+    melange = nt.nodes.new('ShaderNodeMix'); melange.data_type = 'RGBA'
+    melange.inputs['A'].default_value = hexa('#2A2F3A'); melange.inputs['B'].default_value = hexa('#12151B')
+    nt.links.new(brique.outputs['Fac'], melange.inputs['Factor'])
+    nt.links.new(melange.outputs['Result'], b.inputs['Base Color'])
+    BAS = -35.0
+    for k in range(220):
+        dist = random.uniform(70, 900)
+        x = L / 2 + random.uniform(-1.1, 1.1) * dist
+        hauteur = random.uniform(12, 45) + (random.random() < 0.12) * random.uniform(40, 110)
+        larg = random.uniform(14, 34)
+        boite(f'immeuble {k}', (x, P + dist, BAS + hauteur / 2), (larg, random.uniform(14, 30), hauteur), m)
+    boite('sol extérieur', (L / 2, P + 600, BAS - 0.1), (3000, 1300, 0.2), materiau_uni('sol ville', '#23262D', 0.9))
 ville()
+# Feux rouges clignotants sur les plus hautes tours (balisage aérien).
+BALISE = materiau_uni('balise', '#FF2A1A', emission='#FF2A1A', force=40.0)
+for o in [o for o in scene.objects if o.name.startswith('immeuble')]:
+    if o.dimensions.z > 70:
+        boite('balise', (o.location.x, o.location.y, o.location.z + o.dimensions.z / 2 + 0.6), (0.8, 0.8, 0.8), BALISE)
 
-monde = bpy.data.worlds.new('ciel'); scene.world = monde
-nt = monde.node_tree if monde.node_tree else None
-if nt is None:
-    monde.use_nodes = True; nt = monde.node_tree
-ciel = nt.nodes.new('ShaderNodeTexSky')
-ciel.sky_type = 'MULTIPLE_SCATTERING' if hasattr(ciel, 'sky_type') and 'MULTIPLE_SCATTERING' in [i.identifier for i in ciel.bl_rna.properties['sky_type'].enum_items] else ciel.sky_type
-ciel.sun_elevation = math.radians(4)
-ciel.sun_rotation = math.radians(15)
-nt.links.new(ciel.outputs['Color'], nt.nodes['Background'].inputs['Color'])
-nt.nodes['Background'].inputs['Strength'].default_value = 0.35
+# Ciel de nuit : bleu profond en haut, plus clair et un peu chaud à l'horizon (la ville éclaire le ciel).
+monde = bpy.data.worlds.new('nuit'); scene.world = monde
+monde.use_nodes = True
+nt = monde.node_tree
+coord = nt.nodes.new('ShaderNodeTexCoord')
+sep = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(coord.outputs['Generated'], sep.inputs['Vector'])
+rampe = nt.nodes.new('ShaderNodeValToRGB')
+e = rampe.color_ramp.elements
+e[0].position, e[0].color = 0.5, hexa('#3A2F45')      # horizon : halo de la ville
+e[1].position, e[1].color = 0.62, hexa('#0A1630')     # nuit
+e.new(0.85).color = hexa('#03070F')
+nt.links.new(sep.outputs['Z'], rampe.inputs['Fac'])
+nt.links.new(rampe.outputs['Color'], nt.nodes['Background'].inputs['Color'])
+nt.nodes['Background'].inputs['Strength'].default_value = 1.0
 
-# Soleil bas et doré qui entre en biais par la baie.
-soleil = bpy.data.lights.new('soleil', 'SUN'); soleil.energy = 4.5; soleil.color = hexa('#FFB866')[:3]; soleil.angle = math.radians(1.5)
-o = bpy.data.objects.new('soleil', soleil); scene.collection.objects.link(o)
-o.rotation_euler = (math.radians(84), 0, math.radians(165))
 
-
-def lumiere(nom, type_, position, energie, couleur, taille=0.3, rotation=(0, 0, 0)):
+def lumiere(nom, type_, position, energie, couleur, taille=0.3, rotation=(0, 0, 0), cone=None):
     d = bpy.data.lights.new(nom, type_); d.energy = energie; d.color = hexa(couleur)[:3]
     if type_ == 'AREA':
         d.size = taille
     else:
         d.shadow_soft_size = taille
+    if cone:
+        d.spot_size, d.spot_blend = math.radians(cone), 0.6
     o = bpy.data.objects.new(nom, d); o.location = position
+    o.visible_camera = o.visible_glossy = False   # la lumière éclaire, sans apparaître à l'image
     o.rotation_euler = [math.radians(a) for a in rotation]; scene.collection.objects.link(o)
 
 
-lumiere('baie (ciel)', 'AREA', (L / 2, P - 0.2, 1.6), 900, '#FFD9A8', 6.0, (90, 0, 0))
-lumiere('suspension', 'POINT', (6.2, 3.0, 1.95), 60, '#F2C97A', 0.1)
-lumiere('lampadaire', 'POINT', (7.4, 0.6, 1.5), 90, '#F2C97A', 0.15)
-lumiere('écrans', 'AREA', (0.45, 3.0, 1.1), 20, '#9FC4D8', 0.8, (0, -90, 0))
-lumiere('rebond plafond', 'AREA', (4.0, 3.0, H - 0.05), 160, '#F6E3C0', 4.0)
+# Éclairage de nuit : seulement les lampes de la pièce (2 700 K), plus la lueur froide des écrans.
+lumiere('suspension', 'POINT', (6.2, 2.6, 2.25), 55, '#FFC27A', 0.08)
+lumiere('suspension 2', 'POINT', (6.2, 3.4, 2.25), 55, '#FFC27A', 0.08)
+lumiere('lampadaire', 'POINT', (7.4, 0.6, 1.45), 120, '#FFB866', 0.12)
+for x, y in ((2.2, 1.5), (2.2, 4.5), (4.4, 1.2), (4.4, 4.8), (7.2, 1.5), (7.2, 4.5)):   # spots encastrés, doux
+    lumiere('spot', 'SPOT', (x, y, H - 0.02), 45, '#FFD29A', 0.05, (0, 0, 0), cone=70)
+lumiere('écrans', 'AREA', (0.45, 3.0, 1.1), 18, '#8FB8D8', 0.8, (0, -90, 0))
+lumiere('key light', 'AREA', (0.45, 3.95, 1.35), 25, '#FFF1DC', 0.3, (0, -70, 25))
+lumiere('TV (reflet)', 'AREA', (L - 0.2, 3.0, 1.3), 10, '#6E8FB8', 1.5, (0, 90, 0))
 
 
 # ------------------------------------------------------------------ caméras d'aperçu
@@ -341,6 +432,7 @@ CAMS = {
     'salon': camera('salon', (3.2, 1.0, 1.4), (L, 3.6, 1.0), 26),
     'bureau': camera('bureau', (2.6, 3.0, 1.45), (0.2, 3.0, 1.2), 30),
     'baie': camera('baie', (6.5, 1.2, 1.5), (3.0, 6.0, 1.3), 24),
+    'etageres': camera('etageres', (1.6, 3.3, 1.55), (0.15, 1.35, 1.4), 32),
 }
 scene.camera = CAMS[opt.get('cam', 'porte')]
 

@@ -47,3 +47,7 @@
 - **TV 85"**, **grand canapé d'angle modulable**, meubles de meilleure qualité : faits main en détail (coutures, coussins,
   arrondis) ou modèles BlenderKit / Sketchfab fournis par le client.
 - **Rendu final sur le PC du client** (carte graphique) : construction et aperçus ici, puis une commande de rendu Windows.
+- **Nuit** (et non plus coucher de soleil) : ville aux fenêtres allumées sous un ciel bleu nuit ; la pièce est éclairée
+  par ses propres lampes chaudes (suspensions, lampadaire, LED d'étagères, écrans).
+- **Cohérence exigée** : vraie porte avec son interrupteur, prises près des appareils, chaque objet posé sur sa surface,
+  étagères remplies (livres, vases, plantes, cadres) en plus des répliques, affiches au mur, déco sur la table basse.

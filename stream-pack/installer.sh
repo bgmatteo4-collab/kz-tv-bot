@@ -20,4 +20,10 @@ grep -v '^#' "$ICI/assets.txt" | while read type id res; do
   python3 "$ICI/blender/telecharger_asset.py" "$type" "$id" "$res" "$ICI/assets" && touch "$ICI/assets/$id.ok"
 done
 python3 "$ICI/blender/telecharger_modeles.py"
+# Affiches officielles (TMDB) : Avengers: Endgame, Retour vers le futur, Rick et Morty.
+mkdir -p "$ICI/assets/affiches"
+for ligne in endgame:bR8ISy1O9XQxqiy0fQFw2BX72RQ retour-vers-le-futur:vN5B5WgYscRGcQpVhHl6p9DDTP0 rick-et-morty:owhkU6KRqdXoUQpjV8uyZGPtX58; do
+  nom=${ligne%%:*}; id=${ligne#*:}
+  [ -s "$ICI/assets/affiches/$nom.jpg" ] || curl -sS -o "$ICI/assets/affiches/$nom.jpg" "https://image.tmdb.org/t/p/original/$id.jpg"
+done
 echo "outillage prêt"

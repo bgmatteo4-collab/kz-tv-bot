@@ -20,7 +20,8 @@ Licence CC BY 4.0 : attribution obligatoire (à mettre aussi dans la description
 - bouclier — « Captain America Shield » par ElliotGriffiths24 (CC Attribution) — https://sketchfab.com/3d-models/a11d64b3092a403cafec9a651075e6be
 - casque_ironman — « Iron-Man Helmet (MK3) » par designpill (CC Attribution) — https://sketchfab.com/3d-models/901d24c9a1714deeb724c98a8cb4649e
 - mjolnir — « Mjolnir (Thor's hammer) » par TheDevilsEye (CC Attribution) — https://sketchfab.com/3d-models/ecca1232710f4721b14d64a90bba6557
-- gant_infini — « Infinity Gauntlet » par KevinMar (CC Attribution) — https://sketchfab.com/3d-models/8a0e46e4ee714ae5af5f1c2ee7dc3736
+- gant_infini2 — « Gauntlet » par Ajay.Joshua.Fabien (CC Attribution) — https://sketchfab.com/3d-models/3513412813e8423084107a0774957bf1
+- reacteur_arc — « Iron-Man Mark 85 | Nano-Tech Arc Reactor | Free » par Nihar-9Afilms (CC Attribution) — https://sketchfab.com/3d-models/7686cfc26b68477cb64d33a467c9f9bf
 - delorean — « Delorean - time machine - low poly » par JellyFighter (CC Attribution) — https://sketchfab.com/3d-models/a36c5afa1bb24e16a3adfbcf08eb9390
 - convecteur — « Flux Capacitor » par marceloguiot (CC Attribution) — https://sketchfab.com/3d-models/985876d9d0694c2cbb5a4d5aafa14619
 - hoverboard — « Hoverboard BTTF - WCG » par vanillatography (CC Attribution) — https://sketchfab.com/3d-models/b3c46a32438443d099ae64b83027f5a3
@@ -30,3 +31,6 @@ Licence CC BY 4.0 : attribution obligatoire (à mettre aussi dans la description
 - plante — « Monstera Deliciosa Potted Mid-Century plant » par ChubbyPanda (CC Attribution) — https://sketchfab.com/3d-models/1ab9bf841df04c07b1819be596327629
 - lampadaire — « Drum shade floor lamp » par alpaca. (CC Attribution) — https://sketchfab.com/3d-models/1aa6739d774348efa691340e3a12b870
 - suspension — « Luminária Mantra 6127 » par edudias (CC Attribution) — https://sketchfab.com/3d-models/66835907849a498f959ddbc0bb3bdae3
+
+
+Paysages de la TV : HDRI Poly Haven (CC0) — lakeside, cape_hill, umhlanga_sunrise — https://polyhaven.com

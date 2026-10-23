@@ -135,14 +135,6 @@
   "faces": 1550,
   "chemin": "glbs/000-133/ecca1232710f4721b14d64a90bba6557.glb"
  },
- "gant_infini": {
-  "uid": "8a0e46e4ee714ae5af5f1c2ee7dc3736",
-  "nom": "Infinity Gauntlet",
-  "auteur": "KevinMar",
-  "licence": "CC Attribution",
-  "faces": 4416,
-  "chemin": "glbs/000-045/8a0e46e4ee714ae5af5f1c2ee7dc3736.glb"
- },
  "delorean": {
   "uid": "a36c5afa1bb24e16a3adfbcf08eb9390",
   "nom": "Delorean - time machine - low poly",
@@ -214,5 +206,21 @@
   "licence": "CC Attribution",
   "faces": 43240,
   "chemin": "glbs/000-144/66835907849a498f959ddbc0bb3bdae3.glb"
+ },
+ "gant_infini2": {
+  "uid": "3513412813e8423084107a0774957bf1",
+  "nom": "Gauntlet",
+  "auteur": "Ajay.Joshua.Fabien",
+  "licence": "CC Attribution",
+  "faces": 17992,
+  "chemin": "glbs/000-048/3513412813e8423084107a0774957bf1.glb"
+ },
+ "reacteur_arc": {
+  "uid": "7686cfc26b68477cb64d33a467c9f9bf",
+  "nom": "Iron-Man Mark 85 | Nano-Tech Arc Reactor | Free",
+  "auteur": "Nihar-9Afilms",
+  "licence": "CC Attribution",
+  "faces": 43224,
+  "chemin": "glbs/000-036/7686cfc26b68477cb64d33a467c9f9bf.glb"
  }
 }

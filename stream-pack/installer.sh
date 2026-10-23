@@ -26,4 +26,7 @@ for ligne in endgame:bR8ISy1O9XQxqiy0fQFw2BX72RQ retour-vers-le-futur:vN5B5WgYsc
   nom=${ligne%%:*}; id=${ligne#*:}
   [ -s "$ICI/assets/affiches/$nom.jpg" ] || curl -sS -o "$ICI/assets/affiches/$nom.jpg" "https://image.tmdb.org/t/p/original/$id.jpg"
 done
+# Programme de la TV (paysages en travelling, depuis les HDRI) et captures des écrans du setup.
+[ -s "$ICI/assets/tv/programme.mp4" ] || "$OUTILS/blender/blender" -b -P "$ICI/tv/programme.py"
+(cd "$ICI/ecrans" && NODE_PATH=${NODE_PATH:-/opt/node-tools/node_modules} node cap.js && NODE_PATH=${NODE_PATH:-/opt/node-tools/node_modules} node chat.js) || echo "captures d'écrans : Playwright absent, on garde les PNG du dépôt"
 echo "outillage prêt"

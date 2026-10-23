@@ -169,7 +169,8 @@ function signature(a) {
     const segs = [];
     for (let k = 0; k * pas < total; k++) segs.push({ first: k * pas, last: Math.min(total, (k + 1) * pas), file: path.join(dossier, `seg-${String(k).padStart(3, '0')}.mp4`) });
     const sig = signature(a);
-    if (!fs.existsSync(path.join(dossier, 'signature')) || fs.readFileSync(path.join(dossier, 'signature'), 'utf8') !== sig) fs.rmSync(dossier, { recursive: true, force: true });
+    // --garder 1 : garde les segments déjà rendus malgré un correctif qui ne les concerne pas.
+    if (!a.garder && (!fs.existsSync(path.join(dossier, 'signature')) || fs.readFileSync(path.join(dossier, 'signature'), 'utf8') !== sig)) fs.rmSync(dossier, { recursive: true, force: true });
     fs.mkdirSync(dossier, { recursive: true });
     fs.writeFileSync(path.join(dossier, 'signature'), sig);
     const restants = segs.filter((g) => !fs.existsSync(g.file));

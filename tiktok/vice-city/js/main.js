@@ -283,7 +283,7 @@ function dessinerPoints(t, c) {
     if (a <= 0) continue;
     const p = R.lieu(k.id);
     for (let i = 0; i < 2; i++) {
-      const o = ((t - k.quand) * 0.8 + i * 0.5) % 1;
+      const o = ((((t - k.quand) * 0.8 + i * 0.5) % 1) + 1) % 1;   // modulo toujours positif (avant l'apparition aussi)
       ctx.globalAlpha = a * (1 - o);
       ctx.strokeStyle = '#F23A55'; ctx.lineWidth = 2 / c.s;
       ctx.beginPath(); ctx.arc(p.X / 2, p.Y / 2, (6 + 40 * o) / c.s, 0, Math.PI * 2); ctx.stroke();

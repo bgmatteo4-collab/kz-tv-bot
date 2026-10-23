@@ -21,7 +21,8 @@ Rien ne passe à l'écran sans source. Statut : ✅ sourcé (Wikipédia FR + pre
 ## Aujourd'hui
 - ✅ *DOM PERIGNON CRYING* (31/10/2025, Sideline) : n°2 du Top Albums France en première semaine, derrière Gims.
 - ✅ EP *HHHH²* (2026, Sideline).
-- ⚠️ Paris La Défense Arena, 10/04/2026, complet : une seule source (titre d'une vidéo live) ; un article Fnac parle de « plus grande salle d'Europe » en mai 2026. À trancher.
+- ✅ Paris La Défense Arena, 10/04/2026 : 39 964 billets, 2,76 M$ de recettes (Pollstar). Plus grande salle couverte d'Europe, rebaptisée Plenitude Arena le 01/07/2026 (Pollstar, Wikipédia).
+- ⚠️ « Complet » : annoncé par des billetteries, pas par Pollstar. Dire « près de 40 000 billets ».
 - ⚠️ DPC Tour (Zéniths) du 15/10 au 07/11/2026 (Rouen, Caen, Nantes, Bordeaux, Poitiers/Futuroscope, Lille, Reims, Dijon, Marseille, Lyon) : billetteries, à reconfirmer.
 
 ## Contradictions entre sources (ne pas afficher tant que non tranché)

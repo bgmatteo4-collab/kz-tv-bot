@@ -2,6 +2,7 @@
 // Pour l'instant : l'accroche (le luxe d'aujourd'hui, puis « il dormait parfois dehors »).
 import { C, clamp, lerp, prog, tw, E, ressort, style, vis, el, $ } from './outils.js';
 import { calculer } from './partition.js';
+import { creerFrise } from './frise.js';
 
 const params = new URLSearchParams(location.search);
 let T;
@@ -87,15 +88,16 @@ function reperes() {
   };
 }
 
-let R, blocs, E_dpc, E_tulum, E_billet;
+let R, F, blocs, E_dpc, E_tulum, E_billet;
 
 function preparer() {
   R = reperes();
+  F = creerFrise(T);
   blocs = [
     // Le luxe s'accumule dans un seul bloc (lisible plus longtemps), qui laisse place au compteur.
     creerBloc({ sortie: R.compte[0] - 0.5, lignes: [['Aujourd’hui', R.a1.debut - 0.2, 'sur'], ['Dom Pérignon,', T.mot('a1', 'du')], ['Tulum, Mexique,', T.mot('a2', 'tulum'), 'serif']] }),
     creerBloc({ sortie: R.D, lignes: [['Billets vendus · une soirée', T.mot('a3', 'billets'), 'sur']] }),
-    creerBloc({ sortie: T.duree + 1, lignes: [['Il y a quelques années', T.mot('a4', 'quelques'), 'sur'], ['Josman', T.mot('a4', 'josman')], ['dormait parfois', T.mot('a4', 'dormait')], ['dehors.', T.mot('a4', 'dehors'), 'serif']] }),
+    creerBloc({ sortie: F.debut - 0.3, lignes: [['Il y a quelques années', T.mot('a4', 'quelques'), 'sur'], ['Josman', T.mot('a4', 'josman')], ['dormait parfois', T.mot('a4', 'dormait')], ['dehors.', T.mot('a4', 'dehors'), 'serif']] }),
   ];
   // Le bloc du compteur se place sous le chiffre.
   style(blocs[1].b, 'top', '120px');
@@ -120,12 +122,17 @@ function dessiner(t) {
 
   // Lumière : s'allume au début, meurt sur « Pourtant ».
   const lumiere = tw(t, 0, 1.1) * clignote(t, D, 0.7);
-  vis($('douche'), lumiere);
+  vis($('douche'), Math.max(lumiere, 0.6 * tw(t, F.debut + 0.3, 1.4, E.doux)));
   vis($('faisceau'), lumiere * (0.85 + 0.15 * Math.sin(t * 0.9)));
   // L'obscurité recouvre les objets ; le lampadaire, froid, s'allume sur « quelques années ».
   vis($('obscur'), 0.9 * tw(t, D + 0.1, 0.9, E.doux));
   const lamp = t < lampe ? 0 : clamp(prog(t, lampe, 0.18) * (t < lampe + 0.32 ? (Math.floor((t - lampe) * 30) % 3 ? 1 : 0.35) : 1));
-  vis($('lampadaire'), lamp * 0.95);
+  vis($('lampadaire'), lamp * 0.95 * (1 - tw(t, F.debut - 0.2, 0.9, E.doux)));
+  // La flaque de lumière se resserre en un point d'or qui devient la première étape de la frise.
+  const pt = E.traversee(prog(t, F.debut - 0.5, 0.9));
+  vis($('point'), t > F.debut - 0.6 && t < F.debut + 0.6 ? clamp(prog(t, F.debut - 0.6, 0.25)) * (1 - prog(t, F.debut + 0.35, 0.25)) : 0);
+  style($('point'), 'transform', `translate3d(531px,${lerp(1541, 1321, pt).toFixed(1)}px,0) scale(${lerp(2.2, 1, pt).toFixed(3)})`);
+  const fini = 1 - prog(t, F.debut, 0.6);       // les objets de l'accroche quittent la scène
 
   // Pochette DPC : monte dans la lumière, avance très lentement, puis recule pour Tulum.
   const montee = tw(t, a1.debut - 0.45, 1.0);
@@ -135,20 +142,20 @@ function dessiner(t) {
   poser($('dpc'), {
     x: 540 + lerp(0, -330, vB) + lerp(0, 40, vC), y: 1290 + 140 * (1 - montee), w: 600, h: 600,
     z: lerp(0, -420, vB) + lerp(0, -600, vC), ry: lerp(0, 24, vB) + lerp(0, 6, vC), rx: 6 * (1 - montee),
-    s: 1 + pousse, a: montee * lerp(1, 0.6, vB) * lerp(1, 0.5, vC),
+    s: 1 + pousse, a: fini * montee * lerp(1, 0.6, vB) * lerp(1, 0.5, vC),
   });
   // Tulum : entre par la droite dans le travelling, se pose au centre, puis recule.
   const tulumA = clamp(prog(t, B, 0.4));
   poser($('tulum'), {
     x: lerp(1480, 560, vB) + lerp(0, 230, vC), y: 1290, w: 600, h: 600,
     z: lerp(-200, 0, vB) + lerp(0, -900, vC), ry: lerp(-30, -3, vB) + lerp(0, -16, vC),
-    s: 1 + 0.025 * E.doux(prog(t, B, 4)), a: tulumA * lerp(1, 0.5, vC),
+    s: 1 + 0.025 * E.doux(prog(t, B, 4)), a: fini * tulumA * lerp(1, 0.5, vC),
   });
   // Le billet : glisse depuis le bas, se pose légèrement de biais, tenu jusqu'au noir.
   const bil = ressort(t - tc - 0.2, 120, 17);
   poser($('billet'), {
     x: 540, y: lerp(2400, 1330, bil), w: 780, h: 300, z: 0, rz: lerp(-16, -4, bil), rx: 0,
-    s: 1 + 0.02 * E.doux(prog(t, tc + 0.6, 4)), a: t < tc + 0.15 ? 0 : 1,
+    s: 1 + 0.02 * E.doux(prog(t, tc + 0.6, 4)), a: t < tc + 0.15 ? 0 : fini,
   });
 
   // Étiquettes de crédit, posées au-dessus de chaque objet quand il est au premier plan.
@@ -160,6 +167,14 @@ function dessiner(t) {
   vis(E_billet, eC); style(E_billet, 'transform', `translate3d(96px,${(1380 - 12 * eC).toFixed(1)}px,0)`);
 
   for (const b of blocs) dessinerBloc(b, t);
+  F.dessiner(t);
+  // Les streams : le compteur se pose au-dessus de toute la frise.
+  const sa = tw(t, F.dezoom.t0 + 0.2, 0.8);
+  vis($('streams'), sa);
+  if (sa > 0) {
+    style($('streams'), 'transform', `translate3d(0,${(30 * (1 - sa)).toFixed(1)}px,0)`);
+    $('st-n').textContent = Math.round(2e9 * E.sortie(prog(t, F.dezoom.t0 + 0.2, 1.8))).toLocaleString('fr-FR').replace(/\s/g, ' ');
+  }
   dessinerCompteur(t, compte[0], compte[1], D);
 
   // L'onglet de la série glisse du bord.
@@ -176,7 +191,7 @@ async function demarrer() {
   ]);
   preparer();
   window.__render = (t) => { dessiner(t); return document.fonts.ready.then(() => true); };
-  window.__sous = (t) => ((t > R.B && t < R.B + 1) || (t > R.C && t < R.C + 1.3) ? 3 : 1);
+  window.__sous = (t) => ((t > R.B && t < R.B + 1) || (t > R.C && t < R.C + 1.3) || F.stops.some((s, i) => i && t > s.quand - s.duree - 0.05 && t < s.quand) || (t > F.dezoom.t0 && t < F.dezoom.t0 + F.dezoom.d) ? 3 : 1);
   window.__duree = T.duree;
   window.__sons = [];
   window.__ready = true;

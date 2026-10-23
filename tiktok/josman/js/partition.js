@@ -8,6 +8,16 @@ export const LIGNES = [
   { id: 'a2', dit: 'Tulum, au Mexique,' },
   { id: 'a3', dit: 'et près de deux virgule huit millions de dollars de billets vendus en une seule soirée.' },
   { id: 'a4', dit: 'Pourtant, il y a quelques années, Josman dormait parfois dehors.', avant: 0.55 },
+  // Qui il est : une étape de la frise par phrase (b3 en porte deux).
+  { id: 'b1', dit: 'José Nzengo, né en mille neuf cent quatre-vingt-douze à Vierzon.', avant: 0.9 },
+  { id: 'b2', dit: 'Il commence seul, dans sa chambre, sur ses propres instrus.' },
+  { id: 'b3', dit: "Après le bac, il monte à Aubervilliers. Et en deux mille treize, il gagne le concours d'impro End of the Weak." },
+  // Ce qu'il a accompli : la frise accélère.
+  { id: 'c1', dit: 'Puis tout s\'accélère : « Dans le vide », dix-huit millions de vues.', avant: 0.5 },
+  { id: 'c2', dit: 'J.O.$, disque de platine.' },
+  { id: 'c3', dit: 'Deux titres diamant.' },
+  { id: 'c4', dit: 'Un Accor Arena complet.' },
+  { id: 'c5', dit: 'Et plus de deux milliards de streams.' },
 ];
 
 const DEBUT = 0.45, PAUSE = 0.3, QUEUE = 1.4;

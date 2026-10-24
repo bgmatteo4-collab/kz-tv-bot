@@ -1,0 +1,70 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Propositions d'alertes : trois concepts, chacun en trois images clés (arrivée, plein, sortie), posés sur l'overlay Just Chatting. */
+@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(../da/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--miel:#E0A93B;--papier:#F1ECE3}
+*{box-sizing:border-box;margin:0;padding:0}body{background:#000;font-family:Rubik,sans-serif}
+.f{width:1920px;height:1080px;position:relative;overflow:hidden;background:url(../rendus/deck/vue_sud.png) center/cover}
+.voile{position:absolute;inset:0;background:rgba(10,14,17,.15)}
+.nom3d{font:900 96px Rubik;letter-spacing:-1px;color:var(--teal);line-height:1;
+  text-shadow:1px 1px 0 #13403c,2px 2px 0 #13403c,3px 3px 0 #123b37,4px 4px 0 #113632,5px 5px 0 #10312e,6px 6px 0 #0f2c29,10px 16px 24px rgba(0,0,0,.35)}
+.miel3d{color:var(--miel);text-shadow:1px 1px 0 #9a6a1c,2px 2px 0 #93641a,3px 3px 0 #8a5d17,4px 4px 0 #815614,5px 5px 0 #784f12,6px 6px 0 #6f4810,10px 16px 24px rgba(0,0,0,.4)}
+.papier3d{color:var(--papier);text-shadow:1px 1px 0 #b2a58c,2px 2px 0 #a99b80,3px 3px 0 #9f9175,4px 4px 0 #95876b,5px 5px 0 #8b7d61,6px 6px 0 #817357,10px 16px 24px rgba(0,0,0,.4)}
+/* A · carte papier */
+.carte{position:absolute;left:50%;top:330px;width:880px;transform:translateX(-50%);background:var(--papier);border-radius:28px;padding:34px 44px;display:flex;gap:34px;align-items:center;
+  box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.carte .rond{width:150px;height:150px;border-radius:50%;background:var(--teal);display:grid;place-items:center;flex:none}
+.carte .l{font:500 30px Rubik;color:#4C5A5B;margin-top:10px}.carte .l b{color:var(--miel);font-weight:900}
+.tache{position:absolute;background:url(tache-encre.png) center/contain no-repeat}
+/* B · goutte */
+.badge{position:absolute;left:50%;top:150px;width:640px;height:640px;border-radius:50%;transform:translateX(-50%);
+  background:radial-gradient(circle at 40% 35%,#2E7D76,#1E5B57 55%,#0F1519 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+  box-shadow:0 0 0 10px rgba(224,169,59,.9),0 30px 90px rgba(0,0,0,.6)}
+.badge .l{font:500 34px Rubik;color:var(--papier);letter-spacing:3px;text-transform:uppercase}
+/* C · néon */
+.plaque{position:absolute;left:50%;top:120px;transform:translateX(-50%);padding:46px 80px;border-radius:26px;background:rgba(10,14,17,.72);border:2px solid rgba(201,207,211,.18);
+  display:flex;flex-direction:column;align-items:center;gap:14px}
+.neon{font:900 120px Rubik;color:transparent;-webkit-text-stroke:3px #FFC24A;line-height:1}
+.neon.on{text-shadow:0 0 16px rgba(255,194,74,.95),0 0 46px rgba(255,194,74,.6),0 0 90px rgba(255,194,74,.35)}
+.neon.off{-webkit-text-stroke:3px #5a4a2a}
+.sous{font:900 40px Rubik;letter-spacing:6px;color:transparent;-webkit-text-stroke:2px #3FD3C2}
+.sous.on{text-shadow:0 0 12px rgba(63,211,194,.95),0 0 36px rgba(63,211,194,.5)}.sous.off{-webkit-text-stroke:2px #1d4a45}
+.legende{position:absolute;left:40px;bottom:30px;font:900 44px Rubik;color:var(--papier);background:rgba(10,14,17,.8);padding:10px 22px;border-radius:14px}
+</style></head><body>
+<!-- A · Carte papier -->
+<div id="a1" class="f"><div class="voile"></div>
+  <div class="tache" style="left:660px;top:330px;width:600px;height:373px;opacity:.9"></div>
+  <div class="carte" style="top:620px;opacity:.55"><div class="rond"></div><div><div class="nom3d">NYX</div><div class="l">vient de s'abonner</div></div></div>
+  <div class="legende">A · 1 l'encre jaillit, la carte monte</div></div>
+<div id="a2" class="f"><div class="voile"></div>
+  <div class="tache" style="left:420px;top:180px;width:1080px;height:672px"></div>
+  <div class="carte"><div class="rond"><svg width="110" height="118" viewBox="0 0 112 120"><path d="M56 8 C 56 8 96 54 96 74 A 40 40 0 0 1 16 74 C 16 54 56 8 56 8 Z" fill="#2E7D76" stroke="#0F1519" stroke-width="5"/>
+    <ellipse cx="44" cy="70" rx="8" ry="10" fill="#F1ECE3" stroke="#0F1519" stroke-width="3"/><ellipse cx="68" cy="70" rx="8" ry="10" fill="#F1ECE3" stroke="#0F1519" stroke-width="3"/>
+    <circle cx="46" cy="72" r="4" fill="#0F1519"/><circle cx="70" cy="72" r="4" fill="#0F1519"/><path d="M46 88 q10 9 20 0" stroke="#0F1519" stroke-width="4" fill="none" stroke-linecap="round"/></svg></div>
+    <div><div class="nom3d">NYX</div><div class="l">vient de s'abonner · <b>6 mois</b></div></div></div>
+  <div class="legende">A · 2 la carte papier, le nom en volume</div></div>
+<div id="a3" class="f"><div class="voile"></div>
+  <div class="tache" style="left:330px;top:120px;width:1260px;height:784px;opacity:.35"></div>
+  <div class="carte" style="top:250px;opacity:.35;transform:translateX(-50%) scale(.92)"><div class="rond"></div><div><div class="nom3d">NYX</div><div class="l">vient de s'abonner</div></div></div>
+  <div class="legende">A · 3 la carte s'envole, l'encre se dilue</div></div>
+<!-- B · Goutte d'encre -->
+<div id="b1" class="f"><div class="voile"></div>
+  <svg style="position:absolute;left:910px;top:120px" width="100" height="160" viewBox="0 0 112 160"><path d="M56 8 C 56 8 96 80 96 110 A 40 40 0 0 1 16 110 C 16 80 56 8 56 8 Z" fill="#1E5B57"/></svg>
+  <div class="legende">B · 1 une goutte tombe</div></div>
+<div id="b2" class="f"><div class="voile"></div>
+  <div class="badge"><div class="l">nouvel abonné</div><div class="nom3d papier3d" style="font-size:130px">NYX</div><div class="l" style="color:#E0A93B">6 mois</div></div>
+  <div class="legende">B · 2 elle éclot en médaillon d'encre</div></div>
+<div id="b3" class="f"><div class="voile"></div>
+  <div class="badge" style="opacity:.45;transform:translateX(-50%) scale(1.12);box-shadow:none"><div class="nom3d papier3d" style="font-size:130px;opacity:.6">NYX</div></div>
+  <div class="legende">B · 3 le médaillon se dilue</div></div>
+<!-- C · Néon -->
+<div id="c1" class="f"><div class="voile"></div>
+  <div class="plaque"><div class="neon off">NYX</div><div class="sous off">NOUVEL ABONNÉ</div></div>
+  <div class="legende">C · 1 l'enseigne éteinte apparaît</div></div>
+<div id="c2" class="f"><div class="voile"></div>
+  <div class="plaque"><div class="neon on" style="opacity:.6">NYX</div><div class="sous off">NOUVEL ABONNÉ</div></div>
+  <div class="legende">C · 2 le néon grésille et s'allume</div></div>
+<div id="c3" class="f"><div class="voile"></div>
+  <div class="plaque"><div class="neon on">NYX</div><div class="sous on">NOUVEL ABONNÉ</div></div>
+  <div class="legende">C · 3 tout est allumé</div></div>
+</body></html>

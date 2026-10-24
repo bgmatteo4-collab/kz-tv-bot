@@ -1,0 +1,72 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Propositions d'emotes : la mascotte « Goutte » (8 expressions) et des emotes texte en volume. Chaque emote est un SVG 112 × 112. */
+@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:#0F1519;font-family:Rubik,sans-serif;color:#F1ECE3}
+#planche{width:1920px;padding:56px 72px 64px;display:flex;flex-direction:column;gap:30px}
+h1{font:900 56px Rubik;letter-spacing:-1px}h1 em{font-style:normal;color:#E0A93B}
+h2{font:900 34px Rubik;margin-top:10px}p.sous{font-size:22px;color:#BFC8C9}
+.rang{display:flex;gap:20px;flex-wrap:wrap}
+.e{display:flex;flex-direction:column;align-items:center;gap:10px;background:#17222A;border-radius:18px;padding:18px 12px 14px;width:194px}
+.e svg.g{width:150px;height:150px}
+.e .tailles{display:flex;gap:10px;align-items:flex-end;background:#2B3940;border-radius:8px;padding:6px 10px}
+.e .tailles svg{display:block}
+.e b{font:900 22px Rubik}.e small{font-size:17px;color:#9FB0B3}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="corps" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E7D76"/><stop offset="1" stop-color="#1E5B57"/></linearGradient>
+  <path id="goutte" d="M56 8 C 56 8 96 54 96 74 A 40 40 0 0 1 16 74 C 16 54 56 8 56 8 Z"/>
+</defs></svg>
+<div id="planche">
+  <h1>Emotes · <em>propositions</em></h1>
+  <h2>Piste 1 · La mascotte « Goutte »</h2>
+  <p class="sous">La goutte d'encre de ta transition devient un personnage. Contour épais pour rester lisible en tout petit (28 px dans le chat).</p>
+  <div class="rang" id="mascotte"></div>
+  <h2>Piste 2 · Emotes texte en volume</h2>
+  <p class="sous">Rubik Black, la même épaisseur 3D que le nom dans la transition, papier et miel.</p>
+  <div class="rang" id="texte"></div>
+</div>
+<script>
+const O = '#0F1519';
+const base = (extra, visage, avant = '') => `<g>${avant}<use href="#goutte" fill="url(#corps)" stroke="${O}" stroke-width="5"/>
+  <ellipse cx="38" cy="50" rx="6" ry="10" fill="#F1ECE3" opacity=".55" transform="rotate(25 38 50)"/>${visage}${extra}</g>`;
+const yeux = (dy = 0) => `<ellipse cx="44" cy="${70 + dy}" rx="8" ry="10" fill="#F1ECE3" stroke="${O}" stroke-width="3"/><ellipse cx="68" cy="${70 + dy}" rx="8" ry="10" fill="#F1ECE3" stroke="${O}" stroke-width="3"/>
+  <circle cx="46" cy="${72 + dy}" r="4" fill="${O}"/><circle cx="70" cy="${72 + dy}" r="4" fill="${O}"/>`;
+const E = {
+  Salut: base(`<g transform="rotate(-20 98 66)"><circle cx="98" cy="66" r="9" fill="url(#corps)" stroke="${O}" stroke-width="4"/></g>
+    <path d="M104 46 q6 4 6 10 M110 40 q8 6 8 14" stroke="#E0A93B" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+    yeux() + `<path d="M46 88 q10 9 20 0" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>`),
+  GG: base(`<rect x="30" y="86" width="52" height="24" rx="6" fill="#E0A93B" stroke="${O}" stroke-width="4"/>
+    <text x="56" y="105" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="19" fill="${O}">GG</text>`,
+    yeux(-4) + `<path d="M48 80 q8 6 16 0" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>`),
+  LOL: base(`<path d="M30 70 q-6 8 -2 16 q4 -6 2 -16 M82 70 q6 8 2 16 q-4 -6 -2 -16" fill="#8FD3F0" stroke="${O}" stroke-width="2.5"/>`,
+    `<path d="M36 70 q8 -10 16 0 M60 70 q8 -10 16 0" stroke="${O}" stroke-width="5" fill="none" stroke-linecap="round"/>
+     <path d="M40 80 q16 22 32 0 z" fill="${O}"/><path d="M48 90 q8 6 16 0" fill="#E8836F"/>`),
+  Wow: base('', `<ellipse cx="44" cy="66" rx="10" ry="13" fill="#F1ECE3" stroke="${O}" stroke-width="3"/><ellipse cx="68" cy="66" rx="10" ry="13" fill="#F1ECE3" stroke="${O}" stroke-width="3"/>
+     <circle cx="44" cy="66" r="3" fill="${O}"/><circle cx="68" cy="66" r="3" fill="${O}"/><ellipse cx="56" cy="92" rx="8" ry="10" fill="${O}"/>`),
+  Love: base(`<ellipse cx="32" cy="84" rx="7" ry="4" fill="#E8836F" opacity=".7"/><ellipse cx="80" cy="84" rx="7" ry="4" fill="#E8836F" opacity=".7"/>`,
+    `<path d="M44 78 l-9 -9 a5.5 5.5 0 0 1 9 -6 a5.5 5.5 0 0 1 9 6 z M68 78 l-9 -9 a5.5 5.5 0 0 1 9 -6 a5.5 5.5 0 0 1 9 6 z" fill="#E0A93B" stroke="${O}" stroke-width="2.5"/>
+     <path d="M48 88 q8 7 16 0" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>`),
+  Triste: base(`<path d="M74 80 q-4 8 0 12 q4 -4 0 -12" fill="#8FD3F0" stroke="${O}" stroke-width="2.5"/>`,
+    `<path d="M36 64 l14 6 M76 64 l-14 6" stroke="${O}" stroke-width="4" stroke-linecap="round"/>` + yeux(4) + `<path d="M46 96 q10 -8 20 0" stroke="${O}" stroke-width="4" fill="none" stroke-linecap="round"/>`),
+  Hype: base(`<path d="M20 30 l4 8 l8 2 l-8 3 l-4 8 l-3 -8 l-8 -3 l8 -2 z M92 22 l3 6 l6 2 l-6 2 l-3 6 l-2 -6 l-6 -2 l6 -2 z" fill="#E0A93B" stroke="${O}" stroke-width="2"/>`,
+    `<path d="M44 60 l3 7 l7 1 l-5 5 l1 7 l-6 -3 l-6 3 l1 -7 l-5 -5 l7 -1 z M68 60 l3 7 l7 1 l-5 5 l1 7 l-6 -3 l-6 3 l1 -7 l-5 -5 l7 -1 z" fill="#E0A93B" stroke="${O}" stroke-width="2.5"/>
+     <path d="M42 86 q14 16 28 0 z" fill="${O}"/>`),
+  Popcorn: base(`<path d="M34 84 h44 l-6 26 h-32 z" fill="#F1ECE3" stroke="${O}" stroke-width="4"/>
+     <path d="M44 84 l2 26 M56 84 v26 M68 84 l-2 26" stroke="#E0A93B" stroke-width="5"/>
+     <circle cx="42" cy="80" r="6" fill="#F6E7B8" stroke="${O}" stroke-width="2.5"/><circle cx="54" cy="77" r="7" fill="#F6E7B8" stroke="${O}" stroke-width="2.5"/><circle cx="67" cy="80" r="6" fill="#F6E7B8" stroke="${O}" stroke-width="2.5"/>`,
+    yeux(-10) + `<path d="M50 70 q6 4 12 0" stroke="${O}" stroke-width="3.5" fill="none" stroke-linecap="round"/>`),
+};
+const svg = (contenu, taille, cls = '') => `<svg class="${cls}" width="${taille}" height="${taille}" viewBox="0 0 112 120">${contenu}</svg>`;
+document.getElementById('mascotte').innerHTML = Object.entries(E).map(([n, c]) =>
+  `<div class="e">${svg(c, 150, 'g')}<div class="tailles">${svg(c, 56)}${svg(c, 28)}</div><b>kayzx${n}</b><small>112 · 56 · 28 px</small></div>`).join('');
+const texte = (mot, taille, face, cote) => {
+  let couches = '';
+  for (let i = 7; i > 0; i--) couches += `<text x="${56 + i * 0.6}" y="${70 + i}" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="${taille}" fill="${cote}" stroke="${O}" stroke-width="6" stroke-linejoin="round">${mot}</text>`;
+  return couches + `<text x="56" y="70" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="${taille}" fill="${face}" stroke="${O}" stroke-width="6" stroke-linejoin="round" paint-order="stroke">${mot}</text>`;
+};
+const T = { GG: texte('GG', 58, '#E0A93B', '#8A5A12'), W: texte('W', 72, '#F1ECE3', '#968870'),
+  LETSGO: `<g transform="rotate(-8 56 60)">${texte('LET\'S', 34, '#F1ECE3', '#968870').replaceAll('y="7', 'y="4')}${texte('GO', 46, '#E0A93B', '#8A5A12').replaceAll('y="7', 'y="9')}</g>`,
+  HYPE: `<g transform="rotate(-6 56 60)">${texte('HYPE', 38, '#3FD3C2', '#1E5B57')}</g>` };
+document.getElementById('texte').innerHTML = Object.entries(T).map(([n, c]) =>
+  `<div class="e">${svg(c, 150, 'g')}<div class="tailles">${svg(c, 56)}${svg(c, 28)}</div><b>kayzx${n}</b><small>112 · 56 · 28 px</small></div>`).join('');
+</script></body></html>

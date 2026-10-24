@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Écran hors ligne Twitch (bannière du lecteur, 1920 × 1080) : motif encre, « Le live est hors ligne » en sticker 3D,
+   le logo au-dessus, les réseaux en bas à droite. Capture : node hors-ligne/capturer.js (depuis stream-pack/). */
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(../da/Rubik-2.ttf)}
+*{margin:0;padding:0;box-sizing:border-box}
+#ecran{width:1920px;height:1080px;position:relative;overflow:hidden;background:url(fond-hors-ligne.png);font-family:Rubik}
+#ecran:before{content:"";position:absolute;left:50%;top:47%;width:1300px;height:720px;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(15,21,25,.5),transparent 70%)}
+.centre{position:absolute;left:0;right:0;top:170px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.reseaux{position:absolute;right:56px;bottom:52px;display:flex;flex-direction:column;align-items:flex-end;gap:14px}
+.reseaux p{font:500 24px Rubik;color:#F1ECE3;text-shadow:0 2px 6px rgba(0,0,0,.6);margin-bottom:4px}
+.reseaux div{display:flex;align-items:center;gap:12px;background:#F1ECE3;border:3px solid #0F1519;border-radius:999px;padding:9px 24px 9px 12px;
+  font:900 26px Rubik;color:#0F1519;box-shadow:0 5px 0 #0F1519}
+.reseaux img{width:36px;height:36px}.reseaux em{font-style:normal;color:#1E5B57}
+</style></head><body>
+<div id="ecran"><div class="centre" id="c"></div>
+  <div class="reseaux"><p>En attendant, on se retrouve ici</p>
+    <div><img src="../overlays/logos/youtube.svg" alt="">YouTube <em>@kayzxtv8505</em></div>
+    <div><img src="../overlays/logos/tiktok.svg" alt="">TikTok <em>Kayzx TV</em></div>
+    <div><img src="../overlays/logos/x.svg" alt=""><em>@Kayzx_TV</em></div></div></div>
+<script>
+const N = '#0F1519', P = '#F1ECE3', M = '#E0A93B';
+function mot(txt, x, y, taille, face, cote, ext, trait = 10, papier = 26) {
+  const a = `x="${x}" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="${taille}" stroke-linejoin="round" letter-spacing="-2"`;
+  let s = `<text ${a} y="${y + ext}" fill="${P}" stroke="${P}" stroke-width="${papier}">${txt}</text>`;
+  for (let i = ext; i > 0; i--) s += `<text ${a} x="${x + i * 0.5}" y="${y + i}" fill="${cote}" stroke="${N}" stroke-width="${trait}">${txt}</text>`;
+  return s + `<text ${a} y="${y}" fill="${face}" stroke="${N}" stroke-width="${trait}" paint-order="stroke">${txt}</text>`;
+}
+// Le logo (même bloc que le logo Twitch), en petit.
+const logo = mot('KAYZX', 300, 178, 160, P, '#968870', 12)
+  + `<g transform="rotate(-4 300 262)"><rect x="207" y="216" width="186" height="96" rx="48" fill="${P}"/>
+     <rect x="219" y="232" width="162" height="76" rx="38" fill="#8A5A12" stroke="${N}" stroke-width="8"/>
+     <rect x="219" y="222" width="162" height="76" rx="38" fill="${M}" stroke="${N}" stroke-width="8"/>
+     <text x="300" y="282" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="60" fill="${N}">TV</text></g>`;
+const titre = `<g transform="rotate(-3 500 150)">${mot('LE LIVE EST', 500, 110, 110, P, '#968870', 10)}${mot('HORS LIGNE', 500, 250, 150, M, '#8A5A12', 14, 11, 30)}</g>`;
+document.getElementById('c').innerHTML = `<svg width="380" height="181" viewBox="0 40 600 285">${logo}</svg>
+  <svg width="1100" height="330" viewBox="-50 0 1100 330">${titre}</svg>`;
+</script></body></html>

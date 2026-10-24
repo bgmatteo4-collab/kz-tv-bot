@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Just Chatting : calques fixes posés sur le fond d'encre animé (overlays/just_chatting.py).
+   #fixe : cadres papier de la cam et du chat, titre ; #r1, #r2 : les infos du bandeau qui tournent. Fonds transparents. */
+@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(../da/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--miel:#E0A93B;--papier:#F1ECE3}
+*{box-sizing:border-box;margin:0;padding:0}body{background:transparent;font-family:Rubik,sans-serif}
+.c{width:1920px;height:1080px;position:relative}
+/* Cam : 1280 × 720 à (88, 196) ; cadre papier de 16 px. Chat : 400 × 720 à (1416, 196). */
+.cadre{position:absolute;background:var(--papier);border-radius:22px;box-shadow:0 26px 70px rgba(5,8,10,.55),0 4px 14px rgba(5,8,10,.35)}
+.cam{left:72px;top:180px;width:1312px;height:752px}
+.trou{position:absolute;left:88px;top:196px;width:1280px;height:720px;border-radius:12px;background:#000}
+.chat{left:1400px;top:180px;width:432px;height:752px;display:flex;flex-direction:column}
+.chat .t{font:500 21px Rubik;letter-spacing:5px;color:var(--teal);padding:24px 28px 18px;border-bottom:2px solid #E2DACB}
+.etiquette{position:absolute;left:72px;top:64px;display:flex;align-items:center;gap:20px;background:var(--papier);border-radius:18px;padding:16px 26px;
+  box-shadow:0 16px 40px rgba(5,8,10,.45)}
+.etiquette b{font:900 50px Rubik;letter-spacing:-1px;color:var(--teal);line-height:1}.etiquette b em{font-style:normal;color:var(--miel)}
+.etiquette span{font:500 20px Rubik;letter-spacing:4px;color:var(--papier);background:var(--teal);padding:8px 14px;border-radius:999px}
+.info{position:absolute;left:72px;top:972px;display:flex;align-items:center;gap:16px;background:var(--papier);border-radius:999px;padding:14px 28px 14px 18px;
+  font:500 26px Rubik;color:var(--nuit);box-shadow:0 14px 34px rgba(5,8,10,.45)}
+.info i{width:34px;height:34px;border-radius:50%;background:var(--teal);display:grid;place-items:center;color:var(--papier);font:900 18px Rubik;font-style:normal}
+.info em{font-style:normal;color:var(--teal);font-weight:900}
+</style></head><body>
+<div id="fixe" class="c">
+  <div class="etiquette"><b>KAYZX <em>TV</em></b><span>JUST CHATTING</span></div>
+  <div class="cadre cam"></div><div class="trou"></div>
+  <div class="cadre chat"><div class="t">CHAT</div></div>
+</div>
+<div id="r1" class="c"><div class="info"><i>▶</i>YouTube · <em>@kayzxtv8505</em></div></div>
+<div id="r2" class="c"><div class="info"><i>#</i>Rejoins le Discord · tape <em>!discord</em> dans le chat</div></div>
+</body></html>

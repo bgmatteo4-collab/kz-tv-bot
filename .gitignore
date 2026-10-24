@@ -44,3 +44,4 @@ tiktok/*/out/
 # Pack de stream : assets téléchargés et rendus (régénérés par installer.sh / les scripts)
 stream-pack/assets/
 stream-pack/rendus/
+stream-pack/overlays/*.mp4

@@ -1,8 +1,8 @@
-"""Transition (stinger) « la goutte d'encre », 2 s : une goutte teal tombe, éclot en volutes qui couvrent l'écran
-(c'est là qu'OBS change de scène), KAYZX TV apparaît, puis l'encre se dilue et révèle la nouvelle scène.
+"""Transition (stinger) « la goutte d'encre », 2,6 s : une goutte teal tombe, éclot en volutes qui couvrent l'écran
+(c'est là qu'OBS change de scène), KAYZX TV arrive lettre par lettre en volume, puis l'encre se dilue lentement.
 Son marqué : goutte, whoosh, note grave et tintement sur le nom, souffle qui se retire.
     python3 goutte_encre.py [--planche 1]  → goutte-encre.webm (VP9 + transparence, son Opus)
-Dans OBS : Transition « Stinger », ce fichier, point de transition 850 ms."""
+Dans OBS : Transition « Stinger », ce fichier, point de transition 950 ms."""
 import math
 import os
 import subprocess
@@ -17,9 +17,9 @@ ICI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(ICI, '..', 'motifs'))
 from encre import Encre, MIEL, TEAL   # noqa: E402
 
-FPS, DUREE, W, H = 30, 2.0, 1920, 1080
+FPS, DUREE, W, H = 30, 2.6, 1920, 1080
 PAPIER = np.array([0xF1, 0xEC, 0xE3], np.float32) / 255
-CHUTE, COUVERT, NOM, DILUTION = 0.15, 0.85, 0.6, 1.0   # repères (s)
+CHUTE, COUVERT, NOM, DILUTION = 0.15, 0.95, 0.65, 1.3   # repères (s)
 lisse = lambda k: k * k * (3 - 2 * k)
 sortie_ease = lambda k: 1 - (1 - k) ** 3
 
@@ -41,14 +41,65 @@ dissol = champ(70, 23)                     # ordre dans lequel l'encre se dilue 
 rmax = math.hypot(cx, cy) * 1.25
 encre = Encre(W, H, graine=9, rayon=90)
 
-# Le nom, rendu une fois (papier + miel), centré.
+# Le nom en volume : chaque lettre a une face (papier ou miel) et une épaisseur ombrée en dessous à droite.
 police = ImageFont.truetype(os.path.join(ICI, '..', 'da', 'Rubik-3.ttf'), 210)
-calque_nom = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(calque_nom)
-l1, l2 = d.textlength('KAYZX ', font=police), d.textlength('TV', font=police)
-x0 = (W - l1 - l2) / 2
-d.text((x0, H / 2), 'KAYZX ', font=police, fill=(241, 236, 227, 255), anchor='lm')
-d.text((x0 + l1, H / 2), 'TV', font=police, fill=(224, 169, 59, 255), anchor='lm')
-NOM_IMG = np.asarray(calque_nom, dtype=np.float32) / 255
+PROF = 16   # épaisseur de l'extrusion (px)
+
+
+def lettre(ch, face, cote):
+    """Renvoie (image complète RGBA, face seule RGBA) d'une lettre extrudée."""
+    l, t, r, b = police.getbbox(ch)
+    w, h = r - l + PROF + 8, b - t + PROF + 8
+    tout = Image.new('RGBA', (w, h)); dt = ImageDraw.Draw(tout)
+    for i in range(PROF, 0, -1):
+        k = i / PROF   # le côté s'assombrit vers l'arrière
+        c = tuple(int(v * (1 - 0.35 * k)) for v in cote) + (255,)
+        dt.text((-l + i * 0.55, -t + i), ch, font=police, fill=c)
+    seule = Image.new('RGBA', (w, h)); ImageDraw.Draw(seule).text((-l, -t), ch, font=police, fill=face + (255,))
+    tout.alpha_composite(seule)
+    return tout, seule
+
+
+LETTRES = []
+x_courant = 0
+for ch, face, cote in [(c, (241, 236, 227), (150, 136, 112)) for c in 'KAYZX'] + [(' ', None, None)] + \
+        [(c, (224, 169, 59), (138, 90, 18)) for c in 'TV']:
+    if ch == ' ':
+        x_courant += police.getlength(' '); continue
+    tout, seule = lettre(ch, face, cote)
+    LETTRES.append((x_courant + police.getbbox(ch)[0], tout, seule))
+    x_courant += police.getlength(ch)
+LARGEUR_NOM = x_courant
+HAUT_NOM = police.getbbox('KAYZX')[3] - police.getbbox('KAYZX')[1]
+
+
+def nom(t):
+    """Le mot à l'instant t : lettres qui montent une à une, léger zoom avant, reflet qui glisse ; (rgb, alpha) plein écran."""
+    toile = Image.new('RGBA', (W, H)); faces = Image.new('L', (W, H))
+    x0, y0 = (W - LARGEUR_NOM) / 2, (H - HAUT_NOM) / 2 - 10
+    for i, (dx, tout, seule) in enumerate(LETTRES):
+        p = np.clip((t - NOM - i * 0.05) / 0.32, 0, 1)
+        if p <= 0:
+            continue
+        e = sortie_ease(p)
+        pos = (int(x0 + dx), int(y0 + (1 - e) * 46))
+        lt = tout.copy(); lt.putalpha(Image.eval(tout.getchannel('A'), lambda v, e=e: int(v * e)))
+        toile.alpha_composite(lt, pos)
+        faces.paste(Image.eval(seule.getchannel('A'), lambda v, e=e: int(v * e)), pos, seule.getchannel('A'))
+    s = 1.0 + 0.05 * lisse(np.clip((t - NOM) / 1.1, 0, 1))      # le mot avance doucement vers nous
+    if s != 1.0:
+        w2, h2 = int(W * s), int(H * s)
+        def zoomer(im):
+            g = im.resize((w2, h2), Image.BICUBIC)
+            return g.crop(((w2 - W) // 2, (h2 - H) // 2, (w2 - W) // 2 + W, (h2 - H) // 2 + H))
+        toile, faces = zoomer(toile), zoomer(faces)
+    n = np.asarray(toile, dtype=np.float32) / 255
+    f = np.asarray(faces, dtype=np.float32) / 255
+    xs = W * (0.25 + 0.6 * np.clip((t - NOM - 0.25) / 0.7, 0, 1))   # un reflet de lumière balaie les faces
+    reflet = np.exp(-((x - xs + (y - H / 2) * 0.4) / 70) ** 2) * f * 0.45
+    rgb = n[..., :3] + reflet[..., None]
+    ombre = gaussian_filter(np.roll(np.roll(n[..., 3], 18, 0), 10, 1), 10) * 0.45   # ombre portée douce
+    return np.clip(rgb, 0, 1), n[..., 3], ombre
 
 
 def image(t):
@@ -71,16 +122,15 @@ def image(t):
         if t > DILUTION:                                     # la dilution : l'encre s'en va par endroits, des bords vers le centre
             q = lisse(min(1.0, (t - DILUTION) / (DUREE - DILUTION - 0.05)))
             seuil = -2.4 + q * 5.2
+            alpha = alpha * (1 - 0.6 * lisse(np.clip((t - 1.9) / 0.65, 0, 1)))   # ce qui reste d'encre s'éclaircit en partant
             garde = np.clip((dissol * 0.9 - dist / rmax * 1.6 + 0.9 - seuil) / 0.6, 0, 1)
             alpha = alpha * garde
-    if NOM <= t <= 1.4:                                      # le nom : apparaît en grandissant, puis s'efface
-        a = lisse(np.clip((t - NOM) / 0.2, 0, 1)) * (1 - lisse(np.clip((t - 1.15) / 0.25, 0, 1)))
-        s = 0.92 + 0.08 * sortie_ease(np.clip((t - NOM) / 0.5, 0, 1))
-        img = Image.fromarray((NOM_IMG * 255).astype(np.uint8)).resize((int(W * s), int(H * s)), Image.LANCZOS)
-        cadre = Image.new('RGBA', (W, H)); cadre.paste(img, ((W - img.width) // 2, (H - img.height) // 2))
-        n = np.asarray(cadre, dtype=np.float32) / 255
-        na = n[..., 3:] * a
-        rgb = rgb * (1 - na) + n[..., :3] * na
+    if NOM <= t <= 1.85:                                     # le nom en volume, puis il s'efface
+        disp = 1 - lisse(np.clip((t - 1.45) / 0.35, 0, 1))
+        nrgb, na, ombre = nom(t)
+        rgb = rgb * (1 - ombre[..., None] * disp)
+        na = (na * disp)[..., None]
+        rgb = rgb * (1 - na) + nrgb * na
     return np.clip(rgb, 0, 1), alpha
 
 
@@ -111,7 +161,7 @@ def son(chemin, sr=48000):
     tinte = sum(a * np.sin(2 * np.pi * f * tn) for f, a in ((660, 0.5), (990, 0.3), (1320, 0.15))) * env(NOM, 0.004, 0.35)
     out += (grave * 0.55 + tinte * 0.22)[:, None]
     # Souffle qui se retire pendant la dilution.
-    retrait = w[::-1] * np.clip((t - 1.0) / 0.3, 0, 1) * np.exp(-np.clip(t - 1.3, 0, None) / 0.25)
+    retrait = w[::-1] * np.clip((t - DILUTION) / 0.4, 0, 1) * np.exp(-np.clip(t - DILUTION - 0.4, 0, None) / 0.45)
     out += (retrait * 0.5)[:, None]
     out = out / max(1e-6, np.abs(out).max()) * 0.85
     with wave.open(chemin, 'wb') as f:
@@ -122,7 +172,7 @@ def son(chemin, sr=48000):
 if '--planche' in sys.argv:   # 8 instants sur un damier (pour voir la transparence)
     damier = ((x // 60 + y // 60) % 2)[..., None] * 0.25 + 0.55
     vignettes = []
-    for t in (0.08, 0.3, 0.55, 0.8, 0.95, 1.2, 1.5, 1.8):
+    for t in (0.3, 0.7, 0.85, 1.0, 1.25, 1.6, 2.0, 2.4):
         rgb, a = image(t)
         v = damier * (1 - a[..., None]) + rgb * a[..., None]
         vignettes.append(Image.fromarray((v * 255).astype(np.uint8)).resize((480, 270)))

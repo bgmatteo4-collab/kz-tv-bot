@@ -1,0 +1,61 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Emotes texte de la chaîne : 24 stickers (112 × 112) en Rubik Black, contour papier + trait nuit, épaisseur 3D,
+   chacun avec son détail (couleur, inclinaison, accessoire). Palette du pack, plus un corail pour les mots « négatifs ». */
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:#0F1519;font-family:Rubik,sans-serif;color:#F1ECE3}
+#planche{width:1920px;padding:52px 64px 60px;display:flex;flex-direction:column;gap:26px}
+h1{font:900 54px Rubik;letter-spacing:-1px}h1 em{font-style:normal;color:#E0A93B}p.sous{font-size:22px;color:#BFC8C9}
+.grille{display:grid;grid-template-columns:repeat(8,1fr);gap:18px}
+.e{display:flex;flex-direction:column;align-items:center;gap:8px;background:#17222A;border-radius:16px;padding:14px 8px 12px}
+.e .clair{background:#EAE4D9;border-radius:8px;padding:4px 8px;display:flex;gap:8px;align-items:center}
+.e .sombre{background:#18181B;border-radius:8px;padding:4px 8px;display:flex;gap:8px;align-items:center}
+.e b{font:900 19px Rubik}.e .t{display:flex;gap:8px}
+</style></head><body>
+<div id="planche">
+  <h1>Emotes texte · <em>24 propositions</em></h1>
+  <p class="sous">Style sticker : contour papier, trait nuit, épaisseur 3D. Testées sur chat sombre et chat clair, à 112, 56 et 28 px.</p>
+  <div class="grille" id="g"></div>
+</div>
+<script>
+const N = '#0F1519', P = '#F1ECE3', T = '#1E5B57', TN = '#3FD3C2', M = '#E0A93B', C = '#E8836F';
+const ombre = { [M]: '#8A5A12', [P]: '#968870', [T]: '#0E302D', [TN]: '#1E5B57', [C]: '#9A4535' };
+function mot(txt, x, y, taille, couleur, ext = 5) {
+  const attrs = `x="${x}" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="${taille}" stroke-linejoin="round"`;
+  let s = `<text ${attrs} y="${y + ext}" fill="${P}" stroke="${P}" stroke-width="15">${txt}</text>`;      // contour papier (avec l'épaisseur)
+  for (let i = ext; i > 0; i--) s += `<text ${attrs} x="${x + i * 0.5}" y="${y + i}" fill="${ombre[couleur]}" stroke="${N}" stroke-width="6">${txt}</text>`;
+  return s + `<text ${attrs} y="${y}" fill="${couleur}" stroke="${N}" stroke-width="6" paint-order="stroke">${txt}</text>`;
+}
+const etincelle = (x, y, r, c = M) => `<path d="M${x} ${y - r} L${x + r * .28} ${y - r * .28} L${x + r} ${y} L${x + r * .28} ${y + r * .28} L${x} ${y + r} L${x - r * .28} ${y + r * .28} L${x - r} ${y} L${x - r * .28} ${y - r * .28} Z" fill="${c}" stroke="${N}" stroke-width="2.5"/>`;
+const larme = (x, y) => `<path d="M${x} ${y} q-6 9 0 13 q6 -4 0 -13" fill="#8FD3F0" stroke="${N}" stroke-width="2.5"/>`;
+const traits = (x, y, c = P) => `<path d="M${x} ${y} l10 -4 M${x} ${y + 9} l12 0 M${x} ${y + 18} l10 4" stroke="${c}" stroke-width="4.5" stroke-linecap="round"/><path d="M${x} ${y} l10 -4 M${x} ${y + 9} l12 0 M${x} ${y + 18} l10 4" stroke="${N}" stroke-width="1.5" stroke-linecap="round"/>`;
+const tourne = (a, s) => `<g transform="rotate(${a} 56 56)">${s}</g>`;
+const E = {
+  GG: tourne(-6, mot('GG', 56, 74, 62, M)) + etincelle(14, 22, 11) + etincelle(98, 92, 8),
+  W: mot('W', 56, 82, 84, P) + `<rect x="24" y="92" width="64" height="9" rx="4" fill="${M}" stroke="${N}" stroke-width="3"/>`,
+  L: tourne(10, mot('L', 52, 84, 88, C)) + larme(86, 30),
+  LETSGO: tourne(-8, mot("LET'S", 56, 50, 34, P) + mot('GO!', 56, 94, 50, M)),
+  HYPE: tourne(-6, mot('HYPE', 58, 72, 40, TN)) + traits(4, 46, TN),
+  MDR: mot('MDR', 56, 72, 42, M) + larme(16, 30) + larme(96, 30),
+  PTDR: tourne(5, mot('PTDR', 56, 72, 36, TN)) + `<path d="M10 92 l8 -6 l8 6 l8 -6 M78 92 l8 -6 l8 6 l8 -6" stroke="${P}" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+  QUOI: mot('QUOI', 56, 76, 36, P) + mot('?', 94, 36, 34, M, 3) + mot('?', 16, 40, 26, TN, 3),
+  OUI: mot('OUI', 56, 76, 48, TN) + `<path d="M76 24 l8 8 l16 -18" stroke="${M}" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  NON: tourne(-4, mot('NON', 56, 76, 46, C)) + `<path d="M84 16 l14 14 M98 16 l-14 14" stroke="${C}" stroke-width="7" stroke-linecap="round"/>`,
+  BRAVO: mot('BRAVO', 56, 72, 30, M) + etincelle(18, 26, 9, P) + etincelle(94, 28, 9, P) + etincelle(56, 98, 7),
+  CHEH: tourne(-10, mot('CHEH', 56, 74, 38, C)) + mot('!', 100, 46, 34, M, 3),
+  RIP: `<path d="M24 104 V44 a32 32 0 0 1 64 0 V104 Z" fill="#55606B" stroke="${N}" stroke-width="5"/>` + mot('RIP', 56, 80, 32, P, 3),
+  GOAT: `<path d="M34 34 l8 -18 l14 12 l14 -12 l8 18 z" fill="${M}" stroke="${N}" stroke-width="4" stroke-linejoin="round"/>` + mot('GOAT', 56, 84, 36, P),
+  CLIP: mot('CLIP', 60, 76, 40, TN) + `<circle cx="18" cy="28" r="10" fill="#E5484D" stroke="${N}" stroke-width="3"/>` + mot('IT', 88, 104, 20, P, 2),
+  SHEESH: tourne(-5, mot('SHEESH', 56, 70, 24, P)) + etincelle(20, 92, 8, TN) + etincelle(92, 24, 8, TN),
+  OMG: mot('OMG', 56, 78, 46, M) + mot('!', 102, 40, 30, C, 3),
+  WTF: `<g opacity=".8" transform="translate(-4 2)">${mot('WTF', 56, 76, 44, C, 0)}</g>` + mot('WTF', 58, 72, 44, TN),
+  TKT: mot('TKT', 56, 72, 46, TN) + `<path d="M22 96 q8 -8 16 0 t16 0 t16 0 t16 0" stroke="${P}" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+  BONSOIR: tourne(-6, mot('BON', 56, 50, 36, P) + mot('SOIR', 56, 92, 36, M)),
+  BYE: tourne(8, mot('BYE', 60, 76, 46, M)) + traits(4, 50, P),
+  KAYZX: mot('KZX', 56, 76, 44, P) + `<rect x="30" y="86" width="52" height="16" rx="8" fill="${T}" stroke="${N}" stroke-width="3"/><text x="56" y="99" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="12" fill="${M}">TV</text>`,
+  F: `<rect x="22" y="18" width="68" height="72" rx="12" fill="#C9CFD3" stroke="${N}" stroke-width="5"/><rect x="22" y="80" width="68" height="14" rx="6" fill="#8E979D" stroke="${N}" stroke-width="5"/>` + mot('F', 56, 72, 50, N === N ? T : T, 0),
+  LOVE: `<path d="M56 104 L18 66 a20 20 0 0 1 38 -22 a20 20 0 0 1 38 22 Z" fill="${M}" stroke="${N}" stroke-width="5"/>` + tourne(-8, mot('LOVE', 56, 72, 26, P, 3)),
+};
+const svg = (c, t) => `<svg width="${t}" height="${t}" viewBox="0 0 112 112">${c}</svg>`;
+document.getElementById('g').innerHTML = Object.entries(E).map(([n, c]) =>
+  `<div class="e">${svg(c, 132)}<div class="t"><div class="sombre">${svg(c, 56)}${svg(c, 28)}</div><div class="clair">${svg(c, 28)}</div></div><b>kayzx${n}</b></div>`).join('');
+</script></body></html>

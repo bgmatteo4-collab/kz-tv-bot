@@ -1,5 +1,5 @@
 """Overlay Just Chatting animé : fond d'encre diluée (très lent, boucle de 30 s sans couture), cadres papier de la cam
-et du chat, étiquette KAYZX TV, bandeau du bas où YouTube et le Discord alternent (fondu toutes les 7,5 s).
+et du chat, étiquette KAYZX TV, bandeau du bas où YouTube, TikTok, X et le Discord se succèdent (fondu toutes les 7,5 s).
     python3 just_chatting.py [--apercu 1]  → just-chatting.mp4 (1920 × 1080, 30 i/s)
 Dans OBS : ce MP4 en Source média (Boucle cochée), puis la cam à 88, 196 en 1280 × 720 et le chat à 1420, 270 en 392 × 650."""
 import os
@@ -16,7 +16,8 @@ from encre import Encre   # noqa: E402
 FPS, DUREE, W, H = 30, 30.0, 1920, 1080
 apercu = '--apercu' in sys.argv
 calque = lambda f: np.asarray(Image.open(os.path.join(ICI, f)).convert('RGBA'), dtype=np.float32) / 255
-fixe, infos = calque('jc-fixe.png'), [calque('jc-r1.png'), calque('jc-r2.png')]
+fixe = calque('jc-fixe.png')
+infos = [calque(f'jc-r{k}.png') for k in (1, 3, 4, 2)]   # YouTube, TikTok, X, Discord
 
 
 def poser(fond, c, force=1.0):
@@ -25,9 +26,9 @@ def poser(fond, c, force=1.0):
 
 
 def bandeau(t):
-    """Quatre créneaux de 7,5 s (YouTube, Discord, YouTube, Discord) ; fondu enchaîné de 0,6 s."""
+    """Quatre créneaux de 7,5 s (YouTube, TikTok, X, Discord) ; fondu enchaîné de 0,6 s ; la boucle retombe sur YouTube."""
     creneau, dans = int(t // 7.5), t % 7.5
-    actuel, suivant = infos[creneau % 2], infos[(creneau + 1) % 2]
+    actuel, suivant = infos[creneau % 4], infos[(creneau + 1) % 4]
     k = np.clip((dans - 6.9) / 0.6, 0, 1)
     return actuel, suivant, k
 

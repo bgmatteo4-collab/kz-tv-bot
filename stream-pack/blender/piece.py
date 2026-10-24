@@ -1077,6 +1077,7 @@ CAMS = {
     'evier': camera('evier', (7.05, -1.45, 1.55), (7.67, -1.95, 0.82), 32),
     'vue_sud': camera('vue_sud', (6.6, 4.9, 1.85), (2.6, -3.6, 0.9), 18),
     'vue_nord': camera('vue_nord', (5.2, -4.3, 1.75), (3.6, 5.5, 1.1), 18),
+    'tv_face': camera('tv_face', (4.35, 3.0, 1.52), (8.0, 3.0, 1.45), 30),
     'console': camera('console', (6.95, 1.55, 0.85), (7.75, 1.95, 0.6), 30),
     'setup': camera('setup', v('setup', (1.55, 3.55, 1.45)), v('setup', (0.35, 2.85, 0.95)), 26),
     'affiches': camera('affiches', (4.6, 3.2, 1.6), (4.6, 0.0, 1.55), 30),
@@ -1141,6 +1142,13 @@ if 'animatique' in opt:   # prévisualisation rapide des mouvements (Workbench, 
                     '-vf', titres, '-c:v', 'libx264', '-crf', '20', '-pix_fmt', 'yuv420p', os.path.abspath(opt['animatique'])], check=True)
     shutil.rmtree(dossier); sys.exit(0)
 scene.frame_set(int(opt.get('image', 360)))   # image fixe : à 12 s, la TV est allumée
+if 'coins_tv' in opt:   # où tombe l'écran de la TV dans l'image (pour y caler une source dans OBS)
+    from bpy_extras.object_utils import world_to_camera_view
+    bpy.context.view_layer.update()
+    d = scene.objects['dalle TV']
+    for c in [d.matrix_world @ Vector((x, y, 0)) for x, y in ((-0.5, -0.5), (0.5, -0.5), (0.5, 0.5), (-0.5, 0.5))]:
+        p = world_to_camera_view(scene, scene.camera, c)
+        print('COIN', round(p.x * scene.render.resolution_x, 1), round((1 - p.y) * scene.render.resolution_y, 1))
 if 'rendu' in opt:
     scene.render.filepath = os.path.abspath(opt['rendu'])
     bpy.ops.render.render(write_still=True)

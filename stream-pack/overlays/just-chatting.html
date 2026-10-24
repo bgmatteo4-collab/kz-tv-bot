@@ -1,0 +1,83 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Overlay « Just Chatting » : ta cam en grand, la boîte du chat, l'habillage. DA du pack (Rubik, teal, miel, brume, nuit).
+   Trois pistes à comparer ; la cam et le chat ici sont des exemples (dans OBS : source caméra + source navigateur du chat). */
+@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(../da/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--miel:#E0A93B;--brume:#C9CFD3;--papier:#F1ECE3;--noyer:#4E3324;--chene:#B98552}
+*{box-sizing:border-box;margin:0;padding:0}body{background:#000;font-family:Rubik,sans-serif}
+.v{width:1920px;height:1080px;position:relative;overflow:hidden;margin-bottom:20px}
+.cam{position:absolute;overflow:hidden;background:radial-gradient(circle at 50% 38%,#3a434a,#1b2126 70%)}
+.cam .tete{position:absolute;left:50%;top:26%;width:22%;aspect-ratio:1;border-radius:50%;background:#4a545b;transform:translateX(-50%)}
+.cam .corps{position:absolute;left:50%;bottom:-18%;width:52%;height:46%;border-radius:50% 50% 0 0;background:#4a545b;transform:translateX(-50%)}
+.cam i{position:absolute;left:24px;bottom:20px;font-style:normal;font:500 22px Rubik;letter-spacing:3px;color:#8d989e}
+.chat{position:absolute;display:flex;flex-direction:column;overflow:hidden}
+.chat .t{font:500 20px Rubik;letter-spacing:4px;text-transform:uppercase;padding:20px 26px}
+.chat .m{font-size:25px;line-height:1.4;padding:7px 26px}.chat .m b{font-weight:500}
+.chat .fil{flex:1;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:18px}
+.bas{position:absolute;display:flex;gap:40px;align-items:center;font:500 24px Rubik}
+.bas span{display:flex;gap:12px;align-items:center}.bas i{width:12px;height:12px;border-radius:50%;background:var(--miel)}
+
+/* --- Piste 1 : « Lames de noyer » (nuit, lames verticales, halo doré) --- */
+#v1{background:var(--nuit)}
+#v1 .lames{position:absolute;inset:0;background:repeating-linear-gradient(90deg,#1a1410 0 26px,#3b271b 26px 52px,#2c1d14 52px 60px);opacity:.55;
+  -webkit-mask:linear-gradient(90deg,transparent 0 55%,#000 85%);mask:linear-gradient(90deg,transparent 0 55%,#000 85%)}
+#v1 .halo{position:absolute;left:220px;top:180px;width:1100px;height:760px;border-radius:50%;background:radial-gradient(closest-side,rgba(224,169,59,.28),transparent);filter:blur(30px)}
+#v1 .titre{position:absolute;left:72px;top:58px;display:flex;align-items:baseline;gap:24px}
+#v1 .titre b{font:900 64px Rubik;color:var(--papier);letter-spacing:-1px}#v1 .titre b em{font-style:normal;color:var(--miel)}
+#v1 .pil{font:500 22px Rubik;letter-spacing:4px;color:#1d1408;background:var(--miel);padding:8px 18px;border-radius:999px;transform:translateY(-10px)}
+#v1 .cam{left:72px;top:170px;width:1312px;height:738px;border-radius:26px;box-shadow:0 0 0 4px var(--miel),0 30px 80px rgba(0,0,0,.6)}
+#v1 .chat{left:1424px;top:170px;width:424px;height:738px;border-radius:26px;background:rgba(15,21,25,.82);border:2px solid rgba(201,207,211,.16);backdrop-filter:blur(8px);color:var(--papier)}
+#v1 .chat .t{color:var(--miel);border-bottom:2px solid rgba(201,207,211,.12)}
+#v1 .bas{left:72px;bottom:56px;color:var(--brume)}
+
+/* --- Piste 2 : « Néon » (cam presque plein écran, contour néon doré, chat en carte flottante) --- */
+#v2{background:linear-gradient(135deg,#0B1013,#13201F)}
+#v2 .grille{position:absolute;inset:0;background:radial-gradient(rgba(201,207,211,.07) 1.5px,transparent 1.5px) 0 0/28px 28px}
+#v2 .cam{left:56px;top:56px;width:1424px;height:801px;border-radius:30px;border:4px solid #FFC24A;box-shadow:0 0 18px rgba(255,194,74,.8),0 0 60px rgba(255,194,74,.35),inset 0 0 30px rgba(255,194,74,.25)}
+#v2 .chat{left:1380px;top:430px;width:484px;height:530px;border-radius:24px;background:rgba(15,21,25,.9);border:3px solid #3FD3C2;box-shadow:0 0 16px rgba(63,211,194,.6),0 20px 60px rgba(0,0,0,.6);color:var(--papier)}
+#v2 .chat .t{color:#3FD3C2}
+#v2 .neon{position:absolute;right:64px;top:70px;text-align:right;font:900 72px Rubik;letter-spacing:-1px;color:transparent;-webkit-text-stroke:2.5px #FFC24A;text-shadow:0 0 14px rgba(255,194,74,.9),0 0 40px rgba(255,194,74,.5);line-height:1}
+#v2 .neon span{display:block;font-size:46px;-webkit-text-stroke:2px #3FD3C2;text-shadow:0 0 14px rgba(63,211,194,.9)}
+#v2 .bas{left:64px;bottom:60px;color:var(--brume)}#v2 .bas i{background:#3FD3C2;box-shadow:0 0 10px #3FD3C2}
+
+/* --- Piste 3 : « Japandi clair » (papier, cadre chêne, teal) --- */
+#v3{background:var(--papier)}
+#v3 .bloc{position:absolute;right:0;top:0;width:620px;height:1080px;background:var(--teal)}
+#v3 .rond{position:absolute;right:430px;top:-160px;width:520px;height:520px;border-radius:50%;background:var(--miel);opacity:.9}
+#v3 .cam{left:72px;top:140px;width:1312px;height:738px;border-radius:8px;box-shadow:0 0 0 14px var(--chene),0 0 0 16px #8a6036,0 30px 70px rgba(30,40,40,.35)}
+#v3 .titre{position:absolute;left:72px;top:46px;font:900 56px Rubik;color:var(--teal);letter-spacing:-1px}#v3 .titre em{font-style:normal;color:var(--miel)}
+#v3 .chat{left:1440px;top:140px;width:420px;height:738px;border-radius:8px;background:#F7F3EC;color:#16201F;box-shadow:0 30px 70px rgba(0,0,0,.25)}
+#v3 .chat .t{color:var(--teal);border-bottom:2px solid #E2DACB}
+#v3 .bas{left:72px;bottom:58px;color:#4C5A5B}#v3 .bas i{background:var(--teal)}
+#v3 .jc{position:absolute;left:1440px;bottom:58px;font:500 24px Rubik;letter-spacing:5px;color:var(--papier)}
+</style></head><body>
+
+<div id="v1" class="v"><div class="lames"></div><div class="halo"></div>
+  <div class="titre"><b>KAYZX <em>TV</em></b><span class="pil">JUST CHATTING</span></div>
+  <div class="cam"><div class="tete"></div><div class="corps"></div><i>TA CAMÉRA · 16:9</i></div>
+  <div class="chat"><div class="t">Chat</div><div class="fil"></div></div>
+  <div class="bas"><span><i></i>Dernier abonné · Nyx</span><span><i></i>youtube.com/@kayzxtv8505</span><span><i></i>!discord</span></div></div>
+
+<div id="v2" class="v"><div class="grille"></div>
+  <div class="cam"><div class="tete"></div><div class="corps"></div><i>TA CAMÉRA · 16:9</i></div>
+  <div class="neon">KAYZX<span>JUST CHATTING</span></div>
+  <div class="chat"><div class="t">Chat</div><div class="fil"></div></div>
+  <div class="bas"><span><i></i>Dernier abonné · Nyx</span><span><i></i>youtube.com/@kayzxtv8505</span></div></div>
+
+<div id="v3" class="v"><div class="bloc"></div><div class="rond"></div>
+  <div class="titre">KAYZX <em>TV</em></div>
+  <div class="cam"><div class="tete"></div><div class="corps"></div><i>TA CAMÉRA · 16:9</i></div>
+  <div class="chat"><div class="t">Chat</div><div class="fil"></div></div>
+  <div class="bas"><span><i></i>Dernier abonné · Nyx</span><span><i></i>youtube.com/@kayzxtv8505</span><span><i></i>!discord</span></div>
+  <div class="jc">JUST CHATTING</div></div>
+
+<script>
+const M = [['Nyx', '#E0A93B', 'salut tout le monde'], ['Marlo', '#7fd6c4', 'premier !'], ['Sacha', '#b79cff', 'bonsoir le chat'],
+  ['Tom', '#8cbcf2', 'la nouvelle intro est folle'], ['Elisa', '#ff8a7f', 'le néon KAYZX TV'], ['Kenji', '#9AE65C', 'gg pour hier'],
+  ['Jade', '#FF7FB5', 'on parle de quoi ce soir ?']];
+for (const v of ['v1', 'v2', 'v3']) {
+  const sombre = v !== 'v3';
+  document.querySelector('#' + v + ' .fil').innerHTML = M.map(([n, c, t]) =>
+    `<div class="m"><b style="color:${sombre ? c : '#1E5B57'}">${n}</b> <span style="color:${sombre ? '#E7E3DA' : '#2a3434'}">${t}</span></div>`).join('');
+}
+</script></body></html>

@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Écran d'accueil de la TV (TV connectée générique, sans marque) : posé sur le paysage qui défile (tv/programme.py). */
+@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(../da/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:transparent;font-family:Rubik,sans-serif;color:#fff}
+.accueil{width:1280px;height:720px;position:relative;overflow:hidden;
+  background:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,.05) 55%),linear-gradient(0deg,rgba(0,0,0,.7),rgba(0,0,0,0) 45%),
+    radial-gradient(circle at 100% 0,rgba(0,0,0,.5),rgba(0,0,0,0) 28%)}
+.heure{position:absolute;left:70px;top:70px;font-weight:900;font-size:150px;letter-spacing:-4px;line-height:1}
+.date{position:absolute;left:76px;top:235px;font-weight:500;font-size:34px;opacity:.92}
+.salut{position:absolute;left:76px;top:290px;font-size:26px;opacity:.75}
+.meteo{position:absolute;right:60px;top:56px;font-size:26px;opacity:.9;text-align:right}
+.meteo b{font-weight:500;font-size:40px;display:block}
+.rang{position:absolute;left:70px;right:70px;bottom:56px;display:flex;gap:22px}
+.tuile{flex:1;height:120px;border-radius:16px;display:flex;align-items:flex-end;padding:14px 18px;font-weight:500;font-size:24px;
+  background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.18)}
+.tuile.on{background:rgba(224,169,59,.9);color:#1d1408;border-color:#F2C97A;transform:scale(1.06)}
+.titre{position:absolute;left:72px;bottom:200px;font-size:24px;opacity:.85}
+</style></head><body>
+<div id="a2058" class="accueil"><div class="heure">20:58</div><div class="date">Samedi 24 octobre</div><div class="salut">Bonsoir</div>
+  <div class="meteo"><b>11°</b>Nuageux</div><div class="titre">À regarder</div>
+  <div class="rang"><div class="tuile on">Live</div><div class="tuile">Films</div><div class="tuile">Séries</div><div class="tuile">Musique</div><div class="tuile">Jeux</div><div class="tuile">Photos</div></div></div>
+<div id="a2059" class="accueil"><div class="heure">20:59</div><div class="date">Samedi 24 octobre</div><div class="salut">Bonsoir</div>
+  <div class="meteo"><b>11°</b>Nuageux</div><div class="titre">À regarder</div>
+  <div class="rang"><div class="tuile on">Live</div><div class="tuile">Films</div><div class="tuile">Séries</div><div class="tuile">Musique</div><div class="tuile">Jeux</div><div class="tuile">Photos</div></div></div>
+</body></html>

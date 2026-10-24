@@ -1,5 +1,5 @@
-"""Programme de la TV du salon : des paysages HDRI Poly Haven (CC0, 8K) filmés en lents travellings,
-enchaînés en fondus, encodés en MP4 (assets/tv/programme.mp4). Lancé avec Blender (OpenImageIO + numpy) :
+"""Écran d'accueil de la TV du salon : l'heure, la date et les applis (ecrans/tv-*.png, voir tv.html) posées sur des
+paysages HDRI Poly Haven (CC0, 8K) filmés en lents travellings, enchaînés en fondus, encodés en MP4 (assets/tv/programme.mp4). Lancé avec Blender (OpenImageIO + numpy) :
     blender -b -P stream-pack/tv/programme.py              → les images puis le MP4
     blender -b -P stream-pack/tv/programme.py -- --essai 1 → planche de repérage des cadrages"""
 import math
@@ -15,15 +15,16 @@ ICI = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(ICI, '..', 'assets')
 args = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 opt = {args[i].lstrip('-'): args[i + 1] for i in range(0, len(args) - 1, 2)}
-FPS, DUREE, W, H = 30, 30.0, 1280, 720
+FPS, DUREE, W, H = 30, 60.0, 1280, 720
+ACCUEIL = [(0.0, 'tv-2058.png'), (33.0, 'tv-2059.png')]   # l'horloge passe de 20:58 à 20:59
 
 # (hdri, début, fin en s, cap de départ → d'arrivée (fraction de tour), tangage en degrés, champ de départ → d'arrivée)
 PLANS = [
-    ('lakeside', 0.0, 10.3, (0.45, 0.53), -2, (52, 50)),         # les arbres de la berge, puis le lac s'ouvre
-    ('cape_hill', 9.7, 20.3, (0.40, 0.50), -2, (54, 52)),        # la montagne au soleil jusqu'à la côte dans la brume
-    ('umhlanga_sunrise', 19.7, 30.0, (0.60, 0.60), 0, (56, 44)),  # lente avancée vers le soleil levant sur l'océan
+    ('lakeside', 0.0, 20.5, (0.45, 0.53), -2, (52, 50)),         # les arbres de la berge, puis le lac s'ouvre
+    ('cape_hill', 19.5, 40.5, (0.40, 0.50), -2, (54, 52)),       # la montagne au soleil jusqu'à la côte dans la brume
+    ('umhlanga_sunrise', 39.5, 60.0, (0.60, 0.60), 0, (56, 44)),  # lente avancée vers le soleil levant sur l'océan
 ]
-FONDU = 0.6
+FONDU = 1.0
 
 
 def lire(ident):
@@ -98,6 +99,10 @@ if 'essai' in opt:   # planche : 8 caps par panorama, pour choisir les cadrages
 
 dossier = os.path.join(ASSETS, 'tv', 'images'); os.makedirs(dossier, exist_ok=True)
 seules = [int(x) for x in opt['images'].split(',')] if 'images' in opt else None   # --images 60,780 : essai sur quelques images
+calques = []   # l'écran d'accueil (RGBA, déjà en sRGB) par-dessus le paysage
+for _, fichier in ACCUEIL:
+    entree = oiio.ImageInput.open(os.path.join(ICI, '..', 'ecrans', fichier))
+    calques.append(np.asarray(entree.read_image(0, 0, 0, 4, 'float'), dtype=np.float32)); entree.close()
 images = {}
 expos = {}
 for ident, t0, t1, caps, tang, champs in PLANS:
@@ -115,7 +120,9 @@ for f in (seules or range(int(DUREE * FPS))):
                                champs[0] + (champs[1] - champs[0]) * k), expos[ident])
             couches.append((poids, img))
     total = sum(p for p, _ in couches)
-    ecrire(os.path.join(dossier, f'{f:04d}.jpg'), sum(p * i for p, i in couches) / total)
+    fond = sum(p * i for p, i in couches) / total
+    calque = calques[max(k for k, (t0, _) in enumerate(ACCUEIL) if t >= t0)]
+    ecrire(os.path.join(dossier, f'{f:04d}.jpg'), fond * (1 - calque[..., 3:]) + calque[..., :3] * calque[..., 3:])
     if f % 150 == 0:
         print('image', f, flush=True)
 if seules or not shutil.which('ffmpeg'):   # sans ffmpeg (PC Windows) : Blender lit directement les images

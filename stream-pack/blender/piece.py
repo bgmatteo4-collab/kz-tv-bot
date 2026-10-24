@@ -48,10 +48,10 @@ scene.view_settings.view_transform = 'AgX'
 scene.view_settings.look = 'AgX - Medium High Contrast'
 scene.view_settings.exposure = 0.7   # de nuit, on expose pour l'intérieur
 largeur = int(opt.get('largeur', 1280))
-# Ligne de temps commune aux clips : 30 i/s, la boucle d'attente dure 30 s (images 0 à 899, la 900e = la 0e).
-FPS, DUREE = 30, 30.0
+# Ligne de temps commune aux clips : 30 i/s, la boucle d'attente dure 60 s (images 0 à 1799, la 1800e = la 0e).
+FPS, DUREE = 30, 60.0
 scene.render.fps, scene.frame_start, scene.frame_end = FPS, 0, int(DUREE * FPS) - 1
-TV_ALLUMEE = [(7.0, 27.5)]   # moments où la TV est allumée (s)
+TV_ALLUMEE = [(10.5, 57.0)]   # moments où la TV est allumée (s)
 
 scene.render.resolution_x, scene.render.resolution_y = largeur, largeur * 9 // 16
 
@@ -293,8 +293,8 @@ def image_ecran(nom, fichier, force=1.0):
 
 
 def materiau_chat():
-    """Faux chat de live (ecrans/chat.*) : le fil défile message par message derrière le cadre fixe.
-    Le fil contient deux fois la liste : après 30 s, il a avancé d'une liste entière, la boucle est invisible."""
+    """Faux chat de live (ecrans/chat.*), comme au début d'un vrai live : il démarre presque vide, chaque message
+    apparaît à son heure (chat.json), et quand la fenêtre est pleine, le fil remonte d'un message."""
     import json
     d = json.load(open(os.path.join(ICI, '..', 'ecrans', 'chat.json')))
     m = bpy.data.materials.new('écran chat'); nt = m.node_tree
@@ -305,28 +305,38 @@ def materiau_chat():
     fil.image = bpy.data.images.load(os.path.join(ICI, '..', 'ecrans', 'chat-fil.png'))
     cadre = nt.nodes.new('ShaderNodeTexImage')
     cadre.image = bpy.data.images.load(os.path.join(ICI, '..', 'ecrans', 'chat-cadre.png'))
-    mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
     nt.links.new(uv.outputs['UV'], mp.inputs['Vector']); nt.links.new(mp.outputs['Vector'], fil.inputs['Vector'])
     nt.links.new(uv.outputs['UV'], cadre.inputs['Vector'])
+    # Les messages pas encore arrivés sont cachés : sous la limite « revele », on affiche le fond du chat.
+    sep = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(mp.outputs['Vector'], sep.inputs['Vector'])
+    revele = nt.nodes.new('ShaderNodeValue')
+    cache = nt.nodes.new('ShaderNodeMath'); cache.operation = 'LESS_THAN'
+    nt.links.new(sep.outputs['Y'], cache.inputs[0]); nt.links.new(revele.outputs['Value'], cache.inputs[1])
+    fond = nt.nodes.new('ShaderNodeMix'); fond.data_type = 'RGBA'; fond.inputs['B'].default_value = hexa('#18181B')
+    nt.links.new(cache.outputs['Value'], fond.inputs['Factor']); nt.links.new(fil.outputs['Color'], fond.inputs['A'])
+    mix = nt.nodes.new('ShaderNodeMix'); mix.data_type = 'RGBA'
     nt.links.new(cadre.outputs['Alpha'], mix.inputs['Factor'])
-    nt.links.new(fil.outputs['Color'], mix.inputs['A']); nt.links.new(cadre.outputs['Color'], mix.inputs['B'])
+    nt.links.new(fond.outputs['Result'], mix.inputs['A']); nt.links.new(cadre.outputs['Color'], mix.inputs['B'])
     nt.links.new(mix.outputs['Result'], b.inputs['Emission Color']); b.inputs['Emission Strength'].default_value = 1.1
-    # Rangée du fil (depuis le haut) visible en haut de la fenêtre de chat : S ; v_image = v * k + 1 - v1 * k - S / Htot.
-    htot, hc, ecran = fil.image.size[1], d['hauteur'], d['ecran']
-    fenetre, v1, k = ecran - d['tete'] - d['pied'], 1 - d['tete'] / ecran, ecran / htot
+    # Rangée du fil (depuis le haut) en haut de la fenêtre : S ; v_image = v * k + 1 - v1 * k - S / Htot.
+    htot, ecran = fil.image.size[1], d['ecran']
+    fenetre, v1, k = ecran - d['tete'] - d['pied'] - 12, 1 - d['tete'] / ecran, ecran / htot
     mp.inputs['Scale'].default_value = (1, k, 1)
-    s0 = hc - fenetre
     loc = lambda S: 1 - v1 * k - S / htot
-    alea = random.Random(11)
-    ecarts = [alea.uniform(0.3, 1.3) for _ in d['messages']]
-    total, cumul, cles = sum(ecarts), 0.0, [(0.0, loc(s0))]
-    for (haut_m, h), e in zip(d['messages'], ecarts):
-        cumul += e
-        t = 0.2 + 29.4 * cumul / total                      # arrivée du message (s)
-        cles += [(t, cles[-1][1]), (t + 0.2, loc(s0 + haut_m + h))]
-    for t, v in cles:
-        mp.inputs['Location'].default_value[1] = v
+    def poser(t, S, R):
+        mp.inputs['Location'].default_value[1] = loc(S); revele.outputs[0].default_value = 1 - R / htot
         mp.inputs['Location'].keyframe_insert('default_value', index=1, frame=t * FPS)
+        revele.outputs[0].keyframe_insert('default_value', frame=t * FPS)
+    S = R = 0.0
+    for haut_m, h, t in d['messages']:   # chaque message « tombe » d'un coup ; le fil glisse en 0,15 s si besoin
+        nouveau_R = haut_m + h
+        nouveau_S = max(0.0, nouveau_R - fenetre)
+        if t > 0:
+            poser(t - 0.02, S, R)
+        poser(t, S, nouveau_R)
+        if nouveau_S != S:
+            poser(t + 0.15, nouveau_S, nouveau_R)
+        S, R = nouveau_S, nouveau_R
     return m
 
 
@@ -700,18 +710,29 @@ for y in (KY0 + 0.61,):            # joint entre les deux colonnes
     boite('joint colonne', (KX0 - 0.001, y, 1.13), (0.004, 0.004, 2.2), M['noir'])
 boite('vitre four', (KX0 - 0.002, KY0 + 0.91, 1.1), (0.004, 0.52, 0.38), VITRE_FOUR, 0.003)
 boite('bandeau four', (KX0 - 0.002, KY0 + 0.91, 1.34), (0.004, 0.52, 0.05), INOX)
-boite('meubles bas', (L - 0.31, (COL + KY1) / 2, 0.47), (0.62, KY1 - COL, 0.78), NOIR_MAT, 0.003)
+meubles_bas = boite('meubles bas', (L - 0.31, (COL + KY1) / 2, 0.47), (0.62, KY1 - COL, 0.78), NOIR_MAT, 0.003)
 boite('socle cuisine', (L - 0.27, (COL + KY1) / 2, 0.04), (0.54, KY1 - COL, 0.08), M['noir'])
 n = int((KY1 - COL) / 0.6)
 for k in range(1, n + 1):          # joints des portes (sans poignées)
     boite('joint porte', (KX0 - 0.001, COL + k * (KY1 - COL) / (n + 1), 0.47), (0.004, 0.004, 0.76), M['noir'])
 boite('joint tiroirs', (KX0 - 0.001, (COL + KY1) / 2, 0.7), (0.004, KY1 - COL - 0.02, 0.004), M['noir'])
 PLAN = 0.9
-boite('plan de travail', (L - 0.32, (COL + KY1) / 2, PLAN + 0.02), (0.64, KY1 - COL, 0.04), M['chene'], 0.003)
+plan_travail = boite('plan de travail', (L - 0.32, (COL + KY1) / 2, PLAN + 0.02), (0.64, KY1 - COL, 0.04), M['chene'], 0.003)
 boite('crédence', (L - 0.012, (COL + KY1) / 2, PLAN + 0.29), (0.02, KY1 - COL, 0.5), M['chene'])
 # Évier sous plan et mitigeur noir, plaque à induction, hotte intégrée au plafond (invisible).
 EVIER_Y, PLAQUE_Y = -1.95, -3.05
-boite('évier', (L - 0.33, EVIER_Y, PLAN + 0.005), (0.4, 0.5, 0.012), materiau_uni('évier', '#2A2C2F', 0.35, 0.6))
+# L'évier est vraiment creusé : le plan de travail et le meuble sont découpés, la cuve (sans couvercle) descend de 20 cm.
+import bmesh as _bm
+decoupe = boite('découpe évier', (L - 0.33, EVIER_Y, PLAN - 0.08), (0.4, 0.5, 0.36), M['noir'])
+decoupe.hide_render = True; decoupe.display_type = 'WIRE'
+for o in (plan_travail, meubles_bas):
+    mod = o.modifiers.new('évier', 'BOOLEAN'); mod.operation, mod.object = 'DIFFERENCE', decoupe
+INOX_BROSSE = materiau_uni('évier', '#3A3D41', 0.35, 0.8)
+cuve = boite('cuve évier', (L - 0.33, EVIER_Y, PLAN + 0.04 - 0.1), (0.4, 0.5, 0.2), INOX_BROSSE)
+bm = _bm.new(); bm.from_mesh(cuve.data)
+_bm.ops.delete(bm, geom=[f for f in bm.faces if f.normal.z > 0.5], context='FACES'); bm.to_mesh(cuve.data); bm.free()
+bpy.ops.mesh.primitive_cylinder_add(radius=0.035, depth=0.004, location=(L - 0.33, EVIER_Y + 0.1, PLAN + 0.04 - 0.198), vertices=32)
+bpy.context.object.name = 'bonde'; bpy.context.object.data.materials.append(M['alu'])
 tube('mitigeur', (L - 0.08, EVIER_Y, PLAN + 0.04), (L - 0.08, EVIER_Y, PLAN + 0.36), 0.013, M['noir'])
 tube('bec', (L - 0.08, EVIER_Y, PLAN + 0.36), (L - 0.3, EVIER_Y, PLAN + 0.36), 0.011, M['noir'])
 tube('bec bout', (L - 0.3, EVIER_Y, PLAN + 0.36), (L - 0.3, EVIER_Y, PLAN + 0.3), 0.011, M['noir'])
@@ -1053,6 +1074,7 @@ CAMS = {
     'coin_ne': camera('coin_ne', (7.35, 5.35, 1.75), (2.0, 1.4, 0.9), 20),
     'micro': camera('micro', v('setup', (1.05, 3.15, 1.2)), v('setup', (0.8, 3.4, 1.2)), 45),
     'dehors': camera('dehors', (3.5, 10.0, 2.2), (3.6, 4.0, 1.3), 24),
+    'evier': camera('evier', (7.05, -1.45, 1.55), (7.67, -1.95, 0.82), 32),
     'console': camera('console', (6.95, 1.55, 0.85), (7.75, 1.95, 0.6), 30),
     'setup': camera('setup', v('setup', (1.55, 3.55, 1.45)), v('setup', (0.35, 2.85, 0.95)), 26),
     'affiches': camera('affiches', (4.6, 3.2, 1.6), (4.6, 0.0, 1.55), 30),
@@ -1099,21 +1121,21 @@ if 'film' in opt:   # rendu final, image par image (PNG) ; relancé, il reprend 
     scene.render.use_overwrite, scene.render.use_placeholder = False, True
     bpy.ops.render.render(animation=True)
     sys.exit(0)
-if 'animatique' in opt:   # prévisualisation rapide des mouvements (Workbench, 480 × 270, 15 i/s), titres des plans incrustés
+if 'animatique' in opt:   # prévisualisation rapide des mouvements (Workbench, 480 × 270, 10 i/s), titres des plans incrustés
     import shutil, subprocess, tempfile
     scene.render.engine = 'BLENDER_WORKBENCH'
     for o in scene.objects:   # Workbench ne sait pas rendre le verre : on le retire de l'aperçu
         if o.type == 'MESH' and any(m and m.name.startswith('verre') for m in o.data.materials):
             o.hide_render = True
     scene.display.shading.light, scene.display.shading.color_type = 'STUDIO', 'TEXTURE'
-    scene.render.resolution_x, scene.render.resolution_y, scene.frame_step = 480, 270, 2
+    scene.render.resolution_x, scene.render.resolution_y, scene.frame_step = 480, 270, 3
     dossier = tempfile.mkdtemp(); scene.render.filepath = os.path.join(dossier, 'i')
     scene.render.image_settings.file_format = 'PNG'
     bpy.ops.render.render(animation=True)
     police = os.path.join(ICI, '..', 'da', 'Rubik-2.ttf').replace(':', '\\:')
     titres = ','.join(f"drawtext=fontfile={police}:text='{n}':x=12:y=12:fontsize=16:fontcolor=white:box=1:boxcolor=black@0.5:"
                       f"enable='between(t,{d},{fin})'" for (n, d), fin in zip(PLANS_CLIP, [p[1] for p in PLANS_CLIP[1:]] + [DUREE]))
-    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS // 2), '-pattern_type', 'glob', '-i', os.path.join(dossier, 'i*.png'),
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(FPS // 3), '-pattern_type', 'glob', '-i', os.path.join(dossier, 'i*.png'),
                     '-vf', titres, '-c:v', 'libx264', '-crf', '20', '-pix_fmt', 'yuv420p', os.path.abspath(opt['animatique'])], check=True)
     shutil.rmtree(dossier); sys.exit(0)
 scene.frame_set(int(opt.get('image', 360)))   # image fixe : à 12 s, la TV est allumée

@@ -5,7 +5,7 @@ import bpy
 from mathutils import Vector
 
 IGNORER = ('sol', 'plafond', 'mur ', 'plinthe', 'baie', 'montant', 'traverse', 'lame', 'immeuble', 'balise', 'tapis', 'sol extérieur',
-           'balcon', 'façade', 'applique')
+           'balcon', 'façade', 'applique', 'découpe')
 
 
 def groupes(scene):

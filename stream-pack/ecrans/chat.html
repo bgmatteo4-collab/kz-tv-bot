@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset="utf-8"><style>
-/* Faux chat de live (style chat Twitch sombre, sans logo) pour l'écran vertical du setup.
-   #cadre : en-tête et zone de saisie fixes (le milieu est transparent) ; #fil : la liste des messages, deux fois. */
+/* Faux chat de live (style chat Twitch sombre, sans logo) pour l'écran vertical du setup : un live qui commence.
+   #cadre : en-tête et zone de saisie fixes (le milieu est transparent) ; #fil : les messages, dans l'ordre d'arrivée. */
 @font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(../da/Rubik-2.ttf)}
 @font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -16,12 +16,13 @@ body{background:transparent;font-family:Rubik,sans-serif;color:#efeff1}
 #cadre .ligne span::before{content:"";display:inline-block;width:20px;height:20px;border-radius:50%;border:3px solid #E0A93B;margin-right:10px;vertical-align:-3px}
 #cadre .ligne button{font:500 22px Rubik;color:#fff;background:#9147ff;border:0;border-radius:8px;padding:9px 22px}
 #fil{width:720px;background:#18181b;padding:0}
-.m{padding:7px 20px;font-size:25px;line-height:1.45;word-wrap:break-word}
+.m{padding:10px 22px;font-size:30px;line-height:1.4;word-wrap:break-word}
+.sys{padding:14px 22px;font-size:26px;color:#adadb8}
 .m .n{font-weight:500}
 .m .bd{display:inline-block;width:22px;height:22px;border-radius:5px;margin-right:6px;vertical-align:-3px}
-.m img,.m svg.e{width:34px;height:34px;vertical-align:-9px;margin:0 2px}
-.ev{margin:6px 0;padding:12px 18px 12px 16px;border-left:6px solid #9147ff;background:#1f1f23;font-size:23px;line-height:1.4;color:#efeff1}
-.ev b{font-weight:500}.ev small{display:block;color:#adadb8;font-size:20px;margin-top:2px}
+.m img,.m svg.e{width:40px;height:40px;vertical-align:-10px;margin:0 2px}
+.ev{margin:8px 0;padding:14px 20px 14px 18px;border-left:6px solid #9147ff;background:#1f1f23;font-size:27px;line-height:1.4;color:#efeff1}
+.ev b{font-weight:500}.ev small{display:block;color:#adadb8;font-size:23px;margin-top:2px}
 .ev.or{border-left-color:#E0A93B}
 </style></head><body>
 <div id="cadre">
@@ -40,57 +41,38 @@ const E = {
 };
 const C = ['#FF6B6B', '#5BA8FF', '#3FCB7A', '#FFB34D', '#C792EA', '#FF7FB5', '#4FD1C5', '#F2C97A', '#9AE65C', '#7AA7FF', '#FF8A5C', '#B8A6FF'];
 const B = { s: '#E0A93B', m: '#00ad03', v: '#e005b9' };
-// [badges, pseudo, message]  ou  ['ev', texte, détail, couleur]
+// Le live commence : [arrivée en s, badges, pseudo, message]  ou  [arrivée, 'ev', texte, détail, couleur].
+// Le chat se remplit doucement, puis de plus en plus vite.
 const M = [
-  ['s', 'Nyx', 'bonsoir tout le monde ' + E.Love],
-  ['', 'Marlo', 'le nouveau setup est trop propre'],
-  ['m', 'Sacha', 'on accueille les nouveaux, soyez sympas ' + E.Love],
-  ['', 'Ilan', 'c\'est quoi la musique ?'],
-  ['s', 'Jade', E.Hype + E.Hype + E.Hype],
-  ['', 'Tom', 'la DeLorean sur l\'étagère mdr'],
-  ['ev', '<b>Lyra</b> s\'est abonnée au niveau 1.', 'Abonnée depuis 6 mois !', ''],
-  ['v', 'Kenji', 'GG pour hier soir ' + E.GG],
-  ['', 'Moussa', 'premier live ici, ambiance de fou'],
-  ['s', 'Nyx', 'wubba lubba dub dub'],
-  ['', 'Elisa', 'le gant de l\'Infini il est réel ?? ' + E.Pog],
-  ['m', 'Sacha', '!planning pour les horaires des lives'],
-  ['', 'Bastien', 'tu joues à quoi ce soir ?'],
-  ['s', 'Marlo', 'la vue sur la ville ' + E.Pog],
-  ['', 'Rayan', E.LUL + ' le plumbus'],
-  ['', 'Chloé', 'hello hello'],
-  ['ev', '<b>Marlo</b> a offert 5 abonnements à la communauté !', 'Merci pour le soutien', 'or'],
-  ['s', 'Jade', 'merci Marlo ' + E.Love + E.Love],
-  ['', 'Hugo', 'c\'est quel micro ? on dirait un SM7B'],
-  ['v', 'Kenji', 'oui SM7B sur bras'],
-  ['', 'Inès', 'le chat est chaud ce soir ' + E.Hype],
-  ['s', 'Tom', 'Kayzx t\'as vu le clip d\'hier ?'],
-  ['', 'Léo', 'trop hâte du live'],
-  ['', 'Amine', E.GG + E.GG],
-  ['m', 'Sacha', 'pensez à suivre la chaîne pour être prévenus ' + E.Love],
-  ['', 'Lou', 'l\'intro avec la pièce en 3D est incroyable'],
-  ['s', 'Nyx', 'on veut une visite du studio !'],
-  ['', 'Yanis', E.Pog + ' la télé 85 pouces'],
-  ['ev', 'Raid de <b>Sacha</b> avec 38 spectateurs', 'Bienvenue aux raiders !', ''],
-  ['', 'Maëlys', 'coucou les raiders ' + E.Love],
-  ['s', 'Jade', 'je reste jusqu\'au bout ce soir'],
-  ['', 'Noah', 'tu fais une partie avec les abonnés ?'],
-  ['v', 'Kenji', E.LUL + E.LUL + E.LUL],
-  ['', 'Sarah', 'le son est nickel'],
-  ['s', 'Marlo', 'on est combien là ?'],
-  ['', 'Enzo', 'premier !'],
-  ['', 'Clara', 'trop beau le salon ' + E.Hype],
-  ['s', 'Tom', 'Retour vers le futur > tout'],
-  ['m', 'Sacha', 'restez cool dans le chat svp ' + E.Love],
-  ['', 'Ilan', 'let\'s go ' + E.GG],
+  [3.5, 's', 'Nyx', 'salut tout le monde ' + E.Love],
+  [6.5, '', 'Marlo', 'premier !'],
+  [10.0, 'm', 'Sacha', 'bonsoir le chat, le live arrive ' + E.Hype],
+  [13.5, 's', 'Jade', E.Hype + E.Hype],
+  [17.0, '', 'Tom', 'la nouvelle intro ' + E.Pog],
+  [20.0, '', 'Lyra', 'coucou'],
+  [23.0, 'ev', '<b>Nyx</b> s\'est abonnée au niveau 1.', 'Abonnée depuis 6 mois !', ''],
+  [26.0, 'v', 'Kenji', 'la cuisine est trop belle'],
+  [28.5, '', 'Ilan', 'hello'],
+  [31.0, '', 'Elisa', 'le néon KAYZX TV ' + E.Pog],
+  [33.5, '', 'Moussa', 'première fois ici'],
+  [36.0, 'm', 'Sacha', 'bienvenue Moussa ' + E.Love],
+  [38.5, '', 'Chloé', E.GG],
+  [41.0, '', 'Bastien', 'on attend le live'],
+  [43.0, '', 'Rayan', 'le gant de l\'Infini ' + E.Pog],
+  [45.5, 'ev', '<b>Marlo</b> a offert 2 abonnements à la communauté !', 'Merci pour le soutien', 'or'],
+  [48.0, 's', 'Jade', 'merci Marlo ' + E.Love],
+  [50.0, '', 'Hugo', 'trop hâte'],
+  [52.0, '', 'Inès', E.LUL + ' le plumbus'],
+  [54.0, '', 'Léo', 'let\'s go'],
+  [56.0, '', 'Amine', E.Hype + E.Hype + E.Hype],
 ];
-const lig = (m, i) => m[0] === 'ev'
-  ? `<div class="ev ${m[3]}">${m[1]}<small>${m[2]}</small></div>`
-  : `<div class="m">${m[0] ? `<span class="bd" style="background:${B[m[0]]}"></span>` : ''}<span class="n" style="color:${C[(m[1].length * 7 + m[1].charCodeAt(0)) % C.length]}">${m[1]}</span> : ${m[2]}</div>`;
-const html = M.map(lig).join('');
-document.getElementById('fil').innerHTML = `<div id="c1">${html}</div><div id="c2">${html}</div>`;
+const lig = ([t, ...m]) => m[0] === 'ev'
+  ? `<div class="ev ${m[3]}" data-t="${t}">${m[1]}<small>${m[2]}</small></div>`
+  : `<div class="m" data-t="${t}">${m[0] ? `<span class="bd" style="background:${B[m[0]]}"></span>` : ''}<span class="n" style="color:${C[(m[1].length * 7 + m[1].charCodeAt(0)) % C.length]}">${m[1]}</span> : ${m[2]}</div>`;
+document.getElementById('fil').innerHTML = `<div id="c1"><div class="sys" data-t="0">Bienvenue dans le chat !</div>${M.map(lig).join('')}</div>`;
 window.MESURES = () => {
   const c1 = document.getElementById('c1'), base = c1.getBoundingClientRect().top;
   return { hauteur: c1.getBoundingClientRect().height,
-           messages: [...c1.children].map((e) => { const r = e.getBoundingClientRect(); return [r.top - base, r.height]; }) };
+           messages: [...c1.children].map((e) => { const r = e.getBoundingClientRect(); return [r.top - base, r.height, +e.dataset.t]; }) };
 };
 </script></body></html>

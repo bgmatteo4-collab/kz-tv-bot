@@ -6,11 +6,17 @@
 .logo{width:800px;height:800px;position:relative;display:grid;place-items:center;overflow:hidden}
 .encre{background:url(fond-logo.png)}.nuit{background:radial-gradient(circle at 50% 40%,#1A262D,#0F1519 70%)}.teal{background:radial-gradient(circle at 50% 40%,#25706A,#1E5B57 60%,#16443F)}
 #banniere{width:1200px;height:480px;position:relative;display:grid;place-items:center;background:url(fond-banniere.png);overflow:hidden}
-#banniere:after,.encre:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(15,21,25,.35),transparent 65%)}
+.encre:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(15,21,25,.35),transparent 65%)}
+#banniere{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+#banniere:after{content:"";position:absolute;left:50%;top:50%;width:640px;height:380px;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,rgba(15,21,25,.45),transparent 70%)}
+.reseaux{position:relative;z-index:1;display:flex;gap:16px}
+.reseaux div{display:flex;align-items:center;gap:10px;background:#F1ECE3;border:3px solid #0F1519;border-radius:999px;padding:7px 18px 7px 10px;
+  font:900 22px Rubik;color:#0F1519;box-shadow:0 4px 0 #0F1519}
+.reseaux img{width:30px;height:30px}.reseaux em{font-style:normal;color:#1E5B57}
 svg{position:relative;z-index:1}
 </style></head><body>
 <div id="logo-encre" class="logo encre"></div><div id="logo-nuit" class="logo nuit"></div><div id="logo-teal" class="logo teal"></div>
-<div id="banniere"></div>
+<div id="banniere"><div class="reseaux"><div><img src="../overlays/logos/youtube.svg" alt="">YouTube <em>@kayzxtv8505</em></div><div><img src="../overlays/logos/tiktok.svg" alt="">TikTok <em>Kayzx TV</em></div></div></div>
 <script>
 const N = '#0F1519', P = '#F1ECE3', M = '#E0A93B';
 function mot(txt, x, y, taille, face, cote, ext) {
@@ -27,5 +33,5 @@ const bloc = mot('KAYZX', 300, 178, 160, P, '#968870', 12)
      <text x="300" y="282" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="60" fill="${N}">TV</text></g>`;
 const svg = (l) => `<svg width="${l}" height="${l * 285 / 600}" viewBox="0 40 600 285">${bloc}</svg>`;
 for (const id of ['logo-encre', 'logo-nuit', 'logo-teal']) document.getElementById(id).innerHTML = svg(690);
-document.getElementById('banniere').innerHTML = svg(560);
+document.getElementById('banniere').insertAdjacentHTML('afterbegin', svg(470));
 </script></body></html>

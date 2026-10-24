@@ -1075,6 +1075,8 @@ CAMS = {
     'micro': camera('micro', v('setup', (1.05, 3.15, 1.2)), v('setup', (0.8, 3.4, 1.2)), 45),
     'dehors': camera('dehors', (3.5, 10.0, 2.2), (3.6, 4.0, 1.3), 24),
     'evier': camera('evier', (7.05, -1.45, 1.55), (7.67, -1.95, 0.82), 32),
+    'vue_sud': camera('vue_sud', (6.6, 4.9, 1.85), (2.6, -3.6, 0.9), 18),
+    'vue_nord': camera('vue_nord', (5.2, -4.3, 1.75), (3.6, 5.5, 1.1), 18),
     'console': camera('console', (6.95, 1.55, 0.85), (7.75, 1.95, 0.6), 30),
     'setup': camera('setup', v('setup', (1.55, 3.55, 1.45)), v('setup', (0.35, 2.85, 0.95)), 26),
     'affiches': camera('affiches', (4.6, 3.2, 1.6), (4.6, 0.0, 1.55), 30),

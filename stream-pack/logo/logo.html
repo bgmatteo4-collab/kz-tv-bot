@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Logo Twitch (800 × 800, recadré en rond par Twitch) en trois fonds, et bannière de profil (1200 × 480).
+   Même écriture que les emotes : Rubik Black, contour papier, trait nuit, épaisseur 3D ; « TV » dans une pastille miel. */
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
+*{margin:0;padding:0;box-sizing:border-box}body{background:#222;display:flex;flex-wrap:wrap;gap:20px;padding:20px;width:2700px}
+.logo{width:800px;height:800px;position:relative;display:grid;place-items:center;overflow:hidden}
+.encre{background:url(fond-logo.png)}.nuit{background:radial-gradient(circle at 50% 40%,#1A262D,#0F1519 70%)}.teal{background:radial-gradient(circle at 50% 40%,#25706A,#1E5B57 60%,#16443F)}
+#banniere{width:1200px;height:480px;position:relative;display:grid;place-items:center;background:url(fond-banniere.png);overflow:hidden}
+#banniere:after,.encre:after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(15,21,25,.35),transparent 65%)}
+svg{position:relative;z-index:1}
+</style></head><body>
+<div id="logo-encre" class="logo encre"></div><div id="logo-nuit" class="logo nuit"></div><div id="logo-teal" class="logo teal"></div>
+<div id="banniere"></div>
+<script>
+const N = '#0F1519', P = '#F1ECE3', M = '#E0A93B';
+function mot(txt, x, y, taille, face, cote, ext) {
+  const a = `x="${x}" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="${taille}" stroke-linejoin="round" letter-spacing="-2"`;
+  let s = `<text ${a} y="${y + ext}" fill="${P}" stroke="${P}" stroke-width="26">${txt}</text>`;
+  for (let i = ext; i > 0; i--) s += `<text ${a} x="${x + i * 0.5}" y="${y + i}" fill="${cote}" stroke="${N}" stroke-width="10">${txt}</text>`;
+  return s + `<text ${a} y="${y}" fill="${face}" stroke="${N}" stroke-width="10" paint-order="stroke">${txt}</text>`;
+}
+// Le bloc logo : KAYZX au-dessus, pastille TV légèrement inclinée en dessous (contenu centré dans 0 40 600 285).
+const bloc = mot('KAYZX', 300, 178, 160, P, '#968870', 12)
+  + `<g transform="rotate(-4 300 262)"><rect x="207" y="216" width="186" height="96" rx="48" fill="${P}"/>
+     <rect x="219" y="232" width="162" height="76" rx="38" fill="#8A5A12" stroke="${N}" stroke-width="8"/>
+     <rect x="219" y="222" width="162" height="76" rx="38" fill="${M}" stroke="${N}" stroke-width="8"/>
+     <text x="300" y="282" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="60" fill="${N}">TV</text></g>`;
+const svg = (l) => `<svg width="${l}" height="${l * 285 / 600}" viewBox="0 40 600 285">${bloc}</svg>`;
+for (const id of ['logo-encre', 'logo-nuit', 'logo-teal']) document.getElementById(id).innerHTML = svg(690);
+document.getElementById('banniere').innerHTML = svg(560);
+</script></body></html>

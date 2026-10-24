@@ -20,3 +20,14 @@
 - Key light : panneau 35 cm sur trépied au sol, tournée vers le siège ; micro : la tige du bras descend jusque dans l'étrier (plus de jour).
 - Ville : la texture brique est dépliée sur les façades (x + y, z), vitres = 1 - joint, une fenêtre sur cinq allumée, quelques bureaux en blanc froid, pas de fenêtres sur les toits.
 - Visite web (export glTF allégé) publiée ; le client ne veut plus de nouvel export web (trop coûteux) ni de séries de vues : un gros plan ciblé suffit.
+
+## 24/10 — pièce agrandie, Just Chatting, stinger, emotes, badges, logo
+- Pièce agrandie de 5 m : cuisine ouverte noir mat + chêne (évier creusé), coin setup avec vrai mur derrière, décor à lames et néon « KAYZX TV » (Rubik, miel + teal), affiches sur le nouveau mur du fond.
+- Chat de l'écran animé comme un live qui démarre ; TV : écran d'accueil (heure, date) puis paysages HDRI (`tv/programme.py`). Boucle drone de 60 s en 8 plans plus lents. Photos du studio : `rendus/deck/`.
+- Kit de rendu pour le PC du client : `rendre-boucle.bat` + `RENDU-PC.md` (GPU, images reprenables, assemblage MP4 avec grain).
+- Motif de la chaîne : « encre diluée » (`motifs/encre.py`, boucle sans couture). Overlay Just Chatting animé (`overlays/just_chatting.py`) : cadres papier cam + chat, bandeau YouTube / TikTok / X / Discord avec vrais logos.
+- Stinger « goutte d'encre » v2, 2,6 s, son marqué, nom en volume (`stingers/goutte_encre.py`, point de transition 950 ms) : validé.
+- Emotes : 24 emotes texte en sticker, exportées pour Twitch (`emotes/twitch/112|56|28`). Mascotte goutte abandonnée (le client n'aime pas la goutte).
+- Badges d'abonné : KZX dans une petite télé, 1 / 3 / 6 / 12 / 24 mois (`badges/twitch/`, 18-36-72 px).
+- Logo Twitch (3 fonds : encre, nuit, teal) et bannière de profil 1200 × 480 (`logo/`).
+- EN COURS : alertes « carte papier » (follow, abonnement, raid) avec picto par type et entrée en bande d'encre balayée, WebM transparent + son.

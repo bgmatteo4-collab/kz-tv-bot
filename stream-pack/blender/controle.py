@@ -37,7 +37,7 @@ def controler(scene, tol=0.012):
             vol = ov[0] * ov[1] * ov[2]
             print(f'CHEVAUCHE {na!r} × {nb!r} : {ov[0]:.2f} × {ov[1]:.2f} × {ov[2]:.2f} m')
     for n, (a, b) in g.items():   # hors de la pièce
-        if a.x < -0.01 or a.y < -0.01 or b.x > 8.01 or b.y > 6.01 or b.z > 3.01:
+        if a.x < -0.01 or a.y < -5.01 or b.x > 8.01 or b.y > 6.01 or b.z > 3.01:
             print(f'MUR {n!r} : {a.x:.2f}..{b.x:.2f} / {a.y:.2f}..{b.y:.2f} / {a.z:.2f}..{b.z:.2f}')
 
 

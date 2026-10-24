@@ -14,13 +14,14 @@ import random
 import sys
 
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(ICI, '..', 'assets')
 OBJ = os.path.join(ASSETS, 'objaverse')
 TAILLES = {l.split()[1]: l.split()[2] for l in open(os.path.join(ICI, '..', 'assets.txt')) if l.strip() and not l.startswith('#')}
 L, P, H = 8.0, 6.0, 3.0
+SUD = -5.0   # la pièce a été rallongée de 5 m vers le sud : cuisine ouverte et coin stream
 
 args = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 opt = {args[i].lstrip('-'): args[i + 1] for i in range(0, len(args) - 1, 2)}
@@ -201,14 +202,13 @@ def placer(objet, position, taille, axe='max', rotation_z=0.0, rotation_x=0.0, m
 
 # ------------------------------------------------------------------ le loft
 
-boite('sol', (L / 2, P / 2, -0.05), (L, P, 0.1), M['parquet'])
-boite('plafond', (L / 2, P / 2, H + 0.05), (L, P, 0.1), M['plafond'])
-boite('mur sud', (L / 2, -0.05, H / 2), (L, 0.1, H), M['mur'])
-boite('mur ouest', (-0.05, P / 2, H / 2), (0.1, P, H), M['mur'])
-boite('mur est', (L + 0.05, P / 2, H / 2), (0.1, P, H), M['teal'])
-for x in (0.0, L):   # plinthes
-    pass
-boite('plinthe sud', (L / 2, 0.01, 0.05), (L, 0.02, 0.1), M['chene'])
+YC, PROF = (SUD + P) / 2, P - SUD
+boite('sol', (L / 2, YC, -0.05), (L, PROF, 0.1), M['parquet'])
+boite('plafond', (L / 2, YC, H + 0.05), (L, PROF, 0.1), M['plafond'])
+boite('mur sud', (L / 2, SUD - 0.05, H / 2), (L, 0.1, H), M['mur'])
+boite('mur ouest', (-0.05, YC, H / 2), (0.1, PROF, H), M['mur'])
+boite('mur est', (L + 0.05, YC, H / 2), (0.1, PROF, H), M['teal'])
+boite('plinthe sud', (L / 2, SUD + 0.01, 0.05), (L, 0.02, 0.1), M['chene'])
 
 # Baie vitrée : toute la longueur du mur nord, du sol au plafond, 8 travées d'1 m à montants noirs fins.
 # La 4e (x 3 → 4) est un coulissant ouvert, glissé derrière la 5e : c'est par là que le drone entre.
@@ -231,6 +231,28 @@ for i in range(26):
     boite(f'lame {i}', (0.03, 1.75 + i * 0.1, 1.55), (0.04, 0.05, 2.6), M['noyer'])
 
 
+DEPLACEMENTS = {}
+
+
+def centre_monde(o):
+    if o.type == 'MESH':
+        return sum((o.matrix_world @ Vector(c) for c in o.bound_box), Vector()) / 8
+    return o.matrix_world.translation.copy()
+
+
+def deplacer(nom, avant, pivot, angle, arrivee, choisir=lambda c: True):
+    """Déplace d'un bloc les objets créés depuis `avant` : rotation de `angle`° autour du pivot, puis le pivot
+    vient en `arrivee`. choisir(centre) trie les objets. La matrice est gardée pour les lumières associées."""
+    m = Matrix.Translation(Vector(arrivee)) @ Matrix.Rotation(math.radians(angle), 4, 'Z') @ Matrix.Translation(-Vector(pivot))
+    bpy.context.view_layer.update()
+    for o in [o for o in bpy.data.objects if o not in avant and o.parent is None and o.type != 'CAMERA']:
+        if choisir(centre_monde(o)):
+            o.matrix_world = m @ o.matrix_world
+    DEPLACEMENTS[nom] = m
+    bpy.context.view_layer.update()
+    return m
+
+
 def tube(nom, a, b, r, mat):
     """Cylindre d'un point à un autre (bras de micro, pieds)."""
     a, b = Vector(a), Vector(b)
@@ -241,7 +263,9 @@ def tube(nom, a, b, r, mat):
     return o
 
 
-# --- Le bureau de stream, contre le mur acoustique : le streamer regarde vers l'ouest (-x).
+# --- Le bureau de stream (construit comme à l'origine, contre le mur ouest, puis déplacé d'un bloc dans le
+# coin stream : voir plus bas). Ici, le streamer regarde vers l'ouest (-x).
+AVANT_SETUP = set(bpy.data.objects)
 # Plateau chêne 1,80 × 0,80 (x 0,05 → 0,85, y 2,10 → 3,90), dessus à 76,5 cm, piètement noir en T.
 DX0, DX1, DY0, DY1 = 0.05, 0.85, 2.1, 3.9
 BUREAU = 0.765
@@ -439,7 +463,13 @@ boite('PC', (0.33, 1.88, 0.24), (0.45, 0.22, 0.48), M['noir'], 0.008)
 for i in range(9):
     boite('PC lame', (0.558, 1.79 + i * 0.022, 0.24), (0.014, 0.014, 0.44), M['noyer'])
 placer('siege_gaming', (1.4, 3.0, 0), 1.3, 'z', rotation_z=-90)
+# Le setup part tel quel dans le coin stream : bureau au milieu de la pièce, le streamer dos au mur sud
+# (à 80 cm du décor), face au salon ; ce que voit sa caméra, c'est lui et le décor.
+SETUP = deplacer('setup', AVANT_SETUP, (0.45, 3.0, 0), -90, (2.1, -2.9, 0))
+KL_PANNEAU = SETUP @ KL_PANNEAU
+VISAGE = SETUP @ Vector((1.3, 3.0, 1.2))   # le visage du streamer, que vise la key light
 
+AVANT_ETAGERES = set(bpy.data.objects)
 # --- Étagères des répliques (noyer, LED dessous) de part et d'autre du bureau. Chaque objet est posé
 # sur le dessus de sa planche (DESSUS[niveau]) ; répliques et déco alternent pour que rien ne fasse vide.
 NIVEAUX = (1.0, 1.45, 1.9)
@@ -524,6 +554,18 @@ def pile(y, z, n=3):
     return z
 
 
+def pile_sur(x, y, z, n=3, tourne=0):
+    """Pile de livres couchés ailleurs que sur les étagères (dos vers +x, ou tournés de `tourne` degrés)."""
+    bm = bmesh.new()
+    for k in range(n):
+        e, h, p = random.uniform(0.025, 0.045), 0.27 - 0.025 * k + random.uniform(-0.01, 0.01), 0.19 - 0.012 * k
+        rot = Matrix.Rotation(math.radians(tourne + random.uniform(-6, 6)), 4, 'Z') @ Matrix.Rotation(math.radians(90), 4, 'X')
+        bm_livre(bm, (x, y, z + e / 2), p, e, h, rot)
+        z += e
+    bm_objet('pile de livres', bm)
+    return z
+
+
 def plantule(y, z, echelle=1.0):
     importer_ph('potted_plant_04', (AVANT - 0.12, y, z), rotation_z=random.uniform(0, 360), echelle=echelle)
 
@@ -566,13 +608,45 @@ placer('convecteur', (0.04, 1.05, 2.38), 0.42, 'z', rotation_z=90)
 placer('bouclier', (0.06, 3.0, 2.25), 0.6, 'max', rotation_z=90)
 placer('hoverboard', (0.03, 4.95, 2.42), 0.75, 'max', rotation_z=90, rotation_x=90)
 importer_ph('wicker_basket_01', (0.3, 1.05, 0))
+# Les deux blocs d'étagères, le bouclier et les objets muraux deviennent le décor du stream : posés sur le mur
+# en lames du fond (mur sud), de part et d'autre du néon, derrière le streamer.
+ETAGERES = {}
+for nom, yc, x, tri in (('Avengers', 1.05, 3.35, lambda c: c.y < 2.5), ('Rick et Morty', 4.95, 0.85, lambda c: c.y > 3.5),
+                        ('bouclier', 3.0, 2.1, lambda c: 2.5 <= c.y <= 3.5)):
+    ETAGERES[nom] = deplacer(nom, AVANT_ETAGERES, (0, yc, 0), 90, (x, SUD + 0.05, 0), tri)
+# Le mur du décor : lames de noyer sur toute la largeur du coin stream (x 0,25 → 3,95) ; les étagères sont
+# fixées sur les lames (5 cm devant le mur).
+for i in range(38):
+    boite(f'lame décor {i}', (0.3 + i * 0.1, SUD + 0.03, 1.55), (0.05, 0.04, 2.6), M['noyer'])
 
-# --- Porte (mur sud, x 0,3 → 1,2), interrupteur à côté, prises près de chaque appareil.
-boite('porte', (0.75, 0.025, 1.05), (0.9, 0.04, 2.1), M['noyer'], 0.004)
-for x in (0.28, 1.22):
-    boite('chambranle', (x, 0.03, 1.07), (0.05, 0.06, 2.14), M['chene'])
-boite('chambranle haut', (0.75, 0.03, 2.15), (0.99, 0.06, 0.05), M['chene'])
-boite('poignée', (1.08, 0.07, 1.0), (0.13, 0.02, 0.02), M['noir'], 0.005)
+
+def neon(texte, centre_x, bas_z, hauteur, couleur):
+    """Néon en tubes qui suivent le contour des lettres (typo du pack, Rubik Black), sur le mur du décor."""
+    cu = bpy.data.curves.new(texte, 'FONT'); cu.body = texte
+    cu.font = bpy.data.fonts.load(os.path.join(ICI, '..', 'da', 'Rubik-3.ttf'))
+    cu.size, cu.align_x, cu.fill_mode = hauteur * 1.38, 'CENTER', 'NONE'   # 1,38 : hauteur des capitales de Rubik
+    cu.bevel_depth, cu.bevel_resolution = 0.0055, 3
+    o = bpy.data.objects.new('néon ' + texte, cu); scene.collection.objects.link(o)
+    o.rotation_euler = (math.radians(90), 0, math.radians(180))   # face au salon, lisible de gauche à droite
+    o.location = (centre_x, SUD + 0.05 + 0.075, bas_z)
+    o.data.materials.append(materiau_uni('néon ' + texte, couleur, 0.3, emission=couleur, force=22.0))
+    return o
+
+
+NEON_X = 2.1
+neon('KAYZX', NEON_X, 1.78, 0.26, '#FFC24A')     # le miel de la DA, poussé en lumière
+neon('TV', NEON_X, 1.5, 0.17, '#3FD3C2')         # le teal, en version néon
+boite('néon plaque', (NEON_X, SUD + 0.05 + 0.055, 1.79), (1.25, 0.008, 0.62), M['verre'], 0.004)   # plexi transparent
+for dx in (-0.57, 0.57):
+    for z in (1.53, 2.05):
+        tube('néon entretoise', (NEON_X + dx, SUD + 0.05, z), (NEON_X + dx, SUD + 0.052 + 0.05, z), 0.008, M['alu'])
+
+# --- Porte (mur ouest de l'extension, y -1,15 → -0,25), interrupteur à côté, prises près de chaque appareil.
+boite('porte', (0.025, -0.7, 1.05), (0.04, 0.9, 2.1), M['noyer'], 0.004)
+for y in (-1.17, -0.23):
+    boite('chambranle', (0.03, y, 1.07), (0.06, 0.05, 2.14), M['chene'])
+boite('chambranle haut', (0.03, -0.7, 2.15), (0.06, 0.99, 0.05), M['chene'])
+boite('poignée', (0.07, -0.97, 1.0), (0.02, 0.13, 0.02), M['noir'], 0.005)
 BLANC = materiau_uni('plastique blanc', '#EDEEEC', 0.35)
 
 
@@ -590,25 +664,132 @@ def plaque(nom, centre, normale, prise=False):
         boite(nom + ' bascule', c, tuple(v * 0.6 for v in ep), BLANC, 0.002)
 
 
-plaque('interrupteur', (1.42, 0.005, 1.1), 'y+')
-plaque('prise bureau', (0.005, 2.2, 0.3), 'x+', True)
-plaque('prise bureau 2', (0.005, 3.8, 0.3), 'x+', True)
+plaque('interrupteur', (0.005, -0.02, 1.1), 'x+')
+plaque('prise meuble', (0.005, 1.7, 0.3), 'x+', True)
+plaque('prise bureau', (1.6, SUD + 0.005, 0.3), 'y+', True)
+plaque('prise bureau 2', (2.6, SUD + 0.005, 0.3), 'y+', True)
 plaque('prise TV', (L - 0.005, 4.45, 0.3), 'x-', True)
-plaque('prise lampadaire', (7.0, 0.005, 0.3), 'y+', True)
+plaque('prise lampadaire', (L - 0.005, 0.2, 0.3), 'x-', True)
+plaque('prise cuisine', (L - 0.005, -2.6, 1.1), 'x-', True)
+plaque('prise îlot', (L - 0.005, -1.0, 0.3), 'x-', True)
 
-# --- Les affiches officielles encadrées (mur sud, derrière le canapé).
-for k, (nom, x) in enumerate((('endgame', 3.6), ('retour-vers-le-futur', 4.6), ('rick-et-morty', 5.6))):
+# --- Les affiches officielles encadrées (nouveau mur sud, côté cuisine).
+for k, (nom, x) in enumerate((('endgame', 4.65), ('retour-vers-le-futur', 5.6), ('rick-et-morty', 6.55))):
     zc, LA, HA, B = 1.65, 0.6, 0.9, 0.03   # affiche 60 × 90, baguette de 3 cm qui dépasse de 1,5 cm
-    boite(f'fond {nom}', (x, 0.015, zc), (LA + 2 * B, 0.02, HA + 2 * B), M['noir'])
+    boite(f'fond {nom}', (x, SUD + 0.015, zc), (LA + 2 * B, 0.02, HA + 2 * B), M['noir'])
     for dx, dz, w, h in ((-(LA + B) / 2, 0, B, HA + 2 * B), ((LA + B) / 2, 0, B, HA + 2 * B), (0, (HA + B) / 2, LA, B), (0, -(HA + B) / 2, LA, B)):
-        boite(f'cadre {nom}', (x + dx, 0.025, zc + dz), (w, 0.04, h), M['chene'], 0.002)
+        boite(f'cadre {nom}', (x + dx, SUD + 0.025, zc + dz), (w, 0.04, h), M['chene'], 0.002)
     img = bpy.data.materials.new(f'affiche {nom}'); nt = img.node_tree
     b = nt.nodes['Principled BSDF']; b.inputs['Roughness'].default_value = 0.12   # sous verre
     tex = nt.nodes.new('ShaderNodeTexImage')
     tex.image = bpy.data.images.load(os.path.join(ASSETS, 'affiches', f'{nom}.jpg'))
     nt.links.new(tex.outputs['Color'], b.inputs['Base Color'])
-    bpy.ops.mesh.primitive_plane_add(size=1, location=(x, 0.0275, zc), rotation=(math.radians(90), 0, math.radians(180)))
+    bpy.ops.mesh.primitive_plane_add(size=1, location=(x, SUD + 0.0275, zc), rotation=(math.radians(90), 0, math.radians(180)))
     a = bpy.context.object; a.name = f'affiche {nom}'; a.scale = (LA, HA, 1); a.data.materials.append(img)
+
+# --- La cuisine ouverte (extension, côté est) : façades noir mat sans poignées, plan de travail et îlot en
+# chêne, colonne frigo + four dans l'angle, crédence chêne, étagères ouvertes, trois tabourets hauts.
+NOIR_MAT = materiau_uni('noir mat cuisine', '#17181A', 0.62)
+INOX = materiau_uni('inox', '#9AA0A6', 0.25, 1.0)
+VITRE_FOUR = materiau_uni('vitre four', '#050506', 0.05)
+KX0 = L - 0.62                     # façade des meubles (x)
+KY0, KY1 = SUD + 0.03, -1.15       # la cuisine court le long du mur est
+COL = KY0 + 1.22                   # fin de la colonne frigo + four
+boite('colonne cuisine', (L - 0.31, (KY0 + COL) / 2, 1.13), (0.62, COL - KY0, 2.26), NOIR_MAT, 0.003)
+for y in (KY0 + 0.61,):            # joint entre les deux colonnes
+    boite('joint colonne', (KX0 - 0.001, y, 1.13), (0.004, 0.004, 2.2), M['noir'])
+boite('vitre four', (KX0 - 0.002, KY0 + 0.91, 1.1), (0.004, 0.52, 0.38), VITRE_FOUR, 0.003)
+boite('bandeau four', (KX0 - 0.002, KY0 + 0.91, 1.34), (0.004, 0.52, 0.05), INOX)
+boite('meubles bas', (L - 0.31, (COL + KY1) / 2, 0.47), (0.62, KY1 - COL, 0.78), NOIR_MAT, 0.003)
+boite('socle cuisine', (L - 0.27, (COL + KY1) / 2, 0.04), (0.54, KY1 - COL, 0.08), M['noir'])
+n = int((KY1 - COL) / 0.6)
+for k in range(1, n + 1):          # joints des portes (sans poignées)
+    boite('joint porte', (KX0 - 0.001, COL + k * (KY1 - COL) / (n + 1), 0.47), (0.004, 0.004, 0.76), M['noir'])
+boite('joint tiroirs', (KX0 - 0.001, (COL + KY1) / 2, 0.7), (0.004, KY1 - COL - 0.02, 0.004), M['noir'])
+PLAN = 0.9
+boite('plan de travail', (L - 0.32, (COL + KY1) / 2, PLAN + 0.02), (0.64, KY1 - COL, 0.04), M['chene'], 0.003)
+boite('crédence', (L - 0.012, (COL + KY1) / 2, PLAN + 0.29), (0.02, KY1 - COL, 0.5), M['chene'])
+# Évier sous plan et mitigeur noir, plaque à induction, hotte intégrée au plafond (invisible).
+EVIER_Y, PLAQUE_Y = -1.95, -3.05
+boite('évier', (L - 0.33, EVIER_Y, PLAN + 0.005), (0.4, 0.5, 0.012), materiau_uni('évier', '#2A2C2F', 0.35, 0.6))
+tube('mitigeur', (L - 0.08, EVIER_Y, PLAN + 0.04), (L - 0.08, EVIER_Y, PLAN + 0.36), 0.013, M['noir'])
+tube('bec', (L - 0.08, EVIER_Y, PLAN + 0.36), (L - 0.3, EVIER_Y, PLAN + 0.36), 0.011, M['noir'])
+tube('bec bout', (L - 0.3, EVIER_Y, PLAN + 0.36), (L - 0.3, EVIER_Y, PLAN + 0.3), 0.011, M['noir'])
+boite('plaque induction', (L - 0.33, PLAQUE_Y, PLAN + 0.042), (0.52, 0.6, 0.006), materiau_uni('vitrocéramique', '#0B0C0D', 0.08), 0.003)
+for dy, dx, r in ((-0.14, -0.1, 0.09), (0.14, -0.1, 0.08), (-0.14, 0.12, 0.07), (0.14, 0.12, 0.1)):
+    bpy.ops.mesh.primitive_torus_add(location=(L - 0.33 + dx, PLAQUE_Y + dy, PLAN + 0.046), major_radius=r, minor_radius=0.002)
+    bpy.context.object.data.materials.append(materiau_uni('repère foyer', '#5A5E63', 0.5))
+# Étagères ouvertes en chêne au-dessus du plan, ruban LED dessous ; vaisselle et bocaux.
+for z in (1.48, 1.86):
+    boite('étagère cuisine', (L - 0.14, -2.45, z), (0.26, 2.0, 0.035), M['chene'], 0.003)
+    boite('LED cuisine', (L - 0.04, -2.45, z - 0.022), (0.01, 1.9, 0.006), M['led'])
+CERAMIQUE = materiau_uni('assiettes', '#ECE8DF', 0.3)
+for y in (-3.25, -2.97):
+    for k in range(6):   # piles d'assiettes
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.12, depth=0.012, location=(L - 0.15, y, 1.5 + 0.018 + k * 0.014), vertices=40)
+        bpy.context.object.data.materials.append(CERAMIQUE)
+importer_ph('ceramic_vase_01', (L - 0.15, -2.6, 1.497), echelle=0.45)
+importer_ph('ceramic_vase_03', (L - 0.15, -2.35, 1.497), echelle=0.4)
+importer_ph('potted_plant_04', (L - 0.14, -1.75, 1.497), echelle=0.95)
+pile_sur(L - 0.15, -2.1, 1.877, 3, tourne=180)
+importer_ph('wooden_bowl_01', (L - 0.15, -2.75, 1.877), echelle=0.6)
+importer_ph('brass_vase_01', (L - 0.15, -3.2, 1.877), echelle=0.45)
+boite('machine à café', (L - 0.3, -1.45, PLAN + 0.04 + 0.17), (0.3, 0.2, 0.34), NOIR_MAT, 0.01)
+boite('planche à découper', (L - 0.05, -2.6, PLAN + 0.04 + 0.19), (0.02, 0.3, 0.38), M['noyer'], 0.006)
+
+# Îlot : plateau chêne en « cascade » sur les côtés, caisson noir mat ; trois tabourets côté salon.
+IX0, IX1, IY0, IY1 = 5.75, 6.7, -3.95, -1.65
+boite('îlot caisson', ((IX0 + IX1) / 2 + 0.02, (IY0 + IY1) / 2, 0.45), (IX1 - IX0 - 0.1, IY1 - IY0 - 0.08, 0.9), NOIR_MAT, 0.003)
+boite('îlot plateau', ((IX0 + IX1) / 2, (IY0 + IY1) / 2, PLAN + 0.02), (IX1 - IX0, IY1 - IY0, 0.04), M['chene'], 0.003)
+for y in (IY0 + 0.02, IY1 - 0.02):
+    boite('îlot cascade', ((IX0 + IX1) / 2, y, PLAN / 2), (IX1 - IX0, 0.04, PLAN), M['chene'], 0.003)
+importer_ph('wooden_bowl_01', (6.25, -2.4, PLAN + 0.04), echelle=0.9)
+importer_ph('potted_plant_04', (6.3, -3.4, PLAN + 0.04), echelle=1.1)
+for y in (-3.3, -2.8, -2.3):
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.18, depth=0.045, location=(IX0 - 0.38, y, 0.66), vertices=48)
+    bpy.context.object.name = 'tabouret assise'; bpy.context.object.data.materials.append(M['chene']); bpy.ops.object.shade_smooth()
+    for k in range(4):
+        a = math.radians(45 + k * 90)
+        tube('tabouret pied', (IX0 - 0.38 + 0.11 * math.cos(a), y + 0.11 * math.sin(a), 0.64),
+             (IX0 - 0.38 + 0.2 * math.cos(a), y + 0.2 * math.sin(a), 0.0), 0.011, M['noir'])
+    bpy.ops.mesh.primitive_torus_add(location=(IX0 - 0.38, y, 0.24), major_radius=0.17, minor_radius=0.008)
+    bpy.context.object.data.materials.append(M['noir'])
+# Deux suspensions coniques noires au-dessus de l'îlot.
+DISQUE = materiau_uni('suspension cône', '#FFE6BD', emission='#FFC27A', force=10.0)
+for y in (-3.25, -2.35):
+    tube('câble suspension', (6.22, y, H), (6.22, y, 2.15), 0.003, M['noir'])
+    bpy.ops.mesh.primitive_cone_add(radius1=0.16, radius2=0.025, depth=0.2, location=(6.22, y, 2.05), vertices=48, end_fill_type='NOTHING')
+    o = bpy.context.object; o.name = 'suspension cône'; o.data.materials.append(M['noir']); bpy.ops.object.shade_smooth()
+    o.modifiers.new('épaisseur', 'SOLIDIFY').thickness = 0.004
+    bpy.ops.mesh.primitive_circle_add(radius=0.15, location=(6.22, y, 1.97), fill_type='NGON')
+    bpy.context.object.data.materials.append(DISQUE)
+
+# --- Le coin stream : un tapis anthracite sous le bureau et le siège.
+boite('tapis setup', (2.1, -3.3, 0.006), (2.8, 2.2, 0.012), tissu('laine anthracite', '#3A3D40'))
+# --- L'entrée (près de la porte, mur ouest) : console fine en chêne, miroir rond cerclé de laiton, vide-poche.
+boite('console entrée', (0.17, 0.75, 0.78), (0.3, 1.1, 0.04), M['chene'], 0.003)
+for y in (0.25, 1.25):
+    boite('console pied', (0.17, y, 0.39), (0.26, 0.03, 0.78), M['noir'])
+bpy.ops.mesh.primitive_cylinder_add(radius=0.36, depth=0.012, location=(0.012, 0.75, 1.55), rotation=(0, math.radians(90), 0), vertices=64)
+bpy.context.object.name = 'miroir'; bpy.context.object.data.materials.append(materiau_uni('miroir', '#DADDE0', 0.02, 1.0))
+bpy.ops.mesh.primitive_torus_add(location=(0.016, 0.75, 1.55), rotation=(0, math.radians(90), 0), major_radius=0.365, minor_radius=0.01)
+bpy.context.object.data.materials.append(M['or'])
+importer_ph('ceramic_vase_03', (0.17, 0.45, 0.8), echelle=0.7)
+importer_ph('wooden_bowl_01', (0.17, 1.0, 0.8), echelle=0.6)
+# --- L'ancien mur du bureau (ouest, côté salon) garde ses lames : un meuble bas en noyer, décoré, dessous.
+SX0, SX1, SY0, SY1, SZ = 0.03, 0.46, 1.9, 4.1, 0.6
+for y in (SY0 + 0.08, SY1 - 0.08):
+    for x in (SX0 + 0.06, SX1 - 0.06):
+        tube('pied meuble bas', (x, y, 0), (x, y, 0.14), 0.012, M['noir'])
+boite('meuble bas', ((SX0 + SX1) / 2, (SY0 + SY1) / 2, 0.14 + (SZ - 0.14) / 2), (SX1 - SX0, SY1 - SY0, SZ - 0.14), M['noyer'], 0.004)
+for i in range(54):
+    yy = SY0 + 0.03 + (SY1 - SY0 - 0.06) * (i + 0.5) / 54
+    tube('cannelure meuble bas', (SX1 + 0.004, yy, 0.165), (SX1 + 0.004, yy, SZ - 0.025), 0.017, M['chene'])
+haut = pile_sur((SX0 + SX1) / 2, 2.35, SZ, 3)
+importer_ph('ceramic_vase_02', ((SX0 + SX1) / 2, 2.35, haut), echelle=0.5)
+importer_ph('standing_picture_frame_01', ((SX0 + SX1) / 2, 2.95, SZ), rotation_z=90)
+importer_ph('brass_vase_01', ((SX0 + SX1) / 2 + 0.02, 3.4, SZ), echelle=0.7)
+importer_ph('potted_plant_04', ((SX0 + SX1) / 2, 3.85, SZ), echelle=1.2)
 
 # --- Le salon : canapé d'angle face à la TV, tapis teal, table basse, fauteuil.
 # Le canapé d'angle regarde la TV : dossier à l'ouest (x 4,3), assise vers l'est, méridienne au nord
@@ -690,7 +871,7 @@ importer_ph('ceramic_vase_01', (L - 0.3, 2.35, MZ), echelle=0.6)
 # --- Plantes, luminaires.
 placer('plante', (7.42, 5.42, 0), 1.25, 'z', rotation_z=30)
 placer('plante', (0.58, 5.62, 0), 0.85, 'z', rotation_z=-20)
-importer_ph('potted_plant_02', (2.75, 0.4, 0))
+importer_ph('potted_plant_02', (4.0, SUD + 0.4, 0))
 placer('lampadaire', (7.5, 0.48, 0), 1.6, 'z')
 # Suspensions au-dessus de la table basse (le modèle va de 0,22 à 1,17 m au-dessus de son origine) ;
 # le globe devient lumineux, c'est lui qu'on voit (et qui se reflète dans la baie).
@@ -825,15 +1006,24 @@ for x in (0.3, L - 0.3):   # appliques du balcon : deux cônes doux sur la faça
     lumiere('applique balcon', 'SPOT', (x, P + 0.5, 2.15), 8, '#FFC27A', 0.03, (180, 0, 0), cone=110)
 lumiere('lampe à poser', 'POINT', (4.55, 1.2, 0.92), 25, '#FFB866', 0.05)
 lumiere('lampadaire', 'POINT', (7.5, 0.48, 1.45), 110, '#FFB866', 0.12)
-for x, y in ((2.2, 1.5), (2.2, 4.5), (3.6, 0.5), (5.6, 0.5), (7.2, 4.6)):   # spots encastrés : des cônes doux
+# Spots encastrés : cônes doux dans le salon ; dans l'extension, ils lèchent les lames du décor et les affiches.
+for x, y in ((1.2, 1.8), (1.2, 4.2), (3.4, 0.6), (7.2, 4.6), (0.9, SUD + 0.45), (3.3, SUD + 0.45), (2.1, -2.4),
+             (5.1, SUD + 0.6), (6.1, SUD + 0.6), (4.6, -1.0)):
     lumiere('spot', 'SPOT', (x, y, H - 0.02), 40, '#FFD29A', 0.05, (0, 0, 0), cone=60)
-for yc in (1.05, 4.95):   # ruban LED sous chaque planche : la réplique du dessous est mise en valeur
+for nom, yc in (('Avengers', 1.05), ('Rick et Morty', 4.95)):   # ruban LED sous chaque planche du décor
     for z in NIVEAUX:
-        d = lumiere('LED étagère', 'AREA', (0.27, yc, z - EP / 2 - 0.01), 7, '#FFC680', 1.0, (0, 0, 90))
+        d = lumiere('LED étagère', 'AREA', ETAGERES[nom] @ Vector((0.27, yc, z - EP / 2 - 0.01)), 7, '#FFC680', 1.0, (0, 0, 180))
         d.shape, d.size_y = 'RECTANGLE', 0.04
-lumiere('écrans', 'AREA', (0.45, 3.0, 1.1), 18, '#8FB8D8', 0.8, (0, -90, 0))
-vise_kl = (Vector((1.3, 3.0, 1.2)) - KL_PANNEAU).to_track_quat('-Z', 'Y').to_euler()
-lumiere('key light', 'AREA', KL_PANNEAU + (Vector((1.3, 3.0, 1.2)) - KL_PANNEAU).normalized() * 0.03, 25, '#FFF1DC', 0.33,
+for z, r, c in ((1.9, 7, '#FFC24A'), (1.58, 3, '#3FD3C2')):   # le néon éclaire le mur derrière lui : halo rond et doux
+    lumiere('lueur néon', 'POINT', (NEON_X, SUD + 0.32, z), r, c, 0.3)
+for y in (-3.25, -2.35):   # suspensions de l'îlot
+    lumiere('suspension îlot', 'SPOT', (6.22, y, 1.98), 35, '#FFC27A', 0.06, (0, 0, 0), cone=95)
+for z in (1.48, 1.86):     # LED sous les étagères de la cuisine
+    d = lumiere('LED cuisine', 'AREA', (L - 0.06, -2.45, z - 0.03), 6, '#FFC680', 1.9, (0, 0, 0))
+    d.shape, d.size_y = 'RECTANGLE', 0.04
+lumiere('écrans', 'AREA', SETUP @ Vector((0.45, 3.0, 1.1)), 18, '#8FB8D8', 0.8, (0, -90, -90))
+vise_kl = (VISAGE - KL_PANNEAU).to_track_quat('-Z', 'Y').to_euler()
+lumiere('key light', 'AREA', KL_PANNEAU + (VISAGE - KL_PANNEAU).normalized() * 0.03, 25, '#FFF1DC', 0.33,
         [math.degrees(a) for a in vise_kl])
 lumiere('TV (rétroéclairage)', 'AREA', (L - 0.08, 3.0, 1.55), 30, '#E0A93B', 1.6, (0, 90, 0))   # halo doré sur le mur teal
 reflet_tv = lumiere('TV (reflet)', 'AREA', (L - 0.2, 3.0, 1.5), 0, '#B8C8DC', 1.8, (0, 90, 0))   # la lueur de l'écran allumé
@@ -851,23 +1041,26 @@ def camera(nom, position, cible, focale=24):
     return c
 
 
+v = lambda nom, p: tuple(DEPLACEMENTS[nom] @ Vector(p))   # points des blocs déplacés
 CAMS = {
     'porte': camera('porte', (1.2, 0.5, 1.6), (5.0, 4.4, 1.0), 22),
     'salon': camera('salon', (3.4, 3.0, 1.6), (L, 3.0, 1.0), 24),
     'canape': camera('canape', (7.4, 4.9, 1.7), (4.8, 2.4, 0.6), 24),
-    'etag_sud': camera('etag_sud', (1.5, 1.05, 1.45), (0.1, 1.05, 1.45), 30),
-    'etag_nord': camera('etag_nord', (1.5, 4.95, 1.45), (0.1, 4.95, 1.45), 30),
+    'etag_sud': camera('etag_sud', v('Avengers', (1.5, 1.05, 1.45)), v('Avengers', (0.1, 1.05, 1.45)), 30),
+    'etag_nord': camera('etag_nord', v('Rick et Morty', (1.5, 4.95, 1.45)), v('Rick et Morty', (0.1, 4.95, 1.45)), 30),
+    'decor': camera('decor', (2.1, -1.2, 1.7), (2.1, SUD, 1.5), 24),
+    'cuisine': camera('cuisine', (3.6, 0.6, 1.65), (7.2, -3.4, 0.9), 24),
     'coin_ne': camera('coin_ne', (7.35, 5.35, 1.75), (2.0, 1.4, 0.9), 20),
-    'micro': camera('micro', (1.05, 3.15, 1.2), (0.8, 3.4, 1.2), 45),
+    'micro': camera('micro', v('setup', (1.05, 3.15, 1.2)), v('setup', (0.8, 3.4, 1.2)), 45),
     'dehors': camera('dehors', (3.5, 10.0, 2.2), (3.6, 4.0, 1.3), 24),
     'console': camera('console', (6.95, 1.55, 0.85), (7.75, 1.95, 0.6), 30),
-    'setup': camera('setup', (1.55, 3.55, 1.45), (0.35, 2.85, 0.95), 26),
+    'setup': camera('setup', v('setup', (1.55, 3.55, 1.45)), v('setup', (0.35, 2.85, 0.95)), 26),
     'affiches': camera('affiches', (4.6, 3.2, 1.6), (4.6, 0.0, 1.55), 30),
-    'bureau': camera('bureau', (2.6, 3.0, 1.45), (0.2, 3.0, 1.2), 30),
+    'bureau': camera('bureau', v('setup', (2.6, 3.0, 1.45)), v('setup', (0.2, 3.0, 1.2)), 30),
     'baie': camera('baie', (6.5, 1.2, 1.5), (3.0, 6.0, 1.3), 24),
-    'etageres': camera('etageres', (1.6, 3.3, 1.55), (0.15, 1.35, 1.4), 32),
+    'etageres': camera('etageres', (2.1, -0.6, 1.55), (2.1, SUD, 1.4), 30),
 }
-cd = camera('dessus', (L / 2, P / 2, 12), (L / 2, P / 2, 0)); cd.data.type = 'ORTHO'; cd.data.ortho_scale = L + 0.4
+cd = camera('dessus', (L / 2, YC, 14), (L / 2 + 0.001, YC, 0)); cd.data.type = 'ORTHO'; cd.data.ortho_scale = (PROF + 0.4) * 16 / 9
 CAMS['dessus'] = cd
 scene.camera = CAMS[opt.get('cam', 'porte')]
 if opt.get('cam') == 'dessus':   # vue de plan : sans plafond ni suspensions

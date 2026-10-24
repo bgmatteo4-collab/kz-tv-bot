@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Badges d'abonné : le monogramme KZX dans une petite télé, qui évolue avec l'ancienneté
+   (1 mois papier, 3 mois teal, 6 mois miel, 12 mois néon doré, 24 mois néon doré couronné). Version 18 px simplifiée : « K » seul. */
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}
+*{box-sizing:border-box;margin:0;padding:0}body{background:#0F1519;font-family:Rubik,sans-serif;color:#F1ECE3}
+#planche{width:1920px;padding:52px 64px 60px;display:flex;flex-direction:column;gap:28px}
+h1{font:900 54px Rubik;letter-spacing:-1px}h1 em{font-style:normal;color:#E0A93B}p.sous{font-size:22px;color:#BFC8C9}
+.rang{display:grid;grid-template-columns:repeat(5,1fr);gap:22px}
+.b{background:#17222A;border-radius:18px;padding:22px 14px 18px;display:flex;flex-direction:column;align-items:center;gap:16px}
+.b b{font:900 30px Rubik}.b small{font-size:18px;color:#9FB0B3}
+.chat{width:100%;border-radius:10px;padding:10px 14px;font:500 19px Rubik;display:flex;align-items:center;gap:6px}
+.chat.s{background:#18181B;color:#EFEFF1}.chat.c{background:#F7F7F8;color:#0E0E10}.chat svg{flex:none}
+.tailles{display:flex;gap:14px;align-items:flex-end}
+</style></head><body>
+<div id="planche">
+  <h1>Badges d'abonné · <em>KZX qui évolue</em></h1>
+  <p class="sous">Papier, teal, miel, puis néon doré. En 18 px (la taille du chat), le monogramme passe à « K » seul pour rester lisible.</p>
+  <div class="rang" id="r"></div>
+</div>
+<script>
+const N = '#0F1519', P = '#F1ECE3', T = '#1E5B57', M = '#E0A93B', OR = '#FFC24A';
+// fond, côté (épaisseur), texte, néon
+const PALIERS = {1: [P, '#968870', N], 3: [T, '#0E302D', P], 6: [M, '#8A5A12', N], 12: [N, '#05080A', OR, 1], 24: [N, '#05080A', OR, 1]};
+function badge(mois, petit = false) {
+  const [fond, cote, txt, neon] = PALIERS[mois];
+  const lueur = neon ? `<filter id="l${mois}${petit}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="${petit ? 1.6 : 2.4}"/></filter>` : '';
+  let s = `<defs>${lueur}</defs>`;
+  if (!neon) s += `<path d="M30 14 L22 3 M42 14 L50 3" stroke="${P}" stroke-width="11" stroke-linecap="round"/><rect x="5" y="13" width="62" height="54" rx="13" fill="${P}" stroke="${P}" stroke-width="8"/>`;   // contour papier (sticker)
+  if (mois !== 24) s += `<path d="M30 14 L22 3 M42 14 L50 3" stroke="${N}" stroke-width="7" stroke-linecap="round"/><path d="M30 14 L22 3 M42 14 L50 3" stroke="${neon ? OR : fond === T ? P : fond}" stroke-width="3" stroke-linecap="round"/>`;
+  s += `<rect x="5" y="17" width="62" height="50" rx="13" fill="${cote}" stroke="${N}" stroke-width="4"/>`;
+  s += `<rect x="5" y="13" width="62" height="49" rx="13" fill="${fond}" stroke="${neon ? OR : N}" stroke-width="4"/>`;
+  if (neon) s += `<rect x="5" y="13" width="62" height="49" rx="13" fill="none" stroke="${OR}" stroke-width="4" filter="url(#l${mois}${petit})"/>`;
+  if (mois === 24) s += `<path d="M18 22 l2 -18 l9 9 l7 -12 l7 12 l9 -9 l2 18 z" fill="${M}" stroke="${N}" stroke-width="3.5" stroke-linejoin="round"/>`;
+  const t = petit ? `<text x="36" y="${mois === 24 ? 58 : 54}" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="40" fill="${txt}">K</text>`
+                  : `<text x="36" y="47" text-anchor="middle" font-family="Rubik" font-weight="900" font-size="24" letter-spacing="-0.5" fill="${txt}">KZX</text>`;
+  if (neon) s += `<g filter="url(#l${mois}${petit})" opacity=".9">${t}</g>`;
+  return s + t;
+}
+const svg = (m, t) => `<svg width="${t}" height="${t}" viewBox="0 0 72 72">${badge(m, t <= 18)}</svg>`;
+const NOMS = {1: '1 mois', 3: '3 mois', 6: '6 mois', 12: '1 an', 24: '2 ans'};
+document.getElementById('r').innerHTML = Object.keys(PALIERS).map(m =>
+  `<div class="b">${svg(+m, 144)}<div class="tailles">${svg(+m, 72)}${svg(+m, 36)}${svg(+m, 18)}</div><b>${NOMS[m]}</b>
+   <div class="chat s">${svg(+m, 18)}<span style="color:#3FD3C2;font-weight:900">NYX</span>: on est là !</div>
+   <div class="chat c">${svg(+m, 18)}<span style="color:#1E5B57;font-weight:900">NYX</span>: on est là !</div></div>`).join('');
+</script></body></html>

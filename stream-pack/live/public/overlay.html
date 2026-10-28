@@ -11,6 +11,7 @@ html,body{background:transparent;overflow:hidden;font-family:Rubik,sans-serif}
 /* Boîte de chat de l'overlay Just Chatting : rien n'en dépasse. */
 #boite{position:absolute;left:1420px;top:270px;width:392px;height:650px;overflow:hidden;display:flex;flex-direction:column}
 #pile{display:flex;flex-direction:column;gap:12px;flex:none}
+#boite #pile{max-height:64%;overflow:hidden}   /* quoi qu'on affiche, le chat garde toujours sa place */
 #pile.libre{position:absolute;right:88px;top:180px;width:392px}
 #boite #pile:not(:empty){margin-bottom:12px}
 #chat{flex:1;min-height:0;position:relative;transition:opacity .4s}

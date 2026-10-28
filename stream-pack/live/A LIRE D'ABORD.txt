@@ -1,0 +1,22 @@
+KAYZX LIVE
+
+1. Fais un clic droit sur le fichier ZIP et choisis "Extraire tout".
+   (Important : ca ne marche pas si tu restes dans le ZIP.)
+
+2. Ouvre le dossier extrait.
+
+3. Double-clique sur "KAYZX LIVE.bat".
+
+   Si Windows affiche un ecran bleu "Windows a protege votre ordinateur" :
+   clique sur "Informations complementaires", puis sur "Executer quand meme".
+   C'est normal : Windows se mefie de tous les fichiers venus d'internet.
+
+4. Une fenetre noire s'ouvre : laisse-la tranquille.
+   Ton navigateur affiche la page de reglages. Tout est explique dedans.
+
+La premiere fois, le programme installe son moteur et met un raccourci
+"Kayzx Live" sur ton Bureau. Ensuite, ce raccourci suffit.
+
+Pour essayer sans etre en live : "KAYZX LIVE (demo).bat".
+
+Le detail est dans LISEZ-MOI.md.

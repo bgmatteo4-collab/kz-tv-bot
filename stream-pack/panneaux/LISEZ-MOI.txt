@@ -1,0 +1,31 @@
+PANNEAUX TWITCH — KAYZX TV
+
+Sept panneaux à placer sous le stream.
+Chaque image fait 640 px de large ; Twitch l'affiche sur 320 px, donc c'est net sur les écrans fins.
+
+  panneau-discord.png    Le Discord, avec la commande !discord
+  panneau-youtube.png    La chaîne YouTube
+  panneau-tiktok.png     Le TikTok
+  panneau-x.png          Le compte X
+  panneau-planning.png   Les jours et l'heure du live
+  panneau-regles.png     Les règles du chat (le grand)
+  panneau-badges.png     Les badges d'abonné (le grand)
+
+COMMENT LES METTRE EN PLACE
+
+  1. Va sur ta chaîne Twitch, sous le lecteur.
+  2. Active « Modifier les panneaux ».
+  3. Clique sur le + pour ajouter un panneau.
+  4. Choisis « Panneau d'image », envoie le fichier.
+  5. Mets le lien dans « Lien de l'image » :
+       Discord  → ton lien d'invitation
+       YouTube  → https://youtube.com/@kayzxtv8505
+       TikTok   → ton lien TikTok
+       X        → https://x.com/Kayzx_TV
+       Planning, règles et badges → pas de lien, ce sont des infos
+  6. Le titre du panneau peut rester vide : il est déjà dans l'image.
+
+L'ordre conseillé : règles, planning, badges, puis les réseaux.
+
+Pour changer un texte : ouvre panneaux.html, modifie, puis relance
+  NODE_PATH=/opt/node-tools/node_modules node panneaux/capturer.js

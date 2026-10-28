@@ -1,0 +1,92 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Panneaux Twitch</title><style>
+/* Les panneaux sous le stream. Twitch les affiche sur 320 px de large : on rend en 640 pour que ce soit net
+   sur les écrans fins. Même langage que le reste du pack : carte papier, contour nuit, ombre portée pleine,
+   bandeau d'encre en tête, Rubik Black. */
+@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(../da/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--teal-n:#3FD3C2;--miel:#E0A93B;--papier:#F1ECE3;--ligne:#E2DACB;--gris:#5E6E6F;--corail:#B9533F}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0B1114;font-family:Rubik,sans-serif;display:flex;flex-wrap:wrap;gap:40px;padding:40px;width:1480px;align-items:flex-start}
+.p{width:640px;background:var(--papier);border:8px solid var(--nuit);border-radius:34px;overflow:hidden;
+  box-shadow:0 14px 0 rgba(15,21,25,.85)}
+.tete{height:96px;background:url(../logo/fond-banniere.png) center/740px auto;display:flex;align-items:center;gap:22px;padding:0 30px;
+  border-bottom:8px solid var(--nuit);position:relative}
+.tete:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(15,21,25,.74),rgba(15,21,25,.3))}
+.tete img,.tete svg{width:52px;height:52px;position:relative;flex:none}
+.tete img.blanc{filter:brightness(0) invert(1)}   /* TikTok et X sont noirs : illisibles sur le bandeau sombre */
+.tete b{position:relative;font:900 36px Rubik;color:var(--papier);letter-spacing:-.5px;text-shadow:0 3px 10px rgba(0,0,0,.6)}
+.corps{padding:28px 30px 32px}
+.ligne{font:500 27px/1.4 Rubik;color:var(--nuit)}
+.ligne em{font-style:normal;font-weight:900;color:var(--teal)}
+.pseudo{display:inline-block;margin-top:14px;background:var(--nuit);color:var(--miel);font:900 30px Rubik;
+  padding:10px 24px;border-radius:999px;letter-spacing:.5px}
+.note{margin-top:16px;font:500 22px/1.35 Rubik;color:var(--gris)}
+/* Règles du chat */
+.regle{display:flex;gap:20px;align-items:flex-start;padding:20px 0;border-top:4px solid var(--ligne)}
+.regle:first-child{border-top:0;padding-top:4px}
+.num{width:52px;height:52px;border-radius:50%;background:var(--teal);color:var(--papier);font:900 28px/52px Rubik;
+  text-align:center;flex:none;border:4px solid var(--nuit)}
+.regle.non .num{background:var(--corail)}
+.regle b{display:block;font:900 28px Rubik;color:var(--nuit);margin-bottom:4px}
+.regle span{font:500 23px/1.35 Rubik;color:var(--gris)}
+/* Badges d'abonné */
+.bligne{display:flex;align-items:center;gap:22px;padding:18px 0;border-top:4px solid var(--ligne)}
+.bligne:first-child{border-top:0;padding-top:2px}
+.bligne img{width:68px;height:68px;flex:none}
+.bligne b{font:900 30px Rubik;color:var(--nuit);display:block}
+.bligne span{font:500 22px Rubik;color:var(--gris)}
+/* Planning */
+.jours{display:flex;gap:12px;margin-bottom:20px}
+.jours div{flex:1;text-align:center;font:900 26px/58px Rubik;height:58px;border-radius:14px;border:4px solid var(--nuit);
+  background:var(--ligne);color:var(--gris)}
+.jours div.on{background:var(--miel);color:var(--nuit)}
+.heure{text-align:center;font:900 62px Rubik;color:var(--teal);letter-spacing:-1px}
+.heure small{display:block;font:500 23px Rubik;color:var(--gris);letter-spacing:4px;margin-top:4px}
+</style></head><body>
+
+<div class="p" id="discord"><div class="tete"><img src="../overlays/logos/discord.svg" alt=""><b>LE DISCORD</b></div>
+  <div class="corps"><div class="ligne">On se retrouve après le live : annonces, parties entre nous et le salon des <em>clips</em>.</div>
+    <div class="pseudo">!discord</div>
+    <div class="note">Tape la commande dans le chat, le lien arrive.</div></div></div>
+
+<div class="p" id="youtube"><div class="tete"><img src="../overlays/logos/youtube.svg" alt=""><b>YOUTUBE</b></div>
+  <div class="corps"><div class="ligne">Les <em>rediffs</em> et les meilleurs moments du live.</div>
+    <div class="pseudo">@kayzxtv8505</div></div></div>
+
+<div class="p" id="tiktok"><div class="tete"><img class="blanc" src="../overlays/logos/tiktok.svg" alt=""><b>TIKTOK</b></div>
+  <div class="corps"><div class="ligne">Les <em>clips</em> courts, tous les jours.</div>
+    <div class="pseudo">Kayzx TV</div></div></div>
+
+<div class="p" id="x"><div class="tete"><img class="blanc" src="../overlays/logos/x.svg" alt=""><b>X</b></div>
+  <div class="corps"><div class="ligne">Les annonces de live et le <em>hors-live</em>.</div>
+    <div class="pseudo">@Kayzx_TV</div></div></div>
+
+<div class="p" id="planning"><div class="tete">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#F1ECE3" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg><b>LE PLANNING</b></div>
+  <div class="corps">
+    <div class="jours"><div class="on">L</div><div>M</div><div class="on">M</div><div>J</div><div class="on">V</div><div>S</div><div>D</div></div>
+    <div class="heure">21h00<small>HEURE DE PARIS</small></div>
+    <div class="note">Les horaires bougent parfois : je préviens sur X et sur le Discord.</div></div></div>
+
+<div class="p" id="regles"><div class="tete">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#F1ECE3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15a3 3 0 0 1-3 3H9l-4 3V7a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3z"/></svg><b>LES RÈGLES DU CHAT</b></div>
+  <div class="corps">
+    <div class="regle"><div class="num">1</div><div><b>Sois sympa</b><span>On vient ici pour passer un bon moment. Pas d'insulte, pas de moquerie.</span></div></div>
+    <div class="regle"><div class="num">2</div><div><b>Parle français</b><span>Pour que tout le monde suive, et que les modos puissent lire.</span></div></div>
+    <div class="regle non"><div class="num">✕</div><div><b>Pas de pub</b><span>Pas de lien ni de chaîne à promouvoir, même en message privé.</span></div></div>
+    <div class="regle non"><div class="num">✕</div><div><b>Pas de spoil</b><span>Ni sur le jeu, ni sur ce qui se passe à l'écran.</span></div></div>
+    <div class="regle non"><div class="num">✕</div><div><b>Pas de spam</b><span>Ni majuscules à répétition, ni même message en boucle.</span></div></div>
+    <div class="regle"><div class="num">♥</div><div><b>Respecte les modos</b><span>Ils sont là bénévolement. Leur décision n'est pas à négocier dans le chat.</span></div></div>
+    <div class="note">Un rappel, puis un time-out, puis un ban. C'est aussi simple que ça.</div></div></div>
+
+<div class="p" id="badges"><div class="tete">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#F1ECE3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.5 6 .9-4.3 4.3 1 6.1L12 17l-5.3 2.8 1-6.1L3.4 9.4l6-.9z"/></svg><b>LES BADGES D'ABONNÉ</b></div>
+  <div class="corps">
+    <div class="bligne"><img src="../badges/twitch/1-mois-72.png" alt=""><div><b>1 mois</b><span>Le premier, en papier</span></div></div>
+    <div class="bligne"><img src="../badges/twitch/3-mois-72.png" alt=""><div><b>3 mois</b><span>La télé passe au teal</span></div></div>
+    <div class="bligne"><img src="../badges/twitch/6-mois-72.png" alt=""><div><b>6 mois</b><span>Elle passe au miel</span></div></div>
+    <div class="bligne"><img src="../badges/twitch/12-mois-72.png" alt=""><div><b>1 an</b><span>Le néon s'allume</span></div></div>
+    <div class="bligne"><img src="../badges/twitch/24-mois-72.png" alt=""><div><b>2 ans</b><span>Le néon et la couronne</span></div></div>
+    <div class="note">Merci à vous : c'est vous qui faites tourner la chaîne.</div></div></div>
+
+</body></html>

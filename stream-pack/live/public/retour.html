@@ -1,0 +1,12 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Kayzx Live · Twitch</title>
+<style>body{background:#0F1519;color:#F1ECE3;font:500 20px sans-serif;display:grid;place-items:center;min-height:100vh;text-align:center}</style></head><body>
+<p id="t">Connexion à Twitch…</p>
+<script>
+/* Retour de Twitch après autorisation : le token arrive dans l'adresse (#access_token=…) et part directement au serveur local. */
+const p = new URLSearchParams(location.hash.slice(1)), t = document.getElementById('t');
+history.replaceState(null, '', '/retour');
+if (!p.get('access_token')) t.textContent = 'Twitch n\'a pas donné d\'autorisation. Réessaie depuis la page d\'accueil.';
+else fetch('/jeton', { method: 'POST', body: JSON.stringify({ token: p.get('access_token') }) }).then((r) => r.json()).then((j) => {
+  t.innerHTML = j.ok ? 'Twitch est connecté. Tu peux fermer cette page.<br><br><a href="/" style="color:#E0A93B">Retour à l\'accueil</a>' : 'Problème : ' + (j.erreur || 'inconnu');
+});
+</script></body></html>

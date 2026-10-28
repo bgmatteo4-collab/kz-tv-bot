@@ -1,0 +1,41 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Kayzx Live</title><style>
+/* Page d'accueil sur le PC : QR code du panel pour le téléphone, adresses à coller dans OBS, connexion Twitch. */
+@font-face{font-family:Rubik;src:url(polices/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:900;src:url(polices/Rubik-3.ttf)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0F1519 url(encre.png) center/cover;font:400 17px/1.5 Rubik,sans-serif;color:#0F1519;min-height:100vh;display:grid;place-items:center;padding:30px}
+main{background:#F1ECE3;border-radius:24px;padding:34px 40px;max-width:860px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+h1{font:900 40px Rubik;color:#1E5B57;letter-spacing:-1px}h1 em{font-style:normal;color:#E0A93B}
+h2{font:900 20px Rubik;margin:24px 0 8px;color:#1E5B57}
+.g{display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:center;margin-top:16px}
+#qr{background:#fff;padding:10px;border-radius:14px;width:220px;height:220px}
+code{display:block;background:#0F1519;color:#F1ECE3;border-radius:10px;padding:10px 14px;margin:6px 0;font:500 15px ui-monospace,monospace;word-break:break-all;cursor:pointer}
+.n{color:#4C5A5B;font-size:15px}a.b{display:inline-block;background:#1E5B57;color:#F1ECE3;font:900 16px Rubik;padding:12px 20px;border-radius:12px;text-decoration:none;margin-top:6px}
+.ok{color:#1E5B57;font-weight:900}.ko{color:#B9533F;font-weight:900}
+</style></head><body><main>
+<h1>KAYZX <em>LIVE</em></h1>
+<div class="g"><div id="qr"></div><div><h2 style="margin-top:0">1 · Le panel sur ton téléphone</h2>
+  <p>Scanne ce QR code avec ton téléphone, connecté au même Wi-Fi que ce PC. Ajoute la page à l'écran d'accueil pour l'avoir comme une appli.</p>
+  <code id="panel"></code><p class="n">Si Windows demande l'accès réseau pour Node.js, accepte pour les réseaux privés.</p></div></div>
+<h2>2 · Dans OBS (Source navigateur, 1920 × 1080)</h2>
+<p>Scène Just Chatting (avec le chat dans la boîte) :</p><code>http://localhost:8420/overlay?chat=1</code>
+<p>Autres scènes (sondages, jeux… sans le chat) :</p><code>http://localhost:8420/overlay</code>
+<p class="n">Clique sur une adresse pour la copier. Place la source au-dessus de la vidéo Just Chatting, en 0, 0, taille 1920 × 1080.</p>
+<h2>3 · Twitch</h2>
+<p>Chat de <b id="chaine"></b> : <span id="e-chat"></span></p>
+<p>Sondages, prédictions, follows : <span id="e-api"></span></p>
+<p id="aide-api" class="n"></p>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+document.querySelectorAll('code').forEach((c) => { c.onclick = () => navigator.clipboard.writeText(c.textContent); });
+fetch('/infos').then((r) => r.json()).then((i) => {
+  document.getElementById('panel').textContent = i.panel;
+  if (window.QRCode) new QRCode(document.getElementById('qr'), { text: i.panel, width: 200, height: 200, colorDark: '#0F1519', colorLight: '#ffffff' });
+  document.getElementById('chaine').textContent = i.chaine;
+  document.getElementById('e-chat').innerHTML = i.twitch.chat ? '<span class="ok">connecté</span>' : '<span class="ko">en attente…</span> (recharge dans quelques secondes)';
+  document.getElementById('e-api').innerHTML = i.twitch.api ? '<span class="ok">connecté</span>' : '<span class="ko">pas connecté</span>';
+  document.getElementById('aide-api').innerHTML = i.twitch.api ? '' : i.clientId
+    ? `${i.twitch.erreur ? i.twitch.erreur + '<br>' : ''}<a class="b" href="/connexion">Connecter mon compte Twitch</a>`
+    : 'Facultatif : pour les vrais sondages, prédictions et follows, ajoute ton Client ID dans <b>config.json</b> (voir LISEZ-MOI), relance, puis reviens ici.';
+});
+</script></body></html>

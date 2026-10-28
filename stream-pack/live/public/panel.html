@@ -1,0 +1,186 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kayzx Live · panel</title><meta name="theme-color" content="#0F1519"><style>
+/* Panel de contrôle pour le téléphone : chaque bouton envoie une action au serveur du PC, l'overlay d'OBS suit. */
+@font-face{font-family:Rubik;src:url(polices/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(polices/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(polices/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--carte:#17222A;--teal:#1E5B57;--teal-n:#3FD3C2;--miel:#E0A93B;--papier:#F1ECE3;--gris:#9FB0B3;--corail:#E8836F}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--nuit);color:var(--papier);font:500 16px Rubik,sans-serif;padding:16px 16px 90px;max-width:560px;margin:auto}
+header{display:flex;align-items:center;justify-content:space-between;margin:4px 0 14px}
+h1{font:900 26px Rubik;letter-spacing:-.5px}h1 em{font-style:normal;color:var(--miel)}
+.etat{display:flex;gap:6px}.etat span{font:900 11px Rubik;letter-spacing:1px;padding:5px 9px;border-radius:99px;background:#2B3940;color:var(--gris)}.etat span.ok{background:var(--teal);color:var(--papier)}
+details{background:var(--carte);border-radius:16px;margin-bottom:10px;overflow:hidden}
+summary{list-style:none;padding:15px 16px;font:900 17px Rubik;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+summary::-webkit-details-marker{display:none}summary:after{content:"+";color:var(--miel);font-size:22px}details[open] summary:after{content:"–"}
+summary i{font:500 12px Rubik;font-style:normal;color:var(--teal-n);margin-left:auto;margin-right:12px}
+.c{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+input,textarea,select{width:100%;font:500 16px Rubik;padding:11px 12px;border-radius:10px;border:0;background:var(--papier);color:var(--nuit)}
+textarea{min-height:70px;resize:vertical}
+.r{display:flex;gap:8px}.r>*{flex:1}
+button{font:900 15px Rubik;padding:12px 10px;border-radius:12px;border:0;background:var(--teal);color:var(--papier);cursor:pointer}
+button.m{background:var(--miel);color:var(--nuit)}button.g{background:#2B3940;color:var(--papier)}button.x{background:transparent;color:var(--corail);border:2px solid #3a2a28}
+button.on{background:var(--teal-n);color:var(--nuit)}button:active{transform:scale(.97)}
+label{font:500 13px Rubik;color:var(--gris);letter-spacing:.5px}
+.puces{display:flex;flex-wrap:wrap;gap:6px}.puces button{flex:none;padding:8px 12px;font-size:13px}
+.msgs{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow:auto}
+.msgs button{text-align:left;font:500 14px Rubik;background:#22303A}.msgs b{color:var(--miel)}
+.note{font:500 13px Rubik;color:var(--gris)}
+#toast{position:fixed;left:16px;right:16px;bottom:18px;padding:14px 16px;border-radius:14px;font:900 15px Rubik;background:var(--teal);transform:translateY(120px);transition:transform .25s;text-align:center;max-width:528px;margin:auto}
+#toast.vu{transform:none}#toast.err{background:var(--corail);color:var(--nuit)}
+</style></head><body>
+<header><h1>KAYZX <em>LIVE</em></h1><div class="etat"><span id="e-chat">CHAT</span><span id="e-api">TWITCH</span></div></header>
+<p class="note" id="erreur" hidden></p>
+
+<details open><summary>Chat <i id="i-chat"></i></summary><div class="c">
+  <div class="r"><button id="chat-vis">Afficher</button></div>
+  <label>Position dans la boîte</label><div class="r"><button class="g" data-chat='{"ancre":"bas"}'>En bas</button><button class="g" data-chat='{"ancre":"haut"}'>En haut</button></div>
+  <label>Taille du texte</label><div class="r"><button class="g" data-chat='{"taille":"s"}'>Petit</button><button class="g" data-chat='{"taille":"m"}'>Moyen</button><button class="g" data-chat='{"taille":"l"}'>Grand</button></div>
+  <label>Hauteur du chat dans la boîte : <span id="h-val"></span></label><input type="range" id="chat-h" min="20" max="100" step="5">
+</div></details>
+
+<details><summary>Message à l'écran <i id="i-msg"></i></summary><div class="c">
+  <input id="msg-titre" placeholder="Titre (ex. INFO)">
+  <textarea id="msg-texte" placeholder="Ton message"></textarea>
+  <div class="puces" id="msg-rapides"></div>
+  <div class="r"><button class="m" id="msg-go">Afficher</button><button class="x" data-a='{"type":"message"}'>Masquer</button></div>
+</div></details>
+
+<details><summary>Sondage <i id="i-sondage"></i></summary><div class="c">
+  <input id="s-titre" placeholder="Question">
+  <div id="s-choix"></div><button class="g" id="s-plus">+ Ajouter un choix</button>
+  <label>Durée</label><select id="s-duree"><option value="30">30 s</option><option value="60" selected>1 min</option><option value="120">2 min</option><option value="300">5 min</option></select>
+  <p class="note">Avec Twitch connecté : vrai sondage Twitch. Sinon : le chat vote en tapant 1, 2, 3…</p>
+  <div class="r"><button class="m" id="s-go">Lancer</button><button class="g" data-a='{"type":"sondageFin"}'>Terminer</button><button class="x" data-a='{"type":"sondageMasquer"}'>Masquer</button></div>
+</div></details>
+
+<details><summary>Prédiction <i id="i-pred"></i></summary><div class="c">
+  <input id="p-titre" placeholder="Question (ex. Je gagne cette partie ?)">
+  <div id="p-issues"></div><button class="g" id="p-plus">+ Ajouter une issue</button>
+  <label>Temps pour parier</label><select id="p-duree"><option value="30">30 s</option><option value="60">1 min</option><option value="120" selected>2 min</option><option value="300">5 min</option></select>
+  <button class="m" id="p-go">Lancer la prédiction</button>
+  <div class="r"><button class="g" data-a='{"type":"predictionStatut","statut":"LOCKED"}'>Fermer les paris</button><button class="x" data-a='{"type":"predictionStatut","statut":"CANCELED"}'>Annuler</button></div>
+  <label>Résultat : qui a gagné ?</label><div class="puces" id="p-resultat"><span class="note">Lance une prédiction d'abord</span></div>
+  <button class="x" data-a='{"type":"predictionMasquer"}'>Masquer de l'écran</button>
+</div></details>
+
+<details><summary>Objectif <i id="i-obj"></i></summary><div class="c">
+  <select id="o-genre"><option value="follow">Follows (avance tout seul*)</option><option value="sub">Abonnements (avance tout seul)</option><option value="libre">Libre (je le fais avancer)</option></select>
+  <input id="o-titre" placeholder="Titre (ex. OBJECTIF SUBS)">
+  <div class="r"><input id="o-actuel" type="number" inputmode="numeric" placeholder="Départ" value="0"><input id="o-cible" type="number" inputmode="numeric" placeholder="Objectif" value="20"></div>
+  <p class="note">* Les follows demandent la connexion Twitch.</p>
+  <div class="r"><button class="m" id="o-go">Afficher</button><button class="g" data-a='{"type":"objectifPlus","n":-1}'>−1</button><button class="g" data-a='{"type":"objectifPlus","n":1}'>+1</button><button class="x" data-a='{"type":"objectif"}'>Masquer</button></div>
+</div></details>
+
+<details><summary>Minuteur <i id="i-min"></i></summary><div class="c">
+  <input id="m-titre" placeholder="Titre (ex. Début de la game)">
+  <div class="puces" id="m-durees"></div>
+  <div class="r"><button class="g" data-a='{"type":"minuteurPause"}' id="m-pause">Pause</button><button class="g" data-a='{"type":"minuteurPlus","secondes":60}'>+1 min</button><button class="x" data-a='{"type":"minuteur"}'>Stop</button></div>
+</div></details>
+
+<details><summary>Compteur <i id="i-cpt"></i></summary><div class="c">
+  <input id="c-titre" placeholder="Titre (ex. MORTS, VICTOIRES…)">
+  <div class="r"><button class="m" id="c-go">Afficher (à 0)</button><button class="x" data-a='{"type":"compteur"}'>Masquer</button></div>
+  <div class="r"><button class="g" data-a='{"type":"compteurPlus","n":-1}' style="font-size:24px">−</button><button data-a='{"type":"compteurPlus","n":1}' style="font-size:24px">+</button></div>
+</div></details>
+
+<details><summary>Mini-jeux <i id="i-jeu"></i></summary><div class="c">
+  <label>Devine le nombre</label><div class="r"><select id="j-max"><option value="100">Entre 1 et 100</option><option value="500">Entre 1 et 500</option><option value="1000">Entre 1 et 1000</option></select><button class="m" data-jeu="devine">Lancer</button></div>
+  <label>Le plus rapide (mot vide = mot au hasard)</label><div class="r"><input id="j-rapide" placeholder="Mot à taper"><button class="m" data-jeu="rapide">Lancer</button></div>
+  <label>Le pendu (mot vide = mot au hasard)</label><div class="r"><input id="j-pendu" placeholder="Mot secret" type="password"><button class="m" data-jeu="pendu">Lancer</button></div>
+  <label>Tirage au sort</label><div class="r"><input id="j-motcle" value="!participer"><button class="m" data-jeu="tirage">Ouvrir</button></div>
+  <button data-a='{"type":"tirer"}'>Tirer au sort le gagnant</button>
+  <button class="x" data-a='{"type":"jeuFin"}'>Arrêter le jeu</button>
+</div></details>
+
+<details><summary>Mettre un message en avant</summary><div class="c">
+  <p class="note">Touche un message du chat pour l'afficher en grand sur la cam (12 s).</p>
+  <div class="msgs" id="msgs"></div>
+  <button class="x" data-a='{"type":"vedette"}'>Retirer</button>
+</div></details>
+
+<details><summary>Ambiance du chat <i id="i-amb"></i></summary><div class="c">
+  <p class="note">Une jauge qui monte quand le chat s'emballe.</p>
+  <div class="r"><button class="m" data-a='{"type":"ambiance","visible":true}'>Afficher</button><button class="x" data-a='{"type":"ambiance","visible":false}'>Masquer</button></div>
+</div></details>
+
+<div id="toast"></div>
+<script>
+const $ = (s) => document.querySelector(s);
+let cle = new URLSearchParams(location.search).get('cle');
+try { if (cle) localStorage.setItem('cle', cle); else cle = localStorage.getItem('cle'); } catch { /* navigation privée */ }
+let E = null, minuterie;
+function toast(t, err) { const e = $('#toast'); e.textContent = t; e.className = 'vu' + (err ? ' err' : ''); clearTimeout(minuterie); minuterie = setTimeout(() => { e.className = ''; }, err ? 4000 : 1200); }
+async function envoyer(a) {
+  try { const r = await fetch('/action?cle=' + cle, { method: 'POST', body: JSON.stringify(a) }); const j = await r.json(); j.erreur ? toast(j.erreur, true) : toast('C\'est à l\'écran'); }
+  catch { toast('Le PC ne répond pas : Kayzx Live est lancé ?', true); }
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.a) envoyer(JSON.parse(b.dataset.a));
+  if (b.dataset.chat) envoyer({ type: 'chat', ...JSON.parse(b.dataset.chat) });
+  if (b.dataset.jeu) envoyer({ type: 'jeu', jeu: b.dataset.jeu, max: +$('#j-max').value, mot: { rapide: $('#j-rapide').value, pendu: $('#j-pendu').value }[b.dataset.jeu], motcle: $('#j-motcle').value });
+});
+
+// Champs à nombre variable (choix du sondage, issues de la prédiction).
+function champs(boite, n, ph) { for (let i = 0; i < n; i++) ajouterChamp(boite, ph); }
+function ajouterChamp(boite, ph) { const b = $(boite); if (b.children.length >= 5) return; const i = Object.assign(document.createElement('input'), { placeholder: `${ph} ${b.children.length + 1}` }); i.style.marginBottom = '8px'; b.append(i); }
+const valeurs = (boite) => [...$(boite).querySelectorAll('input')].map((i) => i.value.trim()).filter(Boolean);
+champs('#s-choix', 2, 'Choix'); champs('#p-issues', 2, 'Issue');
+$('#s-plus').onclick = () => ajouterChamp('#s-choix', 'Choix');
+$('#p-plus').onclick = () => ajouterChamp('#p-issues', 'Issue');
+$('#s-go').onclick = () => envoyer({ type: 'sondage', titre: $('#s-titre').value || 'Sondage', choix: valeurs('#s-choix'), duree: +$('#s-duree').value });
+$('#p-go').onclick = () => envoyer({ type: 'prediction', titre: $('#p-titre').value || 'Prédiction', issues: valeurs('#p-issues'), duree: +$('#p-duree').value });
+$('#msg-go').onclick = () => envoyer({ type: 'message', titre: $('#msg-titre').value, texte: $('#msg-texte').value });
+$('#o-go').onclick = () => envoyer({ type: 'objectif', genre: $('#o-genre').value, titre: $('#o-titre').value || { follow: 'OBJECTIF FOLLOWS', sub: 'OBJECTIF SUBS', libre: 'OBJECTIF' }[$('#o-genre').value], actuel: $('#o-actuel').value, cible: $('#o-cible').value });
+$('#c-go').onclick = () => envoyer({ type: 'compteur', titre: $('#c-titre').value, valeur: 0 });
+$('#chat-vis').onclick = () => envoyer({ type: 'chat', visible: !(E && E.chat.visible) });
+$('#chat-h').oninput = (e) => { $('#h-val').textContent = e.target.value + ' %'; };
+$('#chat-h').onchange = (e) => envoyer({ type: 'chat', hauteur: +e.target.value });
+for (const [titre, texte] of [['PAUSE', 'Je reviens dans 5 minutes !'], ['INFO', 'Pause technique, on revient vite'], ['MERCI', 'Merci pour vos subs et vos follows !'], ['CE SOIR', 'Ce soir : discussion puis jeux avec vous']]) {
+  const b = Object.assign(document.createElement('button'), { className: 'g', textContent: texte });
+  b.onclick = () => envoyer({ type: 'message', titre, texte }); $('#msg-rapides').append(b);
+}
+for (const [txt, s] of [['1 min', 60], ['3 min', 180], ['5 min', 300], ['10 min', 600], ['15 min', 900]]) {
+  const b = Object.assign(document.createElement('button'), { textContent: txt });
+  b.onclick = () => envoyer({ type: 'minuteur', titre: $('#m-titre').value, secondes: s }); $('#m-durees').append(b);
+}
+
+// L'état en direct : voyants, résumé de chaque section, boutons de résultat de la prédiction, derniers messages.
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function afficherEtat() {
+  $('#e-chat').classList.toggle('ok', E.twitch.chat); $('#e-api').classList.toggle('ok', E.twitch.api);
+  $('#erreur').hidden = !E.twitch.erreur; $('#erreur').textContent = E.twitch.erreur;
+  const vis = $('#chat-vis'); vis.textContent = E.chat.visible ? 'Cacher le chat' : 'Afficher le chat'; vis.className = E.chat.visible ? '' : 'm';
+  document.querySelectorAll('[data-chat]').forEach((b) => { const [k, v] = Object.entries(JSON.parse(b.dataset.chat))[0]; b.classList.toggle('on', E.chat[k] === v); });
+  if (document.activeElement !== $('#chat-h')) { $('#chat-h').value = E.chat.hauteur; $('#h-val').textContent = E.chat.hauteur + ' %'; }
+  $('#i-chat').textContent = E.chat.visible ? 'affiché' : 'caché';
+  $('#i-msg').textContent = E.message ? 'à l\'écran' : '';
+  $('#i-sondage').textContent = E.sondage ? (E.sondage.termine ? 'terminé' : 'en cours') : '';
+  $('#i-pred').textContent = E.prediction ? E.prediction.statut.toLowerCase() : '';
+  $('#i-obj').textContent = E.objectif ? `${E.objectif.actuel} / ${E.objectif.cible}` : '';
+  $('#i-min').textContent = E.minuteur ? (E.minuteur.reste != null ? 'en pause' : 'en cours') : '';
+  $('#m-pause').textContent = E.minuteur?.reste != null ? 'Reprendre' : 'Pause';
+  $('#i-cpt').textContent = E.compteur ? E.compteur.valeur : '';
+  $('#i-jeu').textContent = E.jeu ? { devine: 'devine le nombre', rapide: 'le plus rapide', pendu: 'pendu', tirage: 'tirage' }[E.jeu.type] + (E.jeu.gagnant ? ' · fini' : '') : '';
+  $('#i-amb').textContent = E.ambiance.visible ? E.ambiance.niveau + ' %' : '';
+  const p = E.prediction, r = $('#p-resultat');
+  const cle2 = p ? p.id + p.statut : '';
+  if (r.dataset.cle !== cle2) {
+    r.dataset.cle = cle2;
+    r.innerHTML = p && !['RESOLVED', 'CANCELED'].includes(p.statut) ? p.issues.map((o, i) => `<button class="m" data-a='{"type":"predictionStatut","statut":"RESOLVED","gagnant":${i}}'>${esc(o.titre)}</button>`).join('') : '<span class="note">Lance une prédiction d\'abord</span>';
+  }
+}
+function message(m) {
+  if (m.systeme) return;
+  const b = document.createElement('button'); b.dataset.a = JSON.stringify({ type: 'vedette', id: m.id }); b.dataset.id = m.id;
+  b.innerHTML = `<b>${esc(m.nom)}</b> : ${esc(m.frag.map((f) => f.t).join(''))}`;
+  const l = $('#msgs'); l.prepend(b); while (l.children.length > 25) l.lastElementChild.remove();
+}
+const flux = new EventSource('/flux');
+flux.addEventListener('etat', (e) => { E = JSON.parse(e.data); afficherEtat(); });
+flux.addEventListener('historique', (e) => { $('#msgs').innerHTML = ''; JSON.parse(e.data).forEach(message); });
+flux.addEventListener('chat', (e) => message(JSON.parse(e.data)));
+flux.addEventListener('effacer', (e) => JSON.parse(e.data).forEach((id) => $(`#msgs [data-id="${CSS.escape(id)}"]`)?.remove()));
+if (!cle) toast('Ouvre le panel avec le QR code affiché sur le PC', true);
+</script>
+</body></html>

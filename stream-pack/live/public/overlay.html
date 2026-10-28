@@ -1,0 +1,226 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Kayzx Live · overlay</title><style>
+/* Overlay unique (source navigateur OBS, 1920 × 1080, fond transparent), piloté par le panel.
+   /overlay?chat=1 : scène Just Chatting → le chat et les cartes (sondage, jeux…) restent dans la boîte de chat (1420, 270, 392 × 650).
+   /overlay        : autres scènes → pas de chat, les cartes s'empilent en haut à droite. */
+@font-face{font-family:Rubik;src:url(polices/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(polices/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(polices/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--teal-n:#3FD3C2;--miel:#E0A93B;--papier:#F1ECE3;--ligne:#E2DACB;--gris:#4C5A5B;--corail:#B9533F}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent;overflow:hidden;font-family:Rubik,sans-serif}
+#scene{position:relative;width:1920px;height:1080px}
+/* Boîte de chat de l'overlay Just Chatting : rien n'en dépasse. */
+#boite{position:absolute;left:1420px;top:270px;width:392px;height:650px;overflow:hidden;display:flex;flex-direction:column}
+#pile{display:flex;flex-direction:column;gap:12px;flex:none}
+#pile.libre{position:absolute;right:88px;top:180px;width:392px}
+#boite #pile:not(:empty){margin-bottom:12px}
+#chat{flex:1;min-height:0;position:relative;transition:opacity .4s}
+#fil{position:absolute;left:0;right:0;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;gap:7px;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 36px);mask-image:linear-gradient(to bottom,transparent 0,#000 36px)}
+#chat.bas #fil{bottom:0}#chat.haut #fil{top:0;flex-direction:column-reverse;-webkit-mask-image:linear-gradient(to top,transparent 0,#000 36px);mask-image:linear-gradient(to top,transparent 0,#000 36px)}
+.m{font:400 var(--t,19px)/1.38 Rubik;color:var(--nuit);overflow-wrap:anywhere;animation:arrive .35s cubic-bezier(.2,1,.4,1)}
+.m b{font-weight:900}.m.action span.txt{font-style:italic;color:var(--gris)}
+.m .bd{display:inline-block;vertical-align:-.1em;font:900 .62em/1 Rubik;letter-spacing:1px;padding:.28em .45em;border-radius:.5em;margin-right:4px;color:var(--papier)}
+.bd.host{background:var(--miel);color:var(--nuit)}.bd.mod{background:var(--teal)}.bd.vip{background:var(--corail)}
+.m img.sub{height:1.05em;vertical-align:-.17em;margin-right:4px}.m img.emote{height:1.6em;vertical-align:-.45em}
+.m .nouveau{font:900 .6em/1 Rubik;letter-spacing:1px;background:var(--teal-n);color:var(--nuit);padding:.25em .45em;border-radius:99px;margin-right:5px;vertical-align:.1em;font-style:normal}
+.m.sys{align-self:center;background:var(--miel);color:var(--nuit);font-weight:900;font-size:calc(var(--t,19px) * .8);padding:5px 14px;border-radius:99px;text-align:center}
+.m.sort{animation:sort .3s forwards}
+@keyframes arrive{from{opacity:0;transform:translateY(12px)}}@keyframes sort{to{opacity:0;transform:scale(.96)}}
+/* Cartes papier avec bandeau d'encre qui dérive lentement. */
+.carte{background:var(--papier);border-radius:18px;overflow:hidden;box-shadow:0 12px 30px rgba(5,8,10,.4),0 0 0 2px rgba(15,21,25,.08);animation:pop .55s cubic-bezier(.2,1.4,.4,1);position:relative}
+.carte.sort{animation:sortie .4s forwards}
+@keyframes pop{from{opacity:0;transform:translateY(-14px) scale(.94)}}@keyframes sortie{to{opacity:0;transform:translateY(-10px) scale(.96)}}
+.tete{background:url(encre.png) 0 40%/700px auto;animation:derive 50s linear infinite alternate;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;
+  font:900 15px Rubik;letter-spacing:3px;color:var(--papier);text-shadow:0 1px 4px rgba(0,0,0,.55)}
+@keyframes derive{to{background-position:-500px 60%}}
+.corps{padding:14px 16px 16px;color:var(--nuit)}
+.titre{font:900 21px/1.2 Rubik;margin-bottom:10px}
+.choix{margin-top:9px}.choix .l{display:flex;justify-content:space-between;font:500 17px Rubik;margin-bottom:4px;gap:8px}.choix .l b{font-weight:900}
+.piste{height:12px;border-radius:99px;background:var(--ligne);overflow:hidden}
+.rempli{display:block;height:100%;border-radius:99px;background:var(--teal);transition:width .8s cubic-bezier(.2,1,.3,1)}
+.choix.gagne .rempli{background:var(--miel)}.choix.gagne .l b:after{content:"  ✓";color:var(--miel)}
+.aide{margin-top:12px;font:500 15px Rubik;color:var(--gris)}.aide b{color:var(--teal);font-weight:900}
+.grand{font:900 44px/1 Rubik;color:var(--teal);text-align:center;margin:6px 0}
+.mot3d{font:900 40px/1 Rubik;color:var(--miel);text-align:center;margin:8px 0 4px;letter-spacing:1px;
+  text-shadow:1px 1px 0 #8A5A12,2px 2px 0 #8A5A12,3px 3px 0 #7a4f10,4px 4px 0 #6f4810,0 0 0 var(--nuit);-webkit-text-stroke:1.5px var(--nuit)}
+.gagnant{margin-top:10px;background:var(--teal);color:var(--papier);border-radius:12px;padding:10px 12px;font:500 17px Rubik;text-align:center}.gagnant b{color:var(--miel);font-weight:900}
+.lettres{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin:6px 0}
+.lettres i{width:30px;height:38px;border-bottom:4px solid var(--teal);font:900 28px/38px Rubik;text-align:center;font-style:normal}
+.faux{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font:500 15px Rubik;color:var(--gris)}.faux s{color:var(--corail);font-weight:900;margin-left:4px}
+.vies i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--teal);margin-left:3px}.vies i.p{background:var(--ligne)}
+.puces{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.puces span{background:var(--ligne);border-radius:99px;padding:3px 10px;font:500 14px Rubik}
+.roue{height:56px;border-radius:12px;background:var(--nuit);color:var(--papier);font:900 30px/56px Rubik;text-align:center;margin-top:10px;overflow:hidden}
+.roue.fini{background:var(--miel);color:var(--nuit);animation:pop .5s}
+.texte{font:500 21px/1.35 Rubik}
+/* Rangée du haut (minuteur, compteur, ambiance) et objectif en bas à droite. */
+#haut{position:absolute;right:88px;top:64px;display:flex;gap:12px;justify-content:flex-end;align-items:stretch;height:84px}
+.pastille{background:var(--papier);border-radius:18px;padding:10px 20px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 12px 30px rgba(5,8,10,.4);animation:pop .55s cubic-bezier(.2,1.4,.4,1);min-width:120px}
+.pastille small{font:500 13px Rubik;letter-spacing:3px;color:var(--teal);text-transform:uppercase;white-space:nowrap}
+.pastille strong{font:900 36px/1.05 Rubik;color:var(--nuit);font-variant-numeric:tabular-nums}
+.pastille.zero strong{color:var(--miel);animation:clign 1s steps(2) infinite}@keyframes clign{50%{opacity:.35}}
+.pastille .jauge{width:150px;height:14px;border-radius:99px;background:var(--ligne);overflow:hidden;margin-top:8px}
+.pastille .jauge .rempli{background:linear-gradient(90deg,var(--teal),var(--miel))}
+#objectif{position:absolute;right:88px;top:972px;width:432px}
+#objectif .pastille{flex-direction:row;align-items:center;gap:14px;border-radius:999px;padding:12px 22px;height:64px}
+#objectif .piste{flex:1;height:14px}#objectif strong{font-size:24px;white-space:nowrap}
+#objectif .plein .rempli{background:var(--miel)}
+/* Message mis en avant : bandeau en bas à gauche, sur la cam. */
+#vedette{position:absolute;left:120px;bottom:178px;max-width:1000px}
+#vedette .carte{display:flex;align-items:stretch;border-radius:22px}
+#vedette .bande{width:22px;background:url(encre.png) 30% 50%/600px auto;flex:none}
+#vedette .corps{padding:18px 26px}#vedette b{font:900 30px Rubik}#vedette .texte{font-size:30px;margin-top:4px}
+.confetti{position:absolute;width:9px;height:14px;border-radius:2px;top:0;pointer-events:none;animation:tombe 1.6s cubic-bezier(.3,.6,.5,1) forwards}
+@keyframes tombe{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+</style></head><body>
+<div id="scene">
+  <div id="haut"></div>
+  <div id="boite"><div id="pile"></div><div id="chat" class="bas"><div id="fil"></div></div></div>
+  <div id="objectif"></div>
+  <div id="vedette"></div>
+</div>
+<script>
+const avecChat = new URLSearchParams(location.search).get('chat') === '1';
+const $ = (s) => document.querySelector(s), pile = $('#pile'), fil = $('#fil');
+if (!avecChat) { $('#boite').remove(); pile.classList.add('libre'); $('#scene').append(pile); }
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let E = null, decalage = 0;
+const maintenant = () => Date.now() + decalage;
+const mmss = (ms) => { const s = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const pct = (v, total) => (total ? Math.round(v / total * 100) : 0);
+
+// ---------- Chat ----------
+function badgesHtml(b) {
+  return b.map((x) => x.startsWith('sub') ? `<img class="sub" src="badges/${x.slice(3)}-mois-36.png" alt="">` : `<i class="bd ${x}">${{ host: 'LIVE', mod: 'MOD', vip: 'VIP' }[x]}</i>`).join('');
+}
+function ajouter(m) {
+  if (!avecChat) return;
+  const d = document.createElement('div');
+  if (m.systeme) { d.className = 'm sys'; d.textContent = m.texte; }
+  else {
+    d.className = 'm' + (m.action ? ' action' : ''); d.dataset.login = m.login;
+    const txt = m.frag.map((f) => f.e ? `<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/${f.e}/default/light/2.0" alt="${esc(f.t)}">` : esc(f.t)).join('');
+    d.innerHTML = `${badgesHtml(m.badges)}${m.premier ? '<i class="nouveau">NOUVEAU</i>' : ''}<b style="color:${m.couleur}">${esc(m.nom)}</b>${m.action ? ' ' : ' : '}<span class="txt">${txt}</span>`;
+  }
+  d.dataset.id = m.id; fil.append(d);
+  while (fil.children.length > 40) fil.firstElementChild.remove();
+}
+function chatEtat(c) {
+  if (!avecChat) return;
+  const ch = $('#chat');
+  ch.className = c.ancre === 'haut' ? 'haut' : 'bas';
+  ch.style.opacity = c.visible ? 1 : 0;
+  fil.style.height = Math.min(100, Math.max(20, c.hauteur)) + '%';
+  ch.style.setProperty('--t', { s: '16px', m: '19px', l: '23px' }[c.taille] || '19px');
+}
+
+// ---------- Cartes ----------
+const cartes = {};
+function morph(el, html) {   // remplace le contenu sans casser l'animation des barres
+  if (el._html === html) return; el._html = html;
+  const avant = {}; el.querySelectorAll('[data-k]').forEach((b) => { avant[b.dataset.k] = b.style.width; });
+  el.innerHTML = html;
+  el.querySelectorAll('[data-k]').forEach((b) => { if (avant[b.dataset.k] == null) return; b.style.transition = 'none'; b.style.width = avant[b.dataset.k]; b.offsetWidth; b.style.transition = ''; b.style.width = b.dataset.w + '%'; });
+}
+function carte(cle, ok, tete, droite, corps, parent = pile) {
+  let c = cartes[cle];
+  if (!ok) { if (c) { c.classList.add('sort'); setTimeout(() => c.remove(), 400); delete cartes[cle]; } return null; }
+  if (!c) { c = cartes[cle] = document.createElement('div'); c.className = 'carte'; c.innerHTML = '<div class="tete"><span></span><span></span></div><div class="corps"></div>'; parent.append(c); }
+  const [a, b] = c.querySelectorAll('.tete span'); if (a) { a.textContent = tete; b.textContent = droite; }
+  morph(c.querySelector('.corps'), corps);
+  return c;
+}
+function pastille(cle, ok, html, cls = '', parent = $('#haut')) {
+  let p = cartes[cle];
+  if (!ok) { if (p) { p.remove(); delete cartes[cle]; } return; }
+  if (!p) { p = cartes[cle] = document.createElement('div'); parent.append(p); }
+  p.className = 'pastille ' + cls; morph(p, html);
+}
+const barre = (k, w) => `<div class="piste"><i class="rempli" data-k="${k}" data-w="${w}" style="width:${w}%"></i></div>`;
+const vus = {};
+function fete(cle, valeur, el) { if (valeur && vus[cle] !== valeur && el) confettis(el); vus[cle] = valeur; }
+function confettis(el) {
+  const r = el.getBoundingClientRect();
+  for (let i = 0; i < 36; i++) {
+    const c = document.createElement('i'); c.className = 'confetti';
+    c.style.cssText = `left:${r.left + r.width / 2}px;top:${r.top + 30}px;background:${['#E0A93B', '#1E5B57', '#3FD3C2', '#F1ECE3', '#B9533F'][i % 5]};--dx:${(Math.random() - .5) * 420}px;--dy:${120 + Math.random() * 380}px;--r:${Math.random() * 720}deg;animation-delay:${Math.random() * .15}s`;
+    document.body.append(c); setTimeout(() => c.remove(), 1900);
+  }
+}
+
+function rendre() {
+  if (!E) return;
+  const t = maintenant();
+  chatEtat(E.chat);
+  // Message
+  carte('message', E.message, E.message?.titre.toUpperCase(), '', E.message ? `<div class="texte">${esc(E.message.texte)}</div>` : '');
+  // Sondage
+  const s = E.sondage;
+  if (s) {
+    const total = s.choix.reduce((a, c) => a + c.votes, 0), max = Math.max(...s.choix.map((c) => c.votes));
+    const corps = `<div class="titre">${esc(s.titre)}</div>` + s.choix.map((c, i) => `<div class="choix ${s.termine && c.votes === max && max > 0 ? 'gagne' : ''}"><div class="l"><b>${s.source === 'chat' ? (i + 1) + ' · ' : ''}${esc(c.titre)}</b><span>${pct(c.votes, total)} %</span></div>${barre('s' + i, pct(c.votes, total))}</div>`).join('')
+      + `<div class="aide">${s.source === 'chat' ? `Tape <b>1</b> à <b>${s.choix.length}</b> dans le chat · ` : ''}${total} vote${total > 1 ? 's' : ''}</div>`;
+    carte('sondage', true, 'SONDAGE', s.termine ? 'TERMINÉ' : mmss(s.fin - t), corps);
+  } else carte('sondage', false);
+  // Prédiction
+  const p = E.prediction;
+  if (p) {
+    const total = p.issues.reduce((a, o) => a + o.points, 0);
+    const corps = `<div class="titre">${esc(p.titre)}</div>` + p.issues.map((o, i) => `<div class="choix ${p.gagnant === o.id ? 'gagne' : ''}"><div class="l"><b>${esc(o.titre)}</b><span>${o.points.toLocaleString('fr-FR')} pts · ${o.viewers} votant${o.viewers > 1 ? 's' : ''}</span></div>${barre('p' + i, pct(o.points, total))}</div>`).join('')
+      + `<div class="aide">${{ ACTIVE: 'Paris ouverts : utilise tes points de chaîne', LOCKED: 'Paris fermés, résultat bientôt', RESOLVED: 'Résultat !', CANCELED: 'Prédiction annulée, points rendus' }[p.statut] || ''}</div>`;
+    fete('prediction', p.gagnant, carte('prediction', true, 'PRÉDICTION', p.statut === 'ACTIVE' ? mmss(p.fin - t) : { LOCKED: 'FERMÉE', RESOLVED: 'RÉSULTAT', CANCELED: 'ANNULÉE' }[p.statut], corps));
+  } else carte('prediction', false);
+  // Mini-jeux
+  const j = E.jeu; let c = null;
+  if (j?.type === 'devine') c = carte('jeu', true, 'DEVINE LE NOMBRE', `${j.essais} essai${j.essais > 1 ? 's' : ''}`,
+    j.gagnant ? `<div class="grand">${j.nombre}</div><div class="gagnant"><b>${esc(j.gagnant)}</b> a trouvé en ${j.essais} essais !</div>`
+      : `<div class="aide" style="margin:0 0 4px;text-align:center">Le nombre est entre</div><div class="grand">${j.bas} — ${j.haut}</div>${j.dernier ? `<div class="aide" style="text-align:center"><b>${esc(j.dernier.nom)}</b> a dit ${j.dernier.n} : c'est <b>${j.dernier.indice}</b> !</div>` : '<div class="aide" style="text-align:center">Tape un nombre dans le chat</div>'}`);
+  else if (j?.type === 'rapide') c = carte('jeu', true, 'LE PLUS RAPIDE', '',
+    `<div class="aide" style="margin:0;text-align:center">Le premier qui tape ce mot gagne</div><div class="mot3d">${esc(j.mot)}</div>${j.gagnant ? `<div class="gagnant"><b>${esc(j.gagnant)}</b> en ${String(j.temps).replace('.', ',')} s</div>` : ''}`);
+  else if (j?.type === 'pendu') c = carte('jeu', true, 'LE PENDU', '',
+    `<div class="lettres">${[...j.masque].map((l) => `<i>${l === '_' ? '' : l}</i>`).join('')}</div>
+     <div class="faux"><span>Raté :${j.faux.map((l) => `<s>${l}</s>`).join('') || ' —'}</span><span class="vies">${Array.from({ length: 7 }, (_, i) => `<i class="${i < j.faux.length ? 'p' : ''}"></i>`).join('')}</span></div>
+     ${j.perdu ? '<div class="gagnant">Perdu ! Le chat a été pendu</div>' : j.gagnant ? `<div class="gagnant"><b>${esc(j.gagnant)}</b> a trouvé le mot !</div>` : '<div class="aide" style="text-align:center">Tape une lettre ou le mot entier</div>'}`);
+  else if (j?.type === 'tirage') {
+    c = carte('jeu', true, 'TIRAGE AU SORT', `${j.participants} inscrit${j.participants > 1 ? 's' : ''}`,
+      `<div class="aide" style="margin:0;text-align:center">${j.ouvert ? `Tape <b>${esc(j.motcle)}</b> dans le chat pour participer` : 'Les inscriptions sont fermées'}</div>
+       <div class="grand">${j.participants}</div><div class="puces">${j.derniers.map((n) => `<span>${esc(n)}</span>`).join('')}</div><div class="roue" id="roue"${j.gagnant ? '' : ' hidden'}></div>`);
+  } else carte('jeu', false);
+  if (j && j.type !== 'tirage') fete('jeu', j.gagnant && !j.perdu ? j.type + j.gagnant : null, c);
+  // Rangée du haut
+  const m = E.minuteur;
+  if (m) { const reste = m.reste != null ? m.reste : m.fin - t; pastille('minuteur', true, `<small>${esc(m.titre || 'Minuteur')}${m.reste != null ? ' · pause' : ''}</small><strong>${mmss(reste)}</strong>`, reste <= 0 ? 'zero' : ''); }
+  else pastille('minuteur', false);
+  pastille('compteur', E.compteur, E.compteur ? `<small>${esc(E.compteur.titre)}</small><strong>${E.compteur.valeur}</strong>` : '');
+  pastille('ambiance', E.ambiance.visible, `<small>Ambiance du chat</small><div class="jauge">${barre('a', E.ambiance.niveau).replace('class="piste"', 'style="height:100%"')}</div>`);
+  // Objectif
+  const o = E.objectif;
+  pastille('objectif', o, o ? `<small>${esc(o.titre)}</small>${barre('o', Math.min(100, pct(o.actuel, o.cible)))}<strong>${o.actuel} / ${o.cible}</strong>` : '', o && o.actuel >= o.cible ? 'plein' : '', $('#objectif'));
+  if (o) fete('objectif', o.actuel >= o.cible ? 'plein' + o.cible : null, cartes.objectif);
+  // Mise en avant
+  const v = E.vedette;
+  const ve = carte('vedette', v, '', '', v ? `<b style="color:${v.couleur}">${esc(v.nom)}</b><div class="texte">${v.frag.map((f) => f.e ? `<img class="emote" style="height:1.4em;vertical-align:-.35em" src="https://static-cdn.jtvnw.net/emoticons/v2/${f.e}/default/light/2.0">` : esc(f.t)).join('')}</div>` : '', $('#vedette'));
+  if (ve && !ve.querySelector('.bande')) { ve.querySelector('.tete').remove(); ve.prepend(Object.assign(document.createElement('div'), { className: 'bande' })); }
+}
+
+// Tirage : les noms défilent de plus en plus lentement, puis le gagnant.
+function roue({ noms, gagnant }) {
+  setTimeout(() => {
+    const r = document.getElementById('roue'); if (!r) return;
+    r.hidden = false; r.classList.remove('fini');
+    let k = 0, d = 50;
+    const tour = () => {
+      if (d > 420) { r.textContent = gagnant; r.classList.add('fini'); confettis(r); return; }
+      r.textContent = noms[k++ % noms.length]; d *= 1.12; setTimeout(tour, d);
+    };
+    tour();
+  }, 100);
+}
+
+const flux = new EventSource('/flux');
+flux.addEventListener('etat', (e) => { E = JSON.parse(e.data); decalage = E.t - Date.now(); rendre(); });
+flux.addEventListener('historique', (e) => { fil.innerHTML = ''; JSON.parse(e.data).forEach(ajouter); });
+flux.addEventListener('chat', (e) => ajouter(JSON.parse(e.data)));
+flux.addEventListener('effacer', (e) => JSON.parse(e.data).forEach((id) => { const d = fil.querySelector(`[data-id="${CSS.escape(id)}"]`); if (d) { d.classList.add('sort'); setTimeout(() => d.remove(), 300); } }));
+flux.addEventListener('roue', (e) => roue(JSON.parse(e.data)));
+setInterval(rendre, 250);
+</script></body></html>

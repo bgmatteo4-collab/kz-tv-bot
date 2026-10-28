@@ -1,41 +1,128 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Kayzx Live</title><style>
-/* Page d'accueil sur le PC : QR code du panel pour le téléphone, adresses à coller dans OBS, connexion Twitch. */
-@font-face{font-family:Rubik;src:url(polices/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:900;src:url(polices/Rubik-3.ttf)}
+/* Page d'accueil sur le PC : trois étapes numérotées, le QR code du panel, les adresses pour OBS
+   (avec un vrai bouton Copier), et l'état de la connexion Twitch. */
+@font-face{font-family:Rubik;src:url(polices/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(polices/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(polices/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--teal-n:#3FD3C2;--miel:#E0A93B;--papier:#F1ECE3;--ligne:#E2DACB;--gris:#5E6E6F;--corail:#B9533F}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#0F1519 url(encre.png) center/cover;font:400 17px/1.5 Rubik,sans-serif;color:#0F1519;min-height:100vh;display:grid;place-items:center;padding:30px}
-main{background:#F1ECE3;border-radius:24px;padding:34px 40px;max-width:860px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.5)}
-h1{font:900 40px Rubik;color:#1E5B57;letter-spacing:-1px}h1 em{font-style:normal;color:#E0A93B}
-h2{font:900 20px Rubik;margin:24px 0 8px;color:#1E5B57}
-.g{display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:center;margin-top:16px}
-#qr{background:#fff;padding:10px;border-radius:14px;width:220px;height:220px}
-code{display:block;background:#0F1519;color:#F1ECE3;border-radius:10px;padding:10px 14px;margin:6px 0;font:500 15px ui-monospace,monospace;word-break:break-all;cursor:pointer}
-.n{color:#4C5A5B;font-size:15px}a.b{display:inline-block;background:#1E5B57;color:#F1ECE3;font:900 16px Rubik;padding:12px 20px;border-radius:12px;text-decoration:none;margin-top:6px}
-.ok{color:#1E5B57;font-weight:900}.ko{color:#B9533F;font-weight:900}
+body{background:#0B1114 url(encre.png) center/cover fixed;font:500 18px/1.55 Rubik,sans-serif;color:var(--nuit);
+  min-height:100vh;padding:44px 24px 80px}
+main{max-width:900px;margin:auto}
+h1{font:900 46px Rubik;color:var(--papier);letter-spacing:-1px;text-align:center;text-shadow:0 4px 18px rgba(0,0,0,.6)}
+h1 em{font-style:normal;color:var(--miel)}
+.sous{text-align:center;color:#C9CFD3;margin:8px 0 34px;font-size:20px}
+.etape{background:var(--papier);border:6px solid var(--nuit);border-radius:26px;margin-bottom:22px;overflow:hidden;
+  box-shadow:0 12px 0 rgba(15,21,25,.8)}
+.tete{display:flex;align-items:center;gap:18px;padding:20px 26px;border-bottom:5px solid var(--nuit);background:var(--ligne)}
+.n{width:50px;height:50px;border-radius:50%;background:var(--teal);color:var(--papier);font:900 26px/50px Rubik;
+  text-align:center;flex:none;border:4px solid var(--nuit)}
+.tete b{font:900 27px Rubik;letter-spacing:-.3px}
+.tete .etat{margin-left:auto;font:900 14px Rubik;letter-spacing:2px;padding:7px 14px;border-radius:999px;
+  background:#C9CFD3;color:var(--gris)}
+.tete .etat.ok{background:var(--teal);color:var(--papier)}
+.tete .etat.ko{background:var(--corail);color:#fff}
+.corps{padding:24px 26px 28px}
+.g{display:grid;grid-template-columns:230px 1fr;gap:30px;align-items:start}
+#qr{background:#fff;padding:12px;border-radius:16px;width:230px;height:230px;border:4px solid var(--nuit)}
+ol{margin:0 0 0 22px}li{margin-bottom:9px}
+.adr{display:flex;align-items:center;gap:12px;margin:12px 0}
+.adr code{flex:1;background:var(--nuit);color:var(--papier);border-radius:12px;padding:13px 18px;
+  font:500 16px ui-monospace,monospace;word-break:break-all}
+.adr button{font:900 15px Rubik;padding:13px 20px;border-radius:12px;border:4px solid var(--nuit);background:var(--miel);
+  color:var(--nuit);cursor:pointer;white-space:nowrap;box-shadow:0 4px 0 var(--nuit)}
+.adr button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--nuit)}
+.adr button.fait{background:var(--teal);color:var(--papier)}
+.quoi{font:900 16px Rubik;letter-spacing:1px;color:var(--teal);margin-top:16px}
+.note{color:var(--gris);font-size:16px;margin-top:14px}
+a.b{display:inline-block;background:var(--teal);color:var(--papier);font:900 18px Rubik;padding:14px 26px;
+  border-radius:14px;text-decoration:none;border:4px solid var(--nuit);box-shadow:0 4px 0 var(--nuit);margin-top:6px}
+.plus{background:none;border:0;color:var(--teal);font:900 17px Rubik;cursor:pointer;text-decoration:underline;padding:0;margin-top:14px}
+.repli{display:none;margin-top:16px;padding-top:18px;border-top:4px solid var(--ligne)}
+.repli.on{display:block}
 </style></head><body><main>
 <h1>KAYZX <em>LIVE</em></h1>
-<div class="g"><div id="qr"></div><div><h2 style="margin-top:0">1 · Le panel sur ton téléphone</h2>
-  <p>Scanne ce QR code avec ton téléphone, connecté au même Wi-Fi que ce PC. Ajoute la page à l'écran d'accueil pour l'avoir comme une appli.</p>
-  <code id="panel"></code><p class="n">Si Windows demande l'accès réseau pour Node.js, accepte pour les réseaux privés.</p></div></div>
-<h2>2 · Dans OBS (Source navigateur, 1920 × 1080)</h2>
-<p>Scène Just Chatting (avec le chat dans la boîte) :</p><code>http://localhost:8420/overlay?chat=1</code>
-<p>Autres scènes (sondages, jeux… sans le chat) :</p><code>http://localhost:8420/overlay</code>
-<p class="n">Clique sur une adresse pour la copier. Place la source au-dessus de la vidéo Just Chatting, en 0, 0, taille 1920 × 1080.</p>
-<h2>3 · Twitch</h2>
-<p>Chat de <b id="chaine"></b> : <span id="e-chat"></span></p>
-<p>Sondages, prédictions, follows : <span id="e-api"></span></p>
-<p id="aide-api" class="n"></p>
+<p class="sous">Laisse cette fenêtre ouverte pendant tout le live.</p>
+
+<div class="etape"><div class="tete"><div class="n">1</div><b>Ton panel sur le téléphone</b></div>
+  <div class="corps"><div class="g"><div id="qr"></div><div>
+    <ol>
+      <li>Ouvre l'appareil photo de ton téléphone.</li>
+      <li>Vise ce QR code, touche le lien qui apparaît.</li>
+      <li>Dans le menu du navigateur, choisis <b>« Sur l'écran d'accueil »</b> : tu l'auras comme une appli.</li>
+    </ol>
+    <p class="note">Ton téléphone doit être sur le <b>même Wi-Fi</b> que ce PC. Si Windows demande
+      l'autorisation réseau pour Node.js, accepte pour les réseaux privés.</p>
+    <button class="plus" data-pour="adr-panel">Voir l'adresse en toutes lettres</button>
+    <div class="repli" id="adr-panel"><div class="adr"><code id="panel"></code><button>Copier</button></div>
+      <p class="note">Ne la partage pas : qui l'a peut afficher ce qu'il veut sur ton stream.</p></div>
+  </div></div></div></div>
+
+<div class="etape"><div class="tete"><div class="n">2</div><b>Tes deux sources dans OBS</b></div>
+  <div class="corps">
+    <p>Dans OBS, sur chaque scène : <b>+</b> sous Sources, puis <b>Source navigateur</b>.
+      Mets <b>1920</b> en largeur et <b>1080</b> en hauteur, et colle l'adresse dans « URL ».</p>
+    <div class="quoi">SUR TA SCÈNE JUST CHATTING</div>
+    <div class="adr"><code>http://localhost:8420/overlay?chat=1</code><button>Copier</button></div>
+    <div class="quoi">SUR TES AUTRES SCÈNES</div>
+    <div class="adr"><code>http://localhost:8420/overlay</code><button>Copier</button></div>
+    <p class="note">Place la source <b>tout en haut</b> de la liste, et laisse-la en position 0, 0.
+      Sur la scène Just Chatting, le chat vient se poser dans la boîte de ton habillage.</p>
+  </div></div>
+
+<div class="etape"><div class="tete"><div class="n">3</div><b>Twitch</b><span class="etat" id="e-glob">…</span></div>
+  <div class="corps">
+    <p><b>Le chat</b> de <b id="chaine"></b> : <span id="e-chat"></span>. Il n'y a rien à faire, ça marche tout seul.</p>
+    <p style="margin-top:10px"><b>Les sondages, les prédictions et les follows</b> : <span id="e-api"></span>.</p>
+    <div id="aide-api"></div>
+  </div></div>
+
+<p class="sous" style="margin-top:30px">Tu peux tout essayer sans être en live :
+  ferme cette fenêtre et lance <b>demarrer-demo.bat</b>, un faux chat se met à parler.</p>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
-document.querySelectorAll('code').forEach((c) => { c.onclick = () => navigator.clipboard.writeText(c.textContent); });
+const $ = (id) => document.getElementById(id);
+document.querySelectorAll('.adr button').forEach((b) => {
+  b.onclick = async () => {
+    try { await navigator.clipboard.writeText(b.previousElementSibling.textContent); } catch { return; }
+    b.textContent = 'Copié !'; b.classList.add('fait');
+    setTimeout(() => { b.textContent = 'Copier'; b.classList.remove('fait'); }, 1600);
+  };
+});
+document.querySelectorAll('.plus').forEach((b) => {
+  b.onclick = () => { const d = $(b.dataset.pour); d.classList.toggle('on'); b.textContent = d.classList.contains('on') ? 'Masquer l\'adresse' : 'Voir l\'adresse en toutes lettres'; };
+});
 fetch('/infos').then((r) => r.json()).then((i) => {
-  document.getElementById('panel').textContent = i.panel;
-  if (window.QRCode) new QRCode(document.getElementById('qr'), { text: i.panel, width: 200, height: 200, colorDark: '#0F1519', colorLight: '#ffffff' });
-  document.getElementById('chaine').textContent = i.chaine;
-  document.getElementById('e-chat').innerHTML = i.twitch.chat ? '<span class="ok">connecté</span>' : '<span class="ko">en attente…</span> (recharge dans quelques secondes)';
-  document.getElementById('e-api').innerHTML = i.twitch.api ? '<span class="ok">connecté</span>' : '<span class="ko">pas connecté</span>';
-  document.getElementById('aide-api').innerHTML = i.twitch.api ? '' : i.clientId
-    ? `${i.twitch.erreur ? i.twitch.erreur + '<br>' : ''}<a class="b" href="/connexion">Connecter mon compte Twitch</a>`
-    : 'Facultatif : pour les vrais sondages, prédictions et follows, ajoute ton Client ID dans <b>config.json</b> (voir LISEZ-MOI), relance, puis reviens ici.';
+  $('panel').textContent = i.panel;
+  if (window.QRCode) new QRCode($('qr'), { text: i.panel, width: 206, height: 206, colorDark: '#0F1519', colorLight: '#ffffff' });
+  else $('qr').innerHTML = '<p style="padding:20px;font:500 15px Rubik;color:#5E6E6F">Pas de QR code (pas d\'accès au réseau) : utilise l\'adresse ci-contre.</p>';
+  $('chaine').textContent = i.chaine;
+  const vert = (t) => `<b style="color:#1E5B57">${t}</b>`, rouge = (t) => `<b style="color:#B9533F">${t}</b>`;
+  $('e-chat').innerHTML = i.twitch.chat ? vert('connecté') : rouge('en attente') + ' — recharge la page dans quelques secondes';
+  $('e-api').innerHTML = i.twitch.api ? vert('connectés') : rouge('pas encore branchés');
+  const g = $('e-glob');
+  g.textContent = i.twitch.api ? 'TOUT EST PRÊT' : i.twitch.chat ? 'CHAT SEUL' : 'EN ATTENTE';
+  g.className = 'etat ' + (i.twitch.api ? 'ok' : i.twitch.chat ? '' : 'ko');
+  $('aide-api').innerHTML = i.twitch.api ? '<p class="note">Si ça se déconnecte pendant le live, reviens ici et reconnecte : les autorisations Twitch expirent au bout de quelques heures.</p>'
+    : i.clientId
+      ? `${i.twitch.erreur ? '<p class="note">' + i.twitch.erreur + '</p>' : ''}<a class="b" href="/connexion">Connecter mon compte Twitch</a>
+         <p class="note">Twitch va te demander d'autoriser. Tu reviens ici tout seul après.</p>`
+      : `<button class="plus" data-pour="aide-id">Comment les brancher ? (5 minutes, une seule fois)</button>
+         <div class="repli" id="aide-id"><ol>
+           <li>Va sur <b>dev.twitch.tv/console/apps</b> et connecte-toi avec ton compte Twitch habituel. Pas de nouveau compte à créer.</li>
+           <li>Clique sur <b>Enregistrer une application</b>.</li>
+           <li>Nom : ce que tu veux, par exemple <b>Kayzx Live</b>.</li>
+           <li>URL de redirection OAuth : colle <b>http://localhost:8420/retour</b></li>
+           <li>Catégorie : <b>Application Chat Bot</b>. Puis <b>Créer</b>.</li>
+           <li>Clique sur <b>Gérer</b> à côté de ton application. Tu y vois un <b>Client ID</b> : un long code. Copie-le. (Ignore le bouton « secret », on n'en a pas besoin.)</li>
+           <li>Ouvre le fichier <b>config.json</b> (dans le dossier Kayzx Live) avec le Bloc-notes, colle le code entre les guillemets de <b>"clientId"</b>, enregistre.</li>
+           <li>Ferme cette fenêtre, relance <b>demarrer.bat</b>, et reviens ici : un bouton « Connecter mon compte Twitch » aura remplacé ce texte.</li>
+         </ol></div>`;
+  document.querySelectorAll('.plus').forEach((b) => {
+    if (b.onclick) return;
+    b.onclick = () => { const d = $(b.dataset.pour); d.classList.toggle('on'); };
+  });
+  const b2 = document.querySelector('#aide-api .plus');
+  if (b2) b2.onclick = () => $(b2.dataset.pour).classList.toggle('on');
 });
 </script></body></html>

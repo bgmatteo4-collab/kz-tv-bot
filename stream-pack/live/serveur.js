@@ -280,6 +280,15 @@ http.createServer(async (req, res) => {
     res.writeHead(302, { Location: `https://id.twitch.tv/oauth2/authorize?client_id=${config.clientId}&redirect_uri=${encodeURIComponent(`http://localhost:${PORT}/retour`)}&response_type=token&scope=${encodeURIComponent(SCOPES)}` });
     return res.end();
   }
+  // Réglages depuis la page d'accueil : plus besoin d'ouvrir config.json au Bloc-notes.
+  if (url.pathname === '/reglages' && req.method === 'POST' && local(req)) {
+    const a = await corps(req);
+    if (a.clientId !== undefined) config.clientId = String(a.clientId).trim();
+    if (a.chaine) config.chaine = String(a.chaine).trim().toLowerCase().replace(/^.*twitch\.tv\//, '');
+    sauver();
+    if (a.chaine && irc) irc.close();   // on rejoint la nouvelle chaîne
+    return json(res, 200, { ok: true, clientId: !!config.clientId, chaine: config.chaine });
+  }
   if (url.pathname === '/jeton' && req.method === 'POST' && local(req)) { config.token = (await corps(req)).token || ''; sauver(); await api(); return json(res, 200, { ok: etat.twitch.api, erreur: etat.twitch.erreur }); }
   if (url.pathname === '/test' && DEMO) { const a = Object.fromEntries(url.searchParams); recevoir({ id: 't' + Date.now(), login: norm(a.nom), nom: a.nom, texte: a.texte }); return json(res, 200, { ok: true }); }
   const fichier = path.join(PUBLIC, path.normalize(ROUTES[url.pathname] || url.pathname).replace(/^(\.\.[/\\])+/, ''));

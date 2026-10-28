@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+/* Les cartes d'info de l'écran d'attente, capturées en PNG transparents puis animées par attente.py.
+   Même style que la bannière et l'écran hors ligne : pastille papier, contour nuit, ombre portée nette. */
+@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(../da/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--miel:#E0A93B;--papier:#F1ECE3}
+*{box-sizing:border-box;margin:0;padding:0}body{background:transparent;font-family:Rubik,sans-serif}
+.c{width:1200px;height:150px;display:flex;align-items:center;justify-content:center}
+.p{display:flex;align-items:center;gap:20px;background:var(--papier);border:4px solid var(--nuit);border-radius:999px;
+  padding:16px 42px 16px 22px;box-shadow:0 7px 0 var(--nuit);font:900 36px Rubik;color:var(--nuit);white-space:nowrap}
+.p img{width:48px;height:48px;flex:none}
+.p em{font-style:normal;color:var(--teal)}
+.p b{font-weight:900;color:var(--miel);-webkit-text-stroke:1.5px var(--nuit)}
+.rond{width:52px;height:52px;border-radius:50%;background:var(--teal);display:grid;place-items:center;flex:none}
+.rond svg{width:30px;height:30px}
+</style></head><body>
+<div class="c" id="i1"><div class="p"><img src="../overlays/logos/youtube.svg" alt="">YouTube <em>@kayzxtv8505</em></div></div>
+<div class="c" id="i2"><div class="p"><img src="../overlays/logos/tiktok.svg" alt="">TikTok <em>Kayzx TV</em></div></div>
+<div class="c" id="i3"><div class="p"><img src="../overlays/logos/x.svg" alt=""><em>@Kayzx_TV</em></div></div>
+<div class="c" id="i4"><div class="p"><img src="../overlays/logos/discord.svg" alt="">Le Discord · tape <b>!discord</b></div></div>
+<div class="c" id="i5"><div class="p"><div class="rond"><svg viewBox="0 0 24 24" fill="none" stroke="#F1ECE3" stroke-width="2.4" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg></div>Lundi · Mercredi · Vendredi <em>21h00</em></div></div>
+<div class="c" id="i6"><div class="p"><div class="rond"><svg viewBox="0 0 24 24" fill="none" stroke="#F1ECE3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 15a3 3 0 0 1-3 3H9l-4 3V7a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3z"/></svg></div>Le chat est ouvert · <em>dis bonsoir</em></div></div>
+</body></html>

@@ -1,6 +1,9 @@
-"""L'écran d'attente / intro de lancement : boucle de 30 s sans couture, motif d'encre très lent,
-titre en volume (« LE LIVE VA DÉMARRER / INSTALLE-TOI ») et six cartes d'info qui se succèdent.
-    python3 attente.py [--apercu T]   → attente.mp4 (1920 × 1080, 30 i/s) ou une image fixe à T secondes
+"""L'intro de lancement : une boucle de 60 s sans couture.
+  0 → 30 s   l'écran « LE LIVE VA DÉMARRER / INSTALLE-TOI », six cartes d'info qui se succèdent
+  32 → 57 s  la séquence navigateur (YouTube → recherche Google → Twitch), images rendues par frames-nav.js
+  57 → 60 s  retour au titre, qui raccorde sur l'image 0
+    node frames-nav.js <dossier>      les images de la séquence (une seule fois, ou après modification)
+    python3 attente.py --nav <dossier> [--part i/n] [--apercu T]
 Dans OBS : Source média, Boucle cochée, en fond de la scène « Démarrage ».
 """
 import math
@@ -16,7 +19,10 @@ ICI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(ICI, '..', 'motifs'))
 from encre import Encre   # noqa: E402
 
-FPS, DUREE, W, H = 30, 30.0, 1920, 1080
+FPS, DUREE, W, H = 30, 60.0, 1920, 1080
+NAV0, NAV1 = 32.0, 57.0      # la séquence navigateur occupe ce créneau
+TITRE0, TITRE1 = 30.0, 57.0  # le titre sort à 30 s et revient à 57 s
+CARTES_FIN = 30.0            # les cartes ne passent que sur la première moitié
 NUIT = np.array([0x0F, 0x15, 0x19], np.float32) / 255
 PAPIER, MIEL = (241, 236, 227), (224, 169, 59)
 OMBRE_PAPIER, OMBRE_MIEL = (150, 136, 112), (138, 90, 18)
@@ -76,14 +82,15 @@ LIGNES = [(mot(txt, t, f, c), z) for txt, t, f, c, z in TITRE]
 LOGO = [mot('KAYZX', 64, PAPIER, OMBRE_PAPIER), mot('TV', 64, MIEL, OMBRE_MIEL)]
 CARTES = [np.asarray(Image.open(os.path.join(ICI, f'carte-{k}.png')).convert('RGBA'), np.float32) / 255
           for k in range(1, 7)]
-CRENEAU = DUREE / len(CARTES)   # 5 s par info, fondu enchaîné de 0,7 s
+CRENEAU = CARTES_FIN / len(CARTES)   # 5 s par info
 
 
 def poser(fond, calque, box=None, force=1.0):
-    """Compose un RGBA (float 0-1) sur le fond, éventuellement à une position (x, y)."""
+    """Compose un RGBA (float 0-1) sur le fond, sur place. Sans box, le calque couvre toute l'image."""
     if box is None:
         a = calque[..., 3:] * force
-        return fond * (1 - a) + calque[..., :3] * a
+        fond[:] = fond * (1 - a) + calque[..., :3] * a
+        return fond
     cx, cy = box
     ch, cw = calque.shape[:2]
     x0, y0 = max(0, cx), max(0, cy)
@@ -117,21 +124,24 @@ def titre(t):
     return np.clip(n[..., :3] + reflet[..., None], 0, 1), n[..., 3], ombre
 
 
-def logo(fond):
+def logo(fond, force=1.0):
     """Le logo KAYZX TV en haut à gauche, posé une fois pour toutes (il ne bouge pas)."""
     (kl, kw, kh), (tl, tw, th) = LOGO
     x0, z = 96, 74
     for dx, img, _ in kl:
-        poser(fond, np.asarray(img, np.float32) / 255, (int(x0 + dx), z))
+        poser(fond, np.asarray(img, np.float32) / 255, (int(x0 + dx), z), force)
     for dx, img, _ in tl:
-        poser(fond, np.asarray(img, np.float32) / 255, (int(x0 + kw + 26 + dx), z))
+        poser(fond, np.asarray(img, np.float32) / 255, (int(x0 + kw + 26 + dx), z), force)
     return fond
 
 
 def carte(t):
-    """La carte d'info du moment. Pas de fondu enchaîné : l'ancienne descend et s'efface,
-    puis la nouvelle monte — deux pastilles de largeurs différentes au même endroit, ça ferait une bouillie."""
-    k, dans = int(t // CRENEAU) % len(CARTES), t % CRENEAU
+    """La carte d'info du moment, seulement pendant la première phase. Pas de fondu enchaîné : l'ancienne descend
+    et s'efface, puis la nouvelle monte — deux pastilles de largeurs différentes au même endroit feraient une bouillie.
+    Renvoie None quand aucune carte n'est à l'écran (dont le raccord de la boucle, où le bas doit être vide)."""
+    if t >= CARTES_FIN:
+        return None
+    k, dans = int(t // CRENEAU), t % CRENEAU
     if dans < 0.45:                                   # entrée
         e = lisse(dans / 0.45)
         return CARTES[k], e, (1 - e) * 30
@@ -141,17 +151,45 @@ def carte(t):
     return CARTES[k], 1.0, 0.0
 
 
+def presence_titre(t):
+    """1 quand le titre est à l'écran, 0 pendant la séquence navigateur, avec les deux fondus."""
+    if t < TITRE0:
+        return 1.0
+    if t < NAV0:
+        return 1.0 - lisse((t - TITRE0) / (NAV0 - TITRE0))
+    if t < TITRE1:
+        return 0.0
+    return lisse(min(1.0, (t - TITRE1) / 1.2))
+
+
+def fenetre(t):
+    """L'image de la séquence navigateur à l'instant t, ou None hors du créneau."""
+    if NAV_DOSSIER is None or not (NAV0 <= t < NAV1):
+        return None
+    f = int(round((t - NAV0) * FPS))
+    chemin = os.path.join(NAV_DOSSIER, f'{min(f, NAV_N - 1):04d}.png')
+    return np.asarray(Image.open(chemin).convert('RGBA'), np.float32) / 255
+
+
 def image(t, grain=True, k_grain=0):
     fond = Encre_motif.image(t, DUREE, grain=False)
     voile = np.exp(-(((x - W / 2) / 820) ** 2 + ((y - H * 0.52) / 500) ** 2))   # l'encre s'assombrit au centre
     fond = fond * (1 - 0.62 * voile[..., None]) + NUIT * (0.62 * voile[..., None])
-    rgb, a, ombre = titre(t)
-    fond = fond * (1 - ombre[..., None] * 0.9)
-    fond = fond * (1 - a[..., None]) + rgb * a[..., None]
-    logo(fond)
-    img_c, opac, dy = carte(t)
-    ch, cw = img_c.shape[:2]
-    poser(fond, img_c, ((W - cw) // 2, 806 + int(dy)), opac)
+    vu = presence_titre(t)
+    if vu > 0:
+        rgb, a, ombre = titre(t)
+        a = a * vu
+        fond = fond * (1 - ombre[..., None] * 0.9 * vu)
+        fond = fond * (1 - a[..., None]) + rgb * a[..., None]
+        logo(fond, vu)
+        c = carte(t)
+        if c is not None:
+            img_c, opac, dy = c
+            ch, cw = img_c.shape[:2]
+            poser(fond, img_c, ((W - cw) // 2, 806 + int(dy)), opac * vu)
+    fen = fenetre(t)
+    if fen is not None:
+        poser(fond, fen)
     if grain:
         g = np.random.default_rng(k_grain).normal(0, 0.012, (H, W, 1)).astype(np.float32)
         fond = fond + g
@@ -160,19 +198,31 @@ def image(t, grain=True, k_grain=0):
 
 Encre_motif = Encre(W, H, graine=7, echelle=0.8)
 
+
+def arg(nom, defaut=None):
+    return sys.argv[sys.argv.index(nom) + 1] if nom in sys.argv else defaut
+
+
+NAV_DOSSIER = arg('--nav')
+NAV_N = len(os.listdir(NAV_DOSSIER)) if NAV_DOSSIER else 0
+
 if __name__ == '__main__':
     if '--apercu' in sys.argv:
-        t = float(sys.argv[sys.argv.index('--apercu') + 1])
+        t = float(arg('--apercu'))
         Image.fromarray((image(t) * 255 + 0.5).astype(np.uint8)).save(os.path.join(ICI, 'apercu.png'))
         print('image :', os.path.join(ICI, 'apercu.png'))
         sys.exit(0)
-    sortie = os.path.join(ICI, 'attente.mp4')
+    # --part i/n : ce processus ne rend qu'une tranche de la boucle, pour occuper tous les cœurs.
+    total = int(DUREE * FPS)
+    i, n = (int(v) for v in arg('--part', '0/1').split('/'))
+    debut, fin = total * i // n, total * (i + 1) // n
+    sortie = os.path.join(ICI, 'attente.mp4' if n == 1 else f'part-{i}.mp4')
     ff = subprocess.Popen(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'rawvideo', '-pix_fmt', 'rgb24',
                            '-s', f'{W}x{H}', '-r', str(FPS), '-i', '-', '-c:v', 'libx264', '-crf', '18',
                            '-pix_fmt', 'yuv420p', '-movflags', '+faststart', sortie], stdin=subprocess.PIPE)
-    for f in range(int(DUREE * FPS)):
+    for f in range(debut, fin):
         ff.stdin.write((image(f / FPS, k_grain=f) * 255 + 0.5).astype(np.uint8).tobytes())
-        if f % 60 == 0:
-            print(f'{f} / {int(DUREE * FPS)}', flush=True)
+        if (f - debut) % 60 == 0:
+            print(f'part {i} : {f - debut} / {fin - debut}', flush=True)
     ff.stdin.close(); ff.wait()
-    print('vidéo :', sortie)
+    print('fait :', sortie)

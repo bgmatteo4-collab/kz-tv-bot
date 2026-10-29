@@ -64,6 +64,53 @@ jour au lieu de dupliquer. Renommer un salon à la main dans Discord ne le casse
 | `*.command` | Les lanceurs à double-cliquer sur Mac. |
 | `ARCHITECTURE.md` | Le document de conception, en français. |
 
+## Faire tourner le bot
+
+```sh
+npm install
+node bot/enregistrer-commandes.js   # une fois, puis à chaque changement de commande
+node bot/index.js                   # le bot, à laisser tourner
+```
+
+Le bot doit rester allumé : c'est lui qui répond aux commandes, tient les journaux, crée
+les vocaux à la demande et ouvre les tickets. Le déploiement du serveur, lui, est ponctuel.
+
+Il lui faut les trois intents privilégiés cochés sur le portail Discord — **Server Members**,
+**Message Content** et **Presence** — sans quoi il démarre mais reste à moitié muet.
+
+### Les commandes
+
+| | |
+|---|---|
+| `/salon` | Rappelle à quoi sert le salon où l'on est. |
+| `/aide` | Comment clipper, choisir ses rôles, lancer un vocal, suivre les matchs. |
+| `/sondage` | Question à la communauté : barres en direct, clôture automatique. |
+| `/vocal` | Renommer, limiter, verrouiller le salon qu'on a créé. |
+| `/micro` | Demander la parole sur Le Plateau. La régie accepte d'un bouton. |
+| `/sanction` | Avertir, exclure, bannir. Motif obligatoire, journal systématique. |
+| `/historique` | Sanctions, notes et date d'arrivée d'un membre. |
+| `/note` | Garder une trace sans sanctionner. |
+| `/annonce` | Formulaire, aperçu privé, puis publication au nom de la chaîne. |
+| `/plateau` | Ouvrir la diffusion, distribuer les micros, fermer. |
+| `/programme` | Le calendrier des lives et des matchs. |
+
+Les commandes réservées sont **masquées** aux autres membres plutôt que refusées après
+coup : Discord s'en charge à partir de `default_member_permissions`.
+
+### Ce que le bot fait sans qu'on lui demande
+
+- **Vocaux à la demande** : entrer dans « ➕ Créer un vocal » crée un salon au nom du jeu en
+  cours, et il disparaît une fois vide.
+- **Journaux** : arrivées, départs, messages supprimés et modifiés, toutes les sanctions.
+  Un compte créé il y a moins d'une semaine est signalé à l'arrivée.
+- **Tickets** : bouton, salon privé, transcription envoyée au staff à la fermeture.
+- **Rôles** : les deux menus du salon des rôles, posés et tenus à jour.
+- **Expérience** : des points par message, une minute de repos entre deux gains pour que le
+  spam ne paie pas.
+
+La mémoire tient dans `bot/donnees.json`, écrit de façon atomique. Pas de base de données :
+une dépendance native rendrait l'installation pénible pour rien à cette échelle.
+
 ## Les cartes de salon
 
 ```sh

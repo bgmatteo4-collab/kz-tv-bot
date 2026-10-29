@@ -59,8 +59,14 @@ for (const categorie of categories) {
     if (!existsSync(chemin)) { console.log(jaune(`  ? ${nom} — image absente, lance cartes/generer.js`)); ratees += 1; continue; }
 
     const donnees = readFileSync(chemin);
+    // Le texte d'une image n'est pas cliquable : l'interactif passe par un bouton dessous.
+    const b = salon.carte.bouton;
     const charge = {
       attachments: [{ id: 0, filename: salon.cle + '.png', description: texteAlternatif(salon) }],
+      components: b ? [{ type: 1, components: [{
+        type: 2, style: 3, label: b.texte,
+        custom_id: b.donne === 'membre' ? 'reglement' : b.action === 'ticket' ? 'ticket' : 'rien',
+      }] }] : [],
     };
     const fichier = { nom: salon.cle + '.png', donnees };
     const idMessage = etat.cartes[salon.cle];

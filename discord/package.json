@@ -5,9 +5,11 @@
   "type": "module",
   "description": "Le bot et le déploiement du serveur Discord Kayzx TV",
   "scripts": {
-    "cartes": "node cartes/capturer.js",
+    "bot": "node bot/index.js",
+    "commandes": "node bot/enregistrer-commandes.js",
     "deployer": "node deployer.js",
-    "verifier": "node deployer.js --verifier"
+    "verifier": "node deployer.js --verifier",
+    "cartes": "node cartes/generer.js && node poser-cartes.js"
   },
   "engines": {
     "node": ">=20"

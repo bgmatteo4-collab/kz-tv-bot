@@ -5,3 +5,4 @@ node_modules/
 etat.json
 cartes/rendu/
 cartes/cartes.html
+bot/donnees.json

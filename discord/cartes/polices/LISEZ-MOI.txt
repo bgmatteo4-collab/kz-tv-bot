@@ -1,0 +1,4 @@
+Rubik — SIL Open Font License 1.1.
+Mêmes fichiers que le pack de stream (stream-pack/da/Rubik-*.ttf) : Regular 400,
+Medium 500, Black 900. Copiés ici pour que le générateur de cartes reste autonome,
+le bot étant destiné à tourner sur un autre hébergement que le pack vidéo.

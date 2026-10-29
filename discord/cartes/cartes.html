@@ -1,0 +1,192 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Cartes de salon — Kayzx TV</title><style>
+/* Cartes de salon Discord. Même langage que les panneaux Twitch : carte papier, contour nuit,
+   ombre portée pleine, bandeau d'encre en tête, Rubik Black.
+
+   Format 16/9 (1600x900) : Discord plafonne la hauteur d'affichage à ~350 px, donc une carte
+   portrait est réduite et devient illisible. En paysage, elle occupe toute la largeur du message.
+
+   Un univers = une couleur de bandeau. Le motif d'encre est posé en soft-light par-dessus la
+   couleur : il garde sa texture en prenant la teinte de la catégorie.
+   Les accents du corps restent teal partout, même sur bandeau miel : le miel sur papier ne
+   passerait pas le contraste. C'est le bandeau qui porte la couleur, pas le texte. */
+@font-face{font-family:Rubik;src:url(polices/Rubik-1.ttf)}
+@font-face{font-family:Rubik;font-weight:500;src:url(polices/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(polices/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--teal-n:#3FD3C2;--miel:#E0A93B;--papier:#F1ECE3;
+      --ligne:#E2DACB;--gris:#5E6E6F;--corail:#B9533F;--chene:#8A5A36}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:transparent;font-family:Rubik,sans-serif}
+.cadre{padding:44px;width:1688px}
+
+.p{width:1600px;height:900px;background:var(--papier);border:14px solid var(--nuit);border-radius:52px;
+   overflow:hidden;box-shadow:0 24px 0 rgba(15,21,25,.85);position:relative;display:flex;flex-direction:column}
+.p.u-teal  {--cat:#1E5B57}
+.p.u-miel  {--cat:#E0A93B}
+.p.u-corail{--cat:#B9533F}
+.p.u-chene {--cat:#8A5A36}
+
+/* Bandeau : couleur de l'univers + le motif d'encre du pack, en soft-light */
+.tete{height:168px;background:var(--cat);display:flex;align-items:center;gap:30px;padding:0 44px 0 50px;
+      border-bottom:14px solid var(--nuit);position:relative;flex:none}
+.tete .fond{position:absolute;inset:0;background:url(img/fond-banniere.png) 28% 42%/1700px auto;
+            mix-blend-mode:soft-light}
+.tete:before{content:"";position:absolute;inset:0;
+             background:linear-gradient(90deg,rgba(15,21,25,.60),rgba(15,21,25,.10))}
+.u-miel .tete:before{background:linear-gradient(90deg,rgba(241,236,227,.40),rgba(241,236,227,.02))}
+
+.tete .diese{position:relative;font:900 86px Rubik;color:var(--teal-n);line-height:1;flex:none;
+             text-shadow:0 4px 0 rgba(15,21,25,.6)}
+.tete .glyphe{position:relative;width:82px;height:82px;flex:none;color:var(--teal-n);
+              filter:drop-shadow(0 4px 0 rgba(15,21,25,.5))}
+.tete b{position:relative;font:900 66px Rubik;color:var(--papier);letter-spacing:-1px;
+        text-shadow:0 4px 12px rgba(0,0,0,.6)}
+.u-miel .tete .diese,.u-miel .tete .glyphe{color:var(--nuit);text-shadow:0 4px 0 rgba(241,236,227,.45);filter:none}
+.u-miel .tete b{color:var(--nuit);text-shadow:0 3px 10px rgba(241,236,227,.55)}
+
+.vignette{position:relative;margin-left:auto;width:108px;height:108px;border-radius:26px;flex:none;
+          border:5px solid var(--papier);object-fit:cover;box-shadow:0 5px 14px rgba(0,0,0,.45)}
+
+.corps{flex:1;display:flex;gap:46px;padding:40px 50px 44px;min-height:0}
+.col{display:flex;flex-direction:column;min-width:0}
+.gauche{flex:1.18}
+.droite{flex:.82}
+
+.intro{font:500 42px/1.30 Rubik;color:var(--nuit)}
+.intro em{font-style:normal;font-weight:900;color:var(--teal)}
+
+.regle{display:flex;gap:24px;align-items:flex-start;padding:18px 0;border-top:6px solid var(--ligne)}
+.regle:first-of-type{margin-top:18px}
+.num{width:64px;height:64px;border-radius:50%;background:var(--teal);color:var(--papier);
+     font:900 32px/64px Rubik;text-align:center;flex:none;border:6px solid var(--nuit)}
+.regle.non .num{background:var(--corail)}
+.regle.plus .num{background:var(--miel);color:var(--nuit)}
+.regle b{display:block;font:900 36px Rubik;color:var(--nuit);margin-bottom:4px}
+.regle span{font:500 31px/1.25 Rubik;color:var(--gris)}
+
+/* Commandes : la pastille des panneaux Twitch, reprise telle quelle */
+.cmd{display:flex;gap:22px;align-items:center;padding:17px 0;border-top:6px solid var(--ligne)}
+.cmd:first-of-type{margin-top:20px}
+.cmd .pastille{background:var(--nuit);color:var(--miel);font:900 36px Rubik;padding:12px 28px;
+          border-radius:999px;flex:none;white-space:nowrap;min-width:296px;text-align:center}
+.cmd span{font:500 33px/1.26 Rubik;color:var(--gris)}
+.cmd span u{text-decoration:none;font-weight:900;color:var(--nuit)}
+
+.encadre{background:#E8E0D3;border:6px solid var(--nuit);border-radius:28px;padding:28px 30px}
+.encadre h3{font:900 30px Rubik;color:var(--chene);letter-spacing:3px;margin-bottom:16px}
+.encadre p{font:500 33px/1.28 Rubik;color:var(--nuit)}
+.encadre p + p{margin-top:14px}
+.encadre p b{font-weight:900;color:var(--teal)}
+
+.note{margin-top:auto;padding-top:24px;font:500 29px/1.3 Rubik;color:var(--gris)}
+.note b{font-weight:900;color:var(--nuit)}
+
+/* Grain de film : la texture du pack, sur toute la carte */
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.07;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
+</style></head><body>
+
+<!-- ============ COMMUNAUTÉ · TEAL ============ -->
+<div class="cadre" id="c-clips"><div class="p u-teal">
+  <div class="tete"><div class="fond"></div><span class="diese">#</span><b>CLIPS</b>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche">
+      <div class="intro">Les meilleurs moments du live, repérés par <em>vous</em>.</div>
+      <div class="regle"><div class="num">1</div><div>
+        <b>Un clip par message</b><span>Le lien Twitch ou le fichier, et c'est tout. Les réactions se font en emoji.</span></div></div>
+      <div class="regle non"><div class="num">✕</div><div>
+        <b>Pas de clips d'autres chaînes</b><span>Ici c'est le live de Kayzx. Le reste va en détente.</span></div></div>
+      <div class="regle plus"><div class="num">★</div><div>
+        <b>Le clip de la semaine</b><span>Le plus voté passe sur TikTok, avec ton pseudo.</span></div></div>
+    </div>
+    <div class="col droite">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Discuter du live en cours → <b>#live</b></p>
+        <p>Tout le reste → <b>#général</b></p>
+        <p>Un souci avec un membre → <b>#tickets</b></p></div>
+      <div class="note">Tu ne sais pas clipper ? Tape <b>/aide clips</b>, je te montre en dix secondes.</div>
+    </div>
+  </div><div class="grain"></div>
+</div></div>
+
+<!-- ============ MATCHS · MIEL ============ -->
+<div class="cadre" id="c-plateau"><div class="p u-miel">
+  <div class="tete"><div class="fond"></div>
+    <svg class="glyphe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
+         stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/>
+      <path d="M16.2 8.6a4.8 4.8 0 0 1 0 6.8"/><path d="M19.4 5.4a9.2 9.2 0 0 1 0 13.2"/></svg>
+    <b>LE PLATEAU</b><img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche">
+      <div class="intro">Le vocal de diffusion. On regarde le match <em>ensemble</em>, commenté en direct.</div>
+      <div class="regle"><div class="num">1</div><div>
+        <b>Le micro est aux intervenants</b><span>Tout le monde écoute. Les réactions passent en texte, en tribune.</span></div></div>
+      <div class="regle non"><div class="num">✕</div><div>
+        <b>Pas de spoil du résultat</b><span>Beaucoup regardent en différé. On attend le coup de sifflet.</span></div></div>
+      <div class="regle plus"><div class="num">★</div><div>
+        <b>Demander le micro</b><span>Tape /micro : le staff t'ouvre le son si le moment s'y prête.</span></div></div>
+    </div>
+    <div class="col droite">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Réagir pendant le match → <b>#tribune</b></p>
+        <p>Le calendrier → <b>#programme</b></p>
+        <p>Les résumés d'après-match → <b>#résultats</b></p></div>
+      <div class="note">Football, MMA et les grands rendez-vous. Le programme de la semaine : <b>/programme</b>.</div>
+    </div>
+  </div><div class="grain"></div>
+</div></div>
+
+<!-- ============ STAFF · CORAIL ============ -->
+<div class="cadre" id="c-bureau"><div class="p u-corail">
+  <div class="tete"><div class="fond"></div><span class="diese">#</span><b>BUREAU</b>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche">
+      <div class="intro">La coordination de l'équipe. Les décisions se prennent <em>ici</em>, jamais en privé.</div>
+      <div class="cmd"><span class="pastille">/sanction</span>
+        <span><u>Avertir, exclure, bannir.</u> Motif obligatoire.</span></div>
+      <div class="cmd"><span class="pastille">/historique</span>
+        <span><u>Le passé d'un membre.</u> Sanctions, notes, arrivée.</span></div>
+      <div class="cmd"><span class="pastille">/annonce</span>
+        <span><u>Publier au nom de la chaîne.</u> Aperçu avant envoi.</span></div>
+      <div class="cmd"><span class="pastille">/plateau</span>
+        <span><u>Ouvrir la diffusion.</u> Crée le vocal et les intervenants.</span></div>
+    </div>
+    <div class="col droite">
+      <div class="encadre"><h3>LE RÉFLEXE</h3>
+        <p>Signalements → <b>#tickets</b></p>
+        <p>Journal automatique → <b>#traces</b></p>
+        <p>Un doute sur une sanction → on en parle avant d'agir</p></div>
+      <div class="note">Une sanction contestée se rediscute ici, à froid. On ne revient jamais sur la décision d'un modo devant la communauté.</div>
+    </div>
+  </div><div class="grain"></div>
+</div></div>
+
+<!-- ============ GAMING · CHÊNE ============ -->
+<div class="cadre" id="c-vocaux"><div class="p u-chene">
+  <div class="tete"><div class="fond"></div>
+    <svg class="glyphe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
+         stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/>
+      <path d="M16.2 8.6a4.8 4.8 0 0 1 0 6.8"/><path d="M19.4 5.4a9.2 9.2 0 0 1 0 13.2"/></svg>
+    <b>LES VOCAUX JEU</b><img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche">
+      <div class="intro">Les salons de jeu se créent <em>tout seuls</em>. Entre dans « Créer un vocal ».</div>
+      <div class="regle"><div class="num">1</div><div>
+        <b>Le salon est à toi</b><span>Tu peux le renommer, limiter les places, en verrouiller l'accès.</span></div></div>
+      <div class="regle"><div class="num">2</div><div>
+        <b>Il disparaît tout seul</b><span>Une fois vide, il se supprime. Plus de vocaux fantômes dans la liste.</span></div></div>
+      <div class="regle non"><div class="num">✕</div><div>
+        <b>Pas de musique à fond</b><span>Ni soundboard en boucle. Le staff coupe sans prévenir.</span></div></div>
+    </div>
+    <div class="col droite">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Chercher des joueurs → <b>#recherche-équipe</b></p>
+        <p>Regarder un match → <b>#le-plateau</b></p>
+        <p>Signaler quelqu'un → <b>#tickets</b></p></div>
+      <div class="note">Règle ton salon avec <b>/vocal</b> : nom, nombre de places, verrouillage.</div>
+    </div>
+  </div><div class="grain"></div>
+</div></div>
+
+</body></html>

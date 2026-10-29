@@ -1,48 +1,69 @@
 WIDGETS KAYZX TV
 
-Deux habillages a poser dans OBS : l'horloge et les reseaux.
-Ce sont des pages web, pas des videos : l'heure est toujours juste et
-l'animation ne boucle jamais de travers.
+Trois habillages a poser dans OBS. Ce sont des pages web, pas des videos :
+l'heure est toujours juste et les animations ne bouclent jamais de travers.
+
+  horloge.html   l'heure a la seconde ; la date se deplie de temps en temps
+  reseaux.html   les reseaux arrivent, defilent, puis repartent
+  camera.html    le contour anime autour de ta webcam
 
 COMMENT LES AJOUTER DANS OBS
 
-  1. Dans OBS, sur ta scene : + sous Sources, puis "Source navigateur"
+  1. Sur ta scene : + sous Sources, puis "Source navigateur"
   2. COCHE LA CASE "Fichier local"
-  3. Clique sur Parcourir et choisis le fichier :
-       horloge.html   pour l'heure
-       reseaux.html   pour les reseaux
+  3. Parcourir, et choisis le fichier
   4. Mets la taille :
-       horloge   : largeur 520   hauteur 120
-       reseaux   : largeur 620   hauteur 110
-  5. OK, puis place le widget ou tu veux sur l'image.
+       horloge   largeur 620   hauteur 120
+       reseaux   largeur 760   hauteur 120
+       camera    largeur 690   hauteur 410   (pour une cam de 640 x 360)
+  5. OK, puis place le widget ou tu veux.
 
-Le fond est transparent : il n'y a pas de rectangle autour.
+Le fond est transparent : pas de rectangle autour.
+
+LE CONTOUR DE CAMERA
+
+Le centre est vide, ta camera se voit a travers.
+Dans OBS, mets ta camera EN DESSOUS de cette source dans la liste.
+
+La page fait la taille de ta cam PLUS l'epaisseur tout autour.
+Par defaut : cam 640 x 360, epaisseur 24, donc la source fait 688 x 408.
+Centre le trou sur ta camera, c'est tout.
+
+Si ta cam fait une autre taille, dis-le dans l'adresse :
+  camera.html?l=480&h=270
 
 REGLAGES
 
-Tu peux ajouter des options a la fin du chemin, dans le champ "URL local"
-d'OBS, apres le nom du fichier. Par exemple :
+Ajoute les options a la fin du chemin, dans le champ d'OBS, apres le nom
+du fichier. Plusieurs options se separent par &.
 
-  horloge.html?date=1
-      ajoute la date du jour a cote de l'heure
+  HORLOGE
+    ?cycle=90      secondes entre deux apparitions de la date
+    ?ouvert=5      secondes pendant lesquelles la date reste depliee
+    ?date=0        la date ne sort jamais
+    ?date=1        la date reste tout le temps
+    ?droite=1      colle a droite (la date se deplie vers la gauche)
+    ?pt=0          enleve le point miel qui bat la seconde
+    ?taille=0.8    reduit (1.2 pour agrandir)
 
-  horloge.html?taille=0.8
-      reduit le widget a 80 % (1.2 pour l'agrandir)
+  RESEAUX
+    ?cycle=180     secondes entre deux passages (3 minutes par defaut)
+    ?ouvert=3.5    secondes pendant lesquelles un reseau reste deroule
+    ?droite=1      colle a droite
+    ?toujours=1    ils restent affiches en permanence
+    ?taille=0.8    reduit
 
-  horloge.html?pt=0
-      enleve le point miel qui bat la seconde
+  CAMERA
+    ?l=480&h=270   la taille de ta camera
+    ?ep=30         epaisseur du contour
+    ?rond=1        contour rond, pour une cam en cercle
+    ?tour=70       secondes pour un tour complet (plus grand = plus lent)
+    ?eclat=0       enleve la trainee de lumiere, garde l'encre seule
 
-  horloge.html?date=1&taille=0.9
-      plusieurs options a la suite, separees par &
+Exemple : horloge.html?droite=1&cycle=120&taille=0.9
 
-  reseaux.html?droite=1
-      colle le widget a droite (pour un coin droit de l'ecran)
-
-  reseaux.html?ouvert=6&pause=2
-      chaque reseau reste ouvert 6 secondes, 2 secondes entre chaque
-
-Si tu changes une option, fais un clic droit sur la source dans OBS
-puis "Actualiser" pour la voir tout de suite.
+Si tu changes une option, clic droit sur la source dans OBS puis
+"Actualiser" pour la voir tout de suite.
 
 POUR MODIFIER LES PSEUDOS
 

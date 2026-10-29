@@ -1,39 +1,56 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Horloge</title><style>
 /* L'horloge de l'overlay jeu / react : une pastille papier avec l'heure à la seconde.
-   Source navigateur dans OBS, 520 x 120, fond transparent. L'heure est celle du PC : elle ne décale jamais.
+   La date ne reste pas affichée : la pastille se déplie de temps en temps pour la montrer, puis se referme.
+   Source navigateur dans OBS, 560 x 120, fond transparent. L'heure est celle du PC : elle ne décale jamais.
    Options dans l'adresse :
-     ?date=1    ajoute la date du jour à côté
+     ?cycle=90     secondes entre deux apparitions de la date (90 par défaut)
+     ?ouvert=5     secondes pendant lesquelles la date reste dépliée
+     ?date=0       la date ne sort jamais     ?date=1  elle reste tout le temps
      ?taille=0.8   réduit (ou agrandit) tout le widget
-     ?pt=0      enlève le point miel qui bat la seconde
+     ?droite=1     le widget s'aligne à droite (la date se déplie alors vers la gauche)
+     ?pt=0         enlève le point miel qui bat la seconde
 */
 @font-face{font-family:Rubik;src:url(polices/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(polices/Rubik-2.ttf)}
 @font-face{font-family:Rubik;font-weight:900;src:url(polices/Rubik-3.ttf)}
-:root{--nuit:#0F1519;--teal:#1E5B57;--miel:#E0A93B;--papier:#F1ECE3}
+:root{--nuit:#0F1519;--teal:#1E5B57;--miel:#E0A93B;--papier:#F1ECE3;--ligne:#E2DACB}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:transparent;overflow:hidden}
-#p{position:absolute;left:10px;top:10px;transform-origin:0 0;display:inline-flex;align-items:center;gap:16px;
-  background:var(--papier);border:5px solid var(--nuit);border-radius:999px;padding:11px 28px 11px 16px;
+#p{position:absolute;left:12px;top:12px;transform-origin:0 0;display:inline-flex;align-items:center;gap:16px;
+  background:var(--papier);border:5px solid var(--nuit);border-radius:999px;padding:11px 26px 11px 16px;
   box-shadow:0 6px 0 var(--nuit),0 14px 30px rgba(5,8,10,.45);font-family:Rubik,sans-serif;white-space:nowrap}
+#p.droite{left:auto;right:12px;transform-origin:100% 0;flex-direction:row-reverse;padding:11px 16px 11px 26px}
 #pt{width:15px;height:15px;border-radius:50%;background:var(--miel);border:4px solid var(--nuit);flex:none;
   transition:opacity .18s}
 #pt.bas{opacity:.28}
 #h{font:900 42px Rubik;color:var(--nuit);letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums}
 #h s{text-decoration:none;color:var(--miel);-webkit-text-stroke:1.5px var(--nuit);paint-order:stroke;font-size:.78em}
-#d{font:900 15px Rubik;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;line-height:1.2;
-  padding-left:16px;border-left:4px solid #E2DACB;display:none}
-#d.on{display:block}
+/* La date se déplie : largeur, marge et opacité, rien d'autre — c'est fluide même sur un petit PC. */
+#d{max-width:0;opacity:0;overflow:hidden;margin-left:0;
+  font:900 15px Rubik;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;line-height:1.2;
+  border-left:4px solid var(--ligne);padding-left:0;
+  transition:max-width .6s cubic-bezier(.2,1,.3,1),opacity .34s,margin .6s cubic-bezier(.2,1,.3,1),
+             padding .6s cubic-bezier(.2,1,.3,1),border-color .3s}
+#d.on{max-width:340px;opacity:1;margin-left:14px;padding-left:16px;transition-delay:.04s,.16s,0s,0s,0s}
+#p.droite #d{border-left:0;border-right:4px solid var(--ligne)}
+#p.droite #d.on{margin-left:0;margin-right:14px;padding-left:0;padding-right:16px}
+#d span{display:block;transform:translateY(8px);transition:transform .6s cubic-bezier(.2,1,.3,1)}
+#d.on span{transform:none;transition-delay:.12s}
 </style></head><body>
-<div id="p"><i id="pt"></i><div id="h"></div><div id="d"></div></div>
+<div id="p"><i id="pt"></i><div id="h"></div><div id="d"><span></span></div></div>
 <script>
 'use strict';
 const Q = new URLSearchParams(location.search);
 const JOURS = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
 const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 const d2 = (n) => String(n).padStart(2, '0');
-const p = document.getElementById('p'), pt = document.getElementById('pt');
-const h = document.getElementById('h'), dd = document.getElementById('d');
+const nb = (c, d) => (parseFloat(Q.get(c)) > 0 ? parseFloat(Q.get(c)) : d) * 1000;
 
-if (Q.get('date') === '1') dd.classList.add('on');
+const p = document.getElementById('p'), pt = document.getElementById('pt');
+const h = document.getElementById('h'), dd = document.getElementById('d'), dtxt = dd.firstElementChild;
+const CYCLE = nb('cycle', 90), OUVERT = nb('ouvert', 5);
+const date = Q.get('date');                       // '0' jamais, '1' toujours, sinon de temps en temps
+
+if (Q.get('droite') === '1') p.classList.add('droite');
 if (Q.get('pt') === '0') pt.style.display = 'none';
 const t = parseFloat(Q.get('taille'));
 if (t > 0) p.style.transform = `scale(${t})`;
@@ -41,10 +58,24 @@ if (t > 0) p.style.transform = `scale(${t})`;
 function battre() {
   const n = new Date();
   h.innerHTML = `${d2(n.getHours())}:${d2(n.getMinutes())}<s>:${d2(n.getSeconds())}</s>`;
-  dd.textContent = `${JOURS[n.getDay()]} ${n.getDate()} ${MOIS[n.getMonth()]}`;
+  dtxt.textContent = `${JOURS[n.getDay()]} ${n.getDate()} ${MOIS[n.getMonth()]}`;
   pt.classList.toggle('bas', n.getSeconds() % 2 === 1);
   // on se recale sur la seconde suivante : pas de dérive, même après des heures de live
   setTimeout(battre, 1000 - (n.getMilliseconds() % 1000) + 8);
 }
 battre();
+
+const dodo = (ms) => new Promise((f) => setTimeout(f, ms));
+async function montrerDate() {
+  if (date === '0') return;
+  if (date === '1') return dd.classList.add('on');
+  await dodo(3000);                               // on laisse l'heure s'installer avant le premier dépliage
+  for (;;) {
+    dd.classList.add('on');
+    await dodo(OUVERT);
+    dd.classList.remove('on');
+    await dodo(Math.max(3000, CYCLE - OUVERT));
+  }
+}
+montrerDate();
 </script></body></html>

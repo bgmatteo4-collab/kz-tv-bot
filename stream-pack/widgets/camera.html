@@ -1,0 +1,59 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Contour caméra</title><style>
+/* Le contour de la webcam : un anneau épais rempli du motif d'encre qui tourne lentement, parcouru par une
+   traînée de lumière miel. Le centre est vide : dans OBS, place ta caméra DESSOUS, cette source AU-DESSUS.
+   Source navigateur, à la taille de ta cam (par défaut 640 x 360, 16/9).
+   Options dans l'adresse :
+     ?l=480&h=270    la taille de ta caméra (le contour déborde de EPAISSEUR autour)
+     ?ep=24          l'épaisseur du contour en pixels
+     ?rond=1         contour rond (pour une cam en cercle) ; sinon coins arrondis
+     ?tour=50        secondes pour un tour complet de l'encre (plus grand = plus lent)
+     ?eclat=0        enlève la traînée de lumière, ne garde que l'encre
+*/
+:root{--nuit:#0F1519;--miel:#E0A93B;--papier:#F1ECE3}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent;overflow:hidden}
+#c{position:absolute;left:0;top:0;border-radius:var(--r);
+  /* le trou : la caméra se voit à travers */
+  box-shadow:0 0 0 3px var(--nuit) inset, 0 16px 40px rgba(5,8,10,.55);
+}
+/* L'anneau : deux calques tournants, découpés en couronne par le masque. */
+#anneau{position:absolute;inset:0;border-radius:var(--r);overflow:hidden;
+  -webkit-mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  padding:var(--ep)}
+#encre,#eclat{position:absolute;left:50%;top:50%;width:var(--d);height:var(--d);margin-left:calc(var(--d) / -2);
+  margin-top:calc(var(--d) / -2);border-radius:50%}
+#encre{background:url(encre.png) center/100% 100%;animation:tourne var(--tour) linear infinite}
+#eclat{background:conic-gradient(from 0deg,
+    transparent 0deg, transparent 240deg,
+    rgba(224,169,59,.0) 250deg, rgba(224,169,59,.85) 300deg, rgba(255,235,190,1) 318deg,
+    rgba(63,211,194,.8) 336deg, rgba(63,211,194,0) 352deg, transparent 360deg);
+  animation:tourne calc(var(--tour) / 4.5) linear infinite;mix-blend-mode:screen}
+@keyframes tourne{to{transform:rotate(360deg)}}
+/* Les deux filets nuit, dedans et dehors : la même finition sticker que le reste du pack. */
+#dehors{position:absolute;inset:0;border-radius:var(--r);border:4px solid var(--nuit);pointer-events:none}
+#dedans{position:absolute;inset:var(--ep);border-radius:calc(var(--r) - var(--ep));
+  border:4px solid var(--nuit);pointer-events:none}
+</style></head><body>
+<div id="c"><div id="anneau"><div id="encre"></div><div id="eclat"></div></div><div id="dehors"></div><div id="dedans"></div></div>
+<script>
+'use strict';
+const Q = new URLSearchParams(location.search);
+const n = (c, d) => (parseFloat(Q.get(c)) > 0 ? parseFloat(Q.get(c)) : d);
+const L = n('l', 640), H = n('h', 360), EP = n('ep', 24), TOUR = n('tour', 50);
+const rond = Q.get('rond') === '1';
+
+const c = document.getElementById('c');
+const s = c.style;
+s.width = L + EP * 2 + 'px';
+s.height = H + EP * 2 + 'px';
+s.setProperty('--ep', EP + 'px');
+s.setProperty('--r', rond ? '50%' : Math.round(Math.min(L, H) * 0.075 + EP) + 'px');
+s.setProperty('--tour', TOUR + 's');
+// le disque tournant doit couvrir toute la diagonale, sinon on verrait ses bords passer
+s.setProperty('--d', Math.ceil(Math.hypot(L + EP * 2, H + EP * 2) * 1.05) + 'px');
+if (Q.get('eclat') === '0') document.getElementById('eclat').remove();
+document.body.style.width = s.width;
+document.body.style.height = s.height;
+</script></body></html>

@@ -209,8 +209,11 @@ async function principal() {
     let cat = salonsDistants.find((c) => c.id === etat.categories[categorie.cle])
       ?? salonsDistants.find((c) => c.type === TYPE.categorie && c.name === categorie.nom);
     if (cat) {
-      fait(gris('='), 'catégorie');
-      if (!SIMULATION) await api('PATCH', `/channels/${cat.id}`, { permission_overwrites: permsCat }, 'Déploiement Kayzx TV');
+      fait(cat.name === categorie.nom ? gris('=') : vert('~'), 'catégorie');
+      if (!SIMULATION) {
+        await api('PATCH', `/channels/${cat.id}`,
+          { name: categorie.nom, permission_overwrites: permsCat }, 'Déploiement Kayzx TV');
+      }
     } else {
       fait(vert('+'), 'catégorie');
       if (!SIMULATION) {
@@ -292,9 +295,11 @@ async function poser(salon, categorie, cat, idRole, everyone, salonsDistants) {
     ?? salonsDistants.find((c) => c.parent_id === cat?.id && c.name === salon.nom.toLowerCase());
 
   if (existant) {
-    fait(gris('='), `  ${salon.nom}`);
+    const memeNom = existant.name === salon.nom.toLowerCase() || existant.name === salon.nom;
+    fait(memeNom ? gris('=') : vert('~'), `  ${salon.nom}`);
     if (!SIMULATION) {
       await api('PATCH', `/channels/${existant.id}`, {
+        name: salon.nom,
         permission_overwrites: perms,
         ...(attendu === TYPE.texte || attendu === TYPE.annonce ? { topic: salon.sujet } : {}),
       }, 'Déploiement Kayzx TV').catch((e) => console.log(gris('      ' + e.message)));

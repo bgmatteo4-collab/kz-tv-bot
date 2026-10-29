@@ -93,9 +93,9 @@ export const rolesInteret = [
  */
 export const categories = [
   {
-    cle: 'accueil', nom: '📌 ACCUEIL', univers: 'communaute', acces: 'tous',
+    cle: 'accueil', nom: '📌 ・ A C C U E I L', univers: 'communaute', acces: 'tous',
     salons: [
-      { cle: 'bienvenue', nom: 'bienvenue', type: 'texte', lectureSeule: true,
+      { cle: 'bienvenue', nom: '👋・bienvenue', type: 'texte', lectureSeule: true,
         sujet: 'Commence ici.',
         carte: {
           intro: 'Bienvenue sur le Discord de **Kayzx TV**. Ici on suit les lives, on regarde les matchs ensemble et on joue.',
@@ -108,7 +108,7 @@ export const categories = [
           note: 'Le bouton ci-dessous débloque tout le serveur.',
           bouton: { texte: 'J\'ai lu le règlement', donne: 'membre' },
         } },
-      { cle: 'reglement', nom: 'règlement', type: 'texte', lectureSeule: true,
+      { cle: 'reglement', nom: '📜・règlement', type: 'texte', lectureSeule: true,
         sujet: 'Six règles, et elles tiennent sur une carte.',
         carte: {
           intro: 'Six règles. Elles valent pour tout le monde, à toute heure.',
@@ -122,7 +122,7 @@ export const categories = [
           ],
           note: 'Un rappel, puis une exclusion temporaire, puis un bannissement. C\'est aussi simple que ça.',
         } },
-      { cle: 'annonces', nom: 'annonces', type: 'annonce', lectureSeule: true, botSeul: true,
+      { cle: 'annonces', nom: '📣・annonces', type: 'annonce', lectureSeule: true, botSeul: true,
         sujet: 'Tout l\'officiel, publié par la chaîne.',
         carte: {
           intro: 'Les annonces officielles de **Kayzx TV**. Publiées par la chaîne, jamais par un particulier.',
@@ -132,7 +132,7 @@ export const categories = [
           ],
           ailleurs: [['En discuter', '#general'], ['Le calendrier', '#programme']],
         } },
-      { cle: 'lesRoles', nom: 'les-rôles', type: 'texte', lectureSeule: true,
+      { cle: 'lesRoles', nom: '🎭・les-rôles', type: 'texte', lectureSeule: true,
         sujet: 'Choisis ce dont tu veux être prévenu.',
         carte: {
           intro: 'Choisis tes rôles. Ils décident de **ce dont tu es prévenu** et de ce qu\'on te propose.',
@@ -143,7 +143,7 @@ export const categories = [
           ],
           note: 'Les menus sont juste en dessous.',
         } },
-      { cle: 'liens', nom: 'liens', type: 'texte', lectureSeule: true,
+      { cle: 'liens', nom: '🔗・liens', type: 'texte', lectureSeule: true,
         sujet: 'Twitch, YouTube, TikTok, X.',
         carte: {
           intro: 'Tous les endroits où retrouver **Kayzx TV**.',
@@ -158,9 +158,9 @@ export const categories = [
   },
 
   {
-    cle: 'communaute', nom: '💬 LA COMMUNAUTÉ', univers: 'communaute', acces: 'membre',
+    cle: 'communaute', nom: '💬 ・ L A  C O M M U N A U T É', univers: 'communaute', acces: 'membre',
     salons: [
-      { cle: 'general', nom: 'général', type: 'texte', sujet: 'La discussion principale.',
+      { cle: 'general', nom: '🗨️・général', type: 'texte', sujet: 'La discussion principale.',
         carte: {
           intro: 'Le salon principal. Tout ce qui ne va nulle part ailleurs va **ici**.',
           regles: [
@@ -170,7 +170,7 @@ export const categories = [
           ],
           ailleurs: [['Hors-sujet', '#détente'], ['Un clip', '#clips'], ['Une idée', '#suggestions']],
         } },
-      { cle: 'detente', nom: 'détente', type: 'texte', sujet: 'Hors-sujet, photos, mèmes.',
+      { cle: 'detente', nom: '🛋️・détente', type: 'texte', sujet: 'Hors-sujet, photos, mèmes.',
         carte: {
           intro: 'Le hors-sujet assumé : photos, mèmes, musique, ce que tu veux.',
           regles: [
@@ -180,7 +180,7 @@ export const categories = [
           ],
           ailleurs: [['Parler du live', '#general'], ['Un clip du live', '#clips']],
         } },
-      { cle: 'clips', nom: 'clips', type: 'texte', sujet: 'Les meilleurs moments du live.',
+      { cle: 'clips', nom: '🎬・clips', type: 'texte', sujet: 'Les meilleurs moments du live.',
         carte: {
           intro: 'Les meilleurs moments du live, repérés par **vous**.',
           regles: [
@@ -191,7 +191,7 @@ export const categories = [
           ailleurs: [['Discuter du live', '#general'], ['Un souci', '#tickets']],
           note: 'Tu ne sais pas clipper ? Tape **/aide clips**, je te montre en dix secondes.',
         } },
-      { cle: 'suggestions', nom: 'suggestions', type: 'texte', sujet: 'Tes idées pour la chaîne et le serveur.',
+      { cle: 'suggestions', nom: '💡・suggestions', type: 'texte', sujet: 'Tes idées pour la chaîne et le serveur.',
         carte: {
           intro: 'Une idée pour la chaîne ou pour le serveur ? Pose-la ici, elle sera lue.',
           regles: [
@@ -201,7 +201,7 @@ export const categories = [
           ],
           ailleurs: [['Les idées retenues', '#annonces'], ['Un problème à signaler', '#tickets']],
         } },
-      { cle: 'vocalTexte', nom: 'vocal-texte', type: 'texte', sujet: 'Le fil texte des vocaux.',
+      { cle: 'vocalTexte', nom: '⌨️・vocal-texte', type: 'texte', sujet: 'Le fil texte des vocaux.',
         carte: {
           intro: 'Le salon texte qui accompagne les vocaux : liens, images, pseudos à ajouter.',
           regles: [
@@ -214,9 +214,9 @@ export const categories = [
   },
 
   {
-    cle: 'direct', nom: '📺 LE DIRECT', univers: 'direct', acces: 'membre',
+    cle: 'direct', nom: '📺 ・ L E  D I R E C T', univers: 'direct', acces: 'membre',
     salons: [
-      { cle: 'live', nom: 'live', type: 'texte', lectureSeule: true, botSeul: true,
+      { cle: 'live', nom: '🔴・live', type: 'texte', lectureSeule: true, botSeul: true,
         sujet: 'Le live démarre ici.',
         carte: {
           intro: 'Le bot annonce ici **chaque démarrage de live**, avec le titre et la miniature.',
@@ -226,7 +226,7 @@ export const categories = [
           ],
           ailleurs: [['Réagir pendant le live', '#general'], ['Pendant un match', '#tribune']],
         } },
-      { cle: 'tribune', nom: 'tribune', type: 'texte', sujet: 'Le chat pendant la diffusion.',
+      { cle: 'tribune', nom: '🗣️・tribune', type: 'texte', sujet: 'Le chat pendant la diffusion.',
         carte: {
           intro: 'Le salon de réaction pendant la diffusion. Ça va vite, c\'est **normal**.',
           regles: [
@@ -236,7 +236,7 @@ export const categories = [
           ],
           ailleurs: [['Parler au micro', 'Le Plateau'], ['Analyse à froid', '#résultats']],
         } },
-      { cle: 'programme', nom: 'programme', type: 'texte', lectureSeule: true,
+      { cle: 'programme', nom: '📅・programme', type: 'texte', lectureSeule: true,
         sujet: 'Le calendrier des lives et des matchs.',
         carte: {
           intro: 'Le calendrier : lives, matchs de **Ligue 1**, cartes **MMA** et grands rendez-vous.',
@@ -247,7 +247,7 @@ export const categories = [
           ailleurs: [['Être prévenu', '#les-rôles'], ['Regarder', 'Le Plateau']],
           note: 'Les horaires peuvent bouger : le changement est toujours annoncé.',
         } },
-      { cle: 'resultats', nom: 'résultats', type: 'texte', lectureSeule: true,
+      { cle: 'resultats', nom: '📊・résultats', type: 'texte', lectureSeule: true,
         sujet: 'Les résumés d\'après-match.',
         carte: {
           intro: 'Le résumé de chaque match diffusé, posté après le coup de sifflet.',
@@ -257,7 +257,7 @@ export const categories = [
           ],
           ailleurs: [['Réagir en direct', '#tribune'], ['Le prochain match', '#programme']],
         } },
-      { cle: 'plateau', nom: 'Le Plateau', type: 'conference',
+      { cle: 'plateau', nom: '🎙️ Le Plateau', type: 'conference',
         sujet: 'La diffusion commentée.',
         carte: {
           intro: 'Le vocal de diffusion. On regarde le match **ensemble**, commenté en direct.',
@@ -269,7 +269,7 @@ export const categories = [
           ailleurs: [['Réagir', '#tribune'], ['Le calendrier', '#programme'], ['Les résumés', '#résultats']],
           note: 'Football, MMA et les grands rendez-vous. Le programme de la semaine : **/programme**.',
         } },
-      { cle: 'loge', nom: 'La Loge', type: 'vocal', acces: 'staff',
+      { cle: 'loge', nom: '🎧 La Loge', type: 'vocal', acces: 'staff',
         sujet: 'Avant et après la diffusion.',
         carte: {
           intro: 'Le vocal fermé des intervenants : on se cale avant, on débriefe après.',
@@ -283,9 +283,9 @@ export const categories = [
   },
 
   {
-    cle: 'gaming', nom: '🎮 GAMING', univers: 'gaming', acces: 'membre',
+    cle: 'gaming', nom: '🎮 ・ G A M I N G', univers: 'gaming', acces: 'membre',
     salons: [
-      { cle: 'jeux', nom: 'jeux', type: 'texte', sujet: 'Discussion jeux.',
+      { cle: 'jeux', nom: '🕹️・jeux', type: 'texte', sujet: 'Discussion jeux.',
         carte: {
           intro: 'Les jeux : sorties, bons plans, sessions à organiser.',
           regles: [
@@ -294,7 +294,7 @@ export const categories = [
           ],
           ailleurs: [['Chercher des joueurs', '#recherche-équipe'], ['Lancer un vocal', 'Créer un vocal']],
         } },
-      { cle: 'rechercheEquipe', nom: 'recherche-équipe', type: 'texte', sujet: 'Trouver des joueurs.',
+      { cle: 'rechercheEquipe', nom: '🔍・recherche-équipe', type: 'texte', sujet: 'Trouver des joueurs.',
         carte: {
           intro: 'Tu cherches des joueurs ? C\'est **ici**, et nulle part ailleurs.',
           regles: [
@@ -316,7 +316,7 @@ export const categories = [
           ailleurs: [['Chercher des joueurs', '#recherche-équipe'], ['Regarder un match', 'Le Plateau']],
           note: 'Règle ton salon avec **/vocal** : nom, nombre de places, verrouillage.',
         } },
-      { cle: 'salonCommun', nom: 'Salon commun', type: 'vocal',
+      { cle: 'salonCommun', nom: '🔊 Salon commun', type: 'vocal',
         sujet: 'Le vocal toujours ouvert.',
         carte: {
           intro: 'Le vocal permanent. Entre, même s\'il est vide : c\'est comme ça qu\'il se remplit.',
@@ -330,9 +330,9 @@ export const categories = [
   },
 
   {
-    cle: 'support', nom: '🎟️ SUPPORT', univers: 'communaute', acces: 'membre',
+    cle: 'support', nom: '🎟️ ・ S U P P O R T', univers: 'communaute', acces: 'membre',
     salons: [
-      { cle: 'tickets', nom: 'tickets', type: 'texte', lectureSeule: true,
+      { cle: 'tickets', nom: '📩・tickets', type: 'texte', lectureSeule: true,
         sujet: 'Ouvrir un ticket avec le staff.',
         carte: {
           intro: 'Un souci avec un membre, une question pour le staff, un problème technique ?',
@@ -348,9 +348,9 @@ export const categories = [
   },
 
   {
-    cle: 'staff', nom: '🛠️ STAFF', univers: 'staff', acces: 'staff',
+    cle: 'staff', nom: '🛠️ ・ S T A F F', univers: 'staff', acces: 'staff',
     salons: [
-      { cle: 'bureau', nom: 'bureau', type: 'texte', sujet: 'La coordination de l\'équipe.',
+      { cle: 'bureau', nom: '🗂️・bureau', type: 'texte', sujet: 'La coordination de l\'équipe.',
         carte: {
           intro: 'La coordination de l\'équipe. Les décisions se prennent **ici**, jamais en privé.',
           commandes: [
@@ -362,7 +362,7 @@ export const categories = [
           ailleurs: [['Signalements', '#tickets'], ['Journal', '#traces'], ['Un doute', 'on en parle avant d\'agir']],
           note: 'Une sanction contestée se rediscute ici, à froid. On ne revient jamais sur la décision d\'un modo devant la communauté.',
         } },
-      { cle: 'decisions', nom: 'décisions', type: 'texte', sujet: 'Ce qui est acté, et pourquoi.',
+      { cle: 'decisions', nom: '⚖️・décisions', type: 'texte', sujet: 'Ce qui est acté, et pourquoi.',
         carte: {
           intro: 'La mémoire de l\'équipe : ce qui a été décidé, et **pourquoi**.',
           regles: [
@@ -371,7 +371,7 @@ export const categories = [
           ],
           ailleurs: [['En débattre', '#bureau'], ['L\'annoncer', '#régie']],
         } },
-      { cle: 'signalements', nom: 'signalements', type: 'texte', sujet: 'Tickets et transcriptions.',
+      { cle: 'signalements', nom: '🚨・signalements', type: 'texte', sujet: 'Tickets et transcriptions.',
         carte: {
           intro: 'Les tickets remontés et les transcriptions des salons fermés.',
           commandes: [
@@ -380,7 +380,7 @@ export const categories = [
           ],
           ailleurs: [['Décider', '#bureau'], ['Le journal', '#traces']],
         } },
-      { cle: 'regie', nom: 'régie', type: 'texte', sujet: 'Préparer ce qui sera publié.',
+      { cle: 'regie', nom: '🎛️・régie', type: 'texte', sujet: 'Préparer ce qui sera publié.',
         carte: {
           intro: 'Tout ce qui sera publié passe **d\'abord ici**.',
           commandes: [
@@ -392,7 +392,7 @@ export const categories = [
           ailleurs: [['Le calendrier', '#programme'], ['La diffusion', 'Le Plateau']],
           note: 'Une annonce engage la chaîne : on la relit à deux.',
         } },
-      { cle: 'traces', nom: 'traces', type: 'journal', sujet: 'Journal de modération.',
+      { cle: 'traces', nom: '📋・traces', type: 'journal', sujet: 'Journal de modération.',
         carte: {
           intro: 'Chaque sanction : qui, quand, pourquoi, par qui.',
           regles: [
@@ -401,7 +401,7 @@ export const categories = [
           ],
           ailleurs: [['Le passé d\'un membre', '/historique'], ['En discuter', '#bureau']],
         } },
-      { cle: 'mouvements', nom: 'mouvements', type: 'journal', sujet: 'Arrivées, départs, pseudos.',
+      { cle: 'mouvements', nom: '🚪・mouvements', type: 'journal', sujet: 'Arrivées, départs, pseudos.',
         carte: {
           intro: 'Arrivées, départs, changements de pseudo et d\'avatar.',
           regles: [
@@ -410,7 +410,7 @@ export const categories = [
           ],
           ailleurs: [['Agir', '#bureau'], ['Les sanctions', '#traces']],
         } },
-      { cle: 'messages', nom: 'messages', type: 'journal', sujet: 'Messages supprimés et édités.',
+      { cle: 'messages', nom: '🗑️・messages', type: 'journal', sujet: 'Messages supprimés et édités.',
         carte: {
           intro: 'Les messages supprimés et édités, avec leur contenu d\'origine.',
           regles: [
@@ -419,7 +419,7 @@ export const categories = [
           ],
           ailleurs: [['Le signalement', '#signalements'], ['Décider', '#bureau']],
         } },
-      { cle: 'reunion', nom: 'Réunion', type: 'vocal', sujet: 'Le vocal du staff.',
+      { cle: 'reunion', nom: '🤝 Réunion', type: 'vocal', sujet: 'Le vocal du staff.',
         carte: {
           intro: 'Le vocal de l\'équipe. Fermé, et il le reste.',
           regles: [

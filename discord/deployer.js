@@ -29,9 +29,9 @@ for (const ligne of (existsSync(join(ICI, '.env')) ? readFileSync(join(ICI, '.en
 }
 
 const TOKEN = process.env.DISCORD_TOKEN;
-const ID_SERVEUR = process.env.SERVEUR_ID;
-if (!TOKEN || !ID_SERVEUR) {
-  console.error(rouge('\n  Configuration absente.\n') +
+const ID_SERVEUR = process.env.SERVEUR_ID || serveur.id;
+if (!TOKEN) {
+  console.error(rouge('\n  Token absent.\n') +
     '  Lance d\'abord « CONFIGURER.command » (ou : node configurer.js).\n');
   process.exit(1);
 }

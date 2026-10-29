@@ -33,6 +33,9 @@ export const univers = {
 
 export const serveur = {
   nom: 'Kayzx TV',
+  // Publics tous les deux : ils n'ouvrent aucun accès, seul le token en donne.
+  id: '1565430915746762923',            // le serveur Discord
+  application: '1565431264855466074',   // l'application du bot
   // Le salon où Discord envoie ses propres messages système (arrivées, boosts).
   salonSysteme: 'bienvenue',
   salonRegles: 'reglement',

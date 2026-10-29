@@ -11,6 +11,7 @@ import { createInterface } from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
 import { writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
+import { serveur } from './serveur.config.js';
 import { fileURLToPath } from 'node:url';
 
 const ICI = dirname(fileURLToPath(import.meta.url));
@@ -64,7 +65,7 @@ async function demander(question, { secret = false, valider } = {}) {
 console.log(`
 ${gras('Configuration du bot Kayzx TV')}
 
-  Deux informations à donner. Elles restent sur cet ordinateur.
+  Une seule information à donner. Elle reste sur cet ordinateur.
 `);
 
 if (existsSync(FICHIER)) {
@@ -76,21 +77,25 @@ if (existsSync(FICHIER)) {
   }
 }
 
-console.log(gras('  1. Le token du bot'));
+console.log(gras('  Une seule chose à donner : le token du bot.'));
 console.log('     Portail Discord → ton application → onglet Bot → Reset Token.');
 console.log('     Il ne s\'affiche qu\'une fois : copie-le avant de fermer la page.\n');
 const token = await demander('  Colle le token ici : ', { secret: true, valider: verifierToken });
 console.log(`  ${vert('✓')} Bot reconnu : ${gras(token.nom)}\n`);
 
-console.log(gras('  2. L\'identifiant du serveur'));
-console.log('     Dans Discord : Paramètres utilisateur → Avancés → Mode développeur.');
-console.log('     Puis clic droit sur le nom de ton serveur → Copier l\'identifiant.\n');
-const serveur = await demander('  Colle l\'identifiant ici : ', {
-  valider: (id) => verifierServeur(token.valeur, id),
-});
-console.log(`  ${vert('✓')} Serveur trouvé : ${gras(serveur.nom)}\n`);
+const serveurVerifie = await (async () => {
+  process.stdout.write(`  Vérification du serveur ${gras(serveur.nom)}… `);
+  const v = await verifierServeur(token.valeur, serveur.id);
+  if (v.ok) { console.log(vert('ok')); return v; }
+  console.log(rouge('échec'));
+  console.log(rouge('  ' + v.raison));
+  console.log('  Le bot a-t-il bien été invité sur le serveur ?\n');
+  lire.close();
+  process.exit(1);
+})();
+console.log(`  ${vert('✓')} Serveur trouvé : ${gras(serveurVerifie.nom)}\n`);
 
-console.log(gras('  3. Twitch') + ' (facultatif — pour annoncer tes lives)');
+console.log(gras('  Twitch') + ' (facultatif — pour annoncer tes lives)');
 console.log('     dev.twitch.tv/console/apps → Register Your Application.');
 console.log('     Laisse vide et appuie sur Entrée pour passer.\n');
 const twitchId = (await lire.question('  Client ID Twitch : ')).trim();
@@ -100,7 +105,7 @@ const twitchChaine = twitchId ? (await lire.question('  Nom de ta chaîne Twitch
 writeFileSync(FICHIER, [
   '# Écrit par configurer.js — ne jamais partager ce fichier, ni le mettre sur GitHub.',
   `DISCORD_TOKEN=${token.valeur}`,
-  `SERVEUR_ID=${serveur.valeur}`,
+  `SERVEUR_ID=${serveur.id}`,
   twitchId ? `TWITCH_CLIENT_ID=${twitchId}` : '',
   twitchSecret ? `TWITCH_CLIENT_SECRET=${twitchSecret}` : '',
   twitchChaine ? `TWITCH_CHAINE=${twitchChaine}` : '',

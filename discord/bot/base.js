@@ -56,3 +56,22 @@ export function duree(texte) {
 }
 
 export const leJour = (d = new Date()) => `<t:${Math.floor(d.getTime() / 1000)}:f>`;
+
+/** Le contenu actuel, prêt à être envoyé comme pièce jointe. */
+export const exporter = () => Buffer.from(JSON.stringify(donnees, null, 2));
+
+/**
+ * Remplace la mémoire par une sauvegarde. On écrase clé par clé plutôt que de réaffecter
+ * l'objet, pour que les modules qui l'ont déjà importé voient le changement.
+ */
+export function restaurer(objet) {
+  for (const cle of Object.keys(donnees)) delete donnees[cle];
+  Object.assign(donnees, structuredClone(VIDE), objet);
+  sauver();
+}
+
+/** Vrai si rien n'a jamais été écrit : sert à décider s'il faut aller chercher une sauvegarde. */
+export const estVide = () => !Object.keys(donnees.sanctions).length
+  && !Object.keys(donnees.arrivees).length
+  && !Object.keys(donnees.xp).length
+  && !donnees.programme.length;

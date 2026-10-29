@@ -1,8 +1,10 @@
 # Le token et les identifiants. Ne doivent jamais partir sur GitHub.
 .env
 node_modules/
-# L'état du déploiement est propre à un serveur : il reste sur la machine.
-etat.json
+# etat.json EST versionné : il fait le lien entre la configuration et les identifiants
+# réels des salons et des rôles. Sans lui le bot ne sait pas où écrire, et l'hébergeur qui
+# clone le dépôt ne l'aurait pas. Il ne contient aucun secret, seulement des identifiants
+# que n'importe quel membre du serveur peut lire.
 cartes/rendu/
 cartes/cartes.html
 bot/donnees.json

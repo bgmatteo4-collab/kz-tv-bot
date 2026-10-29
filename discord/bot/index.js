@@ -8,15 +8,15 @@
  * ponctuel et vit dans deployer.js.
  */
 import {
-  Client, Events, GatewayIntentBits, Partials, EmbedBuilder, ActionRowBuilder,
-  ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ChannelType,
+  Client, Events, GatewayIntentBits, Partials, Options, EmbedBuilder, ActionRowBuilder,
+  ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ChannelType, AttachmentBuilder,
   PermissionFlagsBits as P, MessageFlags,
 } from 'discord.js';
 import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { couleurs, rolesNotification, rolesInteret, serveur, categories } from '../serveur.config.js';
-import { donnees, sauver } from './base.js';
+import { donnees, sauver, exporter, restaurer, estVide } from './base.js';
 import { salonDe, roleDe } from './identifiants.js';
 import * as actions from './actions.js';
 
@@ -44,6 +44,26 @@ const client = new Client({
     GatewayIntentBits.GuildPresences,
   ],
   partials: [Partials.Message, Partials.Channel, Partials.GuildMember],
+
+  // L'hébergement gratuit donne 256 Mo : sans bornes, discord.js garde tout en mémoire et
+  // finit par se faire tuer. On garde ce qui sert, on jette le reste.
+  makeCache: Options.cacheWithLimits({
+    ...Options.DefaultMakeCacheSettings,
+    MessageManager: 100,          // assez pour journaliser un message supprimé récent
+    ReactionManager: 0,
+    ThreadManager: 0,
+    GuildScheduledEventManager: 0,
+    AutoModerationRuleManager: 0,
+    GuildInviteManager: 0,
+    GuildEmojiManager: 0,
+    StageInstanceManager: 0,
+    // Les membres et les présences restent : la modération et la détection du jeu en cours
+    // en dépendent directement.
+  }),
+  sweepers: {
+    messages: { interval: 600, lifetime: 1800 },
+    users: { interval: 3600, filter: () => (u) => u.bot && u.id !== client.user?.id },
+  },
 });
 
 const journal = async (cle, embed) => {
@@ -55,11 +75,59 @@ const journal = async (cle, embed) => {
 
 client.once(Events.ClientReady, async () => {
   console.log(`\n  ${client.user.tag} est en ligne.`);
+  await recupererSauvegarde();
   await poserMenus();
   await actions.publierProgramme(client);
   setInterval(cloturerSondages, 60_000);
-  console.log('  Menus posés, sondages surveillés.\n');
+  setInterval(sauvegarder, 6 * 3_600_000);
+  await sauvegarder();
+  console.log('  Menus posés, sondages surveillés, sauvegarde en place.\n');
 });
+
+/* ---------- Le filet de sécurité des données ----------
+   L'hébergement gratuit ne garantit pas que les fichiers survivent à un redémarrage, et
+   perdre l'historique des sanctions serait grave. On garde donc une copie dans un message
+   du salon des traces : Discord devient le disque de secours. Un seul message, modifié,
+   pour ne pas noyer le journal. */
+
+const MARQUE = 'Sauvegarde des données';
+
+async function messageDeSauvegarde() {
+  const s = await client.channels.fetch(salonDe('traces')).catch(() => null);
+  if (!s) return null;
+  const derniers = await s.messages.fetch({ limit: 50 }).catch(() => null);
+  const mien = derniers?.find((m) => m.author.id === client.user.id
+    && m.embeds[0]?.title === MARQUE);
+  return { salon: s, message: mien ?? null };
+}
+
+async function sauvegarder() {
+  const trouve = await messageDeSauvegarde();
+  if (!trouve) return;
+  const charge = {
+    embeds: [new EmbedBuilder().setColor(couleurs.nuit).setTitle(MARQUE)
+      .setDescription('Copie de secours, remplacée à chaque fois. Ne pas supprimer : '
+        + 'c\'est elle qui restaure l\'historique si l\'hébergeur perd ses fichiers.')
+      .setTimestamp()],
+    files: [new AttachmentBuilder(exporter(), { name: 'donnees.json' })],
+  };
+  if (trouve.message) await trouve.message.edit(charge).catch(() => {});
+  else await trouve.salon.send(charge).catch(() => {});
+}
+
+async function recupererSauvegarde() {
+  if (!estVide()) return;                       // on a déjà des données sur place
+  const trouve = await messageDeSauvegarde();
+  const piece = trouve?.message?.attachments?.first();
+  if (!piece) return;
+  try {
+    const reponse = await fetch(piece.url);
+    restaurer(await reponse.json());
+    console.log('  Données restaurées depuis la sauvegarde Discord.');
+  } catch (e) {
+    console.error('  Restauration impossible :', e.message);
+  }
+}
 
 /** Les menus de rôles : posés une fois, mis à jour ensuite plutôt que repostés. */
 async function poserMenus() {

@@ -83,3 +83,39 @@ export const combiner = (...bits) => bits.reduce((a, b) => a | b, 0n);
 
 /** Les types de salon, côté Discord. */
 export const TYPE = { texte: 0, vocal: 2, categorie: 4, annonce: 5, conference: 13 };
+
+/**
+ * Envoi d'un fichier : Discord exige du multipart, pas du JSON.
+ * Le corps JSON voyage dans le champ payload_json, l'image dans files[0].
+ */
+export async function apiFichier(methode, chemin, charge, fichier, raison) {
+  const formulaire = new FormData();
+  formulaire.append('payload_json', JSON.stringify(charge));
+  if (fichier) {
+    formulaire.append('files[0]', new Blob([fichier.donnees], { type: 'image/png' }), fichier.nom);
+  }
+  for (let essai = 0; essai < 5; essai += 1) {
+    const r = await fetch('https://discord.com/api/v10' + chemin, {
+      method: methode,
+      headers: {
+        ...(process.env.DISCORD_TOKEN ? { Authorization: `Bot ${process.env.DISCORD_TOKEN}` } : {}),
+        ...(raison ? { 'X-Audit-Log-Reason': encodeURIComponent(raison) } : {}),
+      },
+      body: formulaire,
+    });
+    if (r.status === 429) {
+      const d = await r.json().catch(() => ({ retry_after: 2 }));
+      await new Promise((x) => setTimeout(x, Math.ceil((d.retry_after ?? 2) * 1000) + 200));
+      continue;
+    }
+    const texte = await r.text();
+    const donnees = texte ? JSON.parse(texte) : null;
+    if (!r.ok) {
+      const e = new Error(`${methode} ${chemin} → ${r.status} ${donnees?.message ?? ''}`);
+      e.statut = r.status; e.detail = donnees;
+      throw e;
+    }
+    return donnees;
+  }
+  throw new Error(`${methode} ${chemin} : Discord limite le rythme, abandon.`);
+}

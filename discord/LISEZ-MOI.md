@@ -58,9 +58,30 @@ jour au lieu de dupliquer. Renommer un salon à la main dans Discord ne le casse
 | `serveur.config.js` | La description du serveur. Le seul fichier à modifier. |
 | `deployer.js` | Construit le serveur. `--verifier` montre sans rien faire. |
 | `configurer.js` | L'assistant qui enregistre le token. |
-| `cartes/` | Les gabarits d'images postées en tête de salon. |
+| `cartes/gabarit.js` | Le dessin des cartes : la configuration entre, du HTML sort. |
+| `cartes/generer.js` | Rend les 29 cartes en PNG. Demande Playwright. |
+| `poser-cartes.js` | Publie les cartes dans les salons et les épingle. |
 | `*.command` | Les lanceurs à double-cliquer sur Mac. |
 | `ARCHITECTURE.md` | Le document de conception, en français. |
+
+## Les cartes de salon
+
+```sh
+node cartes/generer.js     # dessine les 29 images dans cartes/rendu/
+node poser-cartes.js       # les publie et les épingle
+```
+
+Les images ne sont pas versionnées : elles se régénèrent à partir de la configuration, et
+les garder dans le dépôt y accumulerait 26 Mo à chaque correction de texte. Le rendu demande
+Playwright (`npm install playwright`) ; la publication, elle, ne demande rien.
+
+L'identifiant de chaque carte est retenu dans `etat.json` : au second passage, le message
+existant est **modifié** au lieu d'être reposté. On corrige donc un texte sans que le salon
+se remplisse de versions successives.
+
+Le générateur refuse de livrer une carte dont le texte déborde du cadre, et dit laquelle
+raccourcir. Au-delà de quatre règles, il bascule tout seul sur une mise en page à deux
+colonnes — c'est ce qui permet au règlement d'en tenir six.
 
 ## L'ordre de déploiement
 

@@ -1,14 +1,5 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Cartes de salon — Kayzx TV</title><style>
-/* Cartes de salon Discord. Même langage que les panneaux Twitch : carte papier, contour nuit,
-   ombre portée pleine, bandeau d'encre en tête, Rubik Black.
-
-   Format 16/9 (1600x900) : Discord plafonne la hauteur d'affichage à ~350 px, donc une carte
-   portrait est réduite et devient illisible. En paysage, elle occupe toute la largeur du message.
-
-   Un univers = une couleur de bandeau. Le motif d'encre est posé en soft-light par-dessus la
-   couleur : il garde sa texture en prenant la teinte de la catégorie.
-   Les accents du corps restent teal partout, même sur bandeau miel : le miel sur papier ne
-   passerait pas le contraste. C'est le bandeau qui porte la couleur, pas le texte. */
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<title>Cartes de salon — Kayzx TV</title><style>
 @font-face{font-family:Rubik;src:url(polices/Rubik-1.ttf)}
 @font-face{font-family:Rubik;font-weight:500;src:url(polices/Rubik-2.ttf)}
 @font-face{font-family:Rubik;font-weight:900;src:url(polices/Rubik-3.ttf)}
@@ -17,176 +8,680 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:transparent;font-family:Rubik,sans-serif}
 .cadre{padding:44px;width:1688px}
-
 .p{width:1600px;height:900px;background:var(--papier);border:14px solid var(--nuit);border-radius:52px;
    overflow:hidden;box-shadow:0 24px 0 rgba(15,21,25,.85);position:relative;display:flex;flex-direction:column}
-.p.u-teal  {--cat:#1E5B57}
-.p.u-miel  {--cat:#E0A93B}
-.p.u-corail{--cat:#B9533F}
-.p.u-chene {--cat:#8A5A36}
-
-/* Bandeau : couleur de l'univers + le motif d'encre du pack, en soft-light */
-.tete{height:168px;background:var(--cat);display:flex;align-items:center;gap:30px;padding:0 44px 0 50px;
+.p.u-communaute{--cat:#1E5B57}
+.p.u-direct    {--cat:#E0A93B}
+.p.u-gaming    {--cat:#8A5A36}
+.p.u-staff     {--cat:#B9533F}
+.tete{height:168px;background:var(--cat);display:flex;align-items:center;gap:28px;padding:0 44px 0 48px;
       border-bottom:14px solid var(--nuit);position:relative;flex:none}
 .tete .fond{position:absolute;inset:0;background:url(img/fond-banniere.png) 28% 42%/1700px auto;
             mix-blend-mode:soft-light}
 .tete:before{content:"";position:absolute;inset:0;
              background:linear-gradient(90deg,rgba(15,21,25,.60),rgba(15,21,25,.10))}
-.u-miel .tete:before{background:linear-gradient(90deg,rgba(241,236,227,.40),rgba(241,236,227,.02))}
-
-.tete .diese{position:relative;font:900 86px Rubik;color:var(--teal-n);line-height:1;flex:none;
-             text-shadow:0 4px 0 rgba(15,21,25,.6)}
-.tete .glyphe{position:relative;width:82px;height:82px;flex:none;color:var(--teal-n);
-              filter:drop-shadow(0 4px 0 rgba(15,21,25,.5))}
-.tete b{position:relative;font:900 66px Rubik;color:var(--papier);letter-spacing:-1px;
-        text-shadow:0 4px 12px rgba(0,0,0,.6)}
-.u-miel .tete .diese,.u-miel .tete .glyphe{color:var(--nuit);text-shadow:0 4px 0 rgba(241,236,227,.45);filter:none}
-.u-miel .tete b{color:var(--nuit);text-shadow:0 3px 10px rgba(241,236,227,.55)}
-
-.vignette{position:relative;margin-left:auto;width:108px;height:108px;border-radius:26px;flex:none;
+.u-direct .tete:before{background:linear-gradient(90deg,rgba(241,236,227,.40),rgba(241,236,227,.02))}
+.tete .glyphe{position:relative;font-size:76px;line-height:1;flex:none;
+              filter:drop-shadow(0 4px 6px rgba(15,21,25,.5))}
+.tete b{position:relative;font:900 62px Rubik;color:var(--papier);letter-spacing:-1px;
+        text-shadow:0 4px 12px rgba(0,0,0,.6);white-space:nowrap}
+.tete .marque{position:relative;margin-left:auto;font:900 24px Rubik;color:var(--miel);
+              letter-spacing:4px;flex:none;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.u-direct .tete b{color:var(--nuit);text-shadow:0 3px 10px rgba(241,236,227,.55)}
+.u-direct .tete .marque{color:var(--nuit)}
+.vignette{position:relative;margin-left:24px;width:104px;height:104px;border-radius:26px;flex:none;
           border:5px solid var(--papier);object-fit:cover;box-shadow:0 5px 14px rgba(0,0,0,.45)}
-
-.corps{flex:1;display:flex;gap:46px;padding:40px 50px 44px;min-height:0}
+.corps{flex:1;display:flex;gap:44px;padding:38px 48px 42px;min-height:0}
 .col{display:flex;flex-direction:column;min-width:0}
 .gauche{flex:1.18}
 .droite{flex:.82}
-
+.droite.suite{flex:1}
+.droite.suite .regle:first-of-type{margin-top:0;border-top:0;padding-top:0}
 .intro{font:500 42px/1.30 Rubik;color:var(--nuit)}
 .intro em{font-style:normal;font-weight:900;color:var(--teal)}
-
-.regle{display:flex;gap:24px;align-items:flex-start;padding:18px 0;border-top:6px solid var(--ligne)}
-.regle:first-of-type{margin-top:18px}
-.num{width:64px;height:64px;border-radius:50%;background:var(--teal);color:var(--papier);
-     font:900 32px/64px Rubik;text-align:center;flex:none;border:6px solid var(--nuit)}
+.regle{display:flex;gap:24px;align-items:flex-start;padding:17px 0;border-top:6px solid var(--ligne)}
+.regle:first-of-type{margin-top:16px}
+.num{width:62px;height:62px;border-radius:50%;background:var(--teal);color:var(--papier);
+     font:900 30px/62px Rubik;text-align:center;flex:none;border:6px solid var(--nuit)}
 .regle.non .num{background:var(--corail)}
 .regle.plus .num{background:var(--miel);color:var(--nuit)}
-.regle b{display:block;font:900 36px Rubik;color:var(--nuit);margin-bottom:4px}
-.regle span{font:500 31px/1.25 Rubik;color:var(--gris)}
-
-/* Commandes : la pastille des panneaux Twitch, reprise telle quelle */
-.cmd{display:flex;gap:22px;align-items:center;padding:17px 0;border-top:6px solid var(--ligne)}
-.cmd:first-of-type{margin-top:20px}
-.cmd .pastille{background:var(--nuit);color:var(--miel);font:900 36px Rubik;padding:12px 28px;
-          border-radius:999px;flex:none;white-space:nowrap;min-width:296px;text-align:center}
-.cmd span{font:500 33px/1.26 Rubik;color:var(--gris)}
+.regle b{display:block;font:900 35px Rubik;color:var(--nuit);margin-bottom:3px}
+.regle span{font:500 30px/1.24 Rubik;color:var(--gris)}
+.cmd{display:flex;gap:22px;align-items:center;padding:16px 0;border-top:6px solid var(--ligne)}
+.cmd:first-of-type{margin-top:18px}
+.cmd .pastille{background:var(--nuit);color:var(--miel);font:900 34px Rubik;padding:11px 26px;
+          border-radius:999px;flex:none;white-space:nowrap;min-width:280px;text-align:center}
+.cmd span{font:500 31px/1.24 Rubik;color:var(--gris)}
 .cmd span u{text-decoration:none;font-weight:900;color:var(--nuit)}
-
-.encadre{background:#E8E0D3;border:6px solid var(--nuit);border-radius:28px;padding:28px 30px}
-.encadre h3{font:900 30px Rubik;color:var(--chene);letter-spacing:3px;margin-bottom:16px}
-.encadre p{font:500 33px/1.28 Rubik;color:var(--nuit)}
-.encadre p + p{margin-top:14px}
+.encadre{background:#E8E0D3;border:6px solid var(--nuit);border-radius:28px;padding:26px 28px}
+.encadre h3{font:900 28px Rubik;color:var(--chene);letter-spacing:3px;margin-bottom:14px}
+.encadre p{font:500 31px/1.26 Rubik;color:var(--nuit)}
+.encadre p + p{margin-top:12px}
 .encadre p b{font-weight:900;color:var(--teal)}
-
-.note{margin-top:auto;padding-top:24px;font:500 29px/1.3 Rubik;color:var(--gris)}
+.note{margin-top:auto;padding-top:22px;font:500 28px/1.3 Rubik;color:var(--gris)}
 .note b{font-weight:900;color:var(--nuit)}
-
-/* Grain de film : la texture du pack, sur toute la carte */
 .grain{position:absolute;inset:0;pointer-events:none;opacity:.07;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")}
 </style></head><body>
 
-<!-- ============ COMMUNAUTÉ · TEAL ============ -->
-<div class="cadre" id="c-clips"><div class="p u-teal">
-  <div class="tete"><div class="fond"></div><span class="diese">#</span><b>CLIPS</b>
-    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
-  <div class="corps">
-    <div class="col gauche">
-      <div class="intro">Les meilleurs moments du live, repérés par <em>vous</em>.</div>
-      <div class="regle"><div class="num">1</div><div>
-        <b>Un clip par message</b><span>Le lien Twitch ou le fichier, et c'est tout. Les réactions se font en emoji.</span></div></div>
-      <div class="regle non"><div class="num">✕</div><div>
-        <b>Pas de clips d'autres chaînes</b><span>Ici c'est le live de Kayzx. Le reste va en détente.</span></div></div>
-      <div class="regle plus"><div class="num">★</div><div>
-        <b>Le clip de la semaine</b><span>Le plus voté passe sur TikTok, avec ton pseudo.</span></div></div>
-    </div>
-    <div class="col droite">
-      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
-        <p>Discuter du live en cours → <b>#live</b></p>
-        <p>Tout le reste → <b>#général</b></p>
-        <p>Un souci avec un membre → <b>#tickets</b></p></div>
-      <div class="note">Tu ne sais pas clipper ? Tape <b>/aide clips</b>, je te montre en dix secondes.</div>
-    </div>
-  </div><div class="grain"></div>
-</div></div>
-
-<!-- ============ MATCHS · MIEL ============ -->
-<div class="cadre" id="c-plateau"><div class="p u-miel">
+<div class="cadre" id="carte-bienvenue"><div class="p u-communaute">
   <div class="tete"><div class="fond"></div>
-    <svg class="glyphe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
-         stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/>
-      <path d="M16.2 8.6a4.8 4.8 0 0 1 0 6.8"/><path d="M19.4 5.4a9.2 9.2 0 0 1 0 13.2"/></svg>
-    <b>LE PLATEAU</b><img class="vignette" src="img/logo-nuit.png" alt=""></div>
+    <span class="glyphe">👋</span><b>BIENVENUE</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
   <div class="corps">
-    <div class="col gauche">
-      <div class="intro">Le vocal de diffusion. On regarde le match <em>ensemble</em>, commenté en direct.</div>
-      <div class="regle"><div class="num">1</div><div>
-        <b>Le micro est aux intervenants</b><span>Tout le monde écoute. Les réactions passent en texte, en tribune.</span></div></div>
-      <div class="regle non"><div class="num">✕</div><div>
-        <b>Pas de spoil du résultat</b><span>Beaucoup regardent en différé. On attend le coup de sifflet.</span></div></div>
-      <div class="regle plus"><div class="num">★</div><div>
-        <b>Demander le micro</b><span>Tape /micro : le staff t'ouvre le son si le moment s'y prête.</span></div></div>
-    </div>
-    <div class="col droite">
+    <div class="col gauche"><div class="intro">Bienvenue sur le Discord de <em>Kayzx TV</em>. Ici on suit les lives, on regarde les matchs ensemble et on joue.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Lis le règlement</b><span>Il tient sur une image, ça prend trente secondes.</span></div></div>
+      <div class="regle ">
+        <div class="num">2</div><div>
+        <b>Choisis tes rôles</b><span>Dans #les-roles, pour être prévenu de ce qui t'intéresse — et de rien d'autre.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Présente-toi</b><span>Un message dans #general suffit. On ne mord pas.</span></div></div></div>
+    <div class="col droite ">
       <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
-        <p>Réagir pendant le match → <b>#tribune</b></p>
-        <p>Le calendrier → <b>#programme</b></p>
-        <p>Les résumés d'après-match → <b>#résultats</b></p></div>
-      <div class="note">Football, MMA et les grands rendez-vous. Le programme de la semaine : <b>/programme</b>.</div>
-    </div>
+        <p>Une question, un souci → <b>#tickets</b></p><p>Les liens de la chaîne → <b>#liens</b></p>
+      </div><div class="note">Le bouton ci-dessous débloque tout le serveur.</div></div>
   </div><div class="grain"></div>
 </div></div>
 
-<!-- ============ STAFF · CORAIL ============ -->
-<div class="cadre" id="c-bureau"><div class="p u-corail">
-  <div class="tete"><div class="fond"></div><span class="diese">#</span><b>BUREAU</b>
+<div class="cadre" id="carte-reglement"><div class="p u-communaute">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">📜</span><b>RÈGLEMENT</b>
+    <span class="marque">KAYZX TV</span>
     <img class="vignette" src="img/logo-nuit.png" alt=""></div>
   <div class="corps">
-    <div class="col gauche">
-      <div class="intro">La coordination de l'équipe. Les décisions se prennent <em>ici</em>, jamais en privé.</div>
+    <div class="col gauche"><div class="intro">Six règles. Elles valent pour tout le monde, à toute heure.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Respect</b><span>Pas d'insulte, pas de moquerie, pas de harcèlement. Jamais.</span></div></div>
+      <div class="regle ">
+        <div class="num">2</div><div>
+        <b>Français</b><span>Pour que tout le monde suive, et que les modos puissent lire.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de pub</b><span>Aucun lien ni chaîne à promouvoir, même en message privé.</span></div></div></div>
+    <div class="col droite suite">
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de contenu sensible</b><span>Ni spoil, ni image choquante, ni sujet qui dérape.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de spam</b><span>Ni majuscules en rafale, ni même message en boucle.</span></div></div>
+      <div class="regle plus">
+        <div class="num">♥</div><div>
+        <b>Respecte les modos</b><span>Ils sont bénévoles. Leur décision ne se négocie pas en public.</span></div></div><div class="note">Un rappel, puis une exclusion temporaire, puis un bannissement. C'est aussi simple que ça.</div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-annonces"><div class="p u-communaute">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">📣</span><b>ANNONCES</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Les annonces officielles de <em>Kayzx TV</em>. Publiées par la chaîne, jamais par un particulier.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Lecture seule</b><span>Personne n'écrit ici. Les réactions en emoji sont ouvertes.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Être prévenu</b><span>Prends le rôle qui t'intéresse dans #les-roles. Pas de mention non désirée.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>En discuter → <b>#general</b></p><p>Le calendrier → <b>#programme</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-lesRoles"><div class="p u-communaute">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🎭</span><b>LES-RÔLES</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Choisis tes rôles. Ils décident de <em>ce dont tu es prévenu</em> et de ce qu'on te propose.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Les notifications</b><span>Live, matchs, événements. Tu ne seras mentionné que pour ce que tu coches.</span></div></div>
+      <div class="regle ">
+        <div class="num">2</div><div>
+        <b>Tes centres d'intérêt</b><span>Foot, MMA, tes jeux. Ça sert aussi à te trouver des coéquipiers.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Modifiable à tout moment</b><span>Reviens ici quand tu veux, rien n'est définitif.</span></div></div></div>
+    <div class="col droite "><div class="note">Les menus sont juste en dessous.</div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-liens"><div class="p u-communaute">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🔗</span><b>LIENS</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Tous les endroits où retrouver <em>Kayzx TV</em>.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Twitch</b><span>Le live, c'est là que tout se passe en premier.</span></div></div>
+      <div class="regle ">
+        <div class="num">2</div><div>
+        <b>YouTube</b><span>Les rediffusions et les meilleurs moments.</span></div></div>
+      <div class="regle ">
+        <div class="num">3</div><div>
+        <b>TikTok et X</b><span>Les clips courts, et les annonces de dernière minute.</span></div></div></div>
+    <div class="col droite "><div class="note">Les boutons ci-dessous ouvrent chaque chaîne.</div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-general"><div class="p u-communaute">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🗨️</span><b>GÉNÉRAL</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le salon principal. Tout ce qui ne va nulle part ailleurs va <em>ici</em>.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Une discussion à la fois</b><span>Si un sujet s'emballe, on ouvre un fil pour ne pas écraser les autres.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de mur de messages</b><span>Une idée par message, pas une ligne par message.</span></div></div>
+      <div class="regle plus">
+        <div class="num">♥</div><div>
+        <b>Accueille les nouveaux</b><span>Un bonjour coûte deux secondes et change tout.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Hors-sujet → <b>#détente</b></p><p>Un clip → <b>#clips</b></p><p>Une idée → <b>#suggestions</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-detente"><div class="p u-communaute">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🛋️</span><b>DÉTENTE</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le hors-sujet assumé : photos, mèmes, musique, ce que tu veux.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Le règlement s'applique quand même</b><span>Détente ne veut pas dire zone de non-droit.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de contenu choquant</b><span>En cas de doute, c'est non.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de pub déguisée</b><span>Ta chaîne, ton serveur, ton lien : non, même en passant.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Parler du live → <b>#general</b></p><p>Un clip du live → <b>#clips</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-clips"><div class="p u-communaute">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🎬</span><b>CLIPS</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Les meilleurs moments du live, repérés par <em>vous</em>.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Un clip par message</b><span>Le lien Twitch ou le fichier, et c'est tout. Les réactions se font en emoji.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de clips d'autres chaînes</b><span>Ici c'est le live de Kayzx. Le reste va en détente.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Le clip de la semaine</b><span>Le plus voté passe sur TikTok, avec ton pseudo.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Discuter du live → <b>#general</b></p><p>Un souci → <b>#tickets</b></p>
+      </div><div class="note">Tu ne sais pas clipper ? Tape <b>/aide clips</b>, je te montre en dix secondes.</div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-suggestions"><div class="p u-communaute">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">💡</span><b>SUGGESTIONS</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Une idée pour la chaîne ou pour le serveur ? Pose-la ici, elle sera lue.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Une idée par message</b><span>Le bot ajoute les votes automatiquement.</span></div></div>
+      <div class="regle ">
+        <div class="num">2</div><div>
+        <b>Dis pourquoi</b><span>Pas seulement quoi. Une idée argumentée passe dix fois mieux.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de « fais un stream sur X »</b><span>Sans un minimum d'explication, ça ne mène nulle part.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Les idées retenues → <b>#annonces</b></p><p>Un problème à signaler → <b>#tickets</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-vocalTexte"><div class="p u-communaute">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">⌨️</span><b>VOCAL-TEXTE</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le salon texte qui accompagne les vocaux : liens, images, pseudos à ajouter.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Pendant une partie</b><span>Tout ce qu'on se passe sans couper la conversation.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de conversation de fond</b><span>Elle a sa place en #general.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Lancer un vocal → <b>Créer un vocal</b></p><p>Chercher des joueurs → <b>#recherche-équipe</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-live"><div class="p u-direct">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🔴</span><b>LIVE</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le bot annonce ici <em>chaque démarrage de live</em>, avec le titre et la miniature.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Lecture seule</b><span>Pour que l'annonce ne soit jamais noyée.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Être prévenu</b><span>Prends le rôle Ping Live dans #les-roles.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Réagir pendant le live → <b>#general</b></p><p>Pendant un match → <b>#tribune</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-tribune"><div class="p u-direct">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🗣️</span><b>TRIBUNE</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le salon de réaction pendant la diffusion. Ça va vite, c'est <em>normal</em>.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Réagis librement</b><span>C'est l'endroit fait pour ça. Les majuscules sont tolérées ici.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de spoil</b><span>Si le match est diffusé en différé, on attend le coup de sifflet.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas d'insulte</b><span>Ni joueur, ni combattant, ni arbitre. On commente, on n'agresse pas.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Parler au micro → <b>Le Plateau</b></p><p>Analyse à froid → <b>#résultats</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-programme"><div class="p u-direct">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">📅</span><b>PROGRAMME</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le calendrier : lives, matchs de <em>Ligue 1</em>, cartes <em>MMA</em> et grands rendez-vous.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Mis à jour par la régie</b><span>Chaque ajout apparaît automatiquement ici.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>La semaine en un coup d'œil</b><span>Tape /programme, où que tu sois sur le serveur.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Être prévenu → <b>#les-rôles</b></p><p>Regarder → <b>Le Plateau</b></p>
+      </div><div class="note">Les horaires peuvent bouger : le changement est toujours annoncé.</div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-resultats"><div class="p u-direct">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">📊</span><b>RÉSULTATS</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le résumé de chaque match diffusé, posté après le coup de sifflet.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>L'analyse à froid</b><span>C'est ici qu'on revient sur ce qui s'est passé, une fois l'émotion retombée.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Les pronostics</b><span>Le classement est mis à jour avec chaque résultat.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Réagir en direct → <b>#tribune</b></p><p>Le prochain match → <b>#programme</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-plateau"><div class="p u-direct">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🎙️</span><b>LE PLATEAU</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le vocal de diffusion. On regarde le match <em>ensemble</em>, commenté en direct.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Le micro est aux intervenants</b><span>Tout le monde écoute. Les réactions passent en texte, en tribune.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de spoil du résultat</b><span>Beaucoup regardent en différé. On attend le coup de sifflet.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Demander le micro</b><span>Tape /micro : la régie t'ouvre le son si le moment s'y prête.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Réagir → <b>#tribune</b></p><p>Le calendrier → <b>#programme</b></p><p>Les résumés → <b>#résultats</b></p>
+      </div><div class="note">Football, MMA et les grands rendez-vous. Le programme de la semaine : <b>/programme</b>.</div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-loge"><div class="p u-direct">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🎧</span><b>LA LOGE</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le vocal fermé des intervenants : on se cale avant, on débriefe après.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Régie et intervenants</b><span>Personne d'autre n'entre, même pendant la diffusion.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Le point d'avant-match</b><span>Répartition des rôles, ordre de passage, ce qu'on annonce.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>La diffusion → <b>Le Plateau</b></p><p>Préparer → <b>#régie</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-jeux"><div class="p u-gaming">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🕹️</span><b>JEUX</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Les jeux : sorties, bons plans, sessions à organiser.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Tous les jeux</b><span>Pas seulement ceux du live. Parle de ce que tu joues.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de recherche de joueurs</b><span>Elle a son salon, sinon tout se noie.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Chercher des joueurs → <b>#recherche-équipe</b></p><p>Lancer un vocal → <b>Créer un vocal</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-rechercheEquipe"><div class="p u-gaming">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🔍</span><b>RECHERCHE-ÉQUIPE</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Tu cherches des joueurs ? C'est <em>ici</em>, et nulle part ailleurs.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Un message = une recherche</b><span>Jeu, nombre de places, niveau, horaire. Tout en un message.</span></div></div>
+      <div class="regle ">
+        <div class="num">2</div><div>
+        <b>Préviens quand c'est complet</b><span>Une réaction suffit, les autres arrêtent de te répondre.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de relance en boucle</b><span>Une fois, puis on attend. Pas toutes les dix minutes.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Discuter du jeu → <b>#jeux</b></p><p>Lancer un vocal → <b>Créer un vocal</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-creerVocal"><div class="p u-gaming">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">➕</span><b>CRÉER UN VOCAL</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Les salons de jeu se créent <em>tout seuls</em>. Connecte-toi à « ➕ Créer un vocal ».</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Le salon est à toi</b><span>Tu peux le renommer, limiter les places, en verrouiller l'accès.</span></div></div>
+      <div class="regle ">
+        <div class="num">2</div><div>
+        <b>Il disparaît tout seul</b><span>Une fois vide, il se supprime. Plus de vocaux fantômes dans la liste.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de musique à fond</b><span>Ni soundboard en boucle. Le staff coupe sans prévenir.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Chercher des joueurs → <b>#recherche-équipe</b></p><p>Regarder un match → <b>Le Plateau</b></p>
+      </div><div class="note">Règle ton salon avec <b>/vocal</b> : nom, nombre de places, verrouillage.</div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-salonCommun"><div class="p u-gaming">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🔊</span><b>SALON COMMUN</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le vocal permanent. Entre, même s'il est vide : c'est comme ça qu'il se remplit.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Ouvert à tous</b><span>Pas besoin d'invitation ni de prévenir.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Besoin d'être au calme ?</b><span>Crée ton propre salon avec « ➕ Créer un vocal ».</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Ton propre salon → <b>Créer un vocal</b></p><p>Le fil texte → <b>#vocal-texte</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-tickets"><div class="p u-communaute">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">📩</span><b>TICKETS</b>
+    <span class="marque">KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Un souci avec un membre, une question pour le staff, un problème technique ?</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Clique sur le bouton</b><span>Choisis la catégorie, décris en quelques lignes.</span></div></div>
+      <div class="regle ">
+        <div class="num">2</div><div>
+        <b>Un salon privé s'ouvre</b><span>Seuls toi et le staff le voyez. Il est supprimé à la fermeture.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>N'écris pas en privé à un modo</b><span>Ça ne laisse aucune trace, et ça se perd.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Juste une idée → <b>#suggestions</b></p><p>Le règlement → <b>#règlement</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-bureau"><div class="p u-staff">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🗂️</span><b>BUREAU</b>
+    <span class="marque">STAFF · KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">La coordination de l'équipe. Les décisions se prennent <em>ici</em>, jamais en privé.</div>
       <div class="cmd"><span class="pastille">/sanction</span>
         <span><u>Avertir, exclure, bannir.</u> Motif obligatoire.</span></div>
       <div class="cmd"><span class="pastille">/historique</span>
         <span><u>Le passé d'un membre.</u> Sanctions, notes, arrivée.</span></div>
+      <div class="cmd"><span class="pastille">/note</span>
+        <span><u>Une note privée sur un membre.</u> Visible du seul staff.</span></div>
       <div class="cmd"><span class="pastille">/annonce</span>
-        <span><u>Publier au nom de la chaîne.</u> Aperçu avant envoi.</span></div>
-      <div class="cmd"><span class="pastille">/plateau</span>
-        <span><u>Ouvrir la diffusion.</u> Crée le vocal et les intervenants.</span></div>
-    </div>
-    <div class="col droite">
+        <span><u>Publier au nom de la chaîne.</u> Aperçu avant envoi.</span></div></div>
+    <div class="col droite ">
       <div class="encadre"><h3>LE RÉFLEXE</h3>
-        <p>Signalements → <b>#tickets</b></p>
-        <p>Journal automatique → <b>#traces</b></p>
-        <p>Un doute sur une sanction → on en parle avant d'agir</p></div>
-      <div class="note">Une sanction contestée se rediscute ici, à froid. On ne revient jamais sur la décision d'un modo devant la communauté.</div>
-    </div>
+        <p>Signalements → <b>#tickets</b></p><p>Journal → <b>#traces</b></p><p>Un doute → <b>on en parle avant d'agir</b></p>
+      </div><div class="note">Une sanction contestée se rediscute ici, à froid. On ne revient jamais sur la décision d'un modo devant la communauté.</div></div>
   </div><div class="grain"></div>
 </div></div>
 
-<!-- ============ GAMING · CHÊNE ============ -->
-<div class="cadre" id="c-vocaux"><div class="p u-chene">
+<div class="cadre" id="carte-decisions"><div class="p u-staff">
   <div class="tete"><div class="fond"></div>
-    <svg class="glyphe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"
-         stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/>
-      <path d="M16.2 8.6a4.8 4.8 0 0 1 0 6.8"/><path d="M19.4 5.4a9.2 9.2 0 0 1 0 13.2"/></svg>
-    <b>LES VOCAUX JEU</b><img class="vignette" src="img/logo-nuit.png" alt=""></div>
+    <span class="glyphe">⚖️</span><b>DÉCISIONS</b>
+    <span class="marque">STAFF · KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
   <div class="corps">
-    <div class="col gauche">
-      <div class="intro">Les salons de jeu se créent <em>tout seuls</em>. Entre dans « Créer un vocal ».</div>
-      <div class="regle"><div class="num">1</div><div>
-        <b>Le salon est à toi</b><span>Tu peux le renommer, limiter les places, en verrouiller l'accès.</span></div></div>
-      <div class="regle"><div class="num">2</div><div>
-        <b>Il disparaît tout seul</b><span>Une fois vide, il se supprime. Plus de vocaux fantômes dans la liste.</span></div></div>
-      <div class="regle non"><div class="num">✕</div><div>
-        <b>Pas de musique à fond</b><span>Ni soundboard en boucle. Le staff coupe sans prévenir.</span></div></div>
-    </div>
-    <div class="col droite">
+    <div class="col gauche"><div class="intro">La mémoire de l'équipe : ce qui a été décidé, et <em>pourquoi</em>.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Une décision par message</b><span>Le quoi, le pourquoi, la date. Court suffit.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas de débat ici</b><span>Le débat a lieu au bureau. Ici, on acte.</span></div></div></div>
+    <div class="col droite ">
       <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
-        <p>Chercher des joueurs → <b>#recherche-équipe</b></p>
-        <p>Regarder un match → <b>#le-plateau</b></p>
-        <p>Signaler quelqu'un → <b>#tickets</b></p></div>
-      <div class="note">Règle ton salon avec <b>/vocal</b> : nom, nombre de places, verrouillage.</div>
-    </div>
+        <p>En débattre → <b>#bureau</b></p><p>L'annoncer → <b>#régie</b></p>
+      </div></div>
   </div><div class="grain"></div>
 </div></div>
 
+<div class="cadre" id="carte-signalements"><div class="p u-staff">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🚨</span><b>SIGNALEMENTS</b>
+    <span class="marque">STAFF · KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Les tickets remontés et les transcriptions des salons fermés.</div>
+      <div class="cmd"><span class="pastille">/historique</span>
+        <span><u>Le passé du membre concerné.</u> Avant de trancher.</span></div>
+      <div class="cmd"><span class="pastille">/note</span>
+        <span><u>Garder une trace.</u> Même sans sanction.</span></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>LE RÉFLEXE</h3>
+        <p>Décider → <b>#bureau</b></p><p>Le journal → <b>#traces</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-regie"><div class="p u-staff">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🎛️</span><b>RÉGIE</b>
+    <span class="marque">STAFF · KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Tout ce qui sera publié passe <em>d'abord ici</em>.</div>
+      <div class="cmd"><span class="pastille">/annonce</span>
+        <span><u>Rédiger, prévisualiser, programmer.</u> Rien ne part sans aperçu.</span></div>
+      <div class="cmd"><span class="pastille">/programme</span>
+        <span><u>Ajouter un match ou un live.</u> Apparaît dans #programme.</span></div>
+      <div class="cmd"><span class="pastille">/plateau</span>
+        <span><u>Ouvrir la diffusion.</u> Crée le vocal, distribue les micros.</span></div>
+      <div class="cmd"><span class="pastille">/micro</span>
+        <span><u>Donner ou retirer Intervenant.</u> Pendant la diffusion.</span></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>LE RÉFLEXE</h3>
+        <p>Le calendrier → <b>#programme</b></p><p>La diffusion → <b>Le Plateau</b></p>
+      </div><div class="note">Une annonce engage la chaîne : on la relit à deux.</div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-traces"><div class="p u-staff">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">📋</span><b>TRACES</b>
+    <span class="marque">STAFF · KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Chaque sanction : qui, quand, pourquoi, par qui.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Écrit par le bot seul</b><span>Personne ne peut écrire ici, pas même l'administration.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Un journal qu'on peut éditer ne vaut rien</b><span>C'est pour ça qu'il est verrouillé pour tous.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Le passé d'un membre → <b>/historique</b></p><p>En discuter → <b>#bureau</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-mouvements"><div class="p u-staff">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🚪</span><b>MOUVEMENTS</b>
+    <span class="marque">STAFF · KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Arrivées, départs, changements de pseudo et d'avatar.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Repérer une vague</b><span>Vingt arrivées en deux minutes, c'est une attaque, pas un succès.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Retrouver un ancien pseudo</b><span>Utile quand quelqu'un revient sous un autre nom.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Agir → <b>#bureau</b></p><p>Les sanctions → <b>#traces</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-messages"><div class="p u-staff">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🗑️</span><b>MESSAGES</b>
+    <span class="marque">STAFF · KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Les messages supprimés et édités, avec leur contenu d'origine.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Pour instruire un signalement</b><span>Un message effacé reste consultable ici.</span></div></div>
+      <div class="regle non">
+        <div class="num">✕</div><div>
+        <b>Pas pour surveiller</b><span>On y regarde quand il y a un signalement, pas par curiosité.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Le signalement → <b>#signalements</b></p><p>Décider → <b>#bureau</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
+
+<div class="cadre" id="carte-reunion"><div class="p u-staff">
+  <div class="tete"><div class="fond"></div>
+    <span class="glyphe">🤝</span><b>RÉUNION</b>
+    <span class="marque">STAFF · KAYZX TV</span>
+    <img class="vignette" src="img/logo-nuit.png" alt=""></div>
+  <div class="corps">
+    <div class="col gauche"><div class="intro">Le vocal de l'équipe. Fermé, et il le reste.</div>
+      <div class="regle ">
+        <div class="num">1</div><div>
+        <b>Le point d'équipe</b><span>Ce qui se dit ici ne sort pas d'ici.</span></div></div>
+      <div class="regle plus">
+        <div class="num">★</div><div>
+        <b>Acter ensuite</b><span>Ce qui est décidé part dans #décisions, sinon c'est perdu.</span></div></div></div>
+    <div class="col droite ">
+      <div class="encadre"><h3>SINON, C'EST OÙ ?</h3>
+        <p>Acter → <b>#décisions</b></p><p>La diffusion → <b>La Loge</b></p>
+      </div></div>
+  </div><div class="grain"></div>
+</div></div>
 </body></html>

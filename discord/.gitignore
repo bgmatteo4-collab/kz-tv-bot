@@ -3,3 +3,5 @@
 node_modules/
 # L'état du déploiement est propre à un serveur : il reste sur la machine.
 etat.json
+cartes/rendu/
+cartes/cartes.html

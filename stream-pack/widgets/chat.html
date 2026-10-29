@@ -1,0 +1,198 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Chat</title><style>
+/* Le chat Twitch, en source navigateur. Il se connecte tout seul au chat : aucun serveur, aucun compte,
+   aucun jeton. Twitch laisse lire un chat public en anonyme.
+
+   Deux habillages :
+     chat.html            pour la scène Just Chatting : texte nuit, 392 x 650, exactement la boîte de
+                          l'habillage. La page fait pile cette taille et ne deborde jamais.
+     chat.html?jeu=1      pour une scène de jeu : fond transparent, texte clair cerné de nuit pour rester
+                          lisible sur n'importe quelle image, et les messages s'effacent au bout d'un moment.
+
+   Options : ?chaine=kayzxx_tv   la chaîne à écouter
+             ?l=392&h=650        la taille exacte de la source
+             ?t=19               la taille du texte
+             ?vie=45             secondes avant qu'un message s'efface (mode jeu)
+             ?haut=1             les messages arrivent par le haut au lieu du bas
+             ?bots=0             affiche aussi les messages des robots et les commandes
+*/
+@font-face{font-family:Rubik;src:url(polices/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(polices/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(polices/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--teal-n:#3FD3C2;--miel:#E0A93B;--papier:#F1ECE3;--gris:#4C5A5B;--corail:#B9533F;--t:19px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent;overflow:hidden;font-family:Rubik,sans-serif}
+/* La boîte fait exactement la taille demandée et coupe ce qui dépasse : rien ne sort jamais du cadre. */
+#boite{position:absolute;left:0;top:0;overflow:hidden}
+#fil{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;justify-content:flex-end;gap:7px;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 36px);mask-image:linear-gradient(to bottom,transparent 0,#000 36px)}
+#boite.haut #fil{bottom:auto;top:0;flex-direction:column-reverse;
+  -webkit-mask-image:linear-gradient(to top,transparent 0,#000 36px);mask-image:linear-gradient(to top,transparent 0,#000 36px)}
+.m{font:400 var(--t)/1.38 Rubik;color:var(--nuit);overflow-wrap:anywhere;animation:arrive .35s cubic-bezier(.2,1,.4,1)}
+.m b{font-weight:900}
+.m.action span.txt{font-style:italic;color:var(--gris)}
+.m .bd{display:inline-block;vertical-align:-.1em;font:900 .62em/1 Rubik;letter-spacing:1px;padding:.28em .45em;
+  border-radius:.5em;margin-right:4px;color:var(--papier)}
+.bd.host{background:var(--miel);color:var(--nuit)}.bd.mod{background:var(--teal)}.bd.vip{background:var(--corail)}
+.m img.sub{height:1.05em;vertical-align:-.17em;margin-right:4px}
+.m img.emote{height:1.6em;vertical-align:-.45em}
+.m .nouveau{font:900 .6em/1 Rubik;letter-spacing:1px;background:var(--teal-n);color:var(--nuit);padding:.25em .45em;
+  border-radius:99px;margin-right:5px;vertical-align:.1em;font-style:normal}
+.m.sys{align-self:center;background:var(--miel);color:var(--nuit);font-weight:900;font-size:calc(var(--t) * .8);
+  padding:5px 14px;border-radius:99px;text-align:center}
+.m.sort{animation:sort .4s forwards}
+@keyframes arrive{from{opacity:0;transform:translateY(12px)}}
+@keyframes sort{to{opacity:0;transform:translateX(-24px)}}
+/* --- Habillage « jeu » : rien derrière, donc le texte doit se défendre tout seul --- */
+body.jeu .m{color:var(--papier);font-weight:500;
+  text-shadow:0 2px 5px rgba(5,8,10,.95),0 0 2px rgba(5,8,10,.95),0 0 11px rgba(5,8,10,.75)}
+body.jeu .m b{-webkit-text-stroke:.6px rgba(5,8,10,.85);paint-order:stroke}
+body.jeu .m.action span.txt{color:#BFC8C9}
+body.jeu .m.sys{box-shadow:0 3px 0 var(--nuit);text-shadow:none}
+body.jeu .m.fane{opacity:0;transform:translateX(-20px);transition:opacity 1.1s,transform 1.1s}
+</style></head><body>
+<div id="boite"><div id="fil"></div></div>
+<script>
+'use strict';
+const Q = new URLSearchParams(location.search);
+const n = (c, d) => (parseFloat(Q.get(c)) > 0 ? parseFloat(Q.get(c)) : d);
+const CHAINE = (Q.get('chaine') || 'kayzxx_tv').toLowerCase().replace(/^.*twitch\.tv\//, '').replace(/^#/, '');
+const JEU = Q.get('jeu') === '1';
+const L = n('l', JEU ? 460 : 392), H = n('h', JEU ? 620 : 650);
+const VIE = n('vie', 45) * 1000;      // mode jeu : au bout de ce temps, le message s'en va
+const MAX = 40;
+const BOTS = Q.get('bots') === '0' ? [] : ['nightbot', 'streamelements', 'streamlabs', 'moobot', 'fossabot', 'wizebot'];
+
+const boite = document.getElementById('boite'), fil = document.getElementById('fil');
+if (JEU) document.body.classList.add('jeu');
+if (Q.get('haut') === '1') boite.classList.add('haut');
+boite.style.width = L + 'px';
+boite.style.height = H + 'px';
+document.documentElement.style.setProperty('--t', n('t', JEU ? 22 : 19) + 'px');
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const PALETTE = ['#1E5B57', '#A06A12', '#B9533F', '#3E6A8A', '#5B4C86', '#2F7A4F'];
+const PALETTE_JEU = ['#3FD3C2', '#E0A93B', '#F09A86', '#8FC2E8', '#BBA6F0', '#86D9A4'];
+const couleur = (login) => (JEU ? PALETTE_JEU : PALETTE)[[...login].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % PALETTE.length];
+const BADGES = { host: 'LIVE', mod: 'MOD', vip: 'VIP' };
+
+// ---------- lecture du protocole de Twitch ----------
+function parse(l) {
+  const m = { tags: {}, prefix: '', cmd: '', params: [], text: '' };
+  let r = l;
+  if (r[0] === '@') {
+    const i = r.indexOf(' ');
+    for (const kv of r.slice(1, i).split(';')) {
+      const j = kv.indexOf('=');
+      m.tags[kv.slice(0, j)] = kv.slice(j + 1).replace(/\\s/g, ' ').replace(/\\:/g, ';').replace(/\\\\/g, '\\');
+    }
+    r = r.slice(i + 1);
+  }
+  if (r[0] === ':') { const i = r.indexOf(' '); m.prefix = r.slice(1, i); r = r.slice(i + 1); }
+  const j = r.indexOf(' :');
+  if (j >= 0) { m.text = r.slice(j + 2); r = r.slice(0, j); }
+  [m.cmd, ...m.params] = r.split(' ');
+  return m;
+}
+
+/** Découpe le message en bouts de texte et en emotes, d'après les positions que Twitch donne. */
+function fragments(texte, emotes) {
+  const car = Array.from(texte), pos = [];
+  if (emotes) {
+    for (const e of emotes.split('/')) {
+      const [id, plages] = e.split(':');
+      for (const p of plages.split(',')) { const [a, b] = p.split('-').map(Number); pos.push({ a, b, id }); }
+    }
+  }
+  pos.sort((u, v) => u.a - v.a);
+  const out = [];
+  let i = 0;
+  for (const p of pos) {
+    if (p.a > i) out.push({ t: car.slice(i, p.a).join('') });
+    out.push({ e: p.id, t: car.slice(p.a, p.b + 1).join('') });
+    i = p.b + 1;
+  }
+  if (i < car.length) out.push({ t: car.slice(i).join('') });
+  return out;
+}
+
+function badges(tags) {
+  const b = [], liste = (tags.badges || '').split(',').map((x) => x.split('/')[0]);
+  if (liste.includes('broadcaster')) b.push('host');
+  if (liste.includes('moderator')) b.push('mod');
+  if (liste.includes('vip')) b.push('vip');
+  if (liste.includes('subscriber') || liste.includes('founder')) {
+    const mois = +((tags['badge-info'] || '').match(/(?:subscriber|founder)\/(\d+)/) || [])[1] || 1;
+    b.push('sub' + [24, 12, 6, 3, 1].find((p) => mois >= p));
+  }
+  return b.map((x) => x.startsWith('sub')
+    ? `<img class="sub" src="badges/${x.slice(3)}-mois-36.png" alt="">`
+    : `<i class="bd ${x}">${BADGES[x]}</i>`).join('');
+}
+
+// ---------- affichage ----------
+function poser(html, cls, id, login) {
+  const d = document.createElement('div');
+  d.className = 'm ' + cls;
+  d.innerHTML = html;
+  if (id) d.dataset.id = id;
+  if (login) d.dataset.login = login;   // pour effacer tous les messages d'une personne bannie
+  fil.append(d);
+  while (fil.children.length > MAX) fil.firstElementChild.remove();
+  // En jeu, le chat ne doit pas rester planté sur l'image : chaque message s'efface tout seul.
+  if (JEU) setTimeout(() => { d.classList.add('fane'); setTimeout(() => d.remove(), 1200); }, VIE);
+  return d;
+}
+
+const systeme = (texte) => poser(esc(texte), 'sys');
+
+function message(tags, login, texte) {
+  let action = false;
+  if (texte.startsWith('\u0001ACTION ')) { texte = texte.slice(8, -1); action = true; }
+  const nom = tags['display-name'] || login;
+  const txt = fragments(texte, tags.emotes).map((f) => f.e
+    ? `<img class="emote" src="https://static-cdn.jtvnw.net/emoticons/v2/${f.e}/default/light/2.0" alt="${esc(f.t)}">`
+    : esc(f.t)).join('');
+  poser(`${badges(tags)}${tags['first-msg'] === '1' ? '<i class="nouveau">NOUVEAU</i>' : ''}`
+    + `<b style="color:${couleur(login)}">${esc(nom)}</b>${action ? ' ' : ' : '}<span class="txt">${txt}</span>`,
+  action ? 'action' : '', tags.id, login);
+}
+
+function effacer(test) {
+  for (const d of [...fil.children]) {
+    if (!test(d)) continue;
+    d.classList.add('sort');
+    setTimeout(() => d.remove(), 400);
+  }
+}
+
+// ---------- liaison au chat (anonyme : ni compte ni jeton) ----------
+let ws, vivant;
+function brancher() {
+  ws = new WebSocket('wss://irc-ws.chat.twitch.tv:443');
+  ws.onopen = () => {
+    for (const l of ['CAP REQ :twitch.tv/tags twitch.tv/commands', 'PASS SCHMOOPIIE',
+      `NICK justinfan${10000 + Math.floor(Math.random() * 80000)}`, `JOIN #${CHAINE}`]) ws.send(l);
+  };
+  ws.onmessage = (e) => String(e.data).split('\r\n').filter(Boolean).forEach(ligne);
+  ws.onclose = () => { clearTimeout(vivant); setTimeout(brancher, 4000); };   // coupure réseau : on revient tout seul
+  ws.onerror = () => {};
+}
+
+function ligne(l) {
+  const m = parse(l), t = m.tags;
+  if (m.cmd === 'PING') return ws.send('PONG :tmi.twitch.tv');
+  if (m.cmd === 'PRIVMSG') {
+    const login = m.prefix.split('!')[0];
+    if (BOTS.includes(login) || m.text.startsWith('!')) return;
+    return message(t, login, m.text);
+  }
+  if (m.cmd === 'CLEARCHAT') return effacer(m.text ? (d) => d.dataset.login === m.text : () => true);
+  if (m.cmd === 'CLEARMSG') return effacer((d) => d.dataset.id === t['target-msg-id']);
+  if (m.cmd === 'USERNOTICE') {
+    const nom = t['display-name'] || t.login, k = t['msg-id'];
+    if (k === 'sub' || k === 'resub') systeme(`${nom} s'abonne · ${t['msg-param-cumulative-months'] || 1} mois`);
+    if (k === 'subgift') systeme(`${nom} offre un abonnement à ${t['msg-param-recipient-display-name']}`);
+    if (k === 'raid') systeme(`${t['msg-param-displayName'] || nom} débarque avec ${t['msg-param-viewerCount']} viewers`);
+  }
+}
+brancher();
+</script></body></html>

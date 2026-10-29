@@ -3,6 +3,7 @@ WIDGETS KAYZX TV
 Trois habillages a poser dans OBS. Ce sont des pages web, pas des videos :
 l'heure est toujours juste et les animations ne bouclent jamais de travers.
 
+  chat.html      le chat Twitch, cale au pixel dans la boite de l'habillage
   horloge.html   l'heure a la seconde ; la date se deplie de temps en temps
   reseaux.html   les reseaux arrivent, defilent, puis repartent
   camera.html    le contour anime autour de ta webcam
@@ -13,12 +14,40 @@ COMMENT LES AJOUTER DANS OBS
   2. COCHE LA CASE "Fichier local"
   3. Parcourir, et choisis le fichier
   4. Mets la taille :
-       horloge   largeur 620   hauteur 120
-       reseaux   largeur 760   hauteur 120
-       camera    largeur 690   hauteur 410   (pour une cam de 640 x 360)
+       chat (Just Chatting)   largeur 392   hauteur 650
+       chat (scene de jeu)    largeur 470   hauteur 620
+       horloge                largeur 620   hauteur 120
+       reseaux                largeur 760   hauteur 120
+       camera                 largeur 690   hauteur 410  (cam de 640 x 360)
   5. OK, puis place le widget ou tu veux.
 
 Le fond est transparent : pas de rectangle autour.
+
+LE CHAT
+
+Il se connecte tout seul au chat de ta chaine. Aucun serveur a lancer,
+aucun compte, aucun jeton : Twitch laisse lire un chat public en anonyme.
+
+  chat.html          pour la scene Just Chatting
+  chat.html?jeu=1    pour une scene de jeu
+
+POURQUOI IL NE DEBORDERA PAS
+
+La page fait EXACTEMENT la taille que tu donnes a la source, et elle coupe
+ce qui depasse. C'est la difference avec Streamlabs : ici, la taille de la
+source est la taille du chat, il n'y a pas de page plus grande en dessous.
+
+Donc : mets 392 x 650 dans OBS, et le chat fera 392 x 650. Point.
+
+Sur la scene Just Chatting, pour tomber pile dans la boite de l'habillage :
+  Taille      392 x 650
+  Position    X 1420    Y 270
+(a saisir dans OBS : clic droit sur la source, Transformer, Editer la
+transformation. Ce sont les coordonnees pour une scene en 1920 x 1080.)
+
+Sur une scene de jeu, prends plutot chat.html?jeu=1 : pas de fond, texte
+clair cerne de nuit pour rester lisible sur n'importe quelle image, et les
+messages s'effacent tout seuls au bout de 45 secondes pour ne pas encombrer.
 
 LE CONTOUR DE CAMERA
 
@@ -53,6 +82,15 @@ du fichier. Plusieurs options se separent par &.
     ?toujours=1    ils restent affiches en permanence
     ?taille=0.8    reduit
 
+  CHAT
+    ?chaine=kayzxx_tv   la chaine a ecouter
+    ?l=392&h=650        la taille exacte (doit correspondre a la source OBS)
+    ?t=19               la taille du texte
+    ?jeu=1              l'habillage pour une scene de jeu
+    ?vie=45             secondes avant qu'un message s'efface (mode jeu)
+    ?haut=1             les messages arrivent par le haut
+    ?bots=0             affiche aussi les robots et les commandes
+
   CAMERA
     ?l=480&h=270   la taille de ta camera
     ?ep=30         epaisseur du contour
@@ -64,6 +102,12 @@ Exemple : horloge.html?droite=1&cycle=120&taille=0.9
 
 Si tu changes une option, clic droit sur la source dans OBS puis
 "Actualiser" pour la voir tout de suite.
+
+SI LE CHAT RESTE VIDE
+
+Verifie le nom de la chaine : chat.html?chaine=tonpseudo
+C'est le nom tel qu'il apparait dans l'adresse twitch.tv/...
+Et il faut bien sur que quelqu'un ecrive dans le chat.
 
 POUR MODIFIER LES PSEUDOS
 

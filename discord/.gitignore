@@ -1,0 +1,5 @@
+# Le token et les identifiants. Ne doivent jamais partir sur GitHub.
+.env
+node_modules/
+# L'état du déploiement est propre à un serveur : il reste sur la machine.
+etat.json

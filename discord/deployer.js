@@ -268,7 +268,29 @@ async function principal() {
     enregistrer();
   }
 
-  /* ---------- 7. Les salons de référence ---------- */
+  /* ---------- 7. L'ordre d'affichage ---------- */
+  // Un salon créé après les autres se retrouve en bas de sa catégorie : on impose
+  // l'ordre de la configuration, qui est celui dans lequel on veut les lire.
+  if (!SIMULATION) {
+    // Sans parent_id : Discord n'accepte qu'un seul changement de catégorie par requête,
+    // et les salons sont déjà au bon endroit — seul leur rang nous intéresse.
+    const ordre = [];
+    let rang = 0;
+    for (const categorie of categories) {
+      for (const salon of categorie.salons) {
+        const id = etat.salons[salon.cle];
+        if (id) ordre.push({ id, position: rang += 1 });
+      }
+    }
+    try {
+      await api('PATCH', `/guilds/${G}/channels`, ordre, 'Ordre Kayzx TV');
+      console.log(gris('\n  ordre des salons appliqué'));
+    } catch (e) {
+      console.log(jaune('\n  ordre non appliqué : ' + e.message));
+    }
+  }
+
+  /* ---------- 8. Les salons de référence ---------- */
   if (!SIMULATION) {
     const systeme = etat.salons[serveur.salonSysteme];
     if (systeme) {

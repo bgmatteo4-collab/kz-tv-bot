@@ -1,0 +1,138 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Widgets · propositions</title><style>
+/* Planche de propositions : trois cadres horloge pour l'overlay jeu / react, et quatre façons d'animer les réseaux.
+   Rien n'est définitif : c'est pour choisir. */
+@font-face{font-family:Rubik;src:url(../da/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(../da/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(../da/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--teal-n:#3FD3C2;--miel:#E0A93B;--papier:#F1ECE3;--ligne:#E2DACB;--gris:#5E6E6F}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0B1114;font-family:Rubik,sans-serif;color:var(--papier);width:1900px;padding:46px 54px 60px}
+h1{font:900 48px Rubik;letter-spacing:-1px}h1 em{font-style:normal;color:var(--miel)}
+h2{font:900 30px Rubik;margin:38px 0 6px;color:var(--teal-n)}
+p.s{font-size:19px;color:#AEBBBC;margin-bottom:20px;max-width:1100px}
+.rang{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;align-items:start}
+.rang.q{grid-template-columns:repeat(4,1fr)}
+.cas{min-width:0}
+.cas .nom{font:900 22px Rubik;margin-bottom:10px}.cas .nom i{font-style:normal;color:var(--miel)}
+.cas .quoi{font-size:17px;color:#AEBBBC;margin-top:10px;line-height:1.45}
+/* une fausse image de jeu pour juger la lisibilité */
+.jeu{position:relative;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;
+  background:linear-gradient(160deg,#2A3B4D 0%,#16222E 42%,#0C141B 70%,#1E3A34 100%)}
+.jeu:before{content:"";position:absolute;inset:0;
+  background:radial-gradient(420px 260px at 72% 28%,rgba(224,169,59,.22),transparent 70%),
+             radial-gradient(300px 200px at 22% 76%,rgba(63,211,194,.16),transparent 70%)}
+.jeu:after{content:"IMAGE DE JEU";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  font:900 20px Rubik;letter-spacing:6px;color:rgba(241,236,227,.1)}
+/* --- A · la pastille --- */
+.A{position:absolute;left:3.2%;top:5%;display:flex;align-items:center;gap:14px;background:var(--papier);
+  border:4px solid var(--nuit);border-radius:999px;padding:9px 22px 9px 14px;box-shadow:0 5px 0 var(--nuit)}
+.A .h{font:900 34px Rubik;color:var(--nuit);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.A .h s{text-decoration:none;color:var(--miel);-webkit-text-stroke:1px var(--nuit)}
+.A .d{font:900 13px Rubik;letter-spacing:1px;color:var(--teal);text-transform:uppercase;white-space:nowrap}
+.A .pt{width:12px;height:12px;border-radius:50%;background:var(--miel);border:3px solid var(--nuit);flex:none}
+/* --- B · l'angle --- */
+.B{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
+.B svg{position:absolute;left:2.4%;top:4%;width:21%}
+.B .bloc{position:absolute;left:4.6%;top:9.5%}
+.B .h{font:900 46px Rubik;color:var(--papier);letter-spacing:-1px;line-height:1;font-variant-numeric:tabular-nums;
+  text-shadow:0 3px 14px rgba(0,0,0,.85)}
+.B .h s{text-decoration:none;color:var(--miel)}
+.B .d{font:900 13px Rubik;letter-spacing:4px;color:var(--teal-n);margin-top:7px;text-transform:uppercase;
+  text-shadow:0 2px 8px rgba(0,0,0,.9)}
+/* --- C · le cadre entier --- */
+.C{position:absolute;inset:0;border:7px solid var(--papier);border-radius:12px;pointer-events:none}
+.C .coin{position:absolute;width:40px;height:40px;border:7px solid var(--miel)}
+.C .coin.tl{left:-7px;top:-7px;border-right:0;border-bottom:0;border-radius:12px 0 0 0}
+.C .coin.tr{right:-7px;top:-7px;border-left:0;border-bottom:0;border-radius:0 12px 0 0}
+.C .coin.bl{left:-7px;bottom:-7px;border-right:0;border-top:0;border-radius:0 0 0 12px}
+.C .coin.br{right:-7px;bottom:-7px;border-left:0;border-top:0;border-radius:0 0 12px 0}
+.C .ruban{position:absolute;left:50%;top:-7px;transform:translateX(-50%);background:var(--papier);
+  border:7px solid var(--papier);border-top:0;border-radius:0 0 18px 18px;padding:5px 26px 8px;display:flex;align-items:baseline;gap:14px}
+.C .h{font:900 30px Rubik;color:var(--nuit);font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.C .h s{text-decoration:none;color:var(--miel);-webkit-text-stroke:1px var(--nuit)}
+.C .d{font:900 13px Rubik;letter-spacing:2px;color:var(--teal);text-transform:uppercase}
+/* --- les réseaux : chaque proposition montre trois instants --- */
+.film{display:flex;gap:8px;margin-top:12px}
+.vign{flex:1;min-width:0;background:#17222A;border-radius:12px;padding:16px 8px;display:grid;place-items:center;min-height:132px;position:relative;overflow:hidden}
+.vign .t{position:absolute;left:10px;top:8px;font:900 11px Rubik;letter-spacing:2px;color:#5E7074}
+.pil{display:flex;align-items:center;gap:10px;max-width:100%;overflow:hidden;background:var(--papier);border:4px solid var(--nuit);border-radius:999px;
+  padding:9px 22px 9px 11px;box-shadow:0 5px 0 var(--nuit);font:900 17px Rubik;color:var(--nuit);white-space:nowrap}
+.pil img{width:30px;height:30px}.pil em{font-style:normal;color:var(--teal)}
+.pil.blanc img{filter:brightness(0) invert(1)}
+.rond{width:40px;height:40px;border-radius:50%;background:var(--papier);border:4px solid var(--nuit);display:grid;place-items:center;
+  box-shadow:0 5px 0 var(--nuit)}
+.rond img{width:22px;height:22px}
+.pile{display:flex;gap:7px}
+.ruban2{display:flex;gap:10px;align-items:center;background:var(--papier);border:4px solid var(--nuit);border-radius:14px;
+  padding:8px 12px;box-shadow:0 5px 0 var(--nuit);font:900 14px Rubik;color:var(--nuit);white-space:nowrap}
+.ruban2 img{width:22px;height:22px;flex:none}
+.ruban2 span{opacity:.35}
+</style></head><body>
+<h1>Widgets · <em>propositions</em></h1>
+<p class="s">Rien n'est fabriqué pour l'instant. Dis-moi ce que tu préfères et je le construis.</p>
+
+<h2>1 · L'overlay jeu / react — l'heure et la date</h2>
+<p class="s">Les trois sont en source navigateur dans OBS : l'heure est celle de ton PC, à la seconde, elle ne décale jamais.
+Fond transparent, tu les poses où tu veux.</p>
+<div class="rang">
+  <div class="cas"><div class="nom">A · <i>La pastille</i></div>
+    <div class="jeu"><div class="A"><div class="pt"></div><div>
+      <div class="h">21:47<s>:09</s></div></div><div class="d">Mer. 29 oct.</div></div></div>
+    <div class="quoi">Une seule pastille papier, discrète, dans un coin. Les secondes en miel, la date à côté.
+      C'est ce qui mange le moins d'image.</div></div>
+
+  <div class="cas"><div class="nom">B · <i>L'angle</i></div>
+    <div class="jeu"><div class="B">
+      <svg viewBox="0 0 200 100"><path d="M6 46 V10 a4 4 0 0 1 4 -4 H92" fill="none" stroke="#F1ECE3" stroke-width="7" stroke-linecap="round"/>
+        <path d="M6 46 V10 a4 4 0 0 1 4 -4 H92" fill="none" stroke="#E0A93B" stroke-width="3" stroke-linecap="round"/></svg>
+      <div class="bloc"><div class="h">21:47<s>:09</s></div><div class="d">MERCREDI 29 OCTOBRE</div></div>
+    </div></div>
+    <div class="quoi">Pas de carte : une équerre dans le coin, et l'heure posée dessous en gros.
+      Plus de caractère, mais il faut un coin d'image assez sombre.</div></div>
+
+  <div class="cas"><div class="nom">C · <i>Le cadre entier</i></div>
+    <div class="jeu"><div class="C"><i class="coin tl"></i><i class="coin tr"></i><i class="coin bl"></i><i class="coin br"></i>
+      <div class="ruban"><div class="h">21:47<s>:09</s></div><div class="d">Mer. 29 oct.</div></div></div></div>
+    <div class="quoi">Un vrai cadre autour de toute l'image, coins en miel, et l'heure sur un ruban en haut.
+      Très identitaire, mais ça rogne un peu le jeu.</div></div>
+</div>
+
+<h2>2 · Le widget réseaux animé</h2>
+<p class="s">Quatre façons de les faire tourner. Chaque proposition est montrée en trois instants, de gauche à droite.</p>
+<div class="rang q">
+  <div class="cas"><div class="nom">D · <i>Le carrousel</i></div>
+    <div class="film">
+      <div class="vign"><span class="t">1</span><div class="pil"><img src="../overlays/logos/youtube.svg">YouTube <em>@kayzxtv8505</em></div></div>
+      <div class="vign"><span class="t">2</span><div class="pil" style="opacity:.3;transform:translateY(-14px)"><img src="../overlays/logos/youtube.svg">YouTube</div></div>
+      <div class="vign"><span class="t">3</span><div class="pil blanc"><img src="../overlays/logos/tiktok.svg">TikTok <em>Kayzx TV</em></div></div>
+    </div>
+    <div class="quoi">Un réseau à la fois, qui sort par le haut et laisse monter le suivant. C'est ce qu'on a déjà
+      sur le Just Chatting, donc tout de suite cohérent.</div></div>
+
+  <div class="cas"><div class="nom">E · <i>La pile qui se déplie</i></div>
+    <div class="film">
+      <div class="vign"><span class="t">1</span><div class="pile"><div class="rond"><img src="../overlays/logos/youtube.svg"></div><div class="rond"><img src="../overlays/logos/tiktok.svg" style="filter:brightness(0)"></div><div class="rond"><img src="../overlays/logos/x.svg" style="filter:brightness(0)"></div><div class="rond"><img src="../overlays/logos/discord.svg"></div></div></div>
+      <div class="vign"><span class="t">2</span><div class="pil"><img src="../overlays/logos/youtube.svg">@kayzxtv8505</div></div>
+      <div class="vign"><span class="t">3</span><div class="pile"><div class="rond"><img src="../overlays/logos/youtube.svg"></div><div class="rond"><img src="../overlays/logos/tiktok.svg" style="filter:brightness(0)"></div><div class="rond"><img src="../overlays/logos/x.svg" style="filter:brightness(0)"></div><div class="rond"><img src="../overlays/logos/discord.svg"></div></div></div>
+    </div>
+    <div class="quoi">Les quatre ronds restent visibles en permanence. À tour de rôle, l'un s'ouvre et déroule ton pseudo,
+      puis se referme. On voit toujours tous tes réseaux.</div></div>
+
+  <div class="cas"><div class="nom">F · <i>Le ruban qui défile</i></div>
+    <div class="film">
+      <div class="vign"><span class="t">1</span><div class="ruban2"><img src="../overlays/logos/youtube.svg">@kayzxtv8505<span>·</span><img src="../overlays/logos/tiktok.svg" style="filter:brightness(0)">Kayzx</div></div>
+      <div class="vign"><span class="t">2</span><div class="ruban2"><img src="../overlays/logos/tiktok.svg" style="filter:brightness(0)">Kayzx TV<span>·</span><img src="../overlays/logos/x.svg" style="filter:brightness(0)">@Kayzx</div></div>
+      <div class="vign"><span class="t">3</span><div class="ruban2"><img src="../overlays/logos/x.svg" style="filter:brightness(0)">@Kayzx_TV<span>·</span><img src="../overlays/logos/discord.svg">!discord</div></div>
+    </div>
+    <div class="quoi">Une bande qui glisse sans fin vers la gauche, tous les réseaux à la suite. Jamais d'arrêt,
+      très lisible, mais ça bouge en permanence dans le coin de l'œil.</div></div>
+
+  <div class="cas"><div class="nom">G · <i>Le retournement</i></div>
+    <div class="film">
+      <div class="vign"><span class="t">1</span><div class="pil"><img src="../overlays/logos/youtube.svg">YouTube <em>@kayzxtv8505</em></div></div>
+      <div class="vign"><span class="t">2</span><div class="pil" style="transform:scaleY(.14);box-shadow:0 2px 0 var(--nuit)"><img src="../overlays/logos/youtube.svg">YouTube</div></div>
+      <div class="vign"><span class="t">3</span><div class="pil blanc"><img src="../overlays/logos/tiktok.svg">TikTok <em>Kayzx TV</em></div></div>
+    </div>
+    <div class="quoi">La pastille pivote sur elle-même, comme un panneau d'aéroport, et montre le réseau suivant
+      sur son autre face. Le plus « motion », et ça claque bien avec un petit son.</div></div>
+</div>
+</body></html>

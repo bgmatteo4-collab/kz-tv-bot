@@ -1,16 +1,20 @@
 /**
- * Construit le serveur Discord à partir de serveur.config.js.
+ * Construit le serveur Discord à partir de serveur.config.js, en requêtes HTTP pures.
  *
  *     node deployer.js --verifier   → montre ce qui serait fait, ne touche à rien
  *     node deployer.js              → applique
  *
- * Le script est rejouable : il retrouve ce qu'il a déjà créé grâce à etat.json et met à
- * jour au lieu de dupliquer. Renommer un salon à la main ne le casse pas.
+ * Aucune bibliothèque : discord.js aurait exigé une connexion WebSocket permanente, que
+ * l'environnement d'exécution ne permet pas. Tout passe donc par l'API REST, qui suffit
+ * largement pour construire un serveur.
+ *
+ * Le script est rejouable : il retrouve ce qu'il a créé grâce à etat.json et met à jour au
+ * lieu de dupliquer. Renommer un salon à la main dans Discord ne le casse pas.
  */
-import { Client, Events, GatewayIntentBits, ChannelType, PermissionFlagsBits as P } from 'discord.js';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { api, D, combiner, TYPE } from './api.js';
 import { roles, rolesNotification, rolesInteret, categories, serveur, resume } from './serveur.config.js';
 
 const ICI = dirname(fileURLToPath(import.meta.url));
@@ -20,244 +24,314 @@ const SIMULATION = process.argv.includes('--verifier');
 const gras = (t) => `\x1b[1m${t}\x1b[0m`;
 const vert = (t) => `\x1b[32m${t}\x1b[0m`;
 const rouge = (t) => `\x1b[31m${t}\x1b[0m`;
+const jaune = (t) => `\x1b[33m${t}\x1b[0m`;
 const gris = (t) => `\x1b[90m${t}\x1b[0m`;
 
-/* ---- Lecture du .env, sans dépendance ---- */
-for (const ligne of (existsSync(join(ICI, '.env')) ? readFileSync(join(ICI, '.env'), 'utf8') : '').split('\n')) {
-  const m = ligne.match(/^([A-Z_]+)=(.*)$/);
-  if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+/* ---- .env, s'il existe (sur un poste ; dans l'environnement Claude le token est injecté) ---- */
+if (existsSync(join(ICI, '.env'))) {
+  for (const ligne of readFileSync(join(ICI, '.env'), 'utf8').split('\n')) {
+    const m = ligne.match(/^([A-Z_]+)=(.*)$/);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+  }
 }
 
-const TOKEN = process.env.DISCORD_TOKEN;
-const ID_SERVEUR = process.env.SERVEUR_ID || serveur.id;
-if (!TOKEN) {
-  console.error(rouge('\n  Token absent.\n') +
-    '  Lance d\'abord « CONFIGURER.command » (ou : node configurer.js).\n');
-  process.exit(1);
-}
-
+const G = process.env.SERVEUR_ID || serveur.id;
 const etat = existsSync(ETAT) ? JSON.parse(readFileSync(ETAT, 'utf8')) : { roles: {}, categories: {}, salons: {} };
 const enregistrer = () => SIMULATION || writeFileSync(ETAT, JSON.stringify(etat, null, 2));
 
 /** Les pouvoirs nommés dans la configuration → les permissions Discord. */
 const POUVOIRS = {
-  administrateur: [P.Administrator],
-  moderer:        [P.KickMembers, P.BanMembers, P.ModerateMembers, P.ViewAuditLog],
-  gererSalons:    [P.ManageChannels, P.ManageThreads],
-  gererRoles:     [P.ManageRoles, P.ManageNicknames],
-  gererMessages:  [P.ManageMessages, P.ManageThreads],
-  mentionnerTous: [P.MentionEveryone],
+  administrateur: [D.administrateur],
+  moderer:        [D.expulser, D.bannir, D.exclureTemp, D.voirJournal],
+  gererSalons:    [D.gererSalons, D.gererFils],
+  gererRoles:     [D.gererRoles, D.gererPseudos],
+  gererMessages:  [D.gererMessages, D.gererFils],
+  mentionnerTous: [D.mentionnerTous],
 };
 
-const BASE_MEMBRE = [P.ViewChannel, P.ReadMessageHistory, P.SendMessages, P.AddReactions,
-  P.AttachFiles, P.EmbedLinks, P.UseExternalEmojis, P.Connect, P.Speak, P.Stream];
+const BASE_MEMBRE = combiner(D.voir, D.lireHistorique, D.ecrire, D.reagir, D.joindreFichiers,
+  D.liensEnrichis, D.emojisExternes, D.seConnecter, D.parler, D.partagerEcran);
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-
-/** Les rôles qui composent le staff, dans l'ordre d'autorité. */
 const CLES_STAFF = ['proprietaire', 'administration', 'moderation', 'regie'];
 
-function typeDiscord(salon) {
-  switch (salon.type) {
-    case 'annonce':    return ChannelType.GuildAnnouncement;
-    case 'conference': return ChannelType.GuildStageVoice;
-    case 'vocal':
-    case 'hub':        return ChannelType.GuildVoice;
-    default:           return ChannelType.GuildText;   // texte et journal
-  }
-}
+/** Les salons qui exigent le mode communautaire : créés après son activation. */
+const COMMUNAUTAIRE = new Set(['annonce', 'conference']);
 
-/** Les exceptions de permission d'une catégorie. */
-function permissionsCategorie(categorie, idRole, idEveryone) {
-  const regles = [];
+const typeDiscord = (s) => TYPE[s.type] ?? (s.type === 'journal' || s.type === 'hub'
+  ? (s.type === 'hub' ? TYPE.vocal : TYPE.texte)
+  : TYPE.texte);
+
+/* ------------------------------------------------------------------ permissions */
+
+function reglesCategorie(categorie, idRole, everyone) {
+  const r = [];
   if (categorie.acces === 'tous') {
-    regles.push({ id: idEveryone, allow: [P.ViewChannel, P.ReadMessageHistory], deny: [P.SendMessages, P.CreatePublicThreads] });
+    r.push({ id: everyone, allow: combiner(D.voir, D.lireHistorique), deny: combiner(D.ecrire, D.creerFils) });
   } else if (categorie.acces === 'membre') {
-    regles.push({ id: idEveryone, deny: [P.ViewChannel] });
-    regles.push({ id: idRole('membre'), allow: BASE_MEMBRE });
+    r.push({ id: everyone, allow: 0n, deny: D.voir });
+    r.push({ id: idRole('membre'), allow: BASE_MEMBRE, deny: 0n });
   } else if (categorie.acces === 'staff') {
-    regles.push({ id: idEveryone, deny: [P.ViewChannel] });
-    for (const cle of CLES_STAFF) regles.push({ id: idRole(cle), allow: BASE_MEMBRE });
+    r.push({ id: everyone, allow: 0n, deny: D.voir });
+    for (const c of CLES_STAFF) r.push({ id: idRole(c), allow: BASE_MEMBRE, deny: 0n });
   }
-  return regles.filter((r) => r.id);
+  return r.filter((x) => x.id);
 }
 
-/** Les exceptions propres à un salon, par-dessus celles de sa catégorie. */
-function permissionsSalon(salon, categorie, idRole, idEveryone) {
-  const regles = [];
-  const cible = categorie.acces === 'tous' ? idEveryone : idRole('membre');
+function reglesSalon(salon, categorie, idRole, everyone) {
+  const r = [];
+  const cible = categorie.acces === 'tous' ? everyone : idRole('membre');
 
   if (salon.lectureSeule || salon.botSeul) {
-    regles.push({ id: cible, deny: [P.SendMessages, P.CreatePublicThreads, P.SendMessagesInThreads],
-      allow: [P.ViewChannel, P.ReadMessageHistory, P.AddReactions] });
+    r.push({ id: cible, allow: combiner(D.voir, D.lireHistorique, D.reagir),
+      deny: combiner(D.ecrire, D.creerFils, D.ecrireDansFils) });
   }
   if (salon.type === 'journal') {
-    // Un journal qu'on peut éditer ne vaut rien : personne n'y écrit, pas même l'administration.
-    for (const cle of CLES_STAFF) {
-      const id = idRole(cle);
-      if (id) regles.push({ id, deny: [P.SendMessages, P.ManageMessages, P.CreatePublicThreads],
-        allow: [P.ViewChannel, P.ReadMessageHistory] });
+    // Un journal qu'on peut éditer ne vaut rien : verrouillé pour tous, administration comprise.
+    for (const c of CLES_STAFF) {
+      const id = idRole(c);
+      if (id) r.push({ id, allow: combiner(D.voir, D.lireHistorique),
+        deny: combiner(D.ecrire, D.gererMessages, D.creerFils) });
     }
   }
   if (salon.type === 'conference') {
     // La communauté écoute et peut demander la parole ; seuls les intervenants parlent.
-    regles.push({ id: cible, allow: [P.ViewChannel, P.Connect, P.RequestToSpeak], deny: [P.Speak] });
-    const inter = idRole('intervenant');
-    if (inter) regles.push({ id: inter, allow: [P.Speak] });
-    const regie = idRole('regie');
-    if (regie) regles.push({ id: regie, allow: [P.Speak, P.MuteMembers, P.MoveMembers] });
+    r.push({ id: cible, allow: combiner(D.voir, D.seConnecter, D.demanderParole), deny: D.parler });
+    if (idRole('intervenant')) r.push({ id: idRole('intervenant'), allow: D.parler, deny: 0n });
+    if (idRole('regie')) r.push({ id: idRole('regie'), allow: combiner(D.parler, D.rendreMuet, D.deplacer), deny: 0n });
   }
   if (salon.type === 'hub') {
-    // On s'y connecte une seconde, le bot déplace ailleurs : parler n'a pas de sens.
-    regles.push({ id: cible, allow: [P.ViewChannel, P.Connect], deny: [P.Speak] });
+    // On s'y connecte une seconde, le bot déplace ailleurs : parler n'aurait pas de sens.
+    r.push({ id: cible, allow: combiner(D.voir, D.seConnecter), deny: D.parler });
   }
   if (salon.acces === 'staff' && categorie.acces !== 'staff') {
-    regles.push({ id: cible, deny: [P.ViewChannel] });
-    regles.push({ id: idEveryone, deny: [P.ViewChannel] });
-    for (const cle of [...CLES_STAFF, 'intervenant']) {
-      const id = idRole(cle);
-      if (id) regles.push({ id, allow: BASE_MEMBRE });
+    r.push({ id: everyone, allow: 0n, deny: D.voir });
+    r.push({ id: cible, allow: 0n, deny: D.voir });
+    for (const c of [...CLES_STAFF, 'intervenant']) {
+      const id = idRole(c);
+      if (id) r.push({ id, allow: BASE_MEMBRE, deny: 0n });
     }
   }
-  return regles.filter((r) => r.id);
+  return r.filter((x) => x.id);
 }
 
-/** Fusionne les exceptions qui visent le même rôle, sinon Discord ne garde que la dernière. */
+/** Fusionne les règles visant le même rôle : Discord n'en garde qu'une par identifiant. */
 function fusionner(regles) {
   const parId = new Map();
-  for (const r of regles) {
-    const dejaLa = parId.get(r.id) ?? { id: r.id, allow: [], deny: [] };
-    dejaLa.allow = [...new Set([...dejaLa.allow, ...(r.allow ?? [])])];
-    dejaLa.deny = [...new Set([...dejaLa.deny, ...(r.deny ?? [])])];
-    // Une interdiction explicite l'emporte sur une autorisation héritée du même calcul.
-    dejaLa.allow = dejaLa.allow.filter((p) => !dejaLa.deny.includes(p));
-    parId.set(r.id, dejaLa);
+  for (const x of regles) {
+    const d = parId.get(x.id) ?? { id: x.id, allow: 0n, deny: 0n };
+    d.allow |= x.allow ?? 0n;
+    d.deny |= x.deny ?? 0n;
+    d.allow &= ~d.deny;        // une interdiction explicite l'emporte
+    parId.set(x.id, d);
   }
-  return [...parId.values()];
+  return [...parId.values()].map((x) => ({
+    id: x.id, type: 0, allow: x.allow.toString(), deny: x.deny.toString(),
+  }));
 }
 
-client.once(Events.ClientReady, async () => {
-  const guild = await client.guilds.fetch(ID_SERVEUR).catch(() => null);
-  if (!guild) {
-    console.error(rouge(`\n  Serveur introuvable (${ID_SERVEUR}).\n  Le bot y est-il bien invité ?\n`));
-    process.exit(1);
-  }
-  await guild.roles.fetch();
-  await guild.channels.fetch();
+/* ------------------------------------------------------------------ déploiement */
+
+const journal = [];
+const fait = (signe, texte) => { journal.push(signe); console.log(`  ${signe} ${texte}`); };
+
+async function principal() {
+  const guild = await api('GET', `/guilds/${G}`);
+  const rolesDistants = await api('GET', `/guilds/${G}/roles`);
+  let salonsDistants = await api('GET', `/guilds/${G}/channels`);
 
   const r = resume();
   console.log(`\n${gras('Serveur : ' + guild.name)}`);
-  console.log(gris(`  ${r.roles} rôles · ${r.categories} catégories · ${r.salons} salons`));
-  if (SIMULATION) console.log(gras('\n  MODE VÉRIFICATION — rien ne sera modifié.\n'));
-  else console.log('');
+  console.log(gris(`  à créer : ${r.roles} rôles · ${r.categories} catégories · ${r.salons} salons`));
+  console.log(SIMULATION ? gras('\n  MODE VÉRIFICATION — rien ne sera modifié.\n') : '');
 
-  /* ---------- 1. Les rôles ---------- */
-  const idEveryone = guild.roles.everyone.id;
+  const everyone = G; // le rôle @everyone porte l'identifiant du serveur
   const idsRoles = {};
   const idRole = (cle) => idsRoles[cle];
 
-  const tousLesRoles = [
+  /* ---------- 1. Le nom du serveur ---------- */
+  console.log(gras('Serveur'));
+  if (guild.name !== serveur.nom) {
+    fait(vert('~'), `renommer « ${guild.name} » → « ${serveur.nom} »`);
+    if (!SIMULATION) await api('PATCH', `/guilds/${G}`, { name: serveur.nom }, 'Déploiement Kayzx TV');
+  } else fait(gris('='), `nom déjà « ${serveur.nom} »`);
+
+  /* ---------- 2. Les rôles ---------- */
+  console.log(gras('\nRôles'));
+  const tous = [
     ...roles,
     ...rolesNotification.map((x) => ({ ...x, mentionnable: true, affiche: false, pouvoirs: [] })),
     ...rolesInteret.map((x) => ({ ...x, mentionnable: false, affiche: false, pouvoirs: [] })),
   ];
-
-  console.log(gras('Rôles'));
-  for (const def of tousLesRoles) {
-    const permissions = (def.pouvoirs ?? []).flatMap((p) => POUVOIRS[p] ?? []);
-    let role = etat.roles[def.cle] ? guild.roles.cache.get(etat.roles[def.cle]) : null;
-    if (!role) role = guild.roles.cache.find((x) => x.name === def.nom);
-
-    if (role) {
-      idsRoles[def.cle] = role.id;
-      etat.roles[def.cle] = role.id;
-      console.log(`  ${gris('=')} ${def.nom}`);
+  for (const def of tous) {
+    const permissions = combiner(...(def.pouvoirs ?? []).flatMap((p) => POUVOIRS[p] ?? [])).toString();
+    const existant = rolesDistants.find((x) => x.id === etat.roles[def.cle])
+      ?? rolesDistants.find((x) => x.name === def.nom && !x.managed);
+    if (existant) {
+      idsRoles[def.cle] = existant.id;
+      etat.roles[def.cle] = existant.id;
+      fait(gris('='), def.nom);
       continue;
     }
-    console.log(`  ${vert('+')} ${def.nom}`);
-    if (SIMULATION) { idsRoles[def.cle] = 'simulation-' + def.cle; continue; }
-    const cree = await guild.roles.create({
+    fait(vert('+'), def.nom);
+    if (SIMULATION) { idsRoles[def.cle] = 'simulation:' + def.cle; continue; }
+    const cree = await api('POST', `/guilds/${G}/roles`, {
       name: def.nom,
-      color: def.couleur ?? null,
+      color: def.couleur ?? 0,
       hoist: def.affiche ?? false,
       mentionable: def.mentionnable ?? false,
       permissions,
-      reason: 'Déploiement Kayzx TV',
-    });
+    }, 'Déploiement Kayzx TV');
     idsRoles[def.cle] = cree.id;
     etat.roles[def.cle] = cree.id;
   }
   enregistrer();
 
-  /* ---------- 2. Les catégories et les salons ---------- */
+  /* ---------- 3. La hiérarchie ---------- */
+  if (!SIMULATION) {
+    // Du bas vers le haut : le dernier de la liste reçoit la position la plus basse.
+    const ordre = tous.map((d) => idsRoles[d.cle]).filter(Boolean).reverse();
+    try {
+      await api('PATCH', `/guilds/${G}/roles`, ordre.map((id, i) => ({ id, position: i + 1 })),
+        'Hiérarchie Kayzx TV');
+      console.log(gris('  hiérarchie appliquée'));
+    } catch (e) {
+      console.log(jaune('  hiérarchie non appliquée : ' + e.message));
+      console.log(jaune('  (le rôle Kayzx Bot est-il bien tout en haut ?)'));
+    }
+  }
+
+  /* ---------- 4. Catégories et salons ---------- */
+  const differes = [];
   for (const categorie of categories) {
     console.log(gras('\n' + categorie.nom));
-    let cat = etat.categories[categorie.cle] ? guild.channels.cache.get(etat.categories[categorie.cle]) : null;
-    if (!cat) cat = guild.channels.cache.find((c) => c.type === ChannelType.GuildCategory && c.name === categorie.nom);
+    const permsCat = fusionner(reglesCategorie(categorie, idRole, everyone));
 
-    const permsCat = fusionner(permissionsCategorie(categorie, idRole, idEveryone));
+    let cat = salonsDistants.find((c) => c.id === etat.categories[categorie.cle])
+      ?? salonsDistants.find((c) => c.type === TYPE.categorie && c.name === categorie.nom);
     if (cat) {
-      console.log(`  ${gris('=')} catégorie`);
-      if (!SIMULATION) await cat.permissionOverwrites.set(permsCat, 'Déploiement Kayzx TV');
+      fait(gris('='), 'catégorie');
+      if (!SIMULATION) await api('PATCH', `/channels/${cat.id}`, { permission_overwrites: permsCat }, 'Déploiement Kayzx TV');
     } else {
-      console.log(`  ${vert('+')} catégorie`);
+      fait(vert('+'), 'catégorie');
       if (!SIMULATION) {
-        cat = await guild.channels.create({
-          name: categorie.nom, type: ChannelType.GuildCategory,
-          permissionOverwrites: permsCat, reason: 'Déploiement Kayzx TV',
-        });
+        cat = await api('POST', `/guilds/${G}/channels`, {
+          name: categorie.nom, type: TYPE.categorie, permission_overwrites: permsCat,
+        }, 'Déploiement Kayzx TV');
+        salonsDistants.push(cat);
       }
     }
     if (cat) etat.categories[categorie.cle] = cat.id;
 
     for (const salon of categorie.salons) {
-      const perms = fusionner([
-        ...permissionsCategorie(categorie, idRole, idEveryone),
-        ...permissionsSalon(salon, categorie, idRole, idEveryone),
-      ]);
-      let ch = etat.salons[salon.cle] ? guild.channels.cache.get(etat.salons[salon.cle]) : null;
-      if (!ch) ch = guild.channels.cache.find((c) => c.parentId === cat?.id && c.name === salon.nom.toLowerCase());
-
-      if (ch) {
-        console.log(`    ${gris('=')} ${salon.nom}`);
-        if (!SIMULATION) {
-          await ch.permissionOverwrites.set(perms, 'Déploiement Kayzx TV');
-          if (salon.sujet && 'setTopic' in ch) await ch.setTopic(salon.sujet).catch(() => {});
-        }
-      } else {
-        console.log(`    ${vert('+')} ${salon.nom} ${gris('(' + salon.type + ')')}`);
-        if (!SIMULATION) {
-          ch = await guild.channels.create({
-            name: salon.nom, type: typeDiscord(salon), parent: cat.id,
-            topic: typeDiscord(salon) === ChannelType.GuildText ? salon.sujet : undefined,
-            permissionOverwrites: perms, reason: 'Déploiement Kayzx TV',
-          });
-        }
-      }
-      if (ch) etat.salons[salon.cle] = ch.id;
+      if (COMMUNAUTAIRE.has(salon.type)) { differes.push({ salon, categorie, cat }); continue; }
+      await poser(salon, categorie, cat, idRole, everyone, salonsDistants);
     }
     enregistrer();
   }
 
-  /* ---------- 3. Les réglages du serveur ---------- */
-  if (!SIMULATION) {
+  /* ---------- 5. Le mode communautaire ---------- */
+  console.log(gras('\nMode communautaire'));
+  const dejaCommunautaire = (guild.features ?? []).includes('COMMUNITY');
+  if (dejaCommunautaire) {
+    fait(gris('='), 'déjà activé');
+  } else if (SIMULATION) {
+    fait(vert('~'), 'serait activé (nécessaire pour Le Plateau et les annonces)');
+  } else {
     const idRegles = etat.salons[serveur.salonRegles];
-    const idSysteme = etat.salons[serveur.salonSysteme];
-    await guild.edit({
-      rulesChannel: idRegles ?? undefined,
-      systemChannel: idSysteme ?? undefined,
-      reason: 'Déploiement Kayzx TV',
-    }).catch((e) => console.log(gris('  (réglages du serveur ignorés : ' + e.message + ')')));
+    const idInfos = etat.salons.bureau;
+    try {
+      await api('PATCH', `/guilds/${G}`, {
+        features: [...(guild.features ?? []), 'COMMUNITY'],
+        rules_channel_id: idRegles,
+        public_updates_channel_id: idInfos,
+        verification_level: 1,
+        explicit_content_filter: 2,
+        default_message_notifications: 1,
+      }, 'Déploiement Kayzx TV');
+      fait(vert('+'), 'activé');
+    } catch (e) {
+      fait(rouge('✕'), 'refusé : ' + e.message);
+      console.log(jaune('  Les salons d\'annonces et de conférence seront créés en texte et en vocal simples.'));
+    }
   }
 
-  console.log(`\n${SIMULATION ? gras('Vérification terminée.') : vert(gras('Serveur déployé.'))}`);
-  if (SIMULATION) console.log(gris('  Relance sans --verifier pour appliquer.\n'));
-  else console.log(gris('  Les cartes de salon seront posées à l\'étape suivante.\n'));
-  client.destroy();
-});
+  /* ---------- 6. Les salons qui exigeaient la communauté ---------- */
+  if (differes.length) {
+    console.log(gras('\nSalons communautaires'));
+    salonsDistants = SIMULATION ? salonsDistants : await api('GET', `/guilds/${G}/channels`);
+    for (const { salon, categorie, cat } of differes) {
+      await poser(salon, categorie, cat, idRole, everyone, salonsDistants);
+    }
+    enregistrer();
+  }
 
-client.login(TOKEN).catch((e) => {
-  console.error(rouge('\n  Connexion refusée : ' + e.message));
-  console.error('  Le token est peut-être invalide. Relance « CONFIGURER.command ».\n');
+  /* ---------- 7. Les salons de référence ---------- */
+  if (!SIMULATION) {
+    const systeme = etat.salons[serveur.salonSysteme];
+    if (systeme) {
+      await api('PATCH', `/guilds/${G}`, { system_channel_id: systeme }, 'Déploiement Kayzx TV')
+        .catch((e) => console.log(gris('  (salon système ignoré : ' + e.message + ')')));
+    }
+  }
+
+  const crees = journal.filter((s) => s.includes('+')).length;
+  console.log(`\n${SIMULATION ? gras('Vérification terminée.') : vert(gras('Serveur déployé.'))}`);
+  console.log(gris(`  ${crees} élément(s) ${SIMULATION ? 'à créer' : 'créés'}.`));
+  console.log(SIMULATION
+    ? gris('  Relance sans --verifier pour appliquer.\n')
+    : gris('  Les cartes de salon seront posées à l\'étape suivante.\n'));
+}
+
+async function poser(salon, categorie, cat, idRole, everyone, salonsDistants) {
+  const perms = fusionner([
+    ...reglesCategorie(categorie, idRole, everyone),
+    ...reglesSalon(salon, categorie, idRole, everyone),
+  ]);
+  const attendu = typeDiscord(salon);
+  const existant = salonsDistants.find((c) => c.id === etat.salons[salon.cle])
+    ?? salonsDistants.find((c) => c.parent_id === cat?.id && c.name === salon.nom.toLowerCase());
+
+  if (existant) {
+    fait(gris('='), `  ${salon.nom}`);
+    if (!SIMULATION) {
+      await api('PATCH', `/channels/${existant.id}`, {
+        permission_overwrites: perms,
+        ...(attendu === TYPE.texte || attendu === TYPE.annonce ? { topic: salon.sujet } : {}),
+      }, 'Déploiement Kayzx TV').catch((e) => console.log(gris('      ' + e.message)));
+    }
+    etat.salons[salon.cle] = existant.id;
+    return;
+  }
+
+  fait(vert('+'), `  ${salon.nom} ${gris('(' + salon.type + ')')}`);
+  if (SIMULATION) return;
+  try {
+    const cree = await api('POST', `/guilds/${G}/channels`, {
+      name: salon.nom,
+      type: attendu,
+      parent_id: cat?.id,
+      topic: attendu === TYPE.texte || attendu === TYPE.annonce ? salon.sujet : undefined,
+      permission_overwrites: perms,
+    }, 'Déploiement Kayzx TV');
+    etat.salons[salon.cle] = cree.id;
+    salonsDistants.push(cree);
+  } catch (e) {
+    // Un type communautaire refusé : on retombe sur l'équivalent simple plutôt que d'échouer.
+    const repli = attendu === TYPE.annonce ? TYPE.texte : attendu === TYPE.conference ? TYPE.vocal : null;
+    if (!repli) throw e;
+    console.log(jaune(`      type refusé, créé en ${repli === TYPE.texte ? 'texte' : 'vocal'} simple`));
+    const cree = await api('POST', `/guilds/${G}/channels`, {
+      name: salon.nom, type: repli, parent_id: cat?.id, permission_overwrites: perms,
+    }, 'Déploiement Kayzx TV');
+    etat.salons[salon.cle] = cree.id;
+    salonsDistants.push(cree);
+  }
+}
+
+principal().catch((e) => {
+  console.error(rouge('\n  Échec : ' + e.message));
+  if (e.statut === 401) console.error('  Le token est refusé par Discord.');
+  if (e.statut === 403) console.error('  Le bot n\'a pas les droits. Son rôle est-il tout en haut de la liste ?');
+  if (e.detail) console.error(gris('  ' + JSON.stringify(e.detail).slice(0, 400)));
   process.exit(1);
 });

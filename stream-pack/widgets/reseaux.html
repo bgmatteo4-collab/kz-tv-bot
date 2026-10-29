@@ -1,0 +1,66 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Réseaux</title><style>
+/* Le widget réseaux : quatre ronds toujours visibles, et à tour de rôle l'un s'ouvre pour dérouler le pseudo.
+   Source navigateur dans OBS, 620 x 110, fond transparent.
+   Options dans l'adresse :
+     ?taille=0.8    réduit (ou agrandit) tout le widget
+     ?ouvert=4      secondes pendant lesquelles un réseau reste ouvert (4 par défaut)
+     ?pause=1.2     secondes entre deux ouvertures
+     ?droite=1      le widget s'aligne à droite (pour un coin droit de l'écran)
+*/
+@font-face{font-family:Rubik;src:url(polices/Rubik-1.ttf)}@font-face{font-family:Rubik;font-weight:500;src:url(polices/Rubik-2.ttf)}
+@font-face{font-family:Rubik;font-weight:900;src:url(polices/Rubik-3.ttf)}
+:root{--nuit:#0F1519;--teal:#1E5B57;--miel:#E0A93B;--papier:#F1ECE3}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent;overflow:hidden}
+#r{position:absolute;left:10px;top:10px;transform-origin:0 0;display:flex;gap:12px;font-family:Rubik,sans-serif}
+#r.droite{left:auto;right:10px;transform-origin:100% 0;flex-direction:row-reverse}
+.n{display:flex;align-items:center;background:var(--papier);border:5px solid var(--nuit);border-radius:999px;
+  box-shadow:0 6px 0 var(--nuit),0 12px 26px rgba(5,8,10,.4);height:72px;padding:0 9px;overflow:hidden;
+  transition:padding .5s cubic-bezier(.2,1,.3,1)}
+.n .rond{width:46px;height:46px;flex:none;display:grid;place-items:center}
+.n img{width:34px;height:34px;display:block}
+.n img.blanc{filter:brightness(0)}   /* TikTok et X sont fournis en noir : parfait sur le papier */
+.n .txt{max-width:0;opacity:0;white-space:nowrap;font:900 27px Rubik;color:var(--nuit);letter-spacing:-.3px;
+  transition:max-width .55s cubic-bezier(.2,1,.3,1),opacity .3s,margin .55s cubic-bezier(.2,1,.3,1);margin-left:0}
+.n .txt em{font-style:normal;color:var(--teal)}
+.n.on{padding:0 24px 0 9px}
+.n.on .txt{max-width:420px;opacity:1;margin-left:12px;transition-delay:.06s,.14s,0s}
+#r.droite .n.on{padding:0 9px 0 24px}
+#r.droite .n.on .txt{margin-left:0;margin-right:12px}
+#r.droite .n{flex-direction:row-reverse}
+</style></head><body>
+<div id="r"></div>
+<script>
+'use strict';
+const Q = new URLSearchParams(location.search);
+const RESEAUX = [
+  { logo: 'youtube.svg', txt: '<em>@kayzxtv8505</em>' },
+  { logo: 'tiktok.svg', blanc: true, txt: 'TikTok <em>Kayzx TV</em>' },
+  { logo: 'x.svg', blanc: true, txt: '<em>@Kayzx_TV</em>' },
+  { logo: 'discord.svg', txt: 'Discord · <em>!discord</em>' },
+];
+const OUVERT = (parseFloat(Q.get('ouvert')) || 4) * 1000;
+const PAUSE = (parseFloat(Q.get('pause')) || 1.2) * 1000;
+
+const r = document.getElementById('r');
+if (Q.get('droite') === '1') r.classList.add('droite');
+const t = parseFloat(Q.get('taille'));
+if (t > 0) r.style.transform = `scale(${t})`;
+
+r.innerHTML = RESEAUX.map((x) =>
+  `<div class="n"><div class="rond"><img class="${x.blanc ? 'blanc' : ''}" src="logos/${x.logo}" alt=""></div>
+   <div class="txt">${x.txt}</div></div>`).join('');
+const cartes = [...r.children];
+
+let k = 0;
+function tourner() {
+  const c = cartes[k];
+  c.classList.add('on');
+  setTimeout(() => {
+    c.classList.remove('on');
+    k = (k + 1) % cartes.length;
+    setTimeout(tourner, PAUSE);
+  }, OUVERT);
+}
+setTimeout(tourner, 600);
+</script></body></html>

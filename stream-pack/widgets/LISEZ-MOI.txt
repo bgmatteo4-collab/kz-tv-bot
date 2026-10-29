@@ -1,0 +1,50 @@
+WIDGETS KAYZX TV
+
+Deux habillages a poser dans OBS : l'horloge et les reseaux.
+Ce sont des pages web, pas des videos : l'heure est toujours juste et
+l'animation ne boucle jamais de travers.
+
+COMMENT LES AJOUTER DANS OBS
+
+  1. Dans OBS, sur ta scene : + sous Sources, puis "Source navigateur"
+  2. COCHE LA CASE "Fichier local"
+  3. Clique sur Parcourir et choisis le fichier :
+       horloge.html   pour l'heure
+       reseaux.html   pour les reseaux
+  4. Mets la taille :
+       horloge   : largeur 520   hauteur 120
+       reseaux   : largeur 620   hauteur 110
+  5. OK, puis place le widget ou tu veux sur l'image.
+
+Le fond est transparent : il n'y a pas de rectangle autour.
+
+REGLAGES
+
+Tu peux ajouter des options a la fin du chemin, dans le champ "URL local"
+d'OBS, apres le nom du fichier. Par exemple :
+
+  horloge.html?date=1
+      ajoute la date du jour a cote de l'heure
+
+  horloge.html?taille=0.8
+      reduit le widget a 80 % (1.2 pour l'agrandir)
+
+  horloge.html?pt=0
+      enleve le point miel qui bat la seconde
+
+  horloge.html?date=1&taille=0.9
+      plusieurs options a la suite, separees par &
+
+  reseaux.html?droite=1
+      colle le widget a droite (pour un coin droit de l'ecran)
+
+  reseaux.html?ouvert=6&pause=2
+      chaque reseau reste ouvert 6 secondes, 2 secondes entre chaque
+
+Si tu changes une option, fais un clic droit sur la source dans OBS
+puis "Actualiser" pour la voir tout de suite.
+
+POUR MODIFIER LES PSEUDOS
+
+Ouvre reseaux.html avec le Bloc-notes et cherche la liste RESEAUX,
+en haut du script. Les pseudos y sont ecrits en clair.

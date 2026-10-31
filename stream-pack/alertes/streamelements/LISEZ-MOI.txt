@@ -1,0 +1,70 @@
+ALERTES KAYZX TV — POUR STREAMELEMENTS
+
+Tout est dessine en CSS et en SVG : aucune image a heberger, aucun fichier
+video. Tu colles du texte dans StreamElements, et c'est fini.
+
+CE QU'IL Y A DANS LE DOSSIER
+
+  style.css          le meme pour les trois alertes
+  follow.html        l'alerte « nouveau follower »
+  abonnement.html    l'alerte « abonnement » (et reabonnement)
+  raid.html          l'alerte « raid »
+  follow.ogg         le son du follow
+  abonnement.ogg     le son de l'abonnement
+  raid.ogg           le son du raid
+  apercu.html        pour regarder les trois alertes tourner sur ton PC
+
+COMMENT LES INSTALLER
+
+Pour CHACUNE des trois alertes, dans StreamElements :
+
+  1. Va dans « Mes Overlays », ouvre ton overlay, clique sur ton Alertbox
+  2. Dans la liste a gauche, choisis le type d'alerte
+     (Follower, puis Subscriber, puis Raid)
+  3. Descends jusqu'a « Alert Settings »
+  4. Active « Enable Custom CSS » (ou « Custom CSS / HTML »)
+  5. Trois cases apparaissent : HTML, CSS, JS
+       - dans HTML : colle tout le contenu du fichier .html correspondant
+       - dans CSS  : colle tout le contenu de style.css (le meme a chaque fois)
+       - JS        : laisse vide
+  6. Remonte a « Sound » et envoie le fichier .ogg correspondant
+  7. Regle « Alert Duration » sur 6 secondes
+  8. Sauvegarde
+
+Les variables {{name}} et {{amount}} sont remplies par StreamElements :
+le pseudo du viewer, le nombre de mois ou le nombre de viewers du raid.
+
+LA DUREE
+
+L'animation se cale toute seule sur la duree que tu mets dans StreamElements :
+elle utilise {widgetDuration}. Si tu passes de 6 a 8 secondes, la carte
+restera 2 secondes de plus et sortira toujours pile a la fin. Rien a changer
+dans le code.
+
+En dessous de 4 secondes, ca devient serre : l'entree seule prend 1,2 seconde.
+
+POUR REGARDER AVANT D'INSTALLER
+
+apercu.html joue les trois alertes en boucle avec de faux pseudos.
+Attention : il faut le servir, un double-clic ne suffit pas (le navigateur
+bloque la lecture des fichiers voisins). Le plus simple :
+
+  - ouvre un terminal dans ce dossier
+  - tape :  python3 -m http.server 8530
+  - va sur http://localhost:8530/apercu.html
+
+Si tu n'as pas Python, saute cette etape : tu verras les alertes directement
+dans l'editeur de StreamElements, qui a un bouton de test.
+
+LA POLICE
+
+Le CSS va chercher Rubik sur Google Fonts. Si StreamElements bloquait les
+polices externes, les alertes s'afficheront dans une police de remplacement
+mais tout le reste tiendra. Dis-le-moi si ca arrive, j'ai une solution de
+rechange qui n'a besoin d'aucune police externe.
+
+CHANGER LES TEXTES
+
+Dans chaque fichier .html, la ligne <div class="quoi">...</div> est la
+phrase sous le pseudo. Tu peux la reecrire comme tu veux, en gardant
+{{amount}} ou tu veux voir le nombre.

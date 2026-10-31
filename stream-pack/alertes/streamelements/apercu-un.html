@@ -1,0 +1,29 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8">
+<!-- Joue une alerte en boucle, avec de fausses valeurs : sert à régler l'animation sans passer par StreamElements. -->
+<style id="s"></style></head><body>
+<div id="ou"></div>
+<script>
+'use strict';
+const TYPE = new URLSearchParams(location.search).get('t') || 'follow';
+const FAUX = { follow: { name: 'LunaPixel', amount: '' },
+               abonnement: { name: 'Nyx', amount: '6' },
+               raid: { name: 'kiwi_frais', amount: '42' } }[TYPE];
+const DUREE = 6;   // ce que StreamElements mettra dans {widgetDuration}
+
+const remplir = (s) => s.replace(/\{\{?(name|amount|widgetDuration)\}?\}/g,
+  (_, k) => (k === 'widgetDuration' ? DUREE : FAUX[k]));
+
+async function jouer() {
+  const [css, html] = await Promise.all([
+    fetch('style.css').then((r) => r.text()),
+    fetch(TYPE + '.html').then((r) => r.text()),
+  ]);
+  document.getElementById('s').textContent = remplir(css);
+  const ou = document.getElementById('ou');
+  for (;;) {
+    ou.innerHTML = remplir(html);
+    await new Promise((f) => setTimeout(f, DUREE * 1000 + 700));
+  }
+}
+jouer();
+</script></body></html>

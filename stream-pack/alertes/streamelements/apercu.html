@@ -1,0 +1,13 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Aperçu des alertes</title>
+<!-- Aperçu local : la même chose que dans StreamElements, mais avec de fausses valeurs à la place
+     de {{name}}, {{amount}} et {widgetDuration}. Ouvre cette page pour voir les trois alertes jouer. -->
+<style>
+body{margin:0;background:#16222E;display:flex;flex-direction:column;gap:14px;padding:14px}
+.cadre{position:relative;width:1180px;height:330px;border-radius:14px;overflow:hidden;
+  background:linear-gradient(160deg,#2A3B4D,#16222E 45%,#0C141B)}
+.cadre>iframe{width:100%;height:100%;border:0}
+</style></head><body>
+<div class="cadre"><iframe src="apercu-un.html?t=follow"></iframe></div>
+<div class="cadre"><iframe src="apercu-un.html?t=abonnement"></iframe></div>
+<div class="cadre"><iframe src="apercu-un.html?t=raid"></iframe></div>
+</body></html>
